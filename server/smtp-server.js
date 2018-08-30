@@ -43,7 +43,9 @@ module.exports.app = function () {
     smtpSvr.domain && (allowedSmtpDomains = smtpSvr.domain.split(',')
       .map(e => e.trim().toLowerCase()))
     smtpSvr.options && (smtpOpts = smtpSvr.options)
-    notificationCfg.handleBounce && (handleBounce = notificationCfg.handleBounce)
+    if (notificationCfg.handleBounce !== undefined) {
+      handleBounce = notificationCfg.handleBounce
+    }
     bounceUnsubThreshold = smtpSvr.bounce.unsubThreshold
     bounceSubjectRegex = new RegExp(smtpSvr.bounce.subjectRegex)
     bounceSmtpStatusCodeRegex = new RegExp(smtpSvr.bounce.smtpStatusCodeRegex)
@@ -280,7 +282,7 @@ module.exports.app = function () {
                 }
                 // unsub user
                 if (bncCnt > bounceUnsubThreshold) {
-                  exports.request.get(
+                  await exports.request.get(
                     urlPrefix +
                     '/subscriptions/' +
                     id +
@@ -291,9 +293,11 @@ module.exports.app = function () {
                       headers: {
                         /*jshint camelcase: false */
                         is_anonymous: true
-                      }
-                    }, {
-                      maxRedirects: 0
+                      },
+                      maxRedirects: 0,
+                      validateStatus: function (status) {
+                        return status >= 200 && status < 400
+                      },
                     })
                   exports.request.patch(
                     urlPrefix +

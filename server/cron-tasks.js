@@ -430,16 +430,24 @@ module.exports.deleteBounces = function () {
       },
     }
   }, (err, activeBounces) => {
-    activeBounces instanceof Array && activeBounces.forEach(activeBounce => {
-      try {
-        let latestBounceMessageDate = activeBounce.bounceMessages[0].date
-        if (latestBounceMessageDate > activeBounce.latestNotificationStarted) {
-          return
+    if (err && callback) {
+      return callback(err)
+    }
+    let deleteTasks = []
+    if (activeBounces instanceof Array) {
+      deleteTasks = activeBounces.map(activeBounce => {
+        return cb => {
+          let latestBounceMessageDate = activeBounce.bounceMessages[0].date
+          if (latestBounceMessageDate > activeBounce.latestNotificationStarted) {
+            return cb()
+          }
+          activeBounce.state = 'deleted'
+          activeBounce.save().then(res => cb(), cb)
         }
-        activeBounce.state = 'deleted'
-        activeBounce.save()
-      } catch (ex) {}
+      })
+    }
+    parallel(deleteTasks, (err, results) => {
+      callback && callback(err)
     })
-    return callback && callback(err)
   })
 }
