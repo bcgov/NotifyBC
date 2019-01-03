@@ -4,3 +4,7 @@ node_js:
 before_install:
   - npm i -g yarn
 cache: false
+notifications:
+  email:
+    on_failure: change
+    on_success: change
