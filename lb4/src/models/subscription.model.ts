@@ -4,6 +4,12 @@ import { Entity, model, property } from '@loopback/repository';
 export class Subscription extends Entity {
   @property({
     type: 'string',
+    id: true,
+  })
+  id?: string
+
+  @property({
+    type: 'string',
     required: true,
   })
   serviceName: string
