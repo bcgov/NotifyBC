@@ -1,34 +1,47 @@
-import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig} from '@loopback/core';
+import { BootMixin } from '@loopback/boot'
+import { ApplicationConfig } from '@loopback/core'
 import {
   RestExplorerBindings,
   RestExplorerComponent,
-} from '@loopback/rest-explorer';
-import {RepositoryMixin} from '@loopback/repository';
-import {RestApplication} from '@loopback/rest';
-import {ServiceMixin} from '@loopback/service-proxy';
-import * as path from 'path';
-import {MySequence} from './sequence';
+} from '@loopback/rest-explorer'
+import { RepositoryMixin } from '@loopback/repository'
+import { RestApplication } from '@loopback/rest'
+import { ServiceMixin } from '@loopback/service-proxy'
+import * as path from 'path'
+import { MySequence } from './sequence'
+import fs = require('fs')
+
 
 export class NotifyBcApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
   constructor(options: ApplicationConfig = {}) {
-    super(options);
+    super(options)
 
     // Set up the custom sequence
-    this.sequence(MySequence);
+    this.sequence(MySequence)
 
     // Set up default home page
-    this.static('/', path.join(__dirname, '../../public'));
+    this.static('/', path.join(__dirname, '../../public'))
 
     // Customize @loopback/rest-explorer configuration here
     this.bind(RestExplorerBindings.CONFIG).to({
       path: '/explorer',
-    });
-    this.component(RestExplorerComponent);
+    })
+    this.component(RestExplorerComponent)
 
-    this.projectRoot = __dirname;
+    let dsFiles = ['db.datasource.local.json', 'db.datasource.local.js']
+    if (process.env.NODE_ENV) {
+      dsFiles = dsFiles.concat([`db.datasource.${process.env.NODE_ENV}.json`, `db.datasource.${process.env.NODE_ENV}.js`])
+    }
+    for (const dsFile of dsFiles) {
+      const f = path.join(__dirname, 'datasources', dsFile)
+      if (fs.existsSync(f)) {
+        this.bind('datasources.config.db').to(require(f))
+      }
+    }
+
+    this.projectRoot = __dirname
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {
       controllers: {
@@ -37,6 +50,6 @@ export class NotifyBcApplication extends BootMixin(
         extensions: ['.controller.js'],
         nested: true,
       },
-    };
+    }
   }
 }

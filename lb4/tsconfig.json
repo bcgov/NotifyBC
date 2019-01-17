@@ -1,10 +1,15 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "@loopback/build/config/tsconfig.common.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": false
+  },
   "include": [
+    "src/**/*.json",
     "src",
     "test",
-    "index.ts"
+    "index.ts",
   ],
   "exclude": [
     "node_modules/**",

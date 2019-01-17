@@ -14,10 +14,10 @@
       "problemMatcher": "$tsc-watch"
     },
     {
-      "label": "Compile Project",
+      "label": "Clean and Compile Project",
       "type": "shell",
       "command": "npm",
-      "args": ["--silent", "run", "build"],
+      "args": ["--silent", "run", "cleanbuild"],
       "group": {
         "kind": "build",
         "isDefault": true
