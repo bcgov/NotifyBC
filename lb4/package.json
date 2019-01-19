@@ -13,7 +13,7 @@
   "scripts": {
     "build:apidocs": "lb-apidocs",
     "build": "lb-tsc es2017 --outDir dist",
-    "build:watch": "lb-tsc --watch",
+    "build:watch": "lb-tsc es2017 --watch --outDir dist",
     "clean": "lb-clean dist",
     "cleanbuild": "npm run clean && npm run build",
     "lint": "npm run prettier:check && npm run tslint",
@@ -54,6 +54,7 @@
     "@loopback/rest": "^1.5.1",
     "@loopback/rest-explorer": "^1.1.4",
     "@loopback/service-proxy": "^1.0.5",
+    "lodash": "^4.17.11",
     "loopback-connector-mongodb": "^4.0.0"
   },
   "devDependencies": {
