@@ -409,7 +409,12 @@ module.exports = function(Subscription) {
               ]
             switch (this.channel) {
               case 'sms':
-                Subscription.sendSMS(this.userChannelId, msg.textBody)
+                let textBody = Subscription.mailMerge(
+                  msg.textBody,
+                  this,
+                  options.httpContext
+                )
+                Subscription.sendSMS(this.userChannelId, textBody)
                 break
               case 'email': {
                 var subject = Subscription.mailMerge(
