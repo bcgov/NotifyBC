@@ -7,10 +7,12 @@ import {
 import {RepositoryMixin} from '@loopback/repository'
 import {RestApplication} from '@loopback/rest'
 import {ServiceMixin} from '@loopback/service-proxy'
-import * as path from 'path'
+import path from 'path'
 import {MySequence} from './sequence'
 import fs = require('fs')
 import * as _ from 'lodash'
+
+export {ApplicationConfig}
 
 export class NotifyBcApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -39,14 +41,15 @@ export class NotifyBcApplication extends BootMixin(
       }
     }
     super(options)
+
     // Set up the custom sequence
     this.sequence(MySequence)
 
     // Set up default home page
-    this.static('/', path.join(__dirname, '../../public'))
+    this.static('/', path.join(__dirname, '../public'))
 
     // Customize @loopback/rest-explorer configuration here
-    this.bind(RestExplorerBindings.CONFIG).to({
+    this.configure(RestExplorerBindings.COMPONENT).to({
       path: '/explorer',
     })
     this.component(RestExplorerComponent)
@@ -64,7 +67,6 @@ export class NotifyBcApplication extends BootMixin(
         this.bind('datasources.config.db').to(require(f))
       }
     }
-
     this.projectRoot = __dirname
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {

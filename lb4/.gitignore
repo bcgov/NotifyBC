@@ -57,9 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
-# Generated apidocs
-api-docs/
-
 # Transpiled JavaScript files from Typescript
 /dist
-/dist10
+
+# Cache used by TypeScript's incremental build
+*.tsbuildinfo

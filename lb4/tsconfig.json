@@ -2,18 +2,8 @@
   "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "@loopback/build/config/tsconfig.common.json",
   "compilerOptions": {
-    "allowJs": true,
-    "declaration": false
+    "outDir": "dist",
+    "rootDir": "src"
   },
-  "include": [
-    "src/**/*.json",
-    "src",
-    "test",
-    "index.ts",
-  ],
-  "exclude": [
-    "node_modules/**",
-    "packages/*/node_modules/**",
-    "**/*.d.ts"
-  ]
+  "include": ["src"]
 }

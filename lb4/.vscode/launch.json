@@ -7,7 +7,7 @@
     "type": "node",
     "request": "launch",
     "name": "Launch Program",
-    "program": "${workspaceFolder}\\index.js",
+    "program": "${workspaceFolder}\\dist\\index.js",
     // "autoAttachChildProcesses": true,
     "preLaunchTask": "Clean and Compile Project",
     "env": {
