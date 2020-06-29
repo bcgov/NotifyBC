@@ -42,7 +42,6 @@ export class NotifyBcApplication extends BootMixin(
       }
     }
     super(options);
-    this.component(Lb3AppBooterComponent);
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -80,7 +79,9 @@ export class NotifyBcApplication extends BootMixin(
       },
       lb3app: {
         mode: 'fullApp',
+        restApiRoot: options.rest.restApiRoot,
       },
     };
+    this.component(Lb3AppBooterComponent);
   }
 }
