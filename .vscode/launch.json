@@ -12,7 +12,7 @@
       // "autoAttachChildProcesses": true,
       "preLaunchTask": "Clean and Compile Project",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "prod"
       }
     }
   ]
