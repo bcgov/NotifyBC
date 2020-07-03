@@ -12,7 +12,20 @@
       // "autoAttachChildProcesses": true,
       "preLaunchTask": "Clean and Compile Project",
       "env": {
-        "NODE_ENV": "prod"
+        "NODE_ENV": "dev"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Test",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
+      "args": ["dist/__tests__/"],
+      "autoAttachChildProcesses": true,
+      "console": "internalConsole",
+      "preLaunchTask": "Clean and Compile Project",
+      "env": {
+        "NODE_ENV": "test"
       }
     }
   ]
