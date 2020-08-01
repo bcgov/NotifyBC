@@ -47,7 +47,7 @@ export class NotifyBcApplication extends BootMixin(
     this.sequence(MySequence);
 
     // Set up default home page
-    let staticHomeRelPath =
+    const staticHomeRelPath =
       process.env.NODE_ENV === 'dev' ? '../public' : '../public/dist';
     this.static('/', path.join(__dirname, staticHomeRelPath));
 

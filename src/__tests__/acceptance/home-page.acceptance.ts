@@ -6,7 +6,7 @@ describe('HomePage', () => {
   let app: NotifyBcApplication;
   let client: Client;
 
-  before('setupApplication', async function () {
+  before('setupApplication', async function (this: Mocha.Context) {
     this.timeout(10000);
     ({app, client} = await setupApplication());
   });

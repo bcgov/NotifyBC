@@ -4,7 +4,7 @@ import {
   Filter,
   repository,
   Where,
-} from '@loopback/repository'
+} from '@loopback/repository';
 import {
   post,
   param,
@@ -15,41 +15,45 @@ import {
   put,
   del,
   requestBody,
-} from '@loopback/rest'
-import { Subscription } from '../models'
-import { SubscriptionRepository } from '../repositories'
-import { BaseController } from './base.controller'
+} from '@loopback/rest';
+import {Subscription} from '../models';
+import {SubscriptionRepository} from '../repositories';
+import {BaseController} from './base.controller';
 
 export class SubscriptionController extends BaseController {
   constructor(
     @repository(SubscriptionRepository)
     public subscriptionRepository: SubscriptionRepository,
-  ) { super() }
+  ) {
+    super();
+  }
 
   @post('/subscriptions', {
     responses: {
       '200': {
         description: 'Subscription model instance',
-        content: { 'application/json': { schema: { 'x-ts-type': Subscription } } },
+        content: {'application/json': {schema: {'x-ts-type': Subscription}}},
       },
     },
   })
-  async create(@requestBody() subscription: Subscription): Promise<Subscription> {
-    return await this.subscriptionRepository.create(subscription)
+  async create(
+    @requestBody() subscription: Subscription,
+  ): Promise<Subscription> {
+    return this.subscriptionRepository.create(subscription);
   }
 
   @get('/subscriptions/count', {
     responses: {
       '200': {
         description: 'Subscription model count',
-        content: { 'application/json': { schema: CountSchema } },
+        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async count(
     @param.query.object('where', getWhereSchemaFor(Subscription)) where?: Where,
   ): Promise<Count> {
-    return await this.subscriptionRepository.count(where)
+    return this.subscriptionRepository.count(where);
   }
 
   @get('/subscriptions', {
@@ -58,23 +62,24 @@ export class SubscriptionController extends BaseController {
         description: 'Array of Subscription model instances',
         content: {
           'application/json': {
-            schema: { type: 'array', items: { 'x-ts-type': Subscription } },
+            schema: {type: 'array', items: {'x-ts-type': Subscription}},
           },
         },
       },
     },
   })
   async find(
-    @param.query.object('filter', getFilterSchemaFor(Subscription)) filter?: Filter,
+    @param.query.object('filter', getFilterSchemaFor(Subscription))
+    filter?: Filter,
   ): Promise<Subscription[]> {
-    return await this.subscriptionRepository.find(filter)
+    return this.subscriptionRepository.find(filter);
   }
 
   @patch('/subscriptions', {
     responses: {
       '200': {
         description: 'Subscription PATCH success count',
-        content: { 'application/json': { schema: CountSchema } },
+        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
@@ -82,19 +87,19 @@ export class SubscriptionController extends BaseController {
     @requestBody() subscription: Subscription,
     @param.query.object('where', getWhereSchemaFor(Subscription)) where?: Where,
   ): Promise<Count> {
-    return await this.subscriptionRepository.updateAll(subscription, where)
+    return this.subscriptionRepository.updateAll(subscription, where);
   }
 
   @get('/subscriptions/{id}', {
     responses: {
       '200': {
         description: 'Subscription model instance',
-        content: { 'application/json': { schema: { 'x-ts-type': Subscription } } },
+        content: {'application/json': {schema: {'x-ts-type': Subscription}}},
       },
     },
   })
   async findById(@param.path.string('id') id: string): Promise<Subscription> {
-    return await this.subscriptionRepository.findById(id)
+    return this.subscriptionRepository.findById(id);
   }
 
   @patch('/subscriptions/{id}', {
@@ -108,7 +113,7 @@ export class SubscriptionController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() subscription: Subscription,
   ): Promise<void> {
-    await this.subscriptionRepository.updateById(id, subscription)
+    await this.subscriptionRepository.updateById(id, subscription);
   }
 
   @put('/subscriptions/{id}', {
@@ -122,7 +127,7 @@ export class SubscriptionController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() subscription: Subscription,
   ): Promise<void> {
-    await this.subscriptionRepository.replaceById(id, subscription)
+    await this.subscriptionRepository.replaceById(id, subscription);
   }
 
   @del('/subscriptions/{id}', {
@@ -133,6 +138,6 @@ export class SubscriptionController extends BaseController {
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.subscriptionRepository.deleteById(id)
+    await this.subscriptionRepository.deleteById(id);
   }
 }
