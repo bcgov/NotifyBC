@@ -15,11 +15,13 @@ import {
   put,
   del,
   requestBody,
+  oas,
 } from '@loopback/rest';
 import {Subscription} from '../models';
 import {SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
+@oas.tags('subscription')
 export class SubscriptionController extends BaseController {
   constructor(
     @repository(SubscriptionRepository)
