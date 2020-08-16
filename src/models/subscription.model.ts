@@ -1,66 +1,67 @@
-import { Entity, model, property } from '@loopback/repository';
+import {Entity, model, property} from '@loopback/repository';
 
-@model({ settings: { strict: false } })
+@model({settings: {strict: false}})
 export class Subscription extends Entity {
   @property({
     type: 'string',
     id: true,
   })
-  id?: string
+  id?: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  serviceName: string
+  serviceName: string;
 
   @property({
     type: 'string',
     required: true,
     default: 'email',
   })
-  channel: string
+  channel: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  userChannelId: string
+  userChannelId: string;
 
   @property({
     type: 'string',
     required: true,
     default: 'unconfirmed',
   })
-  state: string
+  state: string;
 
   @property({
     type: 'object',
-    description: 'Contains email template, a boolean field to indicate whether to send confirmation message, confirmation code regex or encrypted confirmation code'
+    description:
+      'Contains email template, a boolean field to indicate whether to send confirmation message, confirmation code regex or encrypted confirmation code',
   })
-  confirmationRequest?: object
+  confirmationRequest?: object;
 
   @property({
     type: 'string',
   })
-  userId?: string
+  userId?: string;
 
   @property({
-    type: 'string'
+    type: 'string',
   })
-  broadcastPushNotificationFilter?: string
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  created?: string
+  broadcastPushNotificationFilter?: string;
 
   @property({
     type: 'date',
     default: '$now',
   })
-  updated?: string
+  created?: string;
+
+  @property({
+    type: 'date',
+    default: '$now',
+  })
+  updated?: string;
 
   constructor(data?: Partial<Subscription>) {
     super(data);

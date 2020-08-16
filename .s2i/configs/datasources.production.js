@@ -5,6 +5,6 @@ module.exports = {
     port: process.env.DB_PORT || 27017,
     user: process.env.MONGODB_USER,
     password: process.env.MONGODB_PASSWORD,
-    database: process.env.MONGODB_DATABASE || 'notify-bc'
-  }
-}
+    database: process.env.MONGODB_DATABASE || 'notify-bc',
+  },
+};

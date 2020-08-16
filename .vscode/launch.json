@@ -23,10 +23,7 @@
       "args": ["dist/__tests__/"],
       "autoAttachChildProcesses": true,
       "console": "internalConsole",
-      "preLaunchTask": "Clean and Compile Project",
-      "env": {
-        "NODE_ENV": "test"
-      }
+      "preLaunchTask": "Clean and Compile Project"
     }
   ]
 }

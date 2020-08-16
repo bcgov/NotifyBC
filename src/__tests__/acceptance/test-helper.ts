@@ -5,6 +5,7 @@ import {
   Client,
 } from '@loopback/testlab';
 
+process.env['NODE_ENV'] = 'test';
 export async function setupApplication(): Promise<AppWithClient> {
   const restConfig = givenHttpServerConfig({
     // Customize the server configuration here.

@@ -1,11 +1,4 @@
-import {
-  Request,
-  RestBindings,
-  get,
-  ResponseObject,
-  api,
-  oas,
-} from '@loopback/rest';
+import {Request, RestBindings, get, ResponseObject, oas} from '@loopback/rest';
 import {inject} from '@loopback/core';
 
 /**

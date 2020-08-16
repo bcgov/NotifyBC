@@ -1,12 +1,12 @@
-var parallel = require('async/parallel')
-var FeedParser = require('feedparser')
-const request = require('axios')
-var _ = require('lodash')
+var parallel = require('async/parallel');
+var FeedParser = require('feedparser');
+const request = require('axios');
+var _ = require('lodash');
 
-module.exports.request = request
+module.exports.request = request;
 module.exports.purgeData = async function () {
-  var app = arguments[0]
-  var cronConfig = app.get('cron').purgeData || {}
+  var app = arguments[0];
+  var cronConfig = app.get('cron').purgeData || {};
 
   return new Promise((resolve, reject) => {
     parallel(
@@ -15,7 +15,7 @@ module.exports.purgeData = async function () {
           // delete all non-inApp old notifications
           let retentionDays =
             cronConfig.pushNotificationRetentionDays ||
-            cronConfig.defaultRetentionDays
+            cronConfig.defaultRetentionDays;
           app.models.Notification.destroyAll(
             {
               channel: {
@@ -31,18 +31,18 @@ module.exports.purgeData = async function () {
                   new Date().toLocaleString() +
                     ': Deleted ' +
                     data.count +
-                    ' items.'
-                )
+                    ' items.',
+                );
               }
-              return cb(err, data)
-            }
-          )
+              return cb(err, data);
+            },
+          );
         },
         function (cb) {
           // delete all expired inApp notifications
           let retentionDays =
             cronConfig.expiredInAppNotificationRetentionDays ||
-            cronConfig.defaultRetentionDays
+            cronConfig.defaultRetentionDays;
           app.models.Notification.destroyAll(
             {
               channel: 'inApp',
@@ -56,12 +56,12 @@ module.exports.purgeData = async function () {
                   new Date().toLocaleString() +
                     ': Deleted ' +
                     data.count +
-                    ' items.'
-                )
+                    ' items.',
+                );
               }
-              return cb(err, data)
-            }
-          )
+              return cb(err, data);
+            },
+          );
         },
         function (cb) {
           // delete all deleted inApp notifications
@@ -76,18 +76,18 @@ module.exports.purgeData = async function () {
                   new Date().toLocaleString() +
                     ': Deleted ' +
                     data.count +
-                    ' items.'
-                )
+                    ' items.',
+                );
               }
-              return cb(err, data)
-            }
-          )
+              return cb(err, data);
+            },
+          );
         },
         function (cb) {
           // delete all old non-confirmed subscriptions
           let retentionDays =
             cronConfig.nonConfirmedSubscriptionRetentionDays ||
-            cronConfig.defaultRetentionDays
+            cronConfig.defaultRetentionDays;
           app.models.Subscription.destroyAll(
             {
               state: {
@@ -103,18 +103,18 @@ module.exports.purgeData = async function () {
                   new Date().toLocaleString() +
                     ': Deleted ' +
                     data.count +
-                    ' items.'
-                )
+                    ' items.',
+                );
               }
-              return cb(err, data)
-            }
-          )
+              return cb(err, data);
+            },
+          );
         },
         function (cb) {
           // purge deleted bounces
           let retentionDays =
             cronConfig.deletedBounceRetentionDays ||
-            cronConfig.defaultRetentionDays
+            cronConfig.defaultRetentionDays;
           app.models.Bounce.destroyAll(
             {
               state: 'deleted',
@@ -128,27 +128,27 @@ module.exports.purgeData = async function () {
                   new Date().toLocaleString() +
                     ': Deleted ' +
                     data.count +
-                    ' items.'
-                )
+                    ' items.',
+                );
               }
-              return cb(err, data)
-            }
-          )
+              return cb(err, data);
+            },
+          );
         },
       ],
       function (err, results) {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          resolve(results)
+          resolve(results);
         }
-      }
-    )
-  })
-}
+      },
+    );
+  });
+};
 
 module.exports.dispatchLiveNotifications = function () {
-  var app = arguments[0]
+  var app = arguments[0];
   return new Promise((resolve, reject) => {
     app.models.Notification.find(
       {
@@ -167,60 +167,60 @@ module.exports.dispatchLiveNotifications = function () {
           err ||
           (livePushNotifications && livePushNotifications.length === 0)
         ) {
-          err ? reject(err) : resolve(livePushNotifications)
-          return
+          err ? reject(err) : resolve(livePushNotifications);
+          return;
         }
         let notificationTasks = livePushNotifications.map(function (
-          livePushNotification
+          livePushNotification,
         ) {
           return function (cb) {
-            livePushNotification.state = 'sending'
+            livePushNotification.state = 'sending';
             if (
               livePushNotification.asyncBroadcastPushNotification === undefined
             ) {
-              livePushNotification.asyncBroadcastPushNotification = true
+              livePushNotification.asyncBroadcastPushNotification = true;
             }
             livePushNotification.save(function (errSave) {
               if (errSave) {
-                return cb(null, errSave)
+                return cb(null, errSave);
               }
-              let ctx = {}
-              ctx.args = {}
-              ctx.args.data = livePushNotification
+              let ctx = {};
+              ctx.args = {};
+              ctx.args.data = livePushNotification;
               app.models.Notification.preCreationValidation(ctx, function (
-                errPreCreationValidation
+                errPreCreationValidation,
               ) {
                 if (errPreCreationValidation) {
-                  return cb(errPreCreationValidation)
+                  return cb(errPreCreationValidation);
                 }
                 app.models.Notification.dispatchNotification(
                   ctx,
                   livePushNotification,
                   function (errDispatchNotification) {
-                    return cb(null, errDispatchNotification)
-                  }
-                )
-              })
-            })
-          }
-        })
+                    return cb(null, errDispatchNotification);
+                  },
+                );
+              });
+            });
+          };
+        });
         parallel(notificationTasks, function (err, results) {
-          err ? reject(err) : resolve(results)
-          return
-        })
-      }
-    )
-  })
-}
+          err ? reject(err) : resolve(results);
+          return;
+        });
+      },
+    );
+  });
+};
 
-var lastConfigCheck = 0
-var rssTasks = {}
+var lastConfigCheck = 0;
+var rssTasks = {};
 module.exports.checkRssConfigUpdates = function () {
-  var app = arguments[0]
-  var CronJob = require('cron').CronJob
-  let runOnInit = false
+  var app = arguments[0];
+  var CronJob = require('cron').CronJob;
+  let runOnInit = false;
   if (arguments.length > 1) {
-    runOnInit = arguments[arguments.length - 1]
+    runOnInit = arguments[arguments.length - 1];
   }
   return new Promise((resolve, reject) => {
     app.models.Configuration.find(
@@ -236,19 +236,19 @@ module.exports.checkRssConfigUpdates = function () {
         /*jshint loopfunc: true */
         for (var key in rssTasks) {
           if (!rssTasks.hasOwnProperty(key)) {
-            continue
+            continue;
           }
 
           let rssNtfctnConfigItem = rssNtfctnConfigItems.find(function (e) {
-            return e.id.toString() === key
-          })
+            return e.id.toString() === key;
+          });
 
           if (
             !rssNtfctnConfigItem ||
             rssNtfctnConfigItem.updated.getTime() > lastConfigCheck
           ) {
-            rssTasks[key].stop()
-            delete rssTasks[key]
+            rssTasks[key].stop();
+            delete rssTasks[key];
           }
         }
         rssNtfctnConfigItems.forEach(function (rssNtfctnConfigItem) {
@@ -267,13 +267,13 @@ module.exports.checkRssConfigUpdates = function () {
                     items: [],
                   },
                   function (err, lastSavedRssData) {
-                    var lastSavedRssItems = []
+                    var lastSavedRssItems = [];
                     try {
-                      lastSavedRssItems = lastSavedRssData.items
+                      lastSavedRssItems = lastSavedRssData.items;
                     } catch (ex) {}
                     const feedparser = new FeedParser({
                       addmeta: false,
-                    })
+                    });
                     module.exports
                       .request({
                         method: 'get',
@@ -282,66 +282,66 @@ module.exports.checkRssConfigUpdates = function () {
                       })
                       .then(function (res) {
                         if (res.status !== 200) {
-                          reject(new Error('Bad status code'))
+                          reject(new Error('Bad status code'));
                         } else {
-                          res.data.pipe(feedparser)
+                          res.data.pipe(feedparser);
                         }
                       })
-                      .catch(reject)
+                      .catch(reject);
 
                     feedparser.on('error', function (error) {
                       // always handle errors
-                      console.info(error)
-                    })
+                      console.info(error);
+                    });
 
-                    var items = []
-                    let ts = new Date()
+                    var items = [];
+                    let ts = new Date();
                     feedparser.on('readable', function () {
                       // This is where the action is!
-                      var stream = this // `this` is `feedparser`, which is a stream
-                      var meta = this.meta // **NOTE** the "meta" is always available in the context of the feedparser instance
-                      var item
+                      var stream = this; // `this` is `feedparser`, which is a stream
+                      var meta = this.meta; // **NOTE** the "meta" is always available in the context of the feedparser instance
+                      var item;
                       while ((item = stream.read())) {
-                        item._notifyBCLastPoll = ts
-                        items.push(item)
+                        item._notifyBCLastPoll = ts;
+                        items.push(item);
                       }
-                    })
+                    });
                     feedparser.on('end', function () {
                       let itemKeyField =
-                        rssNtfctnConfigItem.value.rss.itemKeyField || 'guid'
+                        rssNtfctnConfigItem.value.rss.itemKeyField || 'guid';
                       let fieldsToCheckForUpdate = rssNtfctnConfigItem.value.rss
-                        .fieldsToCheckForUpdate || ['pubDate']
+                        .fieldsToCheckForUpdate || ['pubDate'];
                       var newOrUpdatedItems = _.differenceWith(
                         items,
                         lastSavedRssItems,
                         function (arrVal, othVal) {
                           if (arrVal[itemKeyField] !== othVal[itemKeyField]) {
-                            return false
+                            return false;
                           }
                           if (
                             !rssNtfctnConfigItem.value.rss.includeUpdatedItems
                           ) {
-                            return arrVal[itemKeyField] === othVal[itemKeyField]
+                            return (
+                              arrVal[itemKeyField] === othVal[itemKeyField]
+                            );
                           }
-                          return !fieldsToCheckForUpdate.some(
-                            (compareField) => {
-                              return (
-                                arrVal[compareField] &&
-                                othVal[compareField] &&
-                                arrVal[compareField].toString() !==
-                                  othVal[compareField].toString()
-                              )
-                            }
-                          )
-                        }
-                      )
+                          return !fieldsToCheckForUpdate.some(compareField => {
+                            return (
+                              arrVal[compareField] &&
+                              othVal[compareField] &&
+                              arrVal[compareField].toString() !==
+                                othVal[compareField].toString()
+                            );
+                          });
+                        },
+                      );
                       let outdatedItemRetentionGenerations =
                         rssNtfctnConfigItem.value.rss
-                          .outdatedItemRetentionGenerations || 1
-                      let lastPollInterval = ts.getTime()
+                          .outdatedItemRetentionGenerations || 1;
+                      let lastPollInterval = ts.getTime();
                       try {
                         lastPollInterval =
-                          ts.getTime() - lastSavedRssData.lastPoll.getTime()
+                          ts.getTime() - lastSavedRssData.lastPoll.getTime();
                       } catch (ex) {}
                       var retainedOutdatedItems = _.differenceWith(
                         lastSavedRssItems,
@@ -349,27 +349,27 @@ module.exports.checkRssConfigUpdates = function () {
                         function (arrVal, othVal) {
                           try {
                             let age =
-                              ts.getTime() - arrVal._notifyBCLastPoll.getTime()
+                              ts.getTime() - arrVal._notifyBCLastPoll.getTime();
                             if (
                               Math.round(age / lastPollInterval) >=
                               outdatedItemRetentionGenerations
                             ) {
-                              return true
+                              return true;
                             }
                           } catch (ex) {}
-                          return arrVal[itemKeyField] === othVal[itemKeyField]
-                        }
-                      )
+                          return arrVal[itemKeyField] === othVal[itemKeyField];
+                        },
+                      );
                       // notify new or updated items
                       newOrUpdatedItems.forEach(function (newOrUpdatedItem) {
                         for (var channel in rssNtfctnConfigItem.value
                           .messageTemplates) {
                           if (
                             !rssNtfctnConfigItem.value.messageTemplates.hasOwnProperty(
-                              channel
+                              channel,
                             )
                           ) {
-                            continue
+                            continue;
                           }
                           let notificationObject = {
                             serviceName: rssNtfctnConfigItem.serviceName,
@@ -381,48 +381,50 @@ module.exports.checkRssConfigUpdates = function () {
                               ],
                             data: newOrUpdatedItem,
                             httpHost: rssNtfctnConfigItem.value.httpHost,
-                          }
+                          };
                           let httpHost =
                             app.get('internalHttpHost') ||
-                            rssNtfctnConfigItem.value.httpHost
+                            rssNtfctnConfigItem.value.httpHost;
                           let url =
-                            httpHost + app.get('restApiRoot') + '/notifications'
+                            httpHost +
+                            app.get('restApiRoot') +
+                            '/notifications';
                           let options = {
                             headers: {
                               'Content-Type': 'application/json',
                             },
-                          }
+                          };
                           module.exports.request.post(
                             url,
                             notificationObject,
-                            options
-                          )
+                            options,
+                          );
                         }
-                      })
+                      });
                       lastSavedRssData.items = items.concat(
-                        retainedOutdatedItems
-                      )
-                      lastSavedRssData.lastPoll = ts
+                        retainedOutdatedItems,
+                      );
+                      lastSavedRssData.lastPoll = ts;
                       lastSavedRssData.save(() => {
-                        resolve(rssTasks)
-                      })
-                    })
-                  }
-                )
+                        resolve(rssTasks);
+                      });
+                    });
+                  },
+                );
               },
               start: true,
               runOnInit: runOnInit,
-            })
+            });
           }
-        })
-        lastConfigCheck = Date.now()
-      }
-    )
-  })
-}
+        });
+        lastConfigCheck = Date.now();
+      },
+    );
+  });
+};
 
 module.exports.deleteBounces = function () {
-  let app = arguments[0]
+  let app = arguments[0];
   return new Promise((resolve, reject) => {
     app.models.Bounce.find(
       {
@@ -445,32 +447,32 @@ module.exports.deleteBounces = function () {
       },
       (err, activeBounces) => {
         if (err) {
-          reject(err)
-          return
+          reject(err);
+          return;
         }
-        let deleteTasks = []
+        let deleteTasks = [];
         if (activeBounces instanceof Array) {
-          deleteTasks = activeBounces.map((activeBounce) => {
-            return (cb) => {
-              let latestBounceMessageDate = activeBounce.bounceMessages[0].date
+          deleteTasks = activeBounces.map(activeBounce => {
+            return cb => {
+              let latestBounceMessageDate = activeBounce.bounceMessages[0].date;
               if (
                 latestBounceMessageDate > activeBounce.latestNotificationStarted
               ) {
-                return cb()
+                return cb();
               }
-              activeBounce.state = 'deleted'
-              activeBounce.save().then((res) => cb(), cb)
-            }
-          })
+              activeBounce.state = 'deleted';
+              activeBounce.save().then(res => cb(), cb);
+            };
+          });
         }
         parallel(deleteTasks, (err, results) => {
           if (err) {
-            reject(err)
+            reject(err);
           } else {
-            resolve(results)
+            resolve(results);
           }
-        })
-      }
-    )
-  })
-}
+        });
+      },
+    );
+  });
+};

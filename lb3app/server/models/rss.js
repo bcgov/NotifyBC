@@ -1,1 +1,1 @@
-module.exports = function(Rss) {}
+module.exports = function (Rss) {};

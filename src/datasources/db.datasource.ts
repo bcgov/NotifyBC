@@ -1,14 +1,14 @@
-import { inject } from '@loopback/core'
-import { juggler } from '@loopback/repository'
-import * as config from './db.datasource.json'
+import {inject} from '@loopback/core';
+import {juggler} from '@loopback/repository';
+import * as config from './db.datasource.json';
 
 export class DbDataSource extends juggler.DataSource {
-  static dataSourceName = 'db'
+  static dataSourceName = 'db';
 
   constructor(
-    @inject('datasources.config.db', { optional: true })
+    @inject('datasources.config.db', {optional: true})
     dsConfig: object = config,
   ) {
-    super(dsConfig)
+    super(dsConfig);
   }
 }

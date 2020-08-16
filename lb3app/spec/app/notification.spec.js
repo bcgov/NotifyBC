@@ -1,22 +1,22 @@
-let app
-var request = require('supertest')
-var parallel = require('async/parallel')
+let app;
+var request = require('supertest');
+var parallel = require('async/parallel');
 
 async function wait(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
 }
 
-beforeAll((done) => {
+beforeAll(done => {
   require('../../server/server.js')(function (err, data) {
-    app = data
-    done()
-  })
-})
+    app = data;
+    done();
+  });
+});
 
 describe('GET /notifications', function () {
-  var data
+  var data;
   beforeEach(async function () {
     data = await parallel([
       function (cb) {
@@ -32,8 +32,8 @@ describe('GET /notifications', function () {
             validTill: '2000-01-01',
             state: 'new',
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Notification.create(
@@ -48,8 +48,8 @@ describe('GET /notifications', function () {
             readBy: ['bar'],
             state: 'new',
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Notification.create(
@@ -64,8 +64,8 @@ describe('GET /notifications', function () {
             deletedBy: ['bar'],
             state: 'new',
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Notification.create(
@@ -80,8 +80,8 @@ describe('GET /notifications', function () {
             invalidBefore: '3017-05-30',
             state: 'new',
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Notification.create(
@@ -96,26 +96,26 @@ describe('GET /notifications', function () {
             serviceName: 'myService',
             state: 'sent',
           },
-          cb
-        )
+          cb,
+        );
       },
-    ])
-  })
+    ]);
+  });
 
   it('should be forbidden by anonymous user', async function () {
-    let res = await request(app).get('/api/notifications')
-    expect(res.statusCode).toBe(403)
-  })
+    let res = await request(app).get('/api/notifications');
+    expect(res.statusCode).toBe(403);
+  });
 
   it('should be allowed to sm user for current, non-expired, non-deleted inApp notifications', async function () {
     let res = await request(app)
       .get('/api/notifications')
       .set('Accept', 'application/json')
-      .set('SM_USER', 'bar')
-    expect(res.statusCode).toBe(200)
-    expect(res.body.length).toBe(1)
-  })
-})
+      .set('SM_USER', 'bar');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.length).toBe(1);
+  });
+});
 describe('POST /notifications', function () {
   beforeEach(async function () {
     data = await parallel([
@@ -137,8 +137,8 @@ describe('POST /notifications', function () {
             },
             unsubscriptionCode: '54321',
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Subscription.create(
@@ -148,8 +148,8 @@ describe('POST /notifications', function () {
             userChannelId: '12345',
             state: 'confirmed',
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Subscription.create(
@@ -159,8 +159,8 @@ describe('POST /notifications', function () {
             userChannelId: 'bar1@foo.com',
             state: 'confirmed',
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Subscription.create(
@@ -170,8 +170,8 @@ describe('POST /notifications', function () {
             userChannelId: 'bar2@invalid',
             state: 'confirmed',
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Subscription.create(
@@ -182,8 +182,8 @@ describe('POST /notifications', function () {
             state: 'confirmed',
             broadcastPushNotificationFilter: "contains(name,'f')",
           },
-          cb
-        )
+          cb,
+        );
       },
       function (cb) {
         app.models.Subscription.create(
@@ -193,16 +193,16 @@ describe('POST /notifications', function () {
             userChannelId: 'bar@invalid.local',
             state: 'confirmed',
           },
-          cb
-        )
+          cb,
+        );
       },
-    ])
-  })
+    ]);
+  });
 
   it('should send broadcast email notifications with proper mail merge', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -222,107 +222,107 @@ describe('POST /notifications', function () {
         channel: 'email',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendEmail).toHaveBeenCalled()
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendEmail).toHaveBeenCalled();
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).not.toContain('{confirmation_code}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).not.toContain('{confirmation_code}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).not.toContain('{service_name}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).not.toContain('{service_name}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).not.toContain('{http_host}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).not.toContain('{http_host}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).not.toContain('{rest_api_root}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).not.toContain('{rest_api_root}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).not.toContain('{subscription_id}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).not.toContain('{subscription_id}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).not.toContain('{unsubscription_code}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).not.toContain('{unsubscription_code}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).toContain('12345')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).toContain('12345');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).toContain('myService')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).toContain('myService');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).toContain('http://127.0.0.1')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).toContain('http://127.0.0.1');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).toContain('/api')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).toContain('/api');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).toContain('1 ')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).toContain('1 ');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).toContain('54321')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).toContain('54321');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).toContain('bar foo')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).toContain('bar foo');
 
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).not.toContain('{confirmation_code}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).not.toContain('{confirmation_code}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).not.toContain('{service_name}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).not.toContain('{service_name}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).not.toContain('{http_host}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).not.toContain('{http_host}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).not.toContain('{rest_api_root}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).not.toContain('{rest_api_root}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).not.toContain('{subscription_id}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).not.toContain('{subscription_id}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).not.toContain('{unsubscription_code}')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).not.toContain('{unsubscription_code}');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).toContain('12345')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).toContain('12345');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).toContain('myService')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).toContain('myService');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).toContain('http://127.0.0.1')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).toContain('http://127.0.0.1');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).toContain('/api')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).toContain('/api');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).toContain('1 ')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).toContain('1 ');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].html
-    ).toContain('54321')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].html,
+    ).toContain('54321');
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].text
-    ).toContain('bar foo')
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].text,
+    ).toContain('bar foo');
     // test list-unsubscribe header
     expect(
       app.models.Notification.sendEmail.calls
         .argsFor(0)[0]
-        .list.unsubscribe[0].indexOf('un-1-54321@invalid.local')
-    ).toBe(0)
+        .list.unsubscribe[0].indexOf('un-1-54321@invalid.local'),
+    ).toBe(0);
 
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(1)
-  })
+    });
+    expect(data.length).toBe(1);
+  });
 
   it('should send unicast email notification', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -339,21 +339,21 @@ describe('POST /notifications', function () {
         userId: 'bar',
         userChannelId: 'bar@foo.COM',
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendEmail).toHaveBeenCalled()
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendEmail).toHaveBeenCalled();
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(1)
-  })
+    });
+    expect(data.length).toBe(1);
+  });
 
   it('should send unicast sms notification', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -366,21 +366,21 @@ describe('POST /notifications', function () {
         skipSubscriptionConfirmationCheck: true,
         userChannelId: '12345',
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendSMS).toHaveBeenCalled()
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendSMS).toHaveBeenCalled();
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(1)
-  })
+    });
+    expect(data.length).toBe(1);
+  });
 
   it('should send broadcast sms notification', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -392,21 +392,21 @@ describe('POST /notifications', function () {
         channel: 'sms',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendSMS).toHaveBeenCalled()
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendSMS).toHaveBeenCalled();
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(1)
-  })
+    });
+    expect(data.length).toBe(1);
+  });
 
   it('should not send future-dated notification', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -421,21 +421,21 @@ describe('POST /notifications', function () {
         userId: 'bar',
         invalidBefore: '3017-06-01',
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendEmail).not.toHaveBeenCalled()
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendEmail).not.toHaveBeenCalled();
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(1)
-  })
+    });
+    expect(data.length).toBe(1);
+  });
 
   it('should deny skipSubscriptionConfirmationCheck unicast notification missing userChannelId', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -450,20 +450,20 @@ describe('POST /notifications', function () {
         userId: 'bar',
         skipSubscriptionConfirmationCheck: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(403)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(403);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(0)
-  })
+    });
+    expect(data.length).toBe(0);
+  });
 
   it('should deny unicast notification missing both userChannelId and userId', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -476,15 +476,15 @@ describe('POST /notifications', function () {
         },
         channel: 'email',
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(403)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(403);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(0)
-  })
+    });
+    expect(data.length).toBe(0);
+  });
 
   it('should deny anonymous user', async function () {
     let res = await request(app)
@@ -499,9 +499,9 @@ describe('POST /notifications', function () {
         channel: 'email',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(403)
-  })
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(403);
+  });
   it('should deny sm user', async function () {
     let res = await request(app)
       .post('/api/notifications')
@@ -516,24 +516,24 @@ describe('POST /notifications', function () {
         isBroadcast: true,
       })
       .set('Accept', 'application/json')
-      .set('SM_USER', 'bar')
-    expect(res.statusCode).toBe(403)
-  })
+      .set('SM_USER', 'bar');
+    expect(res.statusCode).toBe(403);
+  });
 
   it('should perform async callback for broadcast push notification if asyncBroadcastPushNotification is set', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     app.models.Notification.sendEmail = jasmine
       .createSpy()
       .and.callFake(function () {
-        let cb = arguments[arguments.length - 1]
-        console.log('faking delayed sendEmail')
+        let cb = arguments[arguments.length - 1];
+        console.log('faking delayed sendEmail');
         setTimeout(function () {
-          return cb(null, null)
-        }, 1000)
-      })
-    spyOn(app.models.Notification.request, 'post')
+          return cb(null, null);
+        }, 1000);
+      });
+    spyOn(app.models.Notification.request, 'post');
 
     let res = await request(app)
       .post('/api/notifications')
@@ -549,45 +549,45 @@ describe('POST /notifications', function () {
         isBroadcast: true,
         asyncBroadcastPushNotification: 'http://foo.com',
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(1)
-    expect(data[0].state).toBe('new')
-    await wait(3000)
+    });
+    expect(data.length).toBe(1);
+    expect(data[0].state).toBe('new');
+    await wait(3000);
     data = await app.models.Notification.find({
       where: {
         serviceName: 'myService',
       },
-    })
-    expect(data.length).toBe(1)
-    expect(data[0].state).toBe('sent')
+    });
+    expect(data.length).toBe(1);
+    expect(data[0].state).toBe('sent');
     expect(app.models.Notification.request.post).toHaveBeenCalledWith(
       'http://foo.com',
       jasmine.any(Object),
-      jasmine.any(Object)
-    )
-  })
+      jasmine.any(Object),
+    );
+  });
 
   it('should send chunked sync broadcast email notifications', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
-    let realGet = app.models.Notification.app.get
+      return true;
+    });
+    let realGet = app.models.Notification.app.get;
     spyOn(app.models.Notification.app, 'get').and.callFake(function (param) {
       if (param === 'notification') {
         return {
           broadcastSubscriberChunkSize: 1,
           broadcastSubRequestBatchSize: 10,
-        }
+        };
       } else {
-        return realGet.call(app, param)
+        return realGet.call(app, param);
       }
-    })
+    });
 
     let res = await request(app)
       .post('/api/notifications')
@@ -601,56 +601,56 @@ describe('POST /notifications', function () {
         channel: 'email',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(2)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(2);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myChunkedBroadcastService',
       },
-    })
-    expect(data.length).toBe(1)
-  })
+    });
+    expect(data.length).toBe(1);
+  });
 
   it('should send chunked async broadcast email notifications', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
-    let realGet = app.models.Notification.app.get
+      return true;
+    });
+    let realGet = app.models.Notification.app.get;
     spyOn(app.models.Notification.app, 'get').and.callFake(function (param) {
       if (param === 'notification') {
         return {
           broadcastSubscriberChunkSize: 1,
           broadcastSubRequestBatchSize: 10,
-        }
+        };
       } else {
-        return realGet.call(app, param)
+        return realGet.call(app, param);
       }
-    })
-    spyOn(app.models.Notification.request, 'post')
+    });
+    spyOn(app.models.Notification.request, 'post');
     spyOn(app.models.Notification.request, 'get').and.callFake(async function (
-      url
+      url,
     ) {
-      let uri = url.substring(url.indexOf('/api/notifications'))
+      let uri = url.substring(url.indexOf('/api/notifications'));
       let response = await request(app)
         .get(uri)
         .set('Accept', 'application/json')
-        .expect('Content-Type', /json/)
-      response.data = response.body
-      return response
-    })
+        .expect('Content-Type', /json/);
+      response.data = response.body;
+      return response;
+    });
     app.models.Notification.sendEmail = jasmine
       .createSpy()
       .and.callFake(function () {
-        let cb = arguments[arguments.length - 1]
-        let to = arguments[0].to
-        let error = null
+        let cb = arguments[arguments.length - 1];
+        let to = arguments[0].to;
+        let error = null;
         if (to.indexOf('invalid') >= 0) {
-          error = to
+          error = to;
         }
-        console.log('faking sendEmail with error for invalid recipient')
-        return cb(error, null)
-      })
+        console.log('faking sendEmail with error for invalid recipient');
+        return cb(error, null);
+      });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -664,42 +664,42 @@ describe('POST /notifications', function () {
         isBroadcast: true,
         asyncBroadcastPushNotification: 'http://foo.com',
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myChunkedBroadcastService',
       },
-    })
-    expect(data.length).toBe(1)
-    expect(data[0].state).toBe('new')
-    await wait(3000)
+    });
+    expect(data.length).toBe(1);
+    expect(data[0].state).toBe('new');
+    await wait(3000);
     data = await app.models.Notification.find({
       where: {
         serviceName: 'myChunkedBroadcastService',
       },
-    })
-    expect(data.length).toBe(1)
-    expect(data[0].state).toBe('sent')
+    });
+    expect(data.length).toBe(1);
+    expect(data[0].state).toBe('sent');
     expect(app.models.Notification.request.post).toHaveBeenCalledWith(
       'http://foo.com',
       jasmine.any(Object),
-      jasmine.any(Object)
-    )
-    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(2)
-    expect(data[0].failedDispatches.length).toBe(1)
+      jasmine.any(Object),
+    );
+    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(2);
+    expect(data[0].failedDispatches.length).toBe(1);
     expect(data[0].failedDispatches[0]).toEqual(
       jasmine.objectContaining({
         userChannelId: 'bar2@invalid',
         error: 'bar2@invalid',
-      })
-    )
-  })
+      }),
+    );
+  });
 
   it('should send broadcast email notification with matching filter', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -715,21 +715,21 @@ describe('POST /notifications', function () {
         channel: 'email',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(1)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(1);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myFilterableBroadcastService',
       },
-    })
-    expect(data.length).toBe(1)
-  })
+    });
+    expect(data.length).toBe(1);
+  });
 
   it('should skip broadcast email notification with unmatching filter', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -745,36 +745,36 @@ describe('POST /notifications', function () {
         channel: 'email',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(0)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(0);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myFilterableBroadcastService',
       },
-    })
-    expect(data.length).toBe(1)
-    expect(data[0].state).toBe('sent')
-  })
+    });
+    expect(data.length).toBe(1);
+    expect(data[0].state).toBe('sent');
+  });
 
   xit('should unsubscribe recipients of invalid emails', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     app.models.Notification.sendEmail = jasmine
       .createSpy()
       .and.callFake(function () {
-        let cb = arguments[arguments.length - 1]
-        let to = arguments[0].to
-        let error = null
+        let cb = arguments[arguments.length - 1];
+        let to = arguments[0].to;
+        let error = null;
         if (to.indexOf('invalid') >= 0) {
           error = {
             responseCode: 550,
-          }
+          };
         }
-        console.log('faking sendEmail with error for invalid recipient')
-        return cb(error, null)
-      })
+        console.log('faking sendEmail with error for invalid recipient');
+        return cb(error, null);
+      });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -787,63 +787,63 @@ describe('POST /notifications', function () {
         channel: 'email',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'myInvalideEmailService',
       },
-    })
-    expect(data.length).toBe(1)
-    expect(data[0].state).toBe('sent')
-    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(1)
-    expect(data[0].failedDispatches.length).toBe(1)
+    });
+    expect(data.length).toBe(1);
+    expect(data[0].state).toBe('sent');
+    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(1);
+    expect(data[0].failedDispatches.length).toBe(1);
     expect(data[0].failedDispatches[0]).toEqual(
       jasmine.objectContaining({
         userChannelId: 'bar@invalid.local',
         error: {
           responseCode: 550,
         },
-      })
-    )
+      }),
+    );
     data = await app.models.Subscription.find({
       where: {
         serviceName: 'myInvalideEmailService',
       },
-    })
-    expect(data.length).toBe(1)
-    expect(data[0].state).toBe('deleted')
-  })
+    });
+    expect(data.length).toBe(1);
+    expect(data[0].state).toBe('deleted');
+  });
 
   xit('should unsubscribe recipients of invalid emails when sending async broadcast email notifications', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
-    let realGet = app.models.Notification.app.get
+      return true;
+    });
+    let realGet = app.models.Notification.app.get;
     spyOn(app.models.Notification.app, 'get').and.callFake(function (param) {
       if (param === 'notification') {
         return {
           broadcastSubscriberChunkSize: 100,
           broadcastSubRequestBatchSize: 10,
-        }
+        };
       } else {
-        return realGet.call(app, param)
+        return realGet.call(app, param);
       }
-    })
+    });
     app.models.Notification.sendEmail = jasmine
       .createSpy()
       .and.callFake(function () {
-        let cb = arguments[arguments.length - 1]
-        let to = arguments[0].to
-        let error = null
+        let cb = arguments[arguments.length - 1];
+        let to = arguments[0].to;
+        let error = null;
         if (to.indexOf('invalid') >= 0) {
           error = {
             responseCode: 550,
-          }
+          };
         }
-        console.log('faking sendEmail with error for invalid recipient')
-        return cb(error, null)
-      })
+        console.log('faking sendEmail with error for invalid recipient');
+        return cb(error, null);
+      });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -857,29 +857,29 @@ describe('POST /notifications', function () {
         isBroadcast: true,
         asyncBroadcastPushNotification: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    await wait(3000)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    await wait(3000);
     let data = await app.models.Subscription.find({
       where: {
         serviceName: 'myInvalideEmailService',
       },
-    })
-    expect(data.length).toBe(1)
-    expect(data[0].state).toBe('deleted')
-    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(1)
-  })
+    });
+    expect(data.length).toBe(1);
+    expect(data[0].state).toBe('deleted');
+    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(1);
+  });
 
   it('should update bounce record after sending unicast email notification', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     await app.models.Bounce.create({
       channel: 'email',
       userChannelId: 'bar@foo.com',
       hardBounceCount: 1,
       state: 'active',
-    })
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -893,25 +893,25 @@ describe('POST /notifications', function () {
         userId: 'bar',
         userChannelId: 'bar@foo.COM',
       })
-      .set('Accept', 'application/json')
-    let data = await app.models.Bounce.findById(1)
-    expect(data.latestNotificationStarted).toBeDefined()
-    expect(data.latestNotificationEnded).toBeDefined()
+      .set('Accept', 'application/json');
+    let data = await app.models.Bounce.findById(1);
+    expect(data.latestNotificationStarted).toBeDefined();
+    expect(data.latestNotificationEnded).toBeDefined();
     expect(data.latestNotificationEnded).toBeGreaterThanOrEqual(
-      data.latestNotificationStarted
-    )
-  })
+      data.latestNotificationStarted,
+    );
+  });
 
   it('should update bounce record after sending broadcast email notification', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     await app.models.Bounce.create({
       channel: 'email',
       userChannelId: 'bar@foo.com',
       hardBounceCount: 1,
       state: 'active',
-    })
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -924,29 +924,29 @@ describe('POST /notifications', function () {
         },
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    let data = await app.models.Bounce.findById(1)
-    expect(data.latestNotificationStarted).toBeDefined()
-    expect(data.latestNotificationEnded).toBeDefined()
+      .set('Accept', 'application/json');
+    let data = await app.models.Bounce.findById(1);
+    expect(data.latestNotificationStarted).toBeDefined();
+    expect(data.latestNotificationEnded).toBeDefined();
     expect(data.latestNotificationEnded).toBeGreaterThanOrEqual(
-      data.latestNotificationStarted
-    )
-  })
+      data.latestNotificationStarted,
+    );
+  });
 
   it('should log successful dispatches after sending broadcast email notification if configured so', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
-    const realGet = app.models.Notification.app.get
+      return true;
+    });
+    const realGet = app.models.Notification.app.get;
     spyOn(app.models.Notification.app, 'get').and.callFake(function (param) {
       if (param === 'notification') {
-        let val = Object.create(realGet.call(app, param))
-        val.logSuccessfulBroadcastDispatches = true
-        return val
+        let val = Object.create(realGet.call(app, param));
+        val.logSuccessfulBroadcastDispatches = true;
+        return val;
       } else {
-        return realGet.call(app, param)
+        return realGet.call(app, param);
       }
-    })
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -959,15 +959,15 @@ describe('POST /notifications', function () {
         },
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(res.body.successfulDispatches[0]).toEqual(1)
-  })
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.successfulDispatches[0]).toEqual(1);
+  });
 
   it('should not log successful dispatches after sending broadcast email notification if configured so', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -980,15 +980,15 @@ describe('POST /notifications', function () {
         },
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(res.body.successfulDispatches).toBeUndefined()
-  })
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.successfulDispatches).toBeUndefined();
+  });
 
   it('should set envelope address when bounce is enabled and inboundSmtpServer.domain is defined', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .post('/api/notifications')
       .send({
@@ -1001,27 +1001,27 @@ describe('POST /notifications', function () {
         },
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].envelope.from
-    ).toBe('bn-1-54321@invalid.local')
-  })
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].envelope.from,
+    ).toBe('bn-1-54321@invalid.local');
+  });
 
   it('should not set envelope address when bounce is disabled', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
-    const realGet = app.models.Notification.app.get
+      return true;
+    });
+    const realGet = app.models.Notification.app.get;
     spyOn(app.models.Notification.app, 'get').and.callFake(function (param) {
       if (param === 'notification') {
-        let val = Object.create(realGet.call(app, param))
-        val.handleBounce = false
-        return val
+        let val = Object.create(realGet.call(app, param));
+        val.handleBounce = false;
+        return val;
       } else {
-        return realGet.call(app, param)
+        return realGet.call(app, param);
       }
-    })
+    });
 
     let res = await request(app)
       .post('/api/notifications')
@@ -1035,27 +1035,27 @@ describe('POST /notifications', function () {
         },
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].envelope
-    ).toBeUndefined()
-  })
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].envelope,
+    ).toBeUndefined();
+  });
 
   it('should not set envelope address when inboundSmtpServer.domain is undefined', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
-    const realGet = app.models.Notification.app.get
+      return true;
+    });
+    const realGet = app.models.Notification.app.get;
     spyOn(app.models.Notification.app, 'get').and.callFake(function (param) {
       if (param === 'inboundSmtpServer') {
-        let val = Object.create(realGet.call(app, param))
-        val.domain = undefined
-        return val
+        let val = Object.create(realGet.call(app, param));
+        val.domain = undefined;
+        return val;
       } else {
-        return realGet.call(app, param)
+        return realGet.call(app, param);
       }
-    })
+    });
 
     let res = await request(app)
       .post('/api/notifications')
@@ -1069,34 +1069,34 @@ describe('POST /notifications', function () {
         },
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
     expect(
-      app.models.Notification.sendEmail.calls.argsFor(0)[0].envelope
-    ).toBeUndefined()
-  })
+      app.models.Notification.sendEmail.calls.argsFor(0)[0].envelope,
+    ).toBeUndefined();
+  });
 
   it('should handle batch broadcast request error', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
-    const realGet = app.models.Notification.app.get
+      return true;
+    });
+    const realGet = app.models.Notification.app.get;
     spyOn(app.models.Notification.app, 'get').and.callFake(function (param) {
       if (param === 'notification') {
-        let val = Object.create(realGet.call(app, param))
-        val.broadcastSubscriberChunkSize = 1
-        val.broadcastSubRequestBatchSize = 2
-        return val
+        let val = Object.create(realGet.call(app, param));
+        val.broadcastSubscriberChunkSize = 1;
+        val.broadcastSubRequestBatchSize = 2;
+        return val;
       } else {
-        return realGet.call(app, param)
+        return realGet.call(app, param);
       }
-    })
+    });
 
     spyOn(app.models.Notification.request, 'get').and.callFake(
       async function () {
-        throw 'error'
-      }
-    )
+        throw 'error';
+      },
+    );
 
     let res = await request(app)
       .post('/api/notifications')
@@ -1110,27 +1110,27 @@ describe('POST /notifications', function () {
         channel: 'email',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
     expect(
-      res.body.failedDispatches.indexOf('bar1@foo.com')
-    ).toBeGreaterThanOrEqual(0)
+      res.body.failedDispatches.indexOf('bar1@foo.com'),
+    ).toBeGreaterThanOrEqual(0);
     expect(
-      res.body.failedDispatches.indexOf('bar2@invalid')
-    ).toBeGreaterThanOrEqual(0)
-  })
+      res.body.failedDispatches.indexOf('bar2@invalid'),
+    ).toBeGreaterThanOrEqual(0);
+  });
 
   it('should handle async broadcastCustomFilterFunctions', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     await app.models.Subscription.create({
       serviceName: 'broadcastCustomFilterFunctionsTest',
       channel: 'email',
       userChannelId: 'bar2@invalid',
       state: 'confirmed',
       broadcastPushNotificationFilter: "contains_ci(name,'FOO')",
-    })
+    });
 
     let res = await request(app)
       .post('/api/notifications')
@@ -1147,17 +1147,17 @@ describe('POST /notifications', function () {
         channel: 'email',
         isBroadcast: true,
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(1)
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    expect(app.models.Notification.sendEmail).toHaveBeenCalledTimes(1);
     let data = await app.models.Notification.find({
       where: {
         serviceName: 'broadcastCustomFilterFunctionsTest',
       },
-    })
-    expect(data[0].state).toBe('sent')
-  })
-})
+    });
+    expect(data[0].state).toBe('sent');
+  });
+});
 describe('PATCH /notifications/{id}', function () {
   beforeEach(async function () {
     await app.models.Notification.create({
@@ -1169,8 +1169,8 @@ describe('PATCH /notifications/{id}', function () {
       },
       serviceName: 'myService',
       state: 'new',
-    })
-  })
+    });
+  });
   it('should set readBy field of broadcast inApp notifications for sm users', async function () {
     let res = await request(app)
       .patch('/api/notifications/1')
@@ -1179,26 +1179,26 @@ describe('PATCH /notifications/{id}', function () {
         state: 'read',
       })
       .set('Accept', 'application/json')
-      .set('SM_USER', 'bar')
-    expect(res.statusCode).toBe(200)
-    let data = await app.models.Notification.findById(1)
-    expect(data.readBy).toContain('bar')
-    expect(data.state).toBe('new')
-  })
+      .set('SM_USER', 'bar');
+    expect(res.statusCode).toBe(200);
+    let data = await app.models.Notification.findById(1);
+    expect(data.readBy).toContain('bar');
+    expect(data.state).toBe('new');
+  });
   it('should set state field of broadcast inApp notifications for admin users', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .patch('/api/notifications/1')
       .send({
         state: 'deleted',
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    let data = await app.models.Notification.findById(1)
-    expect(data.state).toBe('deleted')
-  })
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    let data = await app.models.Notification.findById(1);
+    expect(data.state).toBe('deleted');
+  });
   it('should deny anonymous user', async function () {
     let res = await request(app)
       .patch('/api/notifications/1')
@@ -1206,10 +1206,10 @@ describe('PATCH /notifications/{id}', function () {
         serviceName: 'myService',
         state: 'read',
       })
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(403)
-  })
-})
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(403);
+  });
+});
 describe('DELETE /notifications/{id}', function () {
   beforeEach(async function () {
     await app.models.Notification.create({
@@ -1221,33 +1221,33 @@ describe('DELETE /notifications/{id}', function () {
       },
       serviceName: 'myService',
       state: 'new',
-    })
-  })
+    });
+  });
   it('should set deletedBy field of broadcast inApp notifications for sm users', async function () {
     let res = await request(app)
       .delete('/api/notifications/1')
       .set('Accept', 'application/json')
-      .set('SM_USER', 'bar')
-    expect(res.statusCode).toBe(200)
-    let data = await app.models.Notification.findById(1)
-    expect(data.deletedBy).toContain('bar')
-    expect(data.state).toBe('new')
-  })
+      .set('SM_USER', 'bar');
+    expect(res.statusCode).toBe(200);
+    let data = await app.models.Notification.findById(1);
+    expect(data.deletedBy).toContain('bar');
+    expect(data.state).toBe('new');
+  });
   it('should set state field of broadcast inApp notifications for admin users', async function () {
     spyOn(app.models.Notification, 'isAdminReq').and.callFake(function () {
-      return true
-    })
+      return true;
+    });
     let res = await request(app)
       .delete('/api/notifications/1')
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(200)
-    let data = await app.models.Notification.findById(1)
-    expect(data.state).toBe('deleted')
-  })
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(200);
+    let data = await app.models.Notification.findById(1);
+    expect(data.state).toBe('deleted');
+  });
   it('should deny anonymous user', async function () {
     let res = await request(app)
       .delete('/api/notifications/1')
-      .set('Accept', 'application/json')
-    expect(res.statusCode).toBe(403)
-  })
-})
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toBe(403);
+  });
+});
