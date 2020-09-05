@@ -65,3 +65,4 @@ typings/
 
 # NotifyBC
 **/*.local.*
+/server/database/data.json

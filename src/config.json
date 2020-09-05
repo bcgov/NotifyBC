@@ -1,9 +1,7 @@
 {
-  "rest": {
-    "restApiRoot": "/api",
-    "host": "0.0.0.0",
-    "port": 3000
-  },
+  "restApiRoot": "/api",
+  "host": "0.0.0.0",
+  "port": 3000,
   "remoting": {
     "rest": {
       "normalizeHttpPath": false,
@@ -21,12 +19,8 @@
     "cors": false
   },
   "legacyExplorer": false,
-  "adminIps": [
-    "127.0.0.1"
-  ],
-  "siteMinderReverseProxyIps": [
-    "127.0.0.1"
-  ],
+  "adminIps": ["127.0.0.1"],
+  "siteMinderReverseProxyIps": ["127.0.0.1"],
   "defaultSmtp": {
     "direct": true,
     "name": "localhost"

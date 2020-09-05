@@ -4,12 +4,14 @@ module.exports = function (Model, options) {
   var _ = require('lodash');
   var toSentence = require('underscore.string/toSentence');
   var pluralize = require('pluralize');
+  //migration: ignore
   Model.createOptionsFromRemotingContext = function (ctx) {
     var base = this.base.createOptionsFromRemotingContext(ctx);
     base.httpContext = ctx;
     return base;
   };
 
+  //migration: done
   Model.isAdminReq = function (httpCtx, ignoreAccessToken, ignoreSurrogate) {
     // internal requests
     if (!httpCtx || !httpCtx.req) {

@@ -41,6 +41,8 @@ export class NotifyBcApplication extends BootMixin(
         });
       }
     }
+    options.rest.host = options.host;
+    options.rest.port = options.port;
     super(options);
 
     // Set up the custom sequence
@@ -81,7 +83,7 @@ export class NotifyBcApplication extends BootMixin(
       },
       lb3app: {
         mode: 'fullApp',
-        restApiRoot: options.rest.restApiRoot,
+        restApiRoot: options.restApiRoot,
       },
     };
     this.component(Lb3AppBooterComponent);
