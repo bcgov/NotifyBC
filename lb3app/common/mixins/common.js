@@ -46,6 +46,7 @@ module.exports = function (Model, options) {
     return false;
   };
 
+  //migration: done
   Model.getCurrentUser = function (httpCtx) {
     // internal requests
     if (!httpCtx) return null;

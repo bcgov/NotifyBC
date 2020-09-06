@@ -10,8 +10,8 @@ export class BaseController {
 
   isAdminReq(
     httpCtx: any,
-    ignoreAccessToken: boolean,
-    ignoreSurrogate: boolean,
+    ignoreAccessToken?: boolean,
+    ignoreSurrogate?: boolean,
   ): boolean {
     // internal requests
     if (!httpCtx || !httpCtx.req) {
@@ -43,5 +43,33 @@ export class BaseController {
       });
     }
     return false;
+  }
+
+  getCurrentUser(httpCtx: any) {
+    // internal requests
+    if (!httpCtx) return null;
+
+    var currUser =
+      httpCtx.req.get('SM_UNIVERSALID') ||
+      httpCtx.req.get('sm_user') ||
+      httpCtx.req.get('smgov_userdisplayname');
+    if (!currUser) {
+      return null;
+    }
+    if (this.isAdminReq(httpCtx, undefined, true)) {
+      return currUser;
+    }
+    var siteMinderReverseProxyIps =
+      this.appConfig.siteMinderReverseProxyIps ||
+      this.appConfig.defaultSiteMinderReverseProxyIps;
+    if (!siteMinderReverseProxyIps || siteMinderReverseProxyIps.length <= 0) {
+      return null;
+    }
+    // rely on express 'trust proxy' settings to obtain real ip
+    var realIp = httpCtx.req.ip;
+    var isFromSM = siteMinderReverseProxyIps.some(function (e: string) {
+      return ipRangeCheck(realIp, e);
+    });
+    return isFromSM ? currUser : null;
   }
 }
