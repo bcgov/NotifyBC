@@ -75,6 +75,7 @@ module.exports = function (Model, options) {
     return isFromSM ? currUser : null;
   };
 
+  //migration: done
   let smsClient;
   const Twillio = require('twilio');
   Model.sendSMS = async function (to, textBody, data, cb) {
@@ -123,6 +124,7 @@ module.exports = function (Model, options) {
     }
   };
 
+  //migration: done
   let nodemailer = require('nodemailer');
   const directTransport = require('nodemailer-direct-transport');
   let transporter;
@@ -155,6 +157,7 @@ module.exports = function (Model, options) {
     });
   };
 
+  //migration: done
   Model.mailMerge = function (srcTxt, data, httpCtx) {
     let output = srcTxt;
     try {
