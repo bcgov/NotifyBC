@@ -1,3 +1,4 @@
+import {ApplicationConfig, CoreBindings, inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -6,16 +7,16 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getFilterSchemaFor,
   getWhereSchemaFor,
-  patch,
-  put,
-  del,
-  requestBody,
   oas,
+  param,
+  patch,
+  post,
+  put,
+  requestBody,
 } from '@loopback/rest';
 import {Subscription} from '../models';
 import {SubscriptionRepository} from '../repositories';
@@ -26,8 +27,10 @@ export class SubscriptionController extends BaseController {
   constructor(
     @repository(SubscriptionRepository)
     public subscriptionRepository: SubscriptionRepository,
+    @inject(CoreBindings.APPLICATION_CONFIG)
+    appConfig: ApplicationConfig,
   ) {
-    super();
+    super(appConfig);
   }
 
   @post('/subscriptions', {

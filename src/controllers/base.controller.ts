@@ -13,10 +13,10 @@ interface SMSBody {
 }
 
 export class BaseController {
-  constructor() {}
-
-  @inject(CoreBindings.APPLICATION_CONFIG)
-  private appConfig: ApplicationConfig;
+  constructor(
+    @inject(CoreBindings.APPLICATION_CONFIG)
+    private appConfig: ApplicationConfig,
+  ) {}
 
   isAdminReq(
     httpCtx: any,
