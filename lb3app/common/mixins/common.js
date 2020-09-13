@@ -306,6 +306,8 @@ module.exports = function (Model, options) {
     return output;
   };
 
+  //migration: incomplete, to BaseCrudRepository, options.httpContext not
+  //working yet
   Model.updateTimestamp = function (ctx, next) {
     let token;
     try {
@@ -352,7 +354,6 @@ module.exports = function (Model, options) {
     } catch (ex) {}
     next();
   };
-
   Model.observe('before save', (ctx, next) => {
     Model.updateTimestamp(ctx, next);
   });
