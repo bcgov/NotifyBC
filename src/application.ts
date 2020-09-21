@@ -43,6 +43,7 @@ export class NotifyBcApplication extends BootMixin(
     }
     options.rest.host = options.host;
     options.rest.port = options.port;
+    //    options.rest.basePath = options.restApiRoot;
     super(options);
 
     // Set up the custom sequence
