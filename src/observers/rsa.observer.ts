@@ -6,8 +6,6 @@ import {
 } from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {ConfigurationRepository} from '../repositories';
-const fs = require('fs');
-const path = require('path');
 var NodeRSA = require('node-rsa');
 
 /**

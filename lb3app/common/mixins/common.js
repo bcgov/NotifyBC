@@ -306,8 +306,7 @@ module.exports = function (Model, options) {
     return output;
   };
 
-  //migration: incomplete, to BaseCrudRepository, options.httpContext not
-  //working yet
+  //migration: done, to BaseCrudRepository
   Model.updateTimestamp = function (ctx, next) {
     let token;
     try {

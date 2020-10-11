@@ -1,3 +1,4 @@
+//migration: done
 module.exports = function (app, cb) {
   if (process.env.NOTIFYBC_NODE_ROLE === 'slave') {
     return process.nextTick(cb);
