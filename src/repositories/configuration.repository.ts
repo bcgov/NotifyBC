@@ -10,7 +10,7 @@ export class ConfigurationRepository extends BaseCrudRepository<
   ConfigurationRelations
 > {
   constructor(
-    @inject('datasources.') dataSource: DbDataSource,
+    @inject('datasources.db') dataSource: DbDataSource,
     @inject.getter(RestBindings.Http.CONTEXT)
     protected getHttpContext: Getter<MiddlewareContext>,
   ) {

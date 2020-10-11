@@ -11,6 +11,7 @@ module.exports = function (app, cb) {
    * for more info.
    */
 
+  //migration: done
   +(function getRSAKey() {
     app.models.Configuration.findOne(
       {
