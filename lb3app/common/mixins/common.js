@@ -11,7 +11,7 @@ module.exports = function (Model, options) {
     return base;
   };
 
-  //migration: done
+  //migration: done, to BaseController
   Model.isAdminReq = function (httpCtx, ignoreAccessToken, ignoreSurrogate) {
     // internal requests
     if (!httpCtx || !httpCtx.req) {
@@ -46,7 +46,7 @@ module.exports = function (Model, options) {
     return false;
   };
 
-  //migration: done
+  //migration: done, to BaseController
   Model.getCurrentUser = function (httpCtx) {
     // internal requests
     if (!httpCtx) return null;
@@ -75,7 +75,7 @@ module.exports = function (Model, options) {
     return isFromSM ? currUser : null;
   };
 
-  //migration: done
+  //migration: done, to BaseController
   let smsClient;
   const Twillio = require('twilio');
   Model.sendSMS = async function (to, textBody, data, cb) {
@@ -124,7 +124,7 @@ module.exports = function (Model, options) {
     }
   };
 
-  //migration: done
+  //migration: done, to BaseController
   let nodemailer = require('nodemailer');
   const directTransport = require('nodemailer-direct-transport');
   let transporter;
@@ -157,7 +157,7 @@ module.exports = function (Model, options) {
     });
   };
 
-  //migration: done
+  //migration: done, to BaseController
   Model.mailMerge = function (srcTxt, data, httpCtx) {
     let output = srcTxt;
     try {
@@ -357,6 +357,7 @@ module.exports = function (Model, options) {
     Model.updateTimestamp(ctx, next);
   });
 
+  //migration: done, to BaseController
   Model.getMergedConfig = async function (configName, serviceName, next) {
     let data;
     try {

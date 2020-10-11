@@ -1,7 +1,10 @@
 import {inject} from '@loopback/context';
 import {ApplicationConfig, CoreBindings} from '@loopback/core';
+import {repository} from '@loopback/repository';
 import axios from 'axios';
 import _ from 'lodash';
+import {Configuration} from '../models';
+import {ConfigurationRepository} from '../repositories';
 
 const toSentence = require('underscore.string/toSentence');
 const pluralize = require('pluralize');
@@ -16,6 +19,8 @@ export class BaseController {
   constructor(
     @inject(CoreBindings.APPLICATION_CONFIG)
     private appConfig: ApplicationConfig,
+    @repository(ConfigurationRepository)
+    public configurationRepository: ConfigurationRepository,
   ) {}
 
   isAdminReq(
@@ -307,5 +312,36 @@ export class BaseController {
       }
     } catch (ex) {}
     return output;
+  }
+
+  async getMergedConfig(
+    configName: string,
+    serviceName: string,
+    next: Function,
+  ) {
+    let data;
+    try {
+      data = await this.configurationRepository.findOne({
+        where: {
+          name: configName,
+          serviceName: serviceName,
+        },
+      });
+    } catch (ex) {
+      if (next) {
+        return next(ex, null);
+      } else {
+        throw ex;
+      }
+    }
+    let res;
+    try {
+      res = _.merge({}, this.appConfig[configName]);
+    } catch (ex) {}
+    try {
+      res = _.merge({}, res, (data as Configuration).value);
+    } catch (ex) {}
+    next && next(null, res);
+    return res;
   }
 }

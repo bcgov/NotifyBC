@@ -19,7 +19,7 @@ import {
   requestBody,
 } from '@loopback/rest';
 import {Subscription} from '../models';
-import {SubscriptionRepository} from '../repositories';
+import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
 @oas.tags('subscription')
@@ -29,8 +29,10 @@ export class SubscriptionController extends BaseController {
     public subscriptionRepository: SubscriptionRepository,
     @inject(CoreBindings.APPLICATION_CONFIG)
     appConfig: ApplicationConfig,
+    @repository(ConfigurationRepository)
+    public configurationRepository: ConfigurationRepository,
   ) {
-    super(appConfig);
+    super(appConfig, configurationRepository);
   }
 
   @post('/subscriptions', {

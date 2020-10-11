@@ -30,7 +30,7 @@ export class ConfigruationController extends BaseController {
     @inject(CoreBindings.APPLICATION_CONFIG)
     appConfig: ApplicationConfig,
   ) {
-    super(appConfig);
+    super(appConfig, configurationRepository);
   }
 
   @post('/configurations', {
