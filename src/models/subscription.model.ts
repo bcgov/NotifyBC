@@ -1,10 +1,24 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model({settings: {strict: false}})
+@model({
+  settings: {
+    strict: false,
+    validateUpsert: true,
+    idInjection: true,
+    indexes: {
+      serviceName_state_channel: {keys: {serviceName: 1, state: 1, channel: 1}},
+      created: {keys: {created: 1}},
+      '$**_text': {keys: {'$**': 'text'}},
+    },
+  },
+})
 export class Subscription extends Entity {
   @property({
     type: 'string',
+    mongodb: {dataType: 'ObjectID'},
     id: true,
+    generated: true,
+    updateOnly: true,
   })
   id?: string;
 
@@ -62,6 +76,12 @@ export class Subscription extends Entity {
     default: '$now',
   })
   updated?: string;
+
+  // Define well-known properties here
+
+  // Indexer property to allow additional data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [prop: string]: any;
 
   constructor(data?: Partial<Subscription>) {
     super(data);
