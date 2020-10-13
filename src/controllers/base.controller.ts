@@ -29,15 +29,16 @@ export class BaseController {
     ignoreSurrogate?: boolean,
   ): boolean {
     // internal requests
-    if (!httpCtx || !httpCtx.req) {
+    if (!httpCtx) {
       return true;
     }
+    const request = httpCtx.req || httpCtx.request;
     if (!ignoreSurrogate) {
       if (
-        httpCtx.req.get('SM_UNIVERSALID') ||
-        httpCtx.req.get('sm_user') ||
-        httpCtx.req.get('smgov_userdisplayname') ||
-        httpCtx.req.get('is_anonymous')
+        request.get('SM_UNIVERSALID') ||
+        request.get('sm_user') ||
+        request.get('smgov_userdisplayname') ||
+        request.get('is_anonymous')
       ) {
         return false;
       }
@@ -54,7 +55,7 @@ export class BaseController {
     const adminIps = this.appConfig.adminIps || this.appConfig.defaultAdminIps;
     if (adminIps) {
       return adminIps.some(function (e: string) {
-        return ipRangeCheck(httpCtx.req.ip, e);
+        return ipRangeCheck(request.ip, e);
       });
     }
     return false;
@@ -63,11 +64,11 @@ export class BaseController {
   getCurrentUser(httpCtx: any) {
     // internal requests
     if (!httpCtx) return null;
-
+    const request = httpCtx.req || httpCtx.request;
     var currUser =
-      httpCtx.req.get('SM_UNIVERSALID') ||
-      httpCtx.req.get('sm_user') ||
-      httpCtx.req.get('smgov_userdisplayname');
+      request.get('SM_UNIVERSALID') ||
+      request.get('sm_user') ||
+      request.get('smgov_userdisplayname');
     if (!currUser) {
       return null;
     }
@@ -81,7 +82,7 @@ export class BaseController {
       return null;
     }
     // rely on express 'trust proxy' settings to obtain real ip
-    var realIp = httpCtx.req.ip;
+    var realIp = request.ip;
     var isFromSM = siteMinderReverseProxyIps.some(function (e: string) {
       return ipRangeCheck(realIp, e);
     });

@@ -1,11 +1,11 @@
-import {ApplicationConfig, CoreBindings, inject} from '@loopback/core';
 import {
-  Count,
-  CountSchema,
-  Filter,
-  repository,
-  Where,
-} from '@loopback/repository';
+  ApplicationConfig,
+  CoreBindings,
+  inject,
+  intercept,
+} from '@loopback/core';
+import {Filter, Where} from '@loopback/filter';
+import {Count, CountSchema, repository} from '@loopback/repository';
 import {
   del,
   get,
@@ -18,6 +18,7 @@ import {
   put,
   requestBody,
 } from '@loopback/rest';
+import {AccessCheckForGetRequestInterceptor} from '../interceptors';
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
@@ -49,6 +50,7 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.create(subscription);
   }
 
+  @intercept(AccessCheckForGetRequestInterceptor.BINDING_KEY)
   @get('/subscriptions/count', {
     responses: {
       '200': {
@@ -63,6 +65,7 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.count(where);
   }
 
+  @intercept(AccessCheckForGetRequestInterceptor.BINDING_KEY)
   @get('/subscriptions', {
     responses: {
       '200': {

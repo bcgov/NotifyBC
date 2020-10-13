@@ -20,6 +20,7 @@ module.exports = function (Subscription) {
     'handleSwiftUnsubscription',
   ]);
 
+  //migration: done, to AccessCheckForGetRequestInterceptor
   function accessCheckForGetRequest() {
     var ctx = arguments[0];
     var next = arguments[arguments.length - 1];
@@ -31,7 +32,6 @@ module.exports = function (Subscription) {
     error.status = 403;
     return next(error);
   }
-
   Subscription.beforeRemote('find', accessCheckForGetRequest);
   Subscription.beforeRemote('count', accessCheckForGetRequest);
 
@@ -777,7 +777,7 @@ module.exports = function (Subscription) {
       Reference: '5eb9e53ac8de837a99fd214a',
       OutgoingMessageID: '789091964',
       MessageNumber: '59255257',
-      notifyBCSwiftKey: '1111' 
+      notifyBCSwiftKey: '1111'
     }
     */
     if (Subscription.app.get('smsServiceProvider') !== 'swift') {
