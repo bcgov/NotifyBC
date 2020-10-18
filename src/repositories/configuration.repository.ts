@@ -1,4 +1,4 @@
-import {Getter, inject} from '@loopback/core';
+import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
 import {Configuration, ConfigurationRelations} from '../models';
@@ -13,7 +13,9 @@ export class ConfigurationRepository extends BaseCrudRepository<
     @inject('datasources.db') dataSource: DbDataSource,
     @inject.getter(RestBindings.Http.CONTEXT)
     protected getHttpContext: Getter<MiddlewareContext>,
+    @inject(CoreBindings.APPLICATION_CONFIG)
+    protected appConfig: ApplicationConfig,
   ) {
-    super(Configuration, dataSource, getHttpContext);
+    super(Configuration, dataSource, getHttpContext, appConfig);
   }
 }

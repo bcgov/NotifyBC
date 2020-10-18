@@ -9,7 +9,6 @@ import {ConfigurationRepository} from '../repositories';
 const toSentence = require('underscore.string/toSentence');
 const pluralize = require('pluralize');
 
-const ipRangeCheck = require('ip-range-check');
 interface SMSBody {
   MessageBody: string;
   [key: string]: string;
@@ -22,72 +21,6 @@ export class BaseController {
     @repository(ConfigurationRepository)
     public configurationRepository: ConfigurationRepository,
   ) {}
-
-  isAdminReq(
-    httpCtx: any,
-    ignoreAccessToken?: boolean,
-    ignoreSurrogate?: boolean,
-  ): boolean {
-    // internal requests
-    if (!httpCtx) {
-      return true;
-    }
-    const request = httpCtx.req || httpCtx.request;
-    if (!ignoreSurrogate) {
-      if (
-        request.get('SM_UNIVERSALID') ||
-        request.get('sm_user') ||
-        request.get('smgov_userdisplayname') ||
-        request.get('is_anonymous')
-      ) {
-        return false;
-      }
-    }
-    if (!ignoreAccessToken) {
-      try {
-        const token = httpCtx.args.options && httpCtx.args.options.accessToken;
-        if (token && token.userId) {
-          return true;
-        }
-      } catch (ex) {}
-    }
-
-    const adminIps = this.appConfig.adminIps || this.appConfig.defaultAdminIps;
-    if (adminIps) {
-      return adminIps.some(function (e: string) {
-        return ipRangeCheck(request.ip, e);
-      });
-    }
-    return false;
-  }
-
-  getCurrentUser(httpCtx: any) {
-    // internal requests
-    if (!httpCtx) return null;
-    const request = httpCtx.req || httpCtx.request;
-    var currUser =
-      request.get('SM_UNIVERSALID') ||
-      request.get('sm_user') ||
-      request.get('smgov_userdisplayname');
-    if (!currUser) {
-      return null;
-    }
-    if (this.isAdminReq(httpCtx, undefined, true)) {
-      return currUser;
-    }
-    var siteMinderReverseProxyIps =
-      this.appConfig.siteMinderReverseProxyIps ||
-      this.appConfig.defaultSiteMinderReverseProxyIps;
-    if (!siteMinderReverseProxyIps || siteMinderReverseProxyIps.length <= 0) {
-      return null;
-    }
-    // rely on express 'trust proxy' settings to obtain real ip
-    var realIp = request.ip;
-    var isFromSM = siteMinderReverseProxyIps.some(function (e: string) {
-      return ipRangeCheck(realIp, e);
-    });
-    return isFromSM ? currUser : null;
-  }
 
   smsClient: any;
   async sendSMS(to: string, textBody: string, data: any, cb: Function) {

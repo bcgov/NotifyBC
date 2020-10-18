@@ -1,4 +1,4 @@
-import {Getter, inject} from '@loopback/core';
+import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
 import {
   DefaultCrudRepository,
   Entity,
@@ -6,6 +6,7 @@ import {
   Model,
 } from '@loopback/repository';
 import {MiddlewareBindings, MiddlewareContext} from '@loopback/rest';
+const ipRangeCheck = require('ip-range-check');
 
 export class BaseCrudRepository<
   T extends Entity,
@@ -19,8 +20,76 @@ export class BaseCrudRepository<
     dataSource: juggler.DataSource,
     @inject.getter(MiddlewareBindings.CONTEXT)
     protected getHttpContext: Getter<MiddlewareContext>,
+    @inject(CoreBindings.APPLICATION_CONFIG)
+    protected appConfig: ApplicationConfig,
   ) {
     super(entityClass, dataSource);
+  }
+
+  isAdminReq(
+    httpCtx: any,
+    ignoreAccessToken?: boolean,
+    ignoreSurrogate?: boolean,
+  ): boolean {
+    // internal requests
+    if (!httpCtx) {
+      return true;
+    }
+    const request = httpCtx.req || httpCtx.request;
+    if (!ignoreSurrogate) {
+      if (
+        request.get('SM_UNIVERSALID') ||
+        request.get('sm_user') ||
+        request.get('smgov_userdisplayname') ||
+        request.get('is_anonymous')
+      ) {
+        return false;
+      }
+    }
+    if (!ignoreAccessToken) {
+      try {
+        const token = httpCtx.args.options && httpCtx.args.options.accessToken;
+        if (token && token.userId) {
+          return true;
+        }
+      } catch (ex) {}
+    }
+
+    const adminIps = this.appConfig.adminIps || this.appConfig.defaultAdminIps;
+    if (adminIps) {
+      return adminIps.some(function (e: string) {
+        return ipRangeCheck(request.ip, e);
+      });
+    }
+    return false;
+  }
+
+  getCurrentUser(httpCtx: any) {
+    // internal requests
+    if (!httpCtx) return null;
+    const request = httpCtx.req || httpCtx.request;
+    var currUser =
+      request.get('SM_UNIVERSALID') ||
+      request.get('sm_user') ||
+      request.get('smgov_userdisplayname');
+    if (!currUser) {
+      return null;
+    }
+    if (this.isAdminReq(httpCtx, undefined, true)) {
+      return currUser;
+    }
+    var siteMinderReverseProxyIps =
+      this.appConfig.siteMinderReverseProxyIps ||
+      this.appConfig.defaultSiteMinderReverseProxyIps;
+    if (!siteMinderReverseProxyIps || siteMinderReverseProxyIps.length <= 0) {
+      return null;
+    }
+    // rely on express 'trust proxy' settings to obtain real ip
+    var realIp = request.ip;
+    var isFromSM = siteMinderReverseProxyIps.some(function (e: string) {
+      return ipRangeCheck(realIp, e);
+    });
+    return isFromSM ? currUser : null;
   }
 
   protected definePersistedModel(

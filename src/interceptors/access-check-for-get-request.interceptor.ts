@@ -44,8 +44,13 @@ export class AccessCheckForGetRequestInterceptor
     try {
       // Add pre-invocation logic here
       let targetInstance = invocationCtx.target as BaseController;
-      var userId = targetInstance.getCurrentUser(invocationCtx.parent);
-      if (!userId && !targetInstance.isAdminReq(invocationCtx.parent)) {
+      var userId = targetInstance.configurationRepository.getCurrentUser(
+        invocationCtx.parent,
+      );
+      if (
+        !userId &&
+        !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
+      ) {
         throw new HttpErrors[403]('Forbidden');
       }
       const result = await next();

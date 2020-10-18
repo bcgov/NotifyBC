@@ -11,7 +11,7 @@ module.exports = function (Model, options) {
     return base;
   };
 
-  //migration: done, to BaseController
+  //migration: done, to BaseCrudRepository
   Model.isAdminReq = function (httpCtx, ignoreAccessToken, ignoreSurrogate) {
     // internal requests
     if (!httpCtx || !httpCtx.req) {
@@ -46,7 +46,7 @@ module.exports = function (Model, options) {
     return false;
   };
 
-  //migration: done, to BaseController
+  //migration: done, to BaseCrudRepository
   Model.getCurrentUser = function (httpCtx) {
     // internal requests
     if (!httpCtx) return null;

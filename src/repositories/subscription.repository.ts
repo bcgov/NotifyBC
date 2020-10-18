@@ -1,4 +1,4 @@
-import {Getter, inject} from '@loopback/core';
+import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 import {HttpErrors, MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
@@ -14,8 +14,10 @@ export class SubscriptionRepository extends BaseCrudRepository<
     @inject('datasources.db') dataSource: DbDataSource,
     @inject.getter(RestBindings.Http.CONTEXT)
     protected getHttpContext: Getter<MiddlewareContext>,
+    @inject(CoreBindings.APPLICATION_CONFIG)
+    protected appConfig: ApplicationConfig,
   ) {
-    super(Subscription, dataSource, getHttpContext);
+    super(Subscription, dataSource, getHttpContext, appConfig);
   }
 
   definePersistedModel(
