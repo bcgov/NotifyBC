@@ -44,6 +44,25 @@ export class SubscriptionRepository extends BaseCrudRepository<
       }
       return;
     });
+    modelClass.observe('access', async ctx => {
+      const httpCtx = await this.getHttpContext();
+      var u = this.getCurrentUser(httpCtx);
+      if (u) {
+        ctx.query.where = ctx.query.where || {};
+        ctx.query.where = {
+          and: [
+            ctx.query.where,
+            {userId: u},
+            {
+              state: {
+                neq: 'deleted',
+              },
+            },
+          ],
+        };
+      }
+      return;
+    });
     return modelClass;
   }
 }

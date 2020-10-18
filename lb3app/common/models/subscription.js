@@ -64,6 +64,7 @@ module.exports = function (Subscription) {
     },
   );
 
+  //migration: done, to SubscriptionRepository.definePersistedModel
   Subscription.observe('access', function (ctx, next) {
     var u = Subscription.getCurrentUser(ctx.options.httpContext);
     if (u) {
