@@ -35,6 +35,7 @@ module.exports = function (Subscription) {
   Subscription.beforeRemote('find', accessCheckForGetRequest);
   Subscription.beforeRemote('count', accessCheckForGetRequest);
 
+  //migration: done, to SubscriptionRepository.definePersistedModel
   Subscription.observe(
     'before save',
     function parseBroadcastPushNotificationFilter(ctx, next) {
