@@ -1,5 +1,4 @@
 import {
-  /* inject, */
   injectable,
   Interceptor,
   InvocationContext,
@@ -7,13 +6,17 @@ import {
   Provider,
   ValueOrPromise,
 } from '@loopback/core';
+import {BaseController} from '../controllers/base.controller';
 
 /**
  * This class will be bound to the application as an `Interceptor` during
  * `boot`
  */
-@injectable({tags: {key: SubscriptionAfterRemoteInteceptorInterceptor.BINDING_KEY}})
-export class SubscriptionAfterRemoteInteceptorInterceptor implements Provider<Interceptor> {
+@injectable({
+  tags: {key: SubscriptionAfterRemoteInteceptorInterceptor.BINDING_KEY},
+})
+export class SubscriptionAfterRemoteInteceptorInterceptor
+  implements Provider<Interceptor> {
   static readonly BINDING_KEY = `interceptors.${SubscriptionAfterRemoteInteceptorInterceptor.name}`;
 
   /*
@@ -41,9 +44,27 @@ export class SubscriptionAfterRemoteInteceptorInterceptor implements Provider<In
   ) {
     try {
       // Add pre-invocation logic here
-      const result = await next();
+      const data = await next();
       // Add post-invocation logic here
-      return result;
+      let targetInstance = invocationCtx.target as BaseController;
+      if (
+        !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
+      ) {
+        if (data instanceof Array) {
+          data.forEach(function (e) {
+            e.confirmationRequest = undefined;
+            e.updatedBy = undefined;
+            e.createdBy = undefined;
+            e.unsubscriptionCode = undefined;
+          });
+        } else if (data instanceof Object) {
+          data.confirmationRequest = undefined;
+          data.updatedBy = undefined;
+          data.createdBy = undefined;
+          data.unsubscriptionCode = undefined;
+        }
+      }
+      return data;
     } catch (err) {
       // Add error handling logic here
       throw err;

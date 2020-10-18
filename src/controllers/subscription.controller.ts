@@ -18,11 +18,15 @@ import {
   put,
   requestBody,
 } from '@loopback/rest';
-import {AccessCheckForGetRequestInterceptor} from '../interceptors';
+import {
+  AccessCheckForGetRequestInterceptor,
+  SubscriptionAfterRemoteInteceptorInterceptor,
+} from '../interceptors';
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
+@intercept(SubscriptionAfterRemoteInteceptorInterceptor.BINDING_KEY)
 @oas.tags('subscription')
 export class SubscriptionController extends BaseController {
   constructor(

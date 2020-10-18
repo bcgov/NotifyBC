@@ -77,6 +77,7 @@ module.exports = function (Subscription) {
     next();
   });
 
+  //migration: done, to SubscriptionAfterRemoteInteceptorInterceptor
   /**
    * hide confirmation request field, especially confirmation code
    */
