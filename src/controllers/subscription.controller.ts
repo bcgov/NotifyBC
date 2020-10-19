@@ -154,4 +154,105 @@ export class SubscriptionController extends BaseController {
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.subscriptionRepository.deleteById(id);
   }
+
+  // use private modifier to avoid class level interceptor
+  private async handleConfirmationRequest(ctx: any, data: any, cb: Function) {
+    if (data.state !== 'unconfirmed' || !data.confirmationRequest.sendRequest) {
+      return cb(null, null);
+    }
+    let textBody =
+      data.confirmationRequest.textBody &&
+      this.mailMerge(data.confirmationRequest.textBody, data, ctx);
+    let mailSubject =
+      data.confirmationRequest.subject &&
+      this.mailMerge(data.confirmationRequest.subject, data, ctx);
+    let mailHtmlBody =
+      data.confirmationRequest.htmlBody &&
+      this.mailMerge(data.confirmationRequest.htmlBody, data, ctx);
+    let mailFrom = data.confirmationRequest.from;
+
+    // handle duplicated request
+    let mergedSubscriptionConfig;
+    try {
+      mergedSubscriptionConfig = await this.getMergedConfig(
+        'subscription',
+        data.serviceName,
+      );
+    } catch (err) {
+      if (cb) {
+        return cb(err);
+      } else {
+        throw err;
+      }
+    }
+    if (mergedSubscriptionConfig.detectDuplicatedSubscription) {
+      let whereClause: any = {
+        serviceName: data.serviceName,
+        state: 'confirmed',
+        channel: data.channel,
+      };
+      if (data.userChannelId) {
+        // email address check should be case insensitive
+        var escapedUserChannelId = data.userChannelId.replace(
+          /[-[\]{}()*+?.,\\^$|#\s]/g,
+          '\\$&',
+        );
+        var escapedUserChannelIdRegExp = new RegExp(escapedUserChannelId, 'i');
+        whereClause.userChannelId = {
+          regexp: escapedUserChannelIdRegExp,
+        };
+      }
+      let subCnt = await this.count(whereClause);
+      if (subCnt.count > 0) {
+        mailFrom =
+          mergedSubscriptionConfig.duplicatedSubscriptionNotification[
+            data.channel
+          ].from;
+        textBody =
+          mergedSubscriptionConfig.duplicatedSubscriptionNotification[
+            data.channel
+          ].textBody &&
+          this.mailMerge(
+            mergedSubscriptionConfig.duplicatedSubscriptionNotification[
+              data.channel
+            ].textBody,
+            data,
+            ctx,
+          );
+        mailSubject =
+          mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
+            .subject &&
+          this.mailMerge(
+            mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
+              .subject,
+            data,
+            ctx,
+          );
+        mailHtmlBody =
+          mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
+            .htmlBody &&
+          this.mailMerge(
+            mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
+              .htmlBody,
+            data,
+            ctx,
+          );
+      }
+    }
+    switch (data.channel) {
+      case 'sms':
+        this.sendSMS(data.userChannelId, textBody, data, cb);
+        break;
+      default: {
+        let mailOptions = {
+          from: mailFrom,
+          to: data.userChannelId,
+          subject: mailSubject,
+          text: textBody,
+          html: mailHtmlBody,
+        };
+        this.sendEmail(mailOptions, cb);
+      }
+    }
+  }
 }

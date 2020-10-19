@@ -109,6 +109,7 @@ module.exports = function (Subscription) {
     return next();
   });
 
+  //migration: done, to SubscriptionController.handleConfirmationRequest
   async function handleConfirmationRequest(ctx, data, cb) {
     if (data.state !== 'unconfirmed' || !data.confirmationRequest.sendRequest) {
       return cb(null, null);

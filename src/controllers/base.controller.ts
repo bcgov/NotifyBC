@@ -251,7 +251,7 @@ export class BaseController {
   async getMergedConfig(
     configName: string,
     serviceName: string,
-    next: Function,
+    next?: Function,
   ) {
     let data;
     try {
