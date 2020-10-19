@@ -210,6 +210,7 @@ module.exports = function (Subscription) {
     }
   }
 
+  //migration: done, to SubscriptionController.beforeUpsert
   function beforeUpsert(ctx, unused, next) {
     var data = ctx.args.data;
     Subscription.getMergedConfig(

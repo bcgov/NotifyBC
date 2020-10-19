@@ -25,6 +25,10 @@ import {
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
+var RandExp = require('randexp');
+const path = require('path');
+var rsaPath = path.resolve(__dirname, '../../server/boot/rsa.js');
+var rsa = require(rsaPath);
 
 @intercept(SubscriptionAfterRemoteInteceptorInterceptor.BINDING_KEY)
 @oas.tags('subscription')
@@ -254,5 +258,72 @@ export class SubscriptionController extends BaseController {
         this.sendEmail(mailOptions, cb);
       }
     }
+  }
+
+  // use private modifier to avoid class level interceptor
+  private async beforeUpsert(ctx: any) {
+    var data = ctx.args.data;
+    let mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      data.serviceName,
+    );
+    var userId = this.configurationRepository.getCurrentUser(ctx);
+    if (userId) {
+      data.userId = userId;
+    } else if (
+      !this.configurationRepository.isAdminReq(ctx) ||
+      !data.unsubscriptionCode
+    ) {
+      // generate unsubscription code
+      var anonymousUnsubscription =
+        mergedSubscriptionConfig.anonymousUnsubscription;
+      if (
+        anonymousUnsubscription.code &&
+        anonymousUnsubscription.code.required
+      ) {
+        var unsubscriptionCodeRegex = new RegExp(
+          anonymousUnsubscription.code.regex,
+        );
+        data.unsubscriptionCode = new RandExp(unsubscriptionCodeRegex).gen();
+      }
+    }
+    if (
+      data.confirmationRequest &&
+      data.confirmationRequest.confirmationCodeEncrypted
+    ) {
+      var key = rsa.key;
+      var decrypted;
+      decrypted = key.decrypt(
+        data.confirmationRequest.confirmationCodeEncrypted,
+        'utf8',
+      );
+      var decryptedData = decrypted.split(' ');
+      data.userChannelId = decryptedData[0];
+      data.confirmationRequest.confirmationCode = decryptedData[1];
+      return;
+    }
+    // use request without encrypted payload
+    if (
+      !this.configurationRepository.isAdminReq(ctx) ||
+      !data.confirmationRequest
+    ) {
+      try {
+        data.confirmationRequest =
+          mergedSubscriptionConfig.confirmationRequest[data.channel];
+      } catch (ex) {}
+      data.confirmationRequest.confirmationCode = undefined;
+    }
+    if (
+      !data.confirmationRequest.confirmationCode &&
+      data.confirmationRequest.confirmationCodeRegex
+    ) {
+      var confirmationCodeRegex = new RegExp(
+        data.confirmationRequest.confirmationCodeRegex,
+      );
+      data.confirmationRequest.confirmationCode = new RandExp(
+        confirmationCodeRegex,
+      ).gen();
+    }
+    return;
   }
 }
