@@ -1,5 +1,9 @@
 import {Entity, model, property} from '@loopback/repository';
 
+export interface AnyObject {
+  [key: string]: any;
+}
+
 @model({
   settings: {
     strict: false,
@@ -43,17 +47,16 @@ export class Subscription extends Entity {
 
   @property({
     type: 'string',
-    required: true,
     default: 'unconfirmed',
   })
-  state: string;
+  state?: string;
 
   @property({
     type: 'object',
     description:
       'Contains email template, a boolean field to indicate whether to send confirmation message, confirmation code regex or encrypted confirmation code',
   })
-  confirmationRequest?: object;
+  confirmationRequest?: AnyObject;
 
   @property({
     type: 'string',

@@ -11,12 +11,14 @@ import {
   get,
   getFilterSchemaFor,
   getWhereSchemaFor,
+  MiddlewareContext,
   oas,
   param,
   patch,
   post,
   put,
   requestBody,
+  RestBindings,
 } from '@loopback/rest';
 import {
   AccessCheckForGetRequestInterceptor,
@@ -27,8 +29,6 @@ import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
 var RandExp = require('randexp');
 const path = require('path');
-var rsaPath = path.resolve(__dirname, '../../server/boot/rsa.js');
-var rsa = require(rsaPath);
 
 @intercept(SubscriptionAfterRemoteInteceptorInterceptor.BINDING_KEY)
 @oas.tags('subscription')
@@ -40,6 +40,8 @@ export class SubscriptionController extends BaseController {
     appConfig: ApplicationConfig,
     @repository(ConfigurationRepository)
     public configurationRepository: ConfigurationRepository,
+    @inject(RestBindings.Http.CONTEXT)
+    private httpContext: MiddlewareContext,
   ) {
     super(appConfig, configurationRepository);
   }
@@ -55,6 +57,19 @@ export class SubscriptionController extends BaseController {
   async create(
     @requestBody() subscription: Subscription,
   ): Promise<Subscription> {
+    if (!this.configurationRepository.isAdminReq(this.httpContext)) {
+      delete subscription.state;
+      const userId = this.configurationRepository.getCurrentUser(
+        this.httpContext,
+      );
+      if (!userId) {
+        // anonymous user is not allowed to supply data,
+        // which could be used in mail merge
+        delete subscription.data;
+      }
+    }
+    delete subscription.id;
+    await this.beforeUpsert(this.httpContext, subscription);
     return this.subscriptionRepository.create(subscription);
   }
 
@@ -261,8 +276,7 @@ export class SubscriptionController extends BaseController {
   }
 
   // use private modifier to avoid class level interceptor
-  private async beforeUpsert(ctx: any) {
-    var data = ctx.args.data;
+  private async beforeUpsert(ctx: any, data: Subscription) {
     let mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       data.serviceName,
@@ -291,6 +305,8 @@ export class SubscriptionController extends BaseController {
       data.confirmationRequest &&
       data.confirmationRequest.confirmationCodeEncrypted
     ) {
+      var rsaPath = path.resolve(__dirname, '../observers/rsa.observer');
+      var rsa = require(rsaPath);
       var key = rsa.key;
       var decrypted;
       decrypted = key.decrypt(
@@ -311,7 +327,11 @@ export class SubscriptionController extends BaseController {
         data.confirmationRequest =
           mergedSubscriptionConfig.confirmationRequest[data.channel];
       } catch (ex) {}
-      data.confirmationRequest.confirmationCode = undefined;
+      data.confirmationRequest &&
+        (data.confirmationRequest.confirmationCode = undefined);
+    }
+    if (!data.confirmationRequest) {
+      return;
     }
     if (
       !data.confirmationRequest.confirmationCode &&

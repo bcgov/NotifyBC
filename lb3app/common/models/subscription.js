@@ -282,6 +282,7 @@ module.exports = function (Subscription) {
     );
   }
 
+  //migration: done, to SubscriptionController.create
   Subscription.beforeRemote('create', function () {
     var ctx = arguments[0];
     if (!Subscription.isAdminReq(ctx)) {
@@ -296,6 +297,7 @@ module.exports = function (Subscription) {
     delete ctx.args.data.id;
     beforeUpsert.apply(null, arguments);
   });
+
   Subscription.afterRemote('create', function (ctx, res, next) {
     if (!ctx.args.data.confirmationRequest) {
       return next();
