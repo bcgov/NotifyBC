@@ -22,7 +22,7 @@ import {
 } from '@loopback/rest';
 import {
   AccessCheckForGetRequestInterceptor,
-  SubscriptionAfterRemoteInteceptorInterceptor,
+  SubscriptionAfterRemoteInteceptor,
 } from '../interceptors';
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
@@ -30,7 +30,7 @@ import {BaseController} from './base.controller';
 var RandExp = require('randexp');
 const path = require('path');
 
-@intercept(SubscriptionAfterRemoteInteceptorInterceptor.BINDING_KEY)
+@intercept(SubscriptionAfterRemoteInteceptor.BINDING_KEY)
 @oas.tags('subscription')
 export class SubscriptionController extends BaseController {
   constructor(
