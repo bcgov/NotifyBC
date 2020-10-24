@@ -70,7 +70,12 @@ export class SubscriptionController extends BaseController {
     }
     delete subscription.id;
     await this.beforeUpsert(this.httpContext, subscription);
-    return this.subscriptionRepository.create(subscription);
+    let result = await this.subscriptionRepository.create(subscription);
+    if (!result.confirmationRequest) {
+      return result;
+    }
+    await this.handleConfirmationRequest(this.httpContext, result);
+    return result;
   }
 
   @intercept(AccessCheckForGetRequestInterceptor.BINDING_KEY)
@@ -175,9 +180,9 @@ export class SubscriptionController extends BaseController {
   }
 
   // use private modifier to avoid class level interceptor
-  private async handleConfirmationRequest(ctx: any, data: any, cb: Function) {
+  private async handleConfirmationRequest(ctx: any, data: any) {
     if (data.state !== 'unconfirmed' || !data.confirmationRequest.sendRequest) {
-      return cb(null, null);
+      return;
     }
     let textBody =
       data.confirmationRequest.textBody &&
@@ -198,11 +203,7 @@ export class SubscriptionController extends BaseController {
         data.serviceName,
       );
     } catch (err) {
-      if (cb) {
-        return cb(err);
-      } else {
-        throw err;
-      }
+      throw err;
     }
     if (mergedSubscriptionConfig.detectDuplicatedSubscription) {
       let whereClause: any = {
@@ -260,7 +261,7 @@ export class SubscriptionController extends BaseController {
     }
     switch (data.channel) {
       case 'sms':
-        this.sendSMS(data.userChannelId, textBody, data, cb);
+        await this.sendSMS(data.userChannelId, textBody, data);
         break;
       default: {
         let mailOptions = {
@@ -270,7 +271,7 @@ export class SubscriptionController extends BaseController {
           text: textBody,
           html: mailHtmlBody,
         };
-        this.sendEmail(mailOptions, cb);
+        await this.sendEmail(mailOptions);
       }
     }
   }

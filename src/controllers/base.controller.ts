@@ -23,7 +23,7 @@ export class BaseController {
   ) {}
 
   smsClient: any;
-  async sendSMS(to: string, textBody: string, data: any, cb: Function) {
+  async sendSMS(to: string, textBody: string, data: any, cb?: Function) {
     let smsServiceProvider = this.appConfig.smsServiceProvider;
     let smsConfig = this.appConfig.sms[smsServiceProvider];
     switch (smsServiceProvider) {
@@ -72,7 +72,7 @@ export class BaseController {
   nodemailer = require('nodemailer');
   directTransport = require('nodemailer-direct-transport');
   transporter: any;
-  sendEmail(mailOptions: any, cb: Function) {
+  sendEmail(mailOptions: any, cb?: Function) {
     return new Promise((resolve, reject) => {
       if (!this.transporter) {
         let smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
@@ -132,8 +132,9 @@ export class BaseController {
     } catch (ex) {}
     let httpHost;
     try {
-      if (httpCtx.req) {
-        httpHost = httpCtx.req.protocol + '://' + httpCtx.req.get('host');
+      let req = httpCtx.req || httpCtx.request;
+      if (req) {
+        httpHost = req.protocol + '://' + req.get('host');
       }
       if (this.appConfig.httpHost) {
         httpHost = this.appConfig.httpHost;
@@ -142,6 +143,8 @@ export class BaseController {
         httpHost = httpCtx.args.data.httpHost;
       } else if (httpCtx.instance && httpCtx.instance.httpHost) {
         httpHost = httpCtx.instance.httpHost;
+      } else if (data && data.httpHost) {
+        httpHost = data.httpHost;
       }
       output = output.replace(/\{http_host\}/gi, httpHost);
     } catch (ex) {}

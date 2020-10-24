@@ -298,6 +298,7 @@ module.exports = function (Subscription) {
     beforeUpsert.apply(null, arguments);
   });
 
+  //migration: done, to SubscriptionController.create
   Subscription.afterRemote('create', function (ctx, res, next) {
     if (!ctx.args.data.confirmationRequest) {
       return next();
