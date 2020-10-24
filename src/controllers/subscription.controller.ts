@@ -21,8 +21,8 @@ import {
   RestBindings,
 } from '@loopback/rest';
 import {
-  AccessCheckForGetRequestInterceptor,
   AdminInterceptor,
+  AuthenticatedOrAdminInterceptor,
   SubscriptionAfterRemoteInteceptor,
 } from '../interceptors';
 import {Subscription} from '../models';
@@ -79,7 +79,7 @@ export class SubscriptionController extends BaseController {
     return result;
   }
 
-  @intercept(AccessCheckForGetRequestInterceptor.BINDING_KEY)
+  @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
   @get('/subscriptions/count', {
     responses: {
       '200': {
@@ -94,7 +94,7 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.count(where);
   }
 
-  @intercept(AccessCheckForGetRequestInterceptor.BINDING_KEY)
+  @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
   @get('/subscriptions', {
     responses: {
       '200': {

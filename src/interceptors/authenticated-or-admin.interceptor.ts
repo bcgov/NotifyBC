@@ -13,10 +13,9 @@ import {BaseController} from '../controllers/base.controller';
  * This class will be bound to the application as an `Interceptor` during
  * `boot`
  */
-@injectable({tags: {key: AccessCheckForGetRequestInterceptor.BINDING_KEY}})
-export class AccessCheckForGetRequestInterceptor
-  implements Provider<Interceptor> {
-  static readonly BINDING_KEY = `interceptors.${AccessCheckForGetRequestInterceptor.name}`;
+@injectable({tags: {key: AuthenticatedOrAdminInterceptor.BINDING_KEY}})
+export class AuthenticatedOrAdminInterceptor implements Provider<Interceptor> {
+  static readonly BINDING_KEY = `interceptors.${AuthenticatedOrAdminInterceptor.name}`;
 
   /*
   constructor() {}

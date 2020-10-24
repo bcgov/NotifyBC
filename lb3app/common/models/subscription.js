@@ -20,7 +20,7 @@ module.exports = function (Subscription) {
     'handleSwiftUnsubscription',
   ]);
 
-  //migration: done, to AccessCheckForGetRequestInterceptor
+  //migration: done, to AuthenticatedOrAdminInterceptor
   function accessCheckForGetRequest() {
     var ctx = arguments[0];
     var next = arguments[arguments.length - 1];
