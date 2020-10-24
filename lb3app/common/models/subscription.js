@@ -311,6 +311,7 @@ module.exports = function (Subscription) {
     });
   });
 
+  //migration: done, to AdminInterceptor
   Subscription.beforeRemote('replaceById', function () {
     var ctx = arguments[0];
     var next = arguments[arguments.length - 1];

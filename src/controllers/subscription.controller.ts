@@ -22,6 +22,7 @@ import {
 } from '@loopback/rest';
 import {
   AccessCheckForGetRequestInterceptor,
+  AdminInterceptor,
   SubscriptionAfterRemoteInteceptor,
 } from '../interceptors';
 import {Subscription} from '../models';
@@ -154,6 +155,7 @@ export class SubscriptionController extends BaseController {
     await this.subscriptionRepository.updateById(id, subscription);
   }
 
+  @intercept(AdminInterceptor.BINDING_KEY)
   @put('/subscriptions/{id}', {
     responses: {
       '204': {
