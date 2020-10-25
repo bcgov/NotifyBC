@@ -165,6 +165,10 @@ export class SubscriptionController extends BaseController {
     }
     await this.beforeUpsert(this.httpContext, filteredData);
     await this.subscriptionRepository.updateById(id, filteredData);
+    if (!filteredData.confirmationRequest) {
+      return;
+    }
+    await this.handleConfirmationRequest(this.httpContext, filteredData);
   }
 
   @intercept(AdminInterceptor.BINDING_KEY)

@@ -345,6 +345,7 @@ module.exports = function (Subscription) {
     beforeUpsert.apply(null, arguments);
   });
 
+  //migration: done, to SubscriptionController.updateById
   Subscription.afterRemote('prototype.patchAttributes', function (
     ctx,
     instance,
