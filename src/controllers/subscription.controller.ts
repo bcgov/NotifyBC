@@ -5,7 +5,7 @@ import {
   intercept,
 } from '@loopback/core';
 import {Filter, Where} from '@loopback/filter';
-import {Count, CountSchema, repository} from '@loopback/repository';
+import {Count, CountSchema, DataObject, repository} from '@loopback/repository';
 import {
   del,
   get,
@@ -20,6 +20,7 @@ import {
   requestBody,
   RestBindings,
 } from '@loopback/rest';
+import _ from 'lodash';
 import {
   AdminInterceptor,
   AuthenticatedOrAdminInterceptor,
@@ -141,6 +142,7 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.findById(id);
   }
 
+  @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
   @patch('/subscriptions/{id}', {
     responses: {
       '204': {
@@ -150,9 +152,19 @@ export class SubscriptionController extends BaseController {
   })
   async updateById(
     @param.path.string('id') id: string,
-    @requestBody() subscription: Subscription,
+    @requestBody() subscription: DataObject<Subscription>,
   ): Promise<void> {
-    await this.subscriptionRepository.updateById(id, subscription);
+    const instance = await this.subscriptionRepository.findById(id);
+    var filteredData = _.merge({}, instance);
+    if (
+      subscription.userChannelId &&
+      filteredData.userChannelId !== subscription.userChannelId
+    ) {
+      filteredData.state = 'unconfirmed';
+      filteredData.userChannelId = subscription.userChannelId;
+    }
+    await this.beforeUpsert(this.httpContext, filteredData);
+    await this.subscriptionRepository.updateById(id, filteredData);
   }
 
   @intercept(AdminInterceptor.BINDING_KEY)

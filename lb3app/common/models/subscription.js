@@ -323,6 +323,7 @@ module.exports = function (Subscription) {
     return next(error);
   });
 
+  //migration: done, to AuthenticatedOrAdminInterceptor and SubscriptionController.updateById
   Subscription.beforeRemote('prototype.patchAttributes', function () {
     var ctx = arguments[0];
     var next = arguments[arguments.length - 1];
