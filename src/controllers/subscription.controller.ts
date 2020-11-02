@@ -11,9 +11,11 @@ import {
   get,
   getFilterSchemaFor,
   getWhereSchemaFor,
+  HttpErrors,
   MiddlewareContext,
   oas,
   param,
+  ParameterObject,
   patch,
   post,
   put,
@@ -49,6 +51,7 @@ export class SubscriptionController extends BaseController {
   }
 
   @post('/subscriptions', {
+    summary: 'create a subscription',
     responses: {
       '200': {
         description: 'Subscription model instance',
@@ -82,6 +85,7 @@ export class SubscriptionController extends BaseController {
 
   @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
   @get('/subscriptions/count', {
+    summary: 'count subscriptions',
     responses: {
       '200': {
         description: 'Subscription model count',
@@ -97,6 +101,7 @@ export class SubscriptionController extends BaseController {
 
   @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
   @get('/subscriptions', {
+    summary: 'get subscriptions',
     responses: {
       '200': {
         description: 'Array of Subscription model instances',
@@ -115,35 +120,9 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.find(filter);
   }
 
-  @patch('/subscriptions', {
-    responses: {
-      '200': {
-        description: 'Subscription PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async updateAll(
-    @requestBody() subscription: Subscription,
-    @param.query.object('where', getWhereSchemaFor(Subscription)) where?: Where,
-  ): Promise<Count> {
-    return this.subscriptionRepository.updateAll(subscription, where);
-  }
-
-  @get('/subscriptions/{id}', {
-    responses: {
-      '200': {
-        description: 'Subscription model instance',
-        content: {'application/json': {schema: {'x-ts-type': Subscription}}},
-      },
-    },
-  })
-  async findById(@param.path.string('id') id: string): Promise<Subscription> {
-    return this.subscriptionRepository.findById(id);
-  }
-
   @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
   @patch('/subscriptions/{id}', {
+    summary: 'update a subscription',
     responses: {
       '204': {
         description: 'Subscription PATCH success',
@@ -173,6 +152,7 @@ export class SubscriptionController extends BaseController {
 
   @intercept(AdminInterceptor.BINDING_KEY)
   @put('/subscriptions/{id}', {
+    summary: 'replace a subscription',
     responses: {
       '204': {
         description: 'Subscription PUT success',
@@ -186,15 +166,281 @@ export class SubscriptionController extends BaseController {
     await this.subscriptionRepository.replaceById(id, subscription);
   }
 
+  static readonly additionalServicesParamSpec: ParameterObject = {
+    name: 'additionalServices',
+    in: 'query',
+    schema: {
+      type: 'array',
+      items: {type: 'string'},
+    },
+    description:
+      'additonal services to unsubscribe. If there is only one item and the value is _all, then unsubscribe all subscribed services.',
+  };
+  static readonly idParamSpec: Partial<ParameterObject> = {
+    description: 'subscription id',
+  };
+  static readonly unsubscriptionCodeParamSpec: Partial<ParameterObject> = {
+    description:
+      'unsubscription code, may be required for unauthenticated user request',
+  };
+  static readonly userChannelIdParamSpec: Partial<ParameterObject> = {
+    description:
+      'optional. Used in validation along with unsubscriptionCode if populated.',
+  };
   @del('/subscriptions/{id}', {
+    summary: 'unsubscribe by id',
     responses: {
-      '204': {
-        description: 'Subscription DELETE success',
+      '200': {
+        description: 'Request was successful',
       },
     },
   })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.subscriptionRepository.deleteById(id);
+  async deleteById(
+    @param.path.string('id', SubscriptionController.idParamSpec) id: string,
+    @param.query.string(
+      'unsubscriptionCode',
+      SubscriptionController.unsubscriptionCodeParamSpec,
+    )
+    unsubscriptionCode: string,
+    @param.query.string(
+      'userChannelId',
+      SubscriptionController.userChannelIdParamSpec,
+    )
+    userChannelId?: string,
+    @param(SubscriptionController.additionalServicesParamSpec)
+    additionalServices?: string[],
+  ): Promise<void> {
+    const instance = await this.subscriptionRepository.findById(id);
+    let mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      instance.serviceName,
+    );
+    let anonymousUnsubscription =
+      mergedSubscriptionConfig.anonymousUnsubscription;
+    try {
+      let forbidden = false;
+      if (!this.configurationRepository.isAdminReq(this.httpContext)) {
+        var userId = this.configurationRepository.getCurrentUser(
+          this.httpContext,
+        );
+        if (userId) {
+          if (userId !== instance.userId) {
+            forbidden = true;
+          }
+        } else {
+          if (
+            instance.unsubscriptionCode &&
+            unsubscriptionCode !== instance.unsubscriptionCode
+          ) {
+            forbidden = true;
+          }
+          try {
+            if (
+              userChannelId &&
+              instance.userChannelId.toLowerCase() !==
+                userChannelId.toLowerCase()
+            ) {
+              forbidden = true;
+            }
+          } catch (ex) {}
+        }
+      }
+      if (instance.state !== 'confirmed') {
+        forbidden = true;
+      }
+      if (forbidden) {
+        throw new HttpErrors[403]('Forbidden');
+      }
+      let unsubscribeItems = async (
+        query: Where,
+        additionalServices?: string | AdditionalServices,
+      ) => {
+        await this.subscriptionRepository.updateAll(
+          {
+            state: 'deleted',
+          },
+          query,
+        );
+        let handleUnsubscriptionResponse = async () => {
+          // send acknowledgement notification
+          try {
+            let msg =
+              anonymousUnsubscription.acknowledgements.notification[
+                instance.channel
+              ];
+            let textBody;
+            switch (instance.channel) {
+              case 'sms':
+                textBody = this.mailMerge(
+                  msg.textBody,
+                  instance,
+                  this.httpContext,
+                );
+                await this.sendSMS(instance.userChannelId, textBody, instance);
+                break;
+              case 'email': {
+                var subject = this.mailMerge(
+                  msg.subject,
+                  instance,
+                  this.httpContext,
+                );
+                textBody = this.mailMerge(
+                  msg.textBody,
+                  instance,
+                  this.httpContext,
+                );
+                var htmlBody = this.mailMerge(
+                  msg.htmlBody,
+                  instance,
+                  this.httpContext,
+                );
+                let mailOptions = {
+                  from: msg.from,
+                  to: instance.userChannelId,
+                  subject: subject,
+                  text: textBody,
+                  html: htmlBody,
+                };
+                await this.sendEmail(mailOptions);
+                break;
+              }
+            }
+          } catch (ex) {}
+          this.httpContext.response.setHeader('Content-Type', 'text/plain');
+          if (anonymousUnsubscription.acknowledgements.onScreen.redirectUrl) {
+            var redirectUrl =
+              anonymousUnsubscription.acknowledgements.onScreen.redirectUrl;
+            redirectUrl += `?channel=${instance.channel}`;
+            return this.httpContext.response.redirect(redirectUrl);
+          } else {
+            return this.httpContext.response.end(
+              anonymousUnsubscription.acknowledgements.onScreen.successMessage,
+            );
+          }
+        };
+        if (!additionalServices) {
+          return await handleUnsubscriptionResponse();
+        }
+        await this.subscriptionRepository.updateById(id, {
+          unsubscribedAdditionalServices: additionalServices,
+        });
+        await handleUnsubscriptionResponse();
+      };
+      if (!additionalServices) {
+        return await unsubscribeItems({
+          id: id,
+        });
+      }
+      interface AdditionalServices {
+        names: string[];
+        ids: string[];
+      }
+      let getAdditionalServiceIds = async (): Promise<AdditionalServices> => {
+        if (additionalServices.length > 1) {
+          let res = await this.subscriptionRepository.find({
+            fields: {id: true, serviceName: true},
+            where: {
+              serviceName: {
+                inq: additionalServices,
+              },
+              channel: instance.channel,
+              userChannelId: instance.userChannelId,
+            },
+          });
+          return {
+            names: res.map(e => e.serviceName),
+            ids: res.map(e => e.id) as string[],
+          };
+        }
+        if (additionalServices.length === 1) {
+          if (additionalServices[0] !== '_all') {
+            let res = await this.subscriptionRepository.find({
+              fields: {id: true, serviceName: true},
+              where: {
+                serviceName: additionalServices[0],
+                channel: instance.channel,
+                userChannelId: instance.userChannelId,
+              },
+            });
+            return {
+              names: res.map(e => e.serviceName),
+              ids: res.map(e => e.id) as string[],
+            };
+          }
+          // get all subscribed services
+          let res = await this.subscriptionRepository.find({
+            fields: {id: true, serviceName: true},
+            where: {
+              userChannelId: instance.userChannelId,
+              channel: instance.channel,
+              state: 'confirmed',
+            },
+          });
+          return {
+            names: res.map(e => e.serviceName),
+            ids: res.map(e => e.id) as string[],
+          };
+        }
+        throw new HttpErrors[500]();
+      };
+      let data = await getAdditionalServiceIds();
+      await unsubscribeItems(
+        {
+          id: {
+            inq: ([] as string[]).concat(id, data.ids),
+          },
+        },
+        data,
+      );
+    } catch (error) {
+      this.httpContext.response.setHeader('Content-Type', 'text/plain');
+      if (anonymousUnsubscription.acknowledgements.onScreen.redirectUrl) {
+        var redirectUrl =
+          anonymousUnsubscription.acknowledgements.onScreen.redirectUrl;
+        redirectUrl += `?channel=${instance.channel}`;
+        redirectUrl += '&err=' + encodeURIComponent(error);
+        return this.httpContext.response.redirect(redirectUrl);
+      } else {
+        if (anonymousUnsubscription.acknowledgements.onScreen.failureMessage) {
+          this.httpContext.response.status(error.status || 500);
+          return this.httpContext.response.end(
+            anonymousUnsubscription.acknowledgements.onScreen.failureMessage,
+          );
+        } else {
+          throw error;
+        }
+      }
+    }
+  }
+  @get('/subscriptions/{id}/unsubscribe', {
+    summary: 'unsubscribe by id',
+    responses: {
+      '200': {
+        description: 'Request was successful',
+      },
+    },
+  })
+  async deleteByIdAlias(
+    @param.path.string('id', SubscriptionController.idParamSpec) id: string,
+    @param.query.string(
+      'unsubscriptionCode',
+      SubscriptionController.unsubscriptionCodeParamSpec,
+    )
+    unsubscriptionCode: string,
+    @param.query.string(
+      'userChannelId',
+      SubscriptionController.userChannelIdParamSpec,
+    )
+    userChannelId?: string,
+    @param(SubscriptionController.additionalServicesParamSpec)
+    additionalServices?: string[],
+  ): Promise<void> {
+    await this.deleteById(
+      id,
+      unsubscriptionCode,
+      userChannelId,
+      additionalServices,
+    );
   }
 
   // use private modifier to avoid class level interceptor

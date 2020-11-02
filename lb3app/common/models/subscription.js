@@ -362,6 +362,7 @@ module.exports = function (Subscription) {
     });
   });
 
+  //migration: done, to SubscriptionController.deleteById
   Subscription.prototype.deleteItemById = async function (
     options,
     unsubscriptionCode,
