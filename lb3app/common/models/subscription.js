@@ -647,6 +647,7 @@ module.exports = function (Subscription) {
     return await handleConfirmationAcknowledgement(null, 'OK');
   };
 
+  //migration: done, to SubscriptionController.unDeleteItemById
   Subscription.prototype.unDeleteItemById = async function (
     options,
     unsubscriptionCode,

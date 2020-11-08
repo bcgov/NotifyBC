@@ -448,6 +448,9 @@ export class SubscriptionController extends BaseController {
       '200': {
         description: 'Request was successful',
       },
+      '403': {
+        description: 'Forbidden',
+      },
     },
   })
   async verify(
@@ -542,6 +545,102 @@ export class SubscriptionController extends BaseController {
       return await handleConfirmationAcknowledgement(err);
     }
     return await handleConfirmationAcknowledgement(null, 'OK');
+  }
+
+  @get('/subscriptions/{id}/unsubscribe/undo', {
+    summary: 'revert anonymous unsubscription by id',
+    responses: {
+      '200': {
+        description: 'Request was successful',
+      },
+      '403': {
+        description: 'Forbidden',
+      },
+    },
+  })
+  async unDeleteItemById(
+    @param.path.string('id', SubscriptionController.idParamSpec) id: string,
+    @param.query.string('unsubscriptionCode', {
+      description:
+        'unsubscription code, may be required for unauthenticated user request',
+      required: false,
+    })
+    unsubscriptionCode?: string,
+  ): Promise<void> {
+    let instance = await this.subscriptionRepository.findById(id);
+    let mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      instance.serviceName,
+    );
+    let anonymousUndoUnsubscription =
+      mergedSubscriptionConfig.anonymousUndoUnsubscription;
+    try {
+      if (!this.subscriptionRepository.isAdminReq(this.httpContext)) {
+        if (
+          instance.unsubscriptionCode &&
+          unsubscriptionCode !== instance.unsubscriptionCode
+        ) {
+          throw new HttpErrors[403]('Forbidden');
+        }
+        if (
+          this.subscriptionRepository.getCurrentUser(this.httpContext) ||
+          instance.state !== 'deleted'
+        ) {
+          throw new HttpErrors[403]('Forbidden');
+        }
+      }
+      let revertItems = async (query: Where<Subscription>) => {
+        let res = await this.subscriptionRepository.updateAll(
+          {
+            state: 'confirmed',
+          },
+          query,
+        );
+        this.httpContext.response.setHeader('Content-Type', 'text/plain');
+        if (anonymousUndoUnsubscription.redirectUrl) {
+          var redirectUrl = anonymousUndoUnsubscription.redirectUrl;
+          redirectUrl += `?channel=${instance.channel}`;
+          return this.httpContext.response.redirect(redirectUrl);
+        } else {
+          return this.httpContext.response.end(
+            anonymousUndoUnsubscription.successMessage,
+          );
+        }
+      };
+      if (!instance.unsubscribedAdditionalServices) {
+        return await revertItems({
+          id: instance.id,
+        });
+      }
+      let unsubscribedAdditionalServicesIds = instance.unsubscribedAdditionalServices.ids.slice();
+      delete instance.unsubscribedAdditionalServices;
+      await this.subscriptionRepository.replaceById(instance.id, instance);
+      await revertItems({
+        or: [
+          {
+            id: {
+              inq: unsubscribedAdditionalServicesIds,
+            },
+          },
+          {
+            id: instance.id,
+          },
+        ],
+      });
+    } catch (err) {
+      this.httpContext.response.setHeader('Content-Type', 'text/plain');
+      if (anonymousUndoUnsubscription.redirectUrl) {
+        var redirectUrl = anonymousUndoUnsubscription.redirectUrl;
+        redirectUrl += `?channel=${instance.channel}`;
+        redirectUrl += '&err=' + encodeURIComponent(err.message || err);
+        return this.httpContext.response.redirect(redirectUrl);
+      } else {
+        this.httpContext.response.status(err.status || 500);
+        return this.httpContext.response.end(
+          anonymousUndoUnsubscription.failureMessage,
+        );
+      }
+    }
   }
 
   // use private modifier to avoid class level interceptor
