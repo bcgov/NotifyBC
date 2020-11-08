@@ -564,6 +564,7 @@ module.exports = function (Subscription) {
     }
   };
 
+  //migration: done, to SubscriptionController.verify
   Subscription.prototype.verify = async function (
     options,
     confirmationCode,
@@ -777,6 +778,7 @@ module.exports = function (Subscription) {
       },
     );
   };
+
   Subscription.handleSwiftUnsubscription = async function (options) {
     /*
     options.httpContext.req.body

@@ -10,7 +10,6 @@ import {
   del,
   get,
   getFilterSchemaFor,
-  getWhereSchemaFor,
   HttpErrors,
   MiddlewareContext,
   oas,
@@ -94,7 +93,7 @@ export class SubscriptionController extends BaseController {
     },
   })
   async count(
-    @param.query.object('where', getWhereSchemaFor(Subscription)) where?: Where,
+    @param.where(Subscription) where?: Where<Subscription>,
   ): Promise<Count> {
     return this.subscriptionRepository.count(where);
   }
@@ -252,7 +251,7 @@ export class SubscriptionController extends BaseController {
         throw new HttpErrors[403]('Forbidden');
       }
       let unsubscribeItems = async (
-        query: Where,
+        query: Where<Subscription>,
         additionalServices?: string | AdditionalServices,
       ) => {
         await this.subscriptionRepository.updateAll(
@@ -441,6 +440,108 @@ export class SubscriptionController extends BaseController {
       userChannelId,
       additionalServices,
     );
+  }
+
+  @get('/subscriptions/{id}/verify', {
+    summary: 'verify confirmation code',
+    responses: {
+      '200': {
+        description: 'Request was successful',
+      },
+    },
+  })
+  async verify(
+    @param.path.string('id', SubscriptionController.idParamSpec) id: string,
+    @param.query.string('confirmationCode', {
+      description: 'confirmation code',
+      required: true,
+    })
+    confirmationCode: string,
+    @param.query.boolean('replace', {
+      description: 'whether or not replacing existing subscriptions',
+    })
+    replace?: boolean,
+  ): Promise<void> {
+    const instance = await this.subscriptionRepository.findById(id);
+    let mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      instance.serviceName,
+    );
+
+    let handleConfirmationAcknowledgement = async (
+      err: any,
+      message?: string,
+    ) => {
+      if (!mergedSubscriptionConfig.confirmationAcknowledgements) {
+        if (err) {
+          throw err;
+        }
+        return await this.httpContext.response.end(message);
+      }
+      var redirectUrl =
+        mergedSubscriptionConfig.confirmationAcknowledgements.redirectUrl;
+      this.httpContext.response.setHeader('Content-Type', 'text/plain');
+      if (redirectUrl) {
+        redirectUrl += `?channel=${instance.channel}`;
+        if (err) {
+          redirectUrl += '&err=' + encodeURIComponent(err.toString());
+        }
+        return await this.httpContext.response.redirect(redirectUrl);
+      } else {
+        if (err) {
+          if (err.status) {
+            this.httpContext.response.status(err.status);
+          }
+          return await this.httpContext.response.end(
+            mergedSubscriptionConfig.confirmationAcknowledgements
+              .failureMessage,
+          );
+        }
+        return await this.httpContext.response.end(
+          mergedSubscriptionConfig.confirmationAcknowledgements.successMessage,
+        );
+      }
+    };
+
+    if (
+      (instance.state !== 'unconfirmed' && instance.state !== 'confirmed') ||
+      (instance.confirmationRequest &&
+        confirmationCode !== instance.confirmationRequest.confirmationCode)
+    ) {
+      return await handleConfirmationAcknowledgement(
+        new HttpErrors[403]('Forbidden'),
+      );
+    }
+    try {
+      if (replace && instance.userChannelId) {
+        let whereClause: Where<Subscription> = {
+          serviceName: instance.serviceName,
+          state: 'confirmed',
+          channel: instance.channel,
+        };
+        // email address check should be case insensitive
+        let escapedUserChannelId = instance.userChannelId.replace(
+          /[-[\]{}()*+?.,\\^$|#\s]/g,
+          '\\$&',
+        );
+        let escapedUserChannelIdRegExp = new RegExp(escapedUserChannelId, 'i');
+        whereClause.userChannelId = {
+          regexp: escapedUserChannelIdRegExp,
+        };
+        await this.subscriptionRepository.updateAll(
+          {
+            state: 'deleted',
+          },
+          whereClause,
+        );
+      }
+      await this.subscriptionRepository.updateById(instance.id, {
+        state: 'confirmed',
+      });
+    } catch (err) {
+      return await handleConfirmationAcknowledgement(err);
+    }
+    return await handleConfirmationAcknowledgement(null, 'OK');
   }
 
   // use private modifier to avoid class level interceptor
