@@ -643,6 +643,69 @@ export class SubscriptionController extends BaseController {
     }
   }
 
+  @get('/subscriptions/services', {
+    summary: 'unique list of subscribed service names',
+    responses: {
+      '200': {
+        description: 'Request was successful',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'array',
+              items: {type: 'string'},
+            },
+          },
+        },
+      },
+      '403': {
+        description: 'Forbidden',
+      },
+    },
+  })
+  async getSubscribedServiceNames(): Promise<string[]> {
+    if (!this.subscriptionRepository.isAdminReq(this.httpContext)) {
+      throw new HttpErrors[403]('Forbidden');
+    }
+    let subscriptionCollection =
+      this.subscriptionRepository.dataSource.connector &&
+      this.subscriptionRepository.dataSource.connector.collection(
+        Subscription.modelName,
+      );
+    // distinct is db-dependent feature. MongoDB supports it
+    if (typeof subscriptionCollection.distinct === 'function') {
+      return new Promise((res, rej) => {
+        subscriptionCollection.distinct(
+          'serviceName',
+          {
+            state: 'confirmed',
+          },
+          (err: any, data: string[]) => {
+            if (err) return rej(err);
+            res(data);
+          },
+        );
+      });
+    }
+    let data = await this.subscriptionRepository.find({
+      fields: {
+        serviceName: true,
+      },
+      where: {
+        state: 'confirmed',
+      },
+      order: ['serviceName ASC'],
+    });
+    if (!data || data.length === 0) {
+      return [];
+    }
+    return data.reduce((a: string[], e: Subscription) => {
+      if (a.length === 0 || a[a.length - 1] !== e.serviceName) {
+        a.push(e.serviceName);
+      }
+      return a;
+    }, []);
+  }
+
   // use private modifier to avoid class level interceptor
   private async handleConfirmationRequest(ctx: any, data: any) {
     if (data.state !== 'unconfirmed' || !data.confirmationRequest.sendRequest) {

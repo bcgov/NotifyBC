@@ -732,6 +732,7 @@ module.exports = function (Subscription) {
     }
   };
 
+  //migration: done, to SubscriptionController.getSubscribedServiceNames
   Subscription.getSubscribedServiceNames = function (options, cb) {
     if (!Subscription.isAdminReq(options.httpContext)) {
       let error = new Error('Forbidden');
