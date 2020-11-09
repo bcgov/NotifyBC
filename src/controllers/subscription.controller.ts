@@ -5,7 +5,13 @@ import {
   intercept,
 } from '@loopback/core';
 import {Filter, Where} from '@loopback/filter';
-import {Count, CountSchema, DataObject, repository} from '@loopback/repository';
+import {
+  AnyObject,
+  Count,
+  CountSchema,
+  DataObject,
+  repository,
+} from '@loopback/repository';
 import {
   del,
   get,
@@ -704,6 +710,85 @@ export class SubscriptionController extends BaseController {
       }
       return a;
     }, []);
+  }
+
+  @post('/subscriptions/swift', {
+    summary: 'handle unsubscription from Swift keyword redirect',
+    responses: {
+      '200': {
+        description: 'Request was successful',
+      },
+      '403': {
+        description: 'Forbidden',
+      },
+    },
+  })
+  async handleSwiftUnsubscription(
+    @requestBody({
+      content: {
+        'application/x-www-form-urlencoded': {
+          schema: {
+            type: 'object',
+          },
+        },
+      },
+    })
+    body: AnyObject,
+  ): Promise<void> {
+    /*
+    sample swift post
+    { PhoneNumber: '1250nnnnnnn',
+      ReceivedDate: '2020-05-11 19:56:52',
+      MessageBody: '<case insensitive keyword>',
+      Destination: '79438',
+      AccountKey: 'xxx',
+      Reference: '5eb9e53ac8de837a99fd214a',
+      OutgoingMessageID: '789091964',
+      MessageNumber: '59255257',
+      notifyBCSwiftKey: '1111'
+    }
+    */
+    if (this.appConfig['smsServiceProvider'] !== 'swift') {
+      throw new HttpErrors[403]('Forbidden');
+    }
+    let smsConfig = this.appConfig.sms;
+    if (!smsConfig || !smsConfig.swift || !smsConfig.swift.notifyBCSwiftKey) {
+      throw new HttpErrors[403]('Forbidden');
+    }
+    if (smsConfig.swift.notifyBCSwiftKey !== body.notifyBCSwiftKey) {
+      throw new HttpErrors[403]('Forbidden');
+    }
+    let whereClause: Where<Subscription> = {
+      state: 'confirmed',
+      channel: 'sms',
+    };
+    if (body.Reference) {
+      whereClause.id = body.Reference;
+    } else {
+      if (!body.PhoneNumber) {
+        throw new HttpErrors[403]('Forbidden');
+      }
+      let phoneNumberArr = body.PhoneNumber.split('');
+      // country code is optional
+      if (phoneNumberArr[0] === '1') {
+        phoneNumberArr[0] = '1?';
+      }
+      let phoneNumberRegex = new RegExp(phoneNumberArr.join('-?'));
+      whereClause.userChannelId = {
+        regexp: phoneNumberRegex,
+      };
+    }
+    let subscription = await this.subscriptionRepository.findOne({
+      where: whereClause,
+    });
+    if (!subscription) {
+      this.httpContext.response.send('ok');
+      return;
+    }
+    await this.deleteById(
+      subscription.id as string,
+      subscription.unsubscriptionCode,
+    );
   }
 
   // use private modifier to avoid class level interceptor

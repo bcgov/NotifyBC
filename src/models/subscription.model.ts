@@ -1,8 +1,4 @@
-import {Entity, model, property} from '@loopback/repository';
-
-export interface AnyObject {
-  [key: string]: any;
-}
+import {AnyObject, Entity, model, property} from '@loopback/repository';
 
 @model({
   settings: {

@@ -17,7 +17,7 @@ interface SMSBody {
 export class BaseController {
   constructor(
     @inject(CoreBindings.APPLICATION_CONFIG)
-    private appConfig: ApplicationConfig,
+    protected appConfig: ApplicationConfig,
     @repository(ConfigurationRepository)
     public configurationRepository: ConfigurationRepository,
   ) {}

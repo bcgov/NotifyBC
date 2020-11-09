@@ -781,6 +781,7 @@ module.exports = function (Subscription) {
     );
   };
 
+  //migration: done, to SubscriptionController.handleSwiftUnsubscription
   Subscription.handleSwiftUnsubscription = async function (options) {
     /*
     options.httpContext.req.body
