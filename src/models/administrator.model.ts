@@ -1,5 +1,5 @@
-import {model, property} from '@loopback/repository';
-import {User} from '.';
+import {model} from '@loopback/repository';
+import {User} from './user.model';
 
 @model({
   settings: {
@@ -10,15 +10,6 @@ import {User} from '.';
   },
 })
 export class Administrator extends User {
-  @property({
-    mongodb: {dataType: 'ObjectID'},
-    type: 'string',
-    id: 1,
-    generated: true,
-    updateOnly: true,
-  })
-  id?: string;
-
   // Define well-known properties here
 
   // Indexer property to allow additional data
