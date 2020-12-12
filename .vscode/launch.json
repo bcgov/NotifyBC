@@ -35,6 +35,15 @@
       "env": {
         "NODE_ENV": "dev"
       }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "docs",
+      "cwd": "${workspaceFolder}/docs",
+      "program": "node_modules/vuepress/cli.js",
+      "args": ["dev"],
+      "console": "internalConsole"
     }
   ]
 }
