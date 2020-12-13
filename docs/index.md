@@ -28,5 +28,5 @@ features:
       No need for complex enterprise-wide shared service. Better
       meet privacy mandates.
 footer: >
-  The contents of this website are <br />&copy;&nbsp;2020-present under the terms of the <a href="https://github.com/bcgov/NotifyBC/blob/master/LICENSE">Apache&nbsp;License, Version 2.0</a>.
+  The contents of this website are <br />&copy;&nbsp;2016-present under the terms of the <a href="https://github.com/bcgov/NotifyBC/blob/master/LICENSE">Apache&nbsp;License, Version 2.0</a>.
 ---

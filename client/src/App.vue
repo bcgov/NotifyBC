@@ -78,7 +78,7 @@
     </main>
     <v-footer color="indigo" app>
       <span class="white--text">
-        &copy; 2017-present under the terms of
+        &copy; 2016-present under the terms of
         <a
           href="https://github.com/bcgov/NotifyBC/blob/master/LICENSE"
           target="_"
