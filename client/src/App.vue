@@ -80,7 +80,7 @@
       <span class="white--text">
         &copy; 2017-present under the terms of
         <a
-          href="https://github.com/bcgov/MyGovBC-notification-server/blob/master/LICENSE"
+          href="https://github.com/bcgov/NotifyBC/blob/master/LICENSE"
           target="_"
         >Apache License, Version 2.0</a>
       </span>
