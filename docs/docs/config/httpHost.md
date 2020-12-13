@@ -1,25 +1,24 @@
 ---
-layout: docs
 title: HTTP Host
 permalink: /docs/config-httpHost/
 ---
 
-*httpHost* config sets the fallback http host used by
+_httpHost_ config sets the fallback http host used by
 
-* mail merge token substitution
-* internal HTTP requests spawned by *NotifyBC*
+- mail merge token substitution
+- internal HTTP requests spawned by _NotifyBC_
 
-*httpHost* can be overridden by other configs or data. For example
+_httpHost_ can be overridden by other configs or data. For example
 
-* *internalHttpHost* config
-* *httpHost* field in a notification
+- _internalHttpHost_ config
+- _httpHost_ field in a notification
 
-There are contexts where there is no alternatives to *httpHost*. Therefore this config should be defined.
+There are contexts where there is no alternatives to _httpHost_. Therefore this config should be defined.
 
-Define the config, which has no default value, in */server/config.local.js*
+Define the config, which has no default value, in _/server/config.local.js_
 
 ```js
 module.exports = {
-  "httpHost" : "http://foo.com"
-}
+  httpHost: 'http://foo.com'
+};
 ```

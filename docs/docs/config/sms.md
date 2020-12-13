@@ -1,5 +1,4 @@
 ---
-layout: docs
 title: SMS
 permalink: /docs/config-sms/
 ---
@@ -30,10 +29,10 @@ module.exports = {
     twilio: {
       accountSid: '<AccountSid>',
       authToken: '<AuthToken>',
-      fromNumber: '<FromNumber>',
-    },
-  },
-}
+      fromNumber: '<FromNumber>'
+    }
+  }
+};
 ```
 
 Obtain _\<AccountSid\>_, _\<AuthToken\>_ and _\<FromNumber\>_ from your Twilio account.
@@ -46,10 +45,10 @@ Add _sms.swift_ config object to file _/server/config.local.js_
 module.exports = {
   sms: {
     swift: {
-      accountKey: '<accountKey>',
-    },
-  },
-}
+      accountKey: '<accountKey>'
+    }
+  }
+};
 ```
 
 Obtain _\<accountKey\>_ from your Swift account.
@@ -60,7 +59,7 @@ With Swift short code, sms user can unsubscribe by replying to a sms message wit
 
 To enable this feature,
 
-1. Generate a random string, hereafter referred to as *\<randomly-generated-string\>*
+1. Generate a random string, hereafter referred to as _\<randomly-generated-string\>_
 2. Add it to _sms.swift.notifyBCSwiftKey_ in file _/server/config.local.js_
 
    ```js
@@ -73,13 +72,14 @@ To enable this feature,
       },
     }
    ```
-3. Go to Swift web admin console, click *Number Management* tab
-4. Click *Launch* button next to *Manage Short Code Keywords*
-5. Click *Features* button next to the registered keyword(s). A keyword may have multiple entries. In such case do this for each entry.
-6. Click *Redirect To Webpage* tab in the popup window
+
+3. Go to Swift web admin console, click _Number Management_ tab
+4. Click _Launch_ button next to _Manage Short Code Keywords_
+5. Click _Features_ button next to the registered keyword(s). A keyword may have multiple entries. In such case do this for each entry.
+6. Click _Redirect To Webpage_ tab in the popup window
 7. Enter following information in the tab
-   * set *URL* to *\<NotifyBCHttpHost\>/api/subscriptions/swift*, where *\<NotifyBCHttpHost\>* is NotifyBC HTTP host name and should be the same as [HTTP Host](../config-httpHost/) config
-   * set *Method* to *POST*
-   * set *Custom Parameter 1 Name* to *notifyBCSwiftKey*
-   * set *Custom Parameter 1 Value* to *\<randomly-generated-string\>*
-8. Click *Save Changes* button and then *Done*
+   - set _URL_ to _\<NotifyBCHttpHost\>/api/subscriptions/swift_, where _\<NotifyBCHttpHost\>_ is NotifyBC HTTP host name and should be the same as [HTTP Host](../config-httpHost/) config
+   - set _Method_ to _POST_
+   - set _Custom Parameter 1 Name_ to _notifyBCSwiftKey_
+   - set _Custom Parameter 1 Value_ to _\<randomly-generated-string\>_
+8. Click _Save Changes_ button and then _Done_

@@ -1,8 +1,6 @@
 ---
 title: Code of Conduct
-layout: docs
-permalink: "/docs/conduct/"
-redirect_from: "/conduct/index.html"
+permalink: '/docs/conduct/'
 editable: false
 ---
 
@@ -18,13 +16,13 @@ body size, race, ethnicity, age, religion, or nationality.
 
 Examples of unacceptable behavior by participants include:
 
-* The use of sexualized language or imagery
-* Personal attacks
-* Trolling or insulting/derogatory comments
-* Public or private harassment
-* Publishing other's private information, such as physical or electronic
+- The use of sexualized language or imagery
+- Personal attacks
+- Trolling or insulting/derogatory comments
+- Public or private harassment
+- Publishing other's private information, such as physical or electronic
   addresses, without explicit permission
-* Other unethical or unprofessional conduct
+- Other unethical or unprofessional conduct
 
 Project maintainers have the right and responsibility to remove, edit, or
 reject comments, commits, code, wiki edits, issues, and other contributions
@@ -46,11 +44,9 @@ will be reviewed and investigated and will result in a response that is deemed
 necessary and appropriate to the circumstances. Maintainers are obligated to
 maintain confidentiality with regard to the reporter of an incident.
 
-
 This Code of Conduct is adapted from the [Contributor Covenant][homepage],
 version 1.3.0, available at
 [http://contributor-covenant.org/version/1/3/0/][version]
 
 [homepage]: http://contributor-covenant.org
 [version]: http://contributor-covenant.org/version/1/3/0/
-

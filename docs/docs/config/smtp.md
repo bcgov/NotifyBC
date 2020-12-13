@@ -1,10 +1,9 @@
 ---
-layout: docs
 title: SMTP
 permalink: /docs/config-smtp/
 ---
 
-By default *NotifyBC* acts as the SMTP server itself and connects directly to recipient's SMTP server. To setup SMTP relay to a host, say *smtp.foo.com*, add following *smtp* config object to */server/config.local.js*
+By default _NotifyBC_ acts as the SMTP server itself and connects directly to recipient's SMTP server. To setup SMTP relay to a host, say _smtp.foo.com_, add following _smtp_ config object to _/server/config.local.js_
 
 ```js
 module.exports = {
@@ -19,4 +18,5 @@ module.exports = {
   },
 }
 ```
-Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options that you can define in *smtp* object. Using SMTP relay and fine-tuning some options are critical for performance. See [benchmark advices](../benchmarks/#advices). There are also options allowing you to throttle down throughput if needed.
+
+Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options that you can define in _smtp_ object. Using SMTP relay and fine-tuning some options are critical for performance. See [benchmark advices](../benchmarks/#advices). There are also options allowing you to throttle down throughput if needed.

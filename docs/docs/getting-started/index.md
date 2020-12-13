@@ -1,8 +1,6 @@
 ---
-layout: docs
 title: Welcome
 permalink: /docs/
-redirect_from: /docs/index.html
 ---
 
 This site aims to be a comprehensive guide to _NotifyBC_. We’ll cover topics such
@@ -19,14 +17,12 @@ These are tips and tricks that will help you be a NotifyBC wizard!
 
 ::: warning Notes are handy pieces of information
 These are for the extra tidbits sometimes necessary to understand
-     NotifyBC.
+NotifyBC.
 :::
 
 ::: danger Warnings help you not blow things up
 Be aware of these messages if you wish to avoid certain death.
 :::
-
-
 
 If you come across anything along the way that we haven’t covered, or if you
 know of a tip you think others would find handy, please <a target="_blank" rel="noopener noreferrer" :href="'https://github.com/'+$site.themeConfig.repo+'/issues/new'">file an

@@ -1,7 +1,6 @@
 ---
-layout: docs
 title: Node Roles
 permalink: /docs/config-nodeRoles/
 ---
 
-In a multi-node deployment, some tasks should only be run by one node. That node is designated as *master*. The distinction is made using environment variable *NOTIFYBC_NODE_ROLE*. Setting to anything other than *slave*, including not set, will be regarded as *master*.
+In a multi-node deployment, some tasks should only be run by one node. That node is designated as _master_. The distinction is made using environment variable _NOTIFYBC_NODE_ROLE_. Setting to anything other than _slave_, including not set, will be regarded as _master_.

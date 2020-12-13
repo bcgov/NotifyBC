@@ -1,5 +1,4 @@
 ---
-layout: docs
 title: Subscription
 permalink: /docs/api-subscription/
 ---
@@ -333,7 +332,7 @@ POST /subscriptions
   }
   ```
 
-  As a result, *foo@bar.com* should receive an email confirmation request, and following json object is returned to caller upon sending the email successfully for admin request:
+  As a result, _foo@bar.com_ should receive an email confirmation request, and following json object is returned to caller upon sending the email successfully for admin request:
 
   ```json
   {
@@ -387,7 +386,7 @@ POST /subscriptions
      }
      ```
 
-     As a result, _NotifyBC_ will decrypt the confirmation code using the private RSA key, replace placeholder _{confirmation_code}_ in the email template with the confirmation code, and send confirmation request to *foo@bar.com*.
+     As a result, _NotifyBC_ will decrypt the confirmation code using the private RSA key, replace placeholder _{confirmation_code}_ in the email template with the confirmation code, and send confirmation request to _foo@bar.com_.
 
 ## Verify a Confirmation Code
 
