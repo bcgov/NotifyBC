@@ -45,6 +45,22 @@ installing from source code is preferred.
 ### Installation
 ::: tip ProTips™ install from behind firewall
 If you want to install on a server behind firewall which restricts internet connection, you can work around the firewall as long as you have access to a http(s) forward proxy server. Assuming the proxy server is http://my_proxy:8080 which proxies both http and https requests, to use it:
+- For Linux
+
+  ```sh
+  export http_proxy=http://my_proxy:8080
+  export https_proxy=http://my_proxy:8080
+  git config --global url."https://".insteadOf git://
+  ```
+- For Windows
+
+  ```sh
+  git config --global http.proxy http://my_proxy:8080
+  git config --global url."https://".insteadOf git://
+  npm config set proxy http://my_proxy:8080
+  npm i -g yarn
+  yarn config set proxy http://my_proxy:8080
+  ```
 :::
 
 run following commands
