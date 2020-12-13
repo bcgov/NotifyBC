@@ -10,7 +10,7 @@ Configs in this section customize the handling of notification request or genera
 *NotifyBC* can generate broadcast push notifications automatically by polling RSS feeds periodically and detect changes by comparing with an internally maintained history list. The polling frequency, RSS url, RSS item change detection criteria, and message template can be defined in dynamic configs.
 
 ::: danger Only first page is retrived for paginated RSS feeds
-If a RSS feed is paginated, <i>NotifyBC</i> only retrives the first page rather than auto-fetch subsequent pages. Hence paginated RSS feeds should be sorted descendingly by last modified timestamp. Refresh interval should be adjusted small enough such that all new or updated items are contained in first page.
+If a RSS feed is paginated, <i>NotifyBC</i> only retrieves the first page rather than auto-fetch subsequent pages. Hence paginated RSS feeds should be sorted descendingly by last modified timestamp. Refresh interval should be adjusted small enough such that all new or updated items are contained in first page.
 :::
 
 
@@ -58,9 +58,9 @@ The config items in the *value* field are
 * messageTemplates: channel-specific message template supporting dynamic token as shown. Message template fields is same as those in [notification api](../api-notification/#field-message)
 
 ## Broadcast Push Notification Task Concurrency
-To achieve horizontal scaling, when a broadcast push notification request, hereby known as original request, is received, *NotifyBC* divides subscribers into chunks and generates a HTTP sub-request for each chunk.  The original request supervises the execution of  sub-requests. The chunk size is defined by config *broadcastSubscriberChunkSize*. All subscribers in a sub-request chunk are processed concurrently when the sub-requests are submitted.
+To achieve horizontal scaling, when a broadcast push notification request, hereby known as original request, is received, *NotifyBC* divides subscribers into chunks and generates a HTTP sub-request for each chunk.  The original request supervises the execution of sub-requests. The chunk size is defined by config *broadcastSubscriberChunkSize*. All subscribers in a sub-request chunk are processed concurrently when the sub-requests are submitted.
 
-The orginal request submits sub-requests back to (preferably load-balanced) *NotifyBC* server cluster for processing. Sub-request submission is throttled by config *broadcastSubRequestBatchSize*. *broadcastSubRequestBatchSize* defines the upper limit of the number of Sub-requests that can be processed at any given time.
+The original request submits sub-requests back to (preferably load-balanced) *NotifyBC* server cluster for processing. Sub-request submission is throttled by config *broadcastSubRequestBatchSize*. *broadcastSubRequestBatchSize* defines the upper limit of the number of Sub-requests that can be processed at any given time.
 
 As an example, assuming the total number of subscribers for a notification is 1,000,000, *broadcastSubscriberChunkSize* is 1,000 and *broadcastSubRequestBatchSize* is 10, *NotifyBC* will divide the 1M subscribers into 1,000 chunks and generates 1,000 sub-requests, one for each chunk. The 1,000 sub-requests will be submitted back to *NotifyBC* cluster to be processed. The original request will ensure at most 10 sub-requests are submitted and being processed at any given time. In fact, the only time concurrency is less than 10 is near the end of the task when remaining sub-requests is less than 10. When a sub-request is received by *NotifyBC* cluster, all 1,000 subscribers are processed concurrently. Suppose each sub-request (i.e. 1,000 subscribers) takes 1 minute to process on average, then the total time to dispatch notifications to 1M subscribers takes 1,000/10 = 100min, or 1hr40min.
 
