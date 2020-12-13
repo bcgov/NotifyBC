@@ -311,7 +311,7 @@ objects:
     kind: Route
     metadata:
       annotations:
-        haproxy.router.openshift.io/timeout: 9999d
+        haproxy.router.openshift.io/timeout: 24d
       name: notify-bc
     spec:
       host: ${APPLICATION_DOMAIN}
