@@ -32,7 +32,7 @@ The API operates on following subscription data model fields:
   <tr>
     <td>
       <p class="name">serviceName</p>
-      <p class="description">name of the service. Avoid prefixing the name with underscore (_), or it may conflict with internal implemenation.</p>
+      <p class="description">name of the service. Avoid prefixing the name with underscore (_), or it may conflict with internal implementation.</p>
     </td>
     <td>
       <table>
