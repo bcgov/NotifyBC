@@ -60,7 +60,7 @@ With Swift short code, sms user can unsubscribe by replying to a sms message wit
 
 To enable this feature, 
 
-1. Generate a random string, hereafter referred to as *\<randomly-genereated-string\>*
+1. Generate a random string, hereafter referred to as *\<randomly-generated-string\>*
 2. Add it to _sms.swift.notifyBCSwiftKey_ in file _/server/config.local.js_
 
    ```js
@@ -81,5 +81,5 @@ To enable this feature,
    * set *URL* to *\<NotifyBCHttpHost\>/api/subscriptions/swift*, where *\<NotifyBCHttpHost\>* is NotifyBC HTTP host name and should be the same as [HTTP Host](../config-httpHost/) config
    * set *Method* to *POST*
    * set *Custom Parameter 1 Name* to *notifyBCSwiftKey*
-   * set *Custom Parameter 1 Value* to *\<randomly-genereated-string\>*
+   * set *Custom Parameter 1 Value* to *\<randomly-generated-string\>*
 8. Click *Save Changes* button and then *Done*
