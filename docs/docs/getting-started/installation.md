@@ -186,31 +186,17 @@ oc tag <yourprojectname-tools>/notify-bc:latest <yourprojectname-test>/notify-bc
 The above command will deploy the latest (which should also be dev) runtime image to *test* env. The purpose of tagging runtime image of *test* env in both \<yourprojectname-test\>/notify-bc:latest and \<yourprojectname-tools\>/notify-bc:test is to use \<yourprojectname-tools\>/notify-bc:test as backup such that in case the image stream \<yourprojectname-test\>/notify-bc, which is used by *test* runtime pods, is deleted inadvertently, it can be recovered from \<yourprojectname-tools\>/notify-bc:test.
 
 ## Install Docs Website (Optional)
-If you want to contribute to *NotifyBC* docs beyond simple fix ups, you can install [Jekyll](https://jekyllrb.com/) through Ruby bundler and render this web site locally:
-
-1. Install [Ruby](https://www.ruby-lang.org/en/documentation/installation/)
-2. Run
+If you want to contribute to *NotifyBC* docs beyond simple fix ups, run
 
 ```sh
-cd /docs
-gem install bundler
-bundle install
-bundle exec jekyll serve
+yarn --cwd docs install
+yarn --cwd docs dev
 ```
 
-If everything goes well, you will get output:
+If everything goes well, the last line of the output will be
 
-```
-Configuration file: .../notifyBC/docs/_config.yml
-            Source: .../notifyBC/docs
-       Destination: .../notifyBC/docs/_site
- Incremental build: disabled. Enable with --incremental
-      Generating...
-                    done in 3.971 seconds.
- Auto-regeneration: enabled for '.../notifyBC/docs'
-Configuration file: .../notifyBC/docs/_config.yml
-    Server address: http://127.0.0.1:4000/NotifyBC/
-  Server running... press ctrl-c to stop.
+```sh
+> VuePress dev server listening at http://localhost:8080/NotifyBC/
 ```
 
-You can now browse to the local docs site <a href="http://127.0.0.1:4000/NotifyBC/" target="_blank">http://127.0.0.1:4000/NotifyBC/</a>
+You can now browse to the local docs site [http://localhost:8080/NotifyBC](http://localhost:8080/NotifyBC/)
