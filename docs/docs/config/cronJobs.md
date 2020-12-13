@@ -79,7 +79,7 @@ This cron job monitors RSS feed notification dynamic config items. If a config i
 This cron job deletes notification bounces if the latest notification is  deemed delivered successfully. The criteria of sussessful delivery are
 
 1. No bounce received since the latest notification started dispatching, and
-2. a configured timespan has lapsed since the latest notification finshed dispatching
+2. a configured timespan has lapsed since the latest notification finished dispatching
 
 The default config is defined by *cron.deleteBounces* config object in file */server/config.json*
 
