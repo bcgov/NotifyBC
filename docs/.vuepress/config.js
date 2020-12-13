@@ -1,7 +1,7 @@
 const {description} = require('../package');
 
 module.exports = {
-  base: '/NotifyBC/',
+  base: `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`,
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
    */
