@@ -5,5 +5,5 @@
       <feBlend in="SourceGraphic" in2="blurOut" mode="normal"/>
     </filter>
   </defs>
-  <text style="white-space:pre" filter="url(#halo)" rx="30" y="40" font-family="Arial" font-size="32" fill="navy" font-weight="bold"> NotifyBC</text>
+  <text style="white-space:pre; stroke: red; stroke-width: .07em; stroke-opacity:0.2" filter="url(#halo)" rx="30" y="40" font-family="Arial" font-size="32" fill="blue" font-weight="bold"> NotifyBC</text>
 </svg>

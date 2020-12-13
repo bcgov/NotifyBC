@@ -11,14 +11,13 @@ features:
         <li>Push and in-app pull notifications</li>
         <li>Email and SMS push notification channels</li>
         <li>Unicast and broadcast message types</li>
-        <li>User specifiable filter rules</li>
+        <li>Subscriber specifiable filter rules</li>
         <li>Notification auto-gen from RSS</li>
       </ul>
   - title: Non-intrusive
     details: >
       <ul>
-        <li>Handles common backend business logic only, allowing site developer implement user subscriptions or display
-          in-app notifications using UI widgets native to the site.
+        <li>Handles common backend business logic only, allowing site developer implement frontend UI using widgets native to the site.
         </li>
         <li>Loose coupling - interacts with user browser or other server components through RESTful API.
         </li>
