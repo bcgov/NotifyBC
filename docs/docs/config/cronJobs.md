@@ -73,13 +73,13 @@ This cron job monitors RSS feed notification dynamic config items. If a config i
    }
  }
 ```
-*timeSpec* follows [same syntax described above](#timeSpec). Note this *timeSpec* doesn't control the RSS poll frequency (which is defined in dynamic configs and is service specific), instead it only controls the frequency to check for dynamic config changes. 
+*timeSpec* follows [same syntax described above](#timeSpec). Note this *timeSpec* doesn't control the RSS poll frequency (which is defined in dynamic configs and is service specific), instead it only controls the frequency to check for dynamic config changes.
 
 ## Delete Notification Bounces
-This cron job deletes notification bounces if the latest notification is  deemed delivered successfully. The criteria of sussessful delivery are
+This cron job deletes notification bounces if the latest notification is  deemed delivered successfully. The criteria of successful delivery are
 
 1. No bounce received since the latest notification started dispatching, and
-2. a configured timespan has lapsed since the latest notification finished dispatching
+2. a configured time span has lapsed since the latest notification finished dispatching
 
 The default config is defined by *cron.deleteBounces* config object in file */server/config.json*
 
@@ -96,4 +96,4 @@ The default config is defined by *cron.deleteBounces* config object in file */se
 where
 
 * *timeSpec* is the frequency of cron job, following [same syntax described above](#timeSpec)
-* *minLapsedHoursSinceLatestNotificationEnded* is the timespan
+* *minLapsedHoursSinceLatestNotificationEnded* is the time span

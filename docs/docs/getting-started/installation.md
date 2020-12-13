@@ -139,15 +139,15 @@ If using Jenkins, all the software are pre-installed on OpenShift provided Jenki
    notifyBC
    ~ $ cd notifyBC
    ~ $ oc login -u <username> -p <password> <openshift-console-url>
-   ~ $ oc create -f .opensift-templates/notify-bc-build.yml -n <yourprojectname-tools>
-   ~ $ oc create -f .opensift-templates/notify-bc.yml -n <yourprojectname-<env>>
+   ~ $ oc create -f .openshift-templates/notify-bc-build.yml -n <yourprojectname-tools>
+   ~ $ oc create -f .openshift-templates/notify-bc.yml -n <yourprojectname-<env>>
    ```
    After this step you will find an instant app template called *notify-bc-build* available in the *\<yourprojectname-tools\>* project and *notify-bc* in the *\<yourprojectname-\<env\>>* project.
 
    The template *notify-bc.yml* creates a single instance MongoDB. If you want a 3-node MongoDB cluster, use template *notify-bc-mongodb-cluster.yml* instead, i.e. replace last command  with
 
    ```bash
-   ~ $ oc create -f .opensift-templates/notify-bc-mongodb-cluster.yml -n <yourprojectname-<env>>
+   ~ $ oc create -f .openshift-templates/notify-bc-mongodb-cluster.yml -n <yourprojectname-<env>>
    ```
    MongoDB cluster created by this template uses stateful sets. As of OpenShift 1.5, stateful set is in technology preview phase so use the feature with precaution.
 2. create OpenShift apps by clicking *Add to Project* in web console of respective projects, select JavaScript in languages catalog, and click either *notify-bc-build* or *notify-bc* template. Adjust parameters as you see fit.

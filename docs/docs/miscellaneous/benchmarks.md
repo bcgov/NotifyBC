@@ -49,7 +49,7 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
 
 ## Procedure
 
-1. update or create file */server/config.local.js* through [configMap](../installation/#update-configuration-files). Add sections for SMTP server and a custom filter funtion
+1. update or create file */server/config.local.js* through [configMap](../installation/#update-configuration-files). Add sections for SMTP server and a custom filter function
 
    ```
    var _ = require('lodash')
@@ -91,11 +91,11 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
      }
    }
    ```
-2. create a number of subscriptions in bulk using script [bulk-post-subs.js](https://github.com/bcgov/NotifyBC/blob/master/utils/load-testing/bulk-post-subs.js). To load test different email volumes, you can create bulk subscriptions in different services. For example, generate 10 subscriptions under service named *load10*; 1,000,000 subscriptions under serivce *load1000000* etc. *bulk-post-subs.js* takes *userChannleId* and other optional parameters
+2. create a number of subscriptions in bulk using script [bulk-post-subs.js](https://github.com/bcgov/NotifyBC/blob/master/utils/load-testing/bulk-post-subs.js). To load test different email volumes, you can create bulk subscriptions in different services. For example, generate 10 subscriptions under service named *load10*; 1,000,000 subscriptions under service *load1000000* etc. *bulk-post-subs.js* takes *userChannelId* and other optional parameters
 
     ```
     $ node utils/load-testing/bulk-post-subs.js -h
-    Usage: node bulk-post-subs.js [Options] <userChannleId>
+    Usage: node bulk-post-subs.js [Options] <userChannelId>
     [Options]:
     -a, --api-url-prefix=<string>                      api url prefix. default to http://localhost:3000/api
     -c, --channel=<string>                             channel. default to email
@@ -129,7 +129,7 @@ Test runs using other software or configurations described below have also been 
 [Here](../../attachments/benchmark-email.txt) is a sample email saved onto the mail drop folder of SMTP server.
 
 ### Comparison to Other Benchmarks
-According to [Baseline Performance for SMTP](https://technet.microsoft.com/en-us/library/bb124213(v=exchg.65).aspx) published on Microsoft Technet in 2005, Windows SMTP server has a max throughput of 142 emails/s. However this *NotifyBC* load test yields a max throughput of 292 emails/s. The discrepency may be attributed to following factors
+According to [Baseline Performance for SMTP](https://technet.microsoft.com/en-us/library/bb124213(v=exchg.65).aspx) published on Microsoft Technet in 2005, Windows SMTP server has a max throughput of 142 emails/s. However this *NotifyBC* load test yields a max throughput of 292 emails/s. The discrepancy may be attributed to following factors
 
 1. Email size in Microsoft's load test is 50k, as opposed to 1k used in this test
 2. SSD storage is used in this test. It is unlikely the test conducted in 2005 used SSD.

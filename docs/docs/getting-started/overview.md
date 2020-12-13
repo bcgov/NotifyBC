@@ -96,5 +96,5 @@ The way *NotifyBC* interacts with other components is diagrammed below.
 *NotifyBC* is created on Node.js [LoopBack](https://loopback.io/). Contributors to source code of *NotifyBC* should be familiar with LoopBack. [LoopBack Docs](https://loopback.io/doc/en/lb3) serves a good complement to this documentation.
 
 ::: tip ProTips™ familiarize LoopBack
-Most of NotifyBC code was writen according to LoopBack docs, especially section [adding logic to models](https://loopback.io/doc/en/lb3/Adding-logic-to-models.html).
+Most of NotifyBC code was written according to LoopBack docs, especially section [adding logic to models](https://loopback.io/doc/en/lb3/Adding-logic-to-models.html).
 :::

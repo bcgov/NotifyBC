@@ -231,7 +231,7 @@ The API operates on following subscription data model fields:
   <tr>
     <td>
       <p class="name">unsubscribedAdditionalServices</p>
-      <p class="description">generated if parameter <i>additionalServices</i> is supplied in unsubscription request. Contains 2 sub-fields: ids and names, each being a list identifing the additional unsubscribed subscriptions.</p>
+      <p class="description">generated if parameter <i>additionalServices</i> is supplied in unsubscription request. Contains 2 sub-fields: ids and names, each being a list identifying the additional unsubscribed subscriptions.</p>
     </td>
     <td>
       <table>
@@ -314,7 +314,7 @@ POST /subscriptions
   7. the subscription request is saved to database.
   8. if _confirmationRequest.sendRequest_ is true, then a message is sent to _userChannelId_. The message template is determined by
 
-     1. if _detectDuplicatedSubscription_ is true and there is already a confirmed subscription to the same _serviceName_, _channel_ and _userChannleId_, then message is sent using _duplicatedSubscriptionNotification_ as template;
+     1. if _detectDuplicatedSubscription_ is true and there is already a confirmed subscription to the same _serviceName_, _channel_ and _userChannelId_, then message is sent using _duplicatedSubscriptionNotification_ as template;
      2. otherwise, a confirmation request is sent to using the template fields in _confirmationRequest_.
 
      [Mail merge](../overview/#mail-merge) is performed on the template regardless.
@@ -490,10 +490,10 @@ GET /subscriptions/{id}/unsubscribe?unsubscriptionCode={unsubscriptionCode}&addi
   2. for user request,
 
   - if request is authenticated, the _userId_ of the subscription is checked against current request user, if not match, request is rejected
-  - if request is anonymous, and server is configured to require unsubscription code, the input unsubscription code is matched againts the _unsubscriptionCode_ field. Request is rejected if not match. In addition, if input parameter _userChannelId_ is populated but doesn't match, request is rejected
+  - if request is anonymous, and server is configured to require unsubscription code, the input unsubscription code is matched against the _unsubscriptionCode_ field. Request is rejected if not match. In addition, if input parameter _userChannelId_ is populated but doesn't match, request is rejected
 
   3. if the subscription state is not _confirmed_, request is rejected
-  4. if _additionalServices_ is populated, database is queried to retrive the _serviceName_ and _id_ fields of the additional subscriptions
+  4. if _additionalServices_ is populated, database is queried to retrieve the _serviceName_ and _id_ fields of the additional subscriptions
   5. the field _state_ is set to _deleted_ for the subscription identified by _id_ as well as additional subscriptions retrieved in previous step
   6. if _additionalServices_ is not empty, the service names and ids of the additional subscriptions are added to field _unsubscribedAdditionalServices_ of the subscription identified by _id_ to allow bulk undo unsubscription later on
   7. for anonymous unsubscription, an acknowledgement notification is sent to user if configured so
@@ -506,7 +506,7 @@ GET /subscriptions/{id}/unsubscribe?unsubscriptionCode={unsubscriptionCode}&addi
   1. To allow an anonymous subscriber to unsubscribe single subscription, provide url token _{unsubscription_url}_ in notification messages. When sending notification, [mail merge](../overview/#mail-merge) is performed on the token resolving to the GET API url and parameters.
   2. To allow an anonymous subscriber to unsubscribe all subscriptions, provide url token _{unsubscription_all_url}_ in notification messages.
 
-## Un-deleteing a Subscription
+## Un-deleting a Subscription
 
 ```
 GET /subscriptions/{id}/unsubscribe/undo
@@ -532,7 +532,7 @@ This API allows an anonymous subscriber to undo an unsubscription.
   1. the subscription identified by _id_ is retrieved
   2. for user request,
 
-  - if request is anonymous, and server is configured to require unsubscription code, the input unsubscription code is matched againts the _unsubscriptionCode_ field. Request is rejected if not match
+  - if request is anonymous, and server is configured to require unsubscription code, the input unsubscription code is matched against the _unsubscriptionCode_ field. Request is rejected if not match
   - if request is authenticated, request is rejected
   - if the subscription state is not _deleted_, request is rejected
 
@@ -563,7 +563,7 @@ This API is designed to facilitate implementing autocomplete for admin web conso
 PUT /subscriptions/{id}
 ```
 
-This API is intended to be only used by admin web console to modify a subscription without triggering any cofirmation or acknowledgement notificaiton.
+This API is intended to be only used by admin web console to modify a subscription without triggering any confirmation or acknowledgement notification.
 
 - inputs
   - subscription id

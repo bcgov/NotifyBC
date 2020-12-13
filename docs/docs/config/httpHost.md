@@ -7,7 +7,7 @@ permalink: /docs/config-httpHost/
 *httpHost* config sets the fallback http host used by
 
 * mail merge token substitution
-* interal HTTP requests spawned by *NotifyBC* 
+* internal HTTP requests spawned by *NotifyBC*
 
 *httpHost* can be overridden by other configs or data. For example
 

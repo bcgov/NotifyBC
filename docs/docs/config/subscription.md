@@ -24,7 +24,7 @@ to create a service-specific dynamic config, use REST [config api](../api-config
 -H 'Accept: application/json' -d @- << EOF
 {
   "name": "subscription",
-  "serivceName": "myService",
+  "serviceName": "myService",
   "value": {
      ...
   }
@@ -83,7 +83,7 @@ In addition to customizing the message, you can define a redirect URL instead of
 -H 'Accept: application/json' -d @- << EOF
 {
   "name": "subscription",
-  "serivceName": "myService",
+  "serviceName": "myService",
   "value": {
     "confirmationAcknowledgements": {
       "redirectUrl": "https://myapp/subscription/acknowledgement"

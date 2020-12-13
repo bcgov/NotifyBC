@@ -96,7 +96,7 @@ The API operates on following notification data model fields:
   <tr>
     <td>
       <p class="name">state</p>
-      <p class="description">state of notification. Valid values: <i>new</i>, <i>read</i> (inApp only), <i>deleted</i> (inApp only), <i>sent</i> (push only) or <i>error</i>. For inApp broadcast notification, if the user has read or deleted the message, the value of this field retrived by admin request will still be new. The state for the user is tracked in fields <i>readBy</i> and <i>deletedBy</i> in such case. For user request, the value contains correct state.</p>
+      <p class="description">state of notification. Valid values: <i>new</i>, <i>read</i> (inApp only), <i>deleted</i> (inApp only), <i>sent</i> (push only) or <i>error</i>. For inApp broadcast notification, if the user has read or deleted the message, the value of this field retrieved by admin request will still be new. The state for the user is tracked in fields <i>readBy</i> and <i>deletedBy</i> in such case. For user request, the value contains correct state.</p>
     </td>
     <td>
       <table>
@@ -257,10 +257,10 @@ The API operates on following notification data model fields:
   <tr>
     <td>
       <p class="name"><a name="data"/>data</p>
-      <div class="description">the event that triggers the notification, for example, a RSS feed item when the notification is genenrated automatically by RSS cron job. Field <i>data</i> serves two purposes
+      <div class="description">the event that triggers the notification, for example, a RSS feed item when the notification is generated automatically by RSS cron job. Field <i>data</i> serves two purposes
       <ul>
         <li>to replace <a href="../overview/#dynamic-tokens">dynamic tokens</a> in <i>message</i> template fields</li>
-        <li>to match against filter defined in subscription field <a href="../api-subscription#broadcastPushNotificationFilter">broadcastPushNotificationFilter</a>, if supplied, for broadcast push notificiations to determine if the notification should be delivered to the subscriber</li>
+        <li>to match against filter defined in subscription field <a href="../api-subscription#broadcastPushNotificationFilter">broadcastPushNotificationFilter</a>, if supplied, for broadcast push notifications to determine if the notification should be delivered to the subscriber</li>
       </ul>
       </div>
     </td>
@@ -502,4 +502,4 @@ This API is intended to be only used by admin web console to modify a notificati
     * data type: object
 * outcome
 
-  *NotifyBC* process the request same way as [Create/Send Notifications](#createsend-notifications) except that notification data is saved with *id* supplied in the parameter, replacing exsiting one.
+  *NotifyBC* process the request same way as [Create/Send Notifications](#createsend-notifications) except that notification data is saved with *id* supplied in the parameter, replacing existing one.

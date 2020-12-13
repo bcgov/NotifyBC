@@ -26,7 +26,7 @@ notifyBC
 
 Here \<csv-file-path\> is the path to csv file and \<api-url-prefix\> is the *NotifyBC* api url prefix , default to *http://localhost:3000/api*.
 
-The script parses the csv file and generates a HTTP post request for each row. The concurrency of HTTP request is controlled by option *-c* which is default to 10 if omitted. A successful run should ouput the number of rows imported wihout any error message
+The script parses the csv file and generates a HTTP post request for each row. The concurrency of HTTP request is controlled by option *-c* which is default to 10 if omitted. A successful run should output the number of rows imported without any error message
 
 ```
 success row count = ***

@@ -4,7 +4,7 @@ title: Administrator
 permalink: /docs/api-administrator/
 ---
 
-The administrator API provides knowledge factor based authentication mechanism to identify admin request, as opposed to possession factor based admin ip list. Because knowledge factor based authentication is vulnerable to brute-force attack, administrator API is less favourable than admin ip list. Administrator API should only be used in exceptional circumstances such as when obtaining the client's ip or ip range is infeasible.
+The administrator API provides knowledge factor based authentication mechanism to identify admin request, as opposed to possession factor based admin ip list. Because knowledge factor based authentication is vulnerable to brute-force attack, administrator API is less favorable than admin ip list. Administrator API should only be used in exceptional circumstances such as when obtaining the client's ip or ip range is infeasible.
 
 ::: warning Example Use Case
 Administrator API was created to circumvent an OpenShift limitation - the source ip of a request initiated from an OpenShift pod cannot be exclusively allocated to the pod's project, rather it has to be shared by all OpenShift projects. Therefore it's difficult to impose granular access control based on source ip.

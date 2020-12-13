@@ -9,7 +9,7 @@ Configs in this section customize the handling of notification request or genera
 ## RSS Feeds
 *NotifyBC* can generate broadcast push notifications automatically by polling RSS feeds periodically and detect changes by comparing with an internally maintained history list. The polling frequency, RSS url, RSS item change detection criteria, and message template can be defined in dynamic configs.
 
-::: danger Only first page is retrived for paginated RSS feeds
+::: danger Only first page is retrieved for paginated RSS feeds
 If a RSS feed is paginated, <i>NotifyBC</i> only retrieves the first page rather than auto-fetch subsequent pages. Hence paginated RSS feeds should be sorted descendingly by last modified timestamp. Refresh interval should be adjusted small enough such that all new or updated items are contained in first page.
 :::
 

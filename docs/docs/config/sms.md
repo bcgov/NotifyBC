@@ -58,7 +58,7 @@ Obtain _\<accountKey\>_ from your Swift account.
 
 With Swift short code, sms user can unsubscribe by replying to a sms message with a keyword. The keyword must be pre-registered with Swift.
 
-To enable this feature, 
+To enable this feature,
 
 1. Generate a random string, hereafter referred to as *\<randomly-generated-string\>*
 2. Add it to _sms.swift.notifyBCSwiftKey_ in file _/server/config.local.js_
@@ -68,13 +68,13 @@ To enable this feature,
       sms: {
         swift: {
           ...
-          notifyBCSwiftKey: '<randomly-genereated-string>',
+          notifyBCSwiftKey: '<randomly-generated-string>',
         },
       },
     }
    ```
 3. Go to Swift web admin console, click *Number Management* tab
-4. Click *Launch* button next to *Manage Short Code Keywords* 
+4. Click *Launch* button next to *Manage Short Code Keywords*
 5. Click *Features* button next to the registered keyword(s). A keyword may have multiple entries. In such case do this for each entry.
 6. Click *Redirect To Webpage* tab in the popup window
 7. Enter following information in the tab
