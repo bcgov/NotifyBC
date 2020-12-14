@@ -67,6 +67,6 @@
     "node": ">=8.2.1"
   },
   "license": "Apache-2.0",
-  "description": "a versatile notification API server",
+  "description": "A versatile notification API server",
   "private": true
 }

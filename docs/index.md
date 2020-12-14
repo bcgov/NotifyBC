@@ -1,5 +1,6 @@
 ---
 home: true
+metaTitle: NotifyBC | A versatile notification API server
 heroImage: /img/logo.svg
 actionText: Quick Start →
 actionLink: /docs/quickstart/

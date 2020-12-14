@@ -1,7 +1,7 @@
 {
   "name": "notify-bc",
   "version": "0.0.1",
-  "description": "a versatile notification API server",
+  "description": "A versatile notification API server",
   "main": "index.js",
   "authors": {
     "name": "Fred Wen",
