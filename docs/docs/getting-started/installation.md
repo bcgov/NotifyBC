@@ -1,7 +1,8 @@
 ---
-title: Installation
 permalink: /docs/installation/
 ---
+
+# Installation
 
 _NotifyBC_ can be installed in 3 ways:
 

@@ -1,7 +1,8 @@
 ---
-title: Notification
 permalink: /docs/api-notification/
 ---
+
+# Notification
 
 The notification API encapsulates the backend workflow of staging and dispatching a message to targeted user after receiving the message from event source.
 

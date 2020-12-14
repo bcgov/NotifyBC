@@ -1,7 +1,8 @@
 ---
-title: Configuration Overview
 permalink: /docs/config-overview/
 ---
+
+# Configuration Overview
 
 There are two types of configurations - static and dynamic. Static configurations are defined in files or environment variables, requiring restarting app server to take effect, whereas dynamic configurations are defined in databases and updates take effect immediately.
 

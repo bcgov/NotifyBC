@@ -1,7 +1,8 @@
 ---
-title: Admin IP List
 permalink: /docs/config-adminIpList/
 ---
+
+# Admin IP List
 
 By [design](../overview/#architecture), _NotifyBC_ classifies incoming requests into four types. For a request to be classified as super-admin, the request's source ip must be in admin ip list. By default, the list contains _localhost_ only as defined by _defaultAdminIps_ in _/server/config.json_
 

@@ -1,8 +1,8 @@
 ---
-title: Developer Notes
-
 permalink: /docs/developer-notes/
 ---
+
+# Developer Notes
 
 ## Automated Testing
 

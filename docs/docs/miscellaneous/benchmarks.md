@@ -1,7 +1,8 @@
 ---
-title: Benchmarks
 permalink: /docs/benchmarks/
 ---
+
+# Benchmarks
 
 ::: warning tl;dr
 A <i>NotifyBC</i> server node can deliver 1 million emails in as little as 1 hour to a SMTP server node. SMTP server node's disk I/O is the bottleneck in such case. Throughput can be improved through horizontal scaling.

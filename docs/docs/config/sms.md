@@ -1,7 +1,8 @@
 ---
-title: SMS
 permalink: /docs/config-sms/
 ---
+
+# SMS
 
 _NotifyBC_ depends on underlying SMS service providers to deliver SMS messages. The supported service providers are
 

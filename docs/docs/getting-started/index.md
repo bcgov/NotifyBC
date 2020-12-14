@@ -1,7 +1,8 @@
 ---
-title: Welcome
 permalink: /docs/
 ---
+
+# Welcome
 
 This site aims to be a comprehensive guide to _NotifyBC_. We’ll cover topics such
 as getting your instance up and running, interacting with browser or other server components, deployment, and give you some advice on participating in the future

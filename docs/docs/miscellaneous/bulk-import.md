@@ -1,7 +1,8 @@
 ---
-title: Bulk Import
 permalink: /docs/bulk-import/
 ---
+
+# Bulk Import
 
 To facilitate migrating subscriptions from other notification systems, _NotifyBC_ provides a utility script to bulk import subscription data from a .csv file. To use the utility, you need
 

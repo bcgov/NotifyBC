@@ -1,7 +1,10 @@
 ---
-title: Quick Start
 permalink: /docs/quickstart/
----For the impatient, here's how to get a boilerplate _NotifyBC_ instance up and running if you have git and node.js installed:
+---
+
+# Quick Start
+
+For the impatient, here's how to get a boilerplate _NotifyBC_ instance up and running if you have git and node.js installed:
 
 ```sh
 ~ $ git clone \

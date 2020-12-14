@@ -1,7 +1,8 @@
 ---
-title: Overview
 permalink: /docs/overview/
 ---
+
+# Overview
 
 _NotifyBC_ is a general purpose API Server to manage subscriptions and dispatch notifications. It aims to implement some common backend processes of a notification service without imposing any constraints on the UI frontend, nor impeding other server components' functionality. This is achieved by interacting with user browser and other server components through RESTful API and other standard protocols in a loosely coupled way.
 
@@ -48,15 +49,15 @@ _NotifyBC_ recognizes following case-insensitive static tokens in push notificat
 - {subscription_confirmation_url}
 - {subscription_confirmation_code}
 - {service_name}
-- {http_host} - http host in the form _http(s): //\<host_name\>:\<port\>_. The value is obtained from the http request that triggers the message
+- {http*host} - http host in the form \_http(s): //\<host_name\>:\<port\>*. The value is obtained from the http request that triggers the message
 - {rest_api_root} - configured Loopback [Root URI of REST API](https://loopback.io/doc/en/lb3/config.json.html#top-level-properties)
 - {subscription_id}
 - anonymous unsubscription related tokens
   - {unsubscription_url}
-  - {unsubscription_all_url} - url to unsubscribe all services the user has subscribed on this _NotifyBC_ instance
+  - {unsubscription*all_url} - url to unsubscribe all services the user has subscribed on this \_NotifyBC* instance
   - {unsubscription_code}
   - {unsubscription_reversion_url}
-  - {unsubscription_service_names} - includes {service_name} and additional services user has unsubscribed, prefixed with conditionally pluralized word _service_.
+  - {unsubscription*service_names} - includes {service_name} and additional services user has unsubscribed, prefixed with conditionally pluralized word \_service*.
 
 #### dynamic tokens
 

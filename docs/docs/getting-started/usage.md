@@ -1,7 +1,8 @@
 ---
-title: Basic Usage
 permalink: /docs/usage/
 ---
+
+# Basic Usage
 
 After [installing](../installation) _NotifyBC_, you can start exploring _NotifyBC_ resources by opening web console [http://localhost:3000](http://localhost:3000). You can further explore APIs by clicking the API explorer in web console and expand the data models. The API calls you made with API explorer as well as API calls made by web console are by default treated as [admin requests](../overview/#architecture). To see the result for user requests, you can choose one of the following methods
 

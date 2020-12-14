@@ -1,7 +1,8 @@
 ---
-title: HTTP Host
 permalink: /docs/config-httpHost/
 ---
+
+# HTTP Host
 
 _httpHost_ config sets the fallback http host used by
 

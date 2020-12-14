@@ -1,7 +1,8 @@
 ---
-title: Cron Jobs
 permalink: /docs/config-cronJobs/
 ---
+
+# Cron Jobs
 
 _NotifyBC_ runs several cron jobs described below. These jobs are controlled by sub-properties defined in config object _cron_. To change config, create the object and properties in file _/server/config.local.js_.
 
