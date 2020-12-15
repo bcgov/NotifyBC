@@ -7,7 +7,7 @@ permalink: /docs/bulk-import/
 To facilitate migrating subscriptions from other notification systems, _NotifyBC_ provides a utility script to bulk import subscription data from a .csv file. To use the utility, you need
 
 - Software installed
-  - NodeJS@>=6.9.1
+  - NodeJS@>=14.5.0
   - Git
 - Admin Access to a _NotifyBC_ instance by adding your client ip to the [Admin IP List](../config-adminIpList/)
 - a csv file with header row matching [subscription model schema](../api-subscription/#model-schema). A sample csv file is [provided](https://github.com/bcgov/NotifyBC/tree/main/utils/bulk-import/sample-subscription.csv). Compound fields (of object type) should be dot-flattened as shown in the sample for field _confirmationRequest.sendRequest_

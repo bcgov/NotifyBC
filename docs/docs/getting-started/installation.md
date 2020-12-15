@@ -24,7 +24,7 @@ installing from source code is preferred.
 
 - Software
   - Git
-  - [Node.js](https://nodejs.org)@>=6.9.1
+  - [Node.js](https://nodejs.org)@>=14.5.0
 - Services
   - MongoDB, optional but recommended for production
   - A standard SMTP server to deliver outgoing email, optional but recommended for production. You can use an existing organizational shared service, cloud-based service such as Amazon SES, or setting up your own SMTP server

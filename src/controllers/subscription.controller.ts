@@ -36,7 +36,7 @@ import {
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
-var RandExp = require('randexp');
+const RandExp = require('randexp');
 const path = require('path');
 
 @intercept(SubscriptionAfterRemoteInteceptor.BINDING_KEY)
@@ -80,7 +80,7 @@ export class SubscriptionController extends BaseController {
     }
     delete subscription.id;
     await this.beforeUpsert(this.httpContext, subscription);
-    let result = await this.subscriptionRepository.create(subscription);
+    const result = await this.subscriptionRepository.create(subscription);
     if (!result.confirmationRequest) {
       return result;
     }
@@ -139,7 +139,7 @@ export class SubscriptionController extends BaseController {
     @requestBody() subscription: DataObject<Subscription>,
   ): Promise<void> {
     const instance = await this.subscriptionRepository.findById(id);
-    var filteredData = _.merge({}, instance);
+    const filteredData = _.merge({}, instance);
     if (
       subscription.userChannelId &&
       filteredData.userChannelId !== subscription.userChannelId
@@ -216,16 +216,16 @@ export class SubscriptionController extends BaseController {
     additionalServices?: string[],
   ): Promise<void> {
     const instance = await this.subscriptionRepository.findById(id);
-    let mergedSubscriptionConfig = await this.getMergedConfig(
+    const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,
     );
-    let anonymousUnsubscription =
+    const anonymousUnsubscription =
       mergedSubscriptionConfig.anonymousUnsubscription;
     try {
       let forbidden = false;
       if (!this.configurationRepository.isAdminReq(this.httpContext)) {
-        var userId = this.configurationRepository.getCurrentUser(
+        const userId = this.configurationRepository.getCurrentUser(
           this.httpContext,
         );
         if (userId) {
@@ -256,9 +256,9 @@ export class SubscriptionController extends BaseController {
       if (forbidden) {
         throw new HttpErrors[403]('Forbidden');
       }
-      let unsubscribeItems = async (
+      const unsubscribeItems = async (
         query: Where<Subscription>,
-        additionalServices?: string | AdditionalServices,
+        addtServices?: string | AdditionalServices,
       ) => {
         await this.subscriptionRepository.updateAll(
           {
@@ -266,10 +266,10 @@ export class SubscriptionController extends BaseController {
           },
           query,
         );
-        let handleUnsubscriptionResponse = async () => {
+        const handleUnsubscriptionResponse = async () => {
           // send acknowledgement notification
           try {
-            let msg =
+            const msg =
               anonymousUnsubscription.acknowledgements.notification[
                 instance.channel
               ];
@@ -284,7 +284,7 @@ export class SubscriptionController extends BaseController {
                 await this.sendSMS(instance.userChannelId, textBody, instance);
                 break;
               case 'email': {
-                var subject = this.mailMerge(
+                const subject = this.mailMerge(
                   msg.subject,
                   instance,
                   this.httpContext,
@@ -294,12 +294,12 @@ export class SubscriptionController extends BaseController {
                   instance,
                   this.httpContext,
                 );
-                var htmlBody = this.mailMerge(
+                const htmlBody = this.mailMerge(
                   msg.htmlBody,
                   instance,
                   this.httpContext,
                 );
-                let mailOptions = {
+                const mailOptions = {
                   from: msg.from,
                   to: instance.userChannelId,
                   subject: subject,
@@ -313,7 +313,7 @@ export class SubscriptionController extends BaseController {
           } catch (ex) {}
           this.httpContext.response.setHeader('Content-Type', 'text/plain');
           if (anonymousUnsubscription.acknowledgements.onScreen.redirectUrl) {
-            var redirectUrl =
+            let redirectUrl =
               anonymousUnsubscription.acknowledgements.onScreen.redirectUrl;
             redirectUrl += `?channel=${instance.channel}`;
             return this.httpContext.response.redirect(redirectUrl);
@@ -323,11 +323,11 @@ export class SubscriptionController extends BaseController {
             );
           }
         };
-        if (!additionalServices) {
-          return await handleUnsubscriptionResponse();
+        if (!addtServices) {
+          return handleUnsubscriptionResponse();
         }
         await this.subscriptionRepository.updateById(id, {
-          unsubscribedAdditionalServices: additionalServices,
+          unsubscribedAdditionalServices: addtServices,
         });
         await handleUnsubscriptionResponse();
       };
@@ -340,9 +340,9 @@ export class SubscriptionController extends BaseController {
         names: string[];
         ids: string[];
       }
-      let getAdditionalServiceIds = async (): Promise<AdditionalServices> => {
+      const getAdditionalServiceIds = async (): Promise<AdditionalServices> => {
         if (additionalServices.length > 1) {
-          let res = await this.subscriptionRepository.find({
+          const res = await this.subscriptionRepository.find({
             fields: {id: true, serviceName: true},
             where: {
               serviceName: {
@@ -359,7 +359,7 @@ export class SubscriptionController extends BaseController {
         }
         if (additionalServices.length === 1) {
           if (additionalServices[0] !== '_all') {
-            let res = await this.subscriptionRepository.find({
+            const res = await this.subscriptionRepository.find({
               fields: {id: true, serviceName: true},
               where: {
                 serviceName: additionalServices[0],
@@ -373,7 +373,7 @@ export class SubscriptionController extends BaseController {
             };
           }
           // get all subscribed services
-          let res = await this.subscriptionRepository.find({
+          const res = await this.subscriptionRepository.find({
             fields: {id: true, serviceName: true},
             where: {
               userChannelId: instance.userChannelId,
@@ -388,7 +388,7 @@ export class SubscriptionController extends BaseController {
         }
         throw new HttpErrors[500]();
       };
-      let data = await getAdditionalServiceIds();
+      const data = await getAdditionalServiceIds();
       await unsubscribeItems(
         {
           id: {
@@ -400,7 +400,7 @@ export class SubscriptionController extends BaseController {
     } catch (error) {
       this.httpContext.response.setHeader('Content-Type', 'text/plain');
       if (anonymousUnsubscription.acknowledgements.onScreen.redirectUrl) {
-        var redirectUrl =
+        let redirectUrl =
           anonymousUnsubscription.acknowledgements.onScreen.redirectUrl;
         redirectUrl += `?channel=${instance.channel}`;
         redirectUrl += '&err=' + encodeURIComponent(error);
@@ -472,12 +472,12 @@ export class SubscriptionController extends BaseController {
     replace?: boolean,
   ): Promise<void> {
     const instance = await this.subscriptionRepository.findById(id);
-    let mergedSubscriptionConfig = await this.getMergedConfig(
+    const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,
     );
 
-    let handleConfirmationAcknowledgement = async (
+    const handleConfirmationAcknowledgement = async (
       err: any,
       message?: string,
     ) => {
@@ -485,9 +485,9 @@ export class SubscriptionController extends BaseController {
         if (err) {
           throw err;
         }
-        return await this.httpContext.response.end(message);
+        return this.httpContext.response.end(message);
       }
-      var redirectUrl =
+      let redirectUrl =
         mergedSubscriptionConfig.confirmationAcknowledgements.redirectUrl;
       this.httpContext.response.setHeader('Content-Type', 'text/plain');
       if (redirectUrl) {
@@ -495,18 +495,18 @@ export class SubscriptionController extends BaseController {
         if (err) {
           redirectUrl += '&err=' + encodeURIComponent(err.toString());
         }
-        return await this.httpContext.response.redirect(redirectUrl);
+        return this.httpContext.response.redirect(redirectUrl);
       } else {
         if (err) {
           if (err.status) {
             this.httpContext.response.status(err.status);
           }
-          return await this.httpContext.response.end(
+          return this.httpContext.response.end(
             mergedSubscriptionConfig.confirmationAcknowledgements
               .failureMessage,
           );
         }
-        return await this.httpContext.response.end(
+        return this.httpContext.response.end(
           mergedSubscriptionConfig.confirmationAcknowledgements.successMessage,
         );
       }
@@ -517,23 +517,26 @@ export class SubscriptionController extends BaseController {
       (instance.confirmationRequest &&
         confirmationCode !== instance.confirmationRequest.confirmationCode)
     ) {
-      return await handleConfirmationAcknowledgement(
+      return handleConfirmationAcknowledgement(
         new HttpErrors[403]('Forbidden'),
       );
     }
     try {
       if (replace && instance.userChannelId) {
-        let whereClause: Where<Subscription> = {
+        const whereClause: Where<Subscription> = {
           serviceName: instance.serviceName,
           state: 'confirmed',
           channel: instance.channel,
         };
         // email address check should be case insensitive
-        let escapedUserChannelId = instance.userChannelId.replace(
+        const escapedUserChannelId = instance.userChannelId.replace(
           /[-[\]{}()*+?.,\\^$|#\s]/g,
           '\\$&',
         );
-        let escapedUserChannelIdRegExp = new RegExp(escapedUserChannelId, 'i');
+        const escapedUserChannelIdRegExp = new RegExp(
+          escapedUserChannelId,
+          'i',
+        );
         whereClause.userChannelId = {
           regexp: escapedUserChannelIdRegExp,
         };
@@ -550,7 +553,7 @@ export class SubscriptionController extends BaseController {
     } catch (err) {
       return await handleConfirmationAcknowledgement(err);
     }
-    return await handleConfirmationAcknowledgement(null, 'OK');
+    return handleConfirmationAcknowledgement(null, 'OK');
   }
 
   @get('/subscriptions/{id}/unsubscribe/undo', {
@@ -573,12 +576,12 @@ export class SubscriptionController extends BaseController {
     })
     unsubscriptionCode?: string,
   ): Promise<void> {
-    let instance = await this.subscriptionRepository.findById(id);
-    let mergedSubscriptionConfig = await this.getMergedConfig(
+    const instance = await this.subscriptionRepository.findById(id);
+    const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,
     );
-    let anonymousUndoUnsubscription =
+    const anonymousUndoUnsubscription =
       mergedSubscriptionConfig.anonymousUndoUnsubscription;
     try {
       if (!this.subscriptionRepository.isAdminReq(this.httpContext)) {
@@ -595,8 +598,8 @@ export class SubscriptionController extends BaseController {
           throw new HttpErrors[403]('Forbidden');
         }
       }
-      let revertItems = async (query: Where<Subscription>) => {
-        let res = await this.subscriptionRepository.updateAll(
+      const revertItems = async (query: Where<Subscription>) => {
+        await this.subscriptionRepository.updateAll(
           {
             state: 'confirmed',
           },
@@ -604,7 +607,7 @@ export class SubscriptionController extends BaseController {
         );
         this.httpContext.response.setHeader('Content-Type', 'text/plain');
         if (anonymousUndoUnsubscription.redirectUrl) {
-          var redirectUrl = anonymousUndoUnsubscription.redirectUrl;
+          let redirectUrl = anonymousUndoUnsubscription.redirectUrl;
           redirectUrl += `?channel=${instance.channel}`;
           return this.httpContext.response.redirect(redirectUrl);
         } else {
@@ -618,7 +621,7 @@ export class SubscriptionController extends BaseController {
           id: instance.id,
         });
       }
-      let unsubscribedAdditionalServicesIds = instance.unsubscribedAdditionalServices.ids.slice();
+      const unsubscribedAdditionalServicesIds = instance.unsubscribedAdditionalServices.ids.slice();
       delete instance.unsubscribedAdditionalServices;
       await this.subscriptionRepository.replaceById(instance.id, instance);
       await revertItems({
@@ -636,7 +639,7 @@ export class SubscriptionController extends BaseController {
     } catch (err) {
       this.httpContext.response.setHeader('Content-Type', 'text/plain');
       if (anonymousUndoUnsubscription.redirectUrl) {
-        var redirectUrl = anonymousUndoUnsubscription.redirectUrl;
+        let redirectUrl = anonymousUndoUnsubscription.redirectUrl;
         redirectUrl += `?channel=${instance.channel}`;
         redirectUrl += '&err=' + encodeURIComponent(err.message || err);
         return this.httpContext.response.redirect(redirectUrl);
@@ -672,11 +675,9 @@ export class SubscriptionController extends BaseController {
     if (!this.subscriptionRepository.isAdminReq(this.httpContext)) {
       throw new HttpErrors[403]('Forbidden');
     }
-    let subscriptionCollection =
-      this.subscriptionRepository.dataSource.connector &&
-      this.subscriptionRepository.dataSource.connector.collection(
-        Subscription.modelName,
-      );
+    const subscriptionCollection = this.subscriptionRepository.dataSource.connector?.collection(
+      Subscription.modelName,
+    );
     // distinct is db-dependent feature. MongoDB supports it
     if (typeof subscriptionCollection.distinct === 'function') {
       return new Promise((res, rej) => {
@@ -692,7 +693,7 @@ export class SubscriptionController extends BaseController {
         );
       });
     }
-    let data = await this.subscriptionRepository.find({
+    const data = await this.subscriptionRepository.find({
       fields: {
         serviceName: true,
       },
@@ -751,14 +752,14 @@ export class SubscriptionController extends BaseController {
     if (this.appConfig['smsServiceProvider'] !== 'swift') {
       throw new HttpErrors[403]('Forbidden');
     }
-    let smsConfig = this.appConfig.sms;
+    const smsConfig = this.appConfig.sms;
     if (!smsConfig || !smsConfig.swift || !smsConfig.swift.notifyBCSwiftKey) {
       throw new HttpErrors[403]('Forbidden');
     }
     if (smsConfig.swift.notifyBCSwiftKey !== body.notifyBCSwiftKey) {
       throw new HttpErrors[403]('Forbidden');
     }
-    let whereClause: Where<Subscription> = {
+    const whereClause: Where<Subscription> = {
       state: 'confirmed',
       channel: 'sms',
     };
@@ -768,17 +769,17 @@ export class SubscriptionController extends BaseController {
       if (!body.PhoneNumber) {
         throw new HttpErrors[403]('Forbidden');
       }
-      let phoneNumberArr = body.PhoneNumber.split('');
+      const phoneNumberArr = body.PhoneNumber.split('');
       // country code is optional
       if (phoneNumberArr[0] === '1') {
         phoneNumberArr[0] = '1?';
       }
-      let phoneNumberRegex = new RegExp(phoneNumberArr.join('-?'));
+      const phoneNumberRegex = new RegExp(phoneNumberArr.join('-?'));
       whereClause.userChannelId = {
         regexp: phoneNumberRegex,
       };
     }
-    let subscription = await this.subscriptionRepository.findOne({
+    const subscription = await this.subscriptionRepository.findOne({
       where: whereClause,
     });
     if (!subscription) {
@@ -808,33 +809,31 @@ export class SubscriptionController extends BaseController {
     let mailFrom = data.confirmationRequest.from;
 
     // handle duplicated request
-    let mergedSubscriptionConfig;
-    try {
-      mergedSubscriptionConfig = await this.getMergedConfig(
-        'subscription',
-        data.serviceName,
-      );
-    } catch (err) {
-      throw err;
-    }
+    const mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      data.serviceName,
+    );
     if (mergedSubscriptionConfig.detectDuplicatedSubscription) {
-      let whereClause: any = {
+      const whereClause: any = {
         serviceName: data.serviceName,
         state: 'confirmed',
         channel: data.channel,
       };
       if (data.userChannelId) {
         // email address check should be case insensitive
-        var escapedUserChannelId = data.userChannelId.replace(
+        const escapedUserChannelId = data.userChannelId.replace(
           /[-[\]{}()*+?.,\\^$|#\s]/g,
           '\\$&',
         );
-        var escapedUserChannelIdRegExp = new RegExp(escapedUserChannelId, 'i');
+        const escapedUserChannelIdRegExp = new RegExp(
+          escapedUserChannelId,
+          'i',
+        );
         whereClause.userChannelId = {
           regexp: escapedUserChannelIdRegExp,
         };
       }
-      let subCnt = await this.count(whereClause);
+      const subCnt = await this.count(whereClause);
       if (subCnt.count > 0) {
         mailFrom =
           mergedSubscriptionConfig.duplicatedSubscriptionNotification[
@@ -876,7 +875,7 @@ export class SubscriptionController extends BaseController {
         await this.sendSMS(data.userChannelId, textBody, data);
         break;
       default: {
-        let mailOptions = {
+        const mailOptions = {
           from: mailFrom,
           to: data.userChannelId,
           subject: mailSubject,
@@ -890,11 +889,11 @@ export class SubscriptionController extends BaseController {
 
   // use private modifier to avoid class level interceptor
   private async beforeUpsert(ctx: any, data: Subscription) {
-    let mergedSubscriptionConfig = await this.getMergedConfig(
+    const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       data.serviceName,
     );
-    var userId = this.configurationRepository.getCurrentUser(ctx);
+    const userId = this.configurationRepository.getCurrentUser(ctx);
     if (userId) {
       data.userId = userId;
     } else if (
@@ -902,31 +901,24 @@ export class SubscriptionController extends BaseController {
       !data.unsubscriptionCode
     ) {
       // generate unsubscription code
-      var anonymousUnsubscription =
+      const anonymousUnsubscription =
         mergedSubscriptionConfig.anonymousUnsubscription;
-      if (
-        anonymousUnsubscription.code &&
-        anonymousUnsubscription.code.required
-      ) {
-        var unsubscriptionCodeRegex = new RegExp(
+      if (anonymousUnsubscription.code?.required) {
+        const unsubscriptionCodeRegex = new RegExp(
           anonymousUnsubscription.code.regex,
         );
         data.unsubscriptionCode = new RandExp(unsubscriptionCodeRegex).gen();
       }
     }
-    if (
-      data.confirmationRequest &&
-      data.confirmationRequest.confirmationCodeEncrypted
-    ) {
-      var rsaPath = path.resolve(__dirname, '../observers/rsa.observer');
-      var rsa = require(rsaPath);
-      var key = rsa.key;
-      var decrypted;
-      decrypted = key.decrypt(
+    if (data.confirmationRequest?.confirmationCodeEncrypted) {
+      const rsaPath = path.resolve(__dirname, '../observers/rsa.observer');
+      const rsa = require(rsaPath);
+      const key = rsa.key;
+      const decrypted = key.decrypt(
         data.confirmationRequest.confirmationCodeEncrypted,
         'utf8',
       );
-      var decryptedData = decrypted.split(' ');
+      const decryptedData = decrypted.split(' ');
       data.userChannelId = decryptedData[0];
       data.confirmationRequest.confirmationCode = decryptedData[1];
       return;
@@ -950,7 +942,7 @@ export class SubscriptionController extends BaseController {
       !data.confirmationRequest.confirmationCode &&
       data.confirmationRequest.confirmationCodeRegex
     ) {
-      var confirmationCodeRegex = new RegExp(
+      const confirmationCodeRegex = new RegExp(
         data.confirmationRequest.confirmationCodeRegex,
       );
       data.confirmationRequest.confirmationCode = new RandExp(
