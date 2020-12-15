@@ -1,4 +1,5 @@
 * [![Build Status](https://jenkins-gcpe-notifybc-tools.pathfinder.gov.bc.ca/buildStatus/icon?job=notify-bc-dev)](https://jenkins-gcpe-notifybc-tools.pathfinder.gov.bc.ca/job/notify-bc-dev/) deploying to OpenShift 
+* [![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
 NotifyBC
 ===========
