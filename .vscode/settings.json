@@ -24,21 +24,5 @@
   "typescript.preferences.quoteStyle": "single",
   "eslint.run": "onSave",
   "eslint.nodePath": "./node_modules",
-  "eslint.validate": ["javascript", "typescript"],
-  "cSpell.words": [
-    "IDAQAB",
-    "NDRs",
-    "createsend",
-    "jmespath",
-    "jmespath's",
-    "lcov",
-    "quickstart",
-    "serviceaccount",
-    "smgov",
-    "universalid",
-    "unsub",
-    "userdisplayname",
-    "yourprojectname",
-    "serviceaccount"
-  ]
+  "eslint.validate": ["javascript", "typescript"]
 }

@@ -7,44 +7,13 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "notifyBC",
-      "program": "${workspaceFolder}/server/server.js",
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "NODE_ENV": "dev",
-        "NOTIFYBC_WORKER_PROCESS_COUNT": "1"
-      }
-      // uncomment following line if env NOTIFYBC_WORKER_PROCESS_COUNT > 1
-      //      "autoAttachChildProcesses": true
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "jasmine",
-      "program": "${workspaceFolder}/node_modules/jasmine/bin/jasmine.js",
-      "env": {
-        "NODE_ENV": "test"
-      }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "smpt-server",
-      "program": "${workspaceFolder}/server/smtp-server.js",
-      "args": ["-p", "25", "-b", "true"],
+      "name": "Launch Program",
+      "program": "${workspaceFolder}\\dist\\index.js",
+      // "autoAttachChildProcesses": true,
+      "preLaunchTask": "Clean and Compile Project",
       "env": {
         "NODE_ENV": "dev"
       }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "docs",
-      "cwd": "${workspaceFolder}/docs",
-      "program": "node_modules/vuepress/cli.js",
-      "args": ["dev"],
-      "console": "internalConsole",
-      "envFile": "${workspaceFolder}/docs/.env"
     }
   ]
 }

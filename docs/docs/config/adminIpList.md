@@ -16,7 +16,7 @@ to modify, create config object _adminIps_ with updated list in file _/server/co
 
 ```js
 module.exports = {
-  adminIps: ['127.0.0.1', '192.168.0.0/24']
+  adminIps: ['127.0.0.1', '192.168.0.0/24'],
 };
 ```
 

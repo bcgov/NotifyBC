@@ -42,9 +42,9 @@ To change a config item, set the config item in file _/server/config.local.js_. 
 module.exports = {
   cron: {
     purgeData: {
-      timeSpec: '0 0 2 * * *'
-    }
-  }
+      timeSpec: '0 0 2 * * *',
+    },
+  },
 };
 ```
 

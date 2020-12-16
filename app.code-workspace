@@ -1,17 +1,20 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../jmespath.js"
-		},
-		{
-			"path": "../loopback-component-explorer"
-		},
-		{
-			"path": "../json-editor"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../jmespath.js"
+    },
+    {
+      "path": "../loopback-component-explorer"
+    },
+    {
+      "path": "../json-editor"
+    },
+    {
+      "path": "../loopback-sandbox"
+    }
+  ],
+  "settings": {}
 }

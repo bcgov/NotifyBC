@@ -20,6 +20,6 @@ Define the config, which has no default value, in _/server/config.local.js_
 
 ```js
 module.exports = {
-  httpHost: 'http://foo.com'
+  httpHost: 'http://foo.com',
 };
 ```

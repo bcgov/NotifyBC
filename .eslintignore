@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /client/
 /node_modules/
 /docs/
@@ -6,3 +7,8 @@
 /lb3app/
 /public/
 /dist/
+=======
+node_modules/
+dist/
+coverage/
+>>>>>>> 1d58d78... mounted lb3app and get apispec working

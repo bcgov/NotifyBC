@@ -1,3 +1,5 @@
 node_modules
-server/*.local.*
-server/id_rsa*
+npm-debug.log
+/dist
+# Cache used by TypeScript's incremental build
+*.tsbuildinfo

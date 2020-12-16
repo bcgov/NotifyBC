@@ -1,16 +1,61 @@
 {
-  "name": "notification",
-  "version": "1.13.7",
+  "name": "notify-bc",
+  "version": "2.0.0",
   "dbSchemaVersion": "0.6.0",
-  "main": "server/server.js",
-  "scripts": {
-    "start": "node .",
-    "start:dev": "cross-env NODE_ENV=dev node .",
-    "postinstall": "cd client && yarn install && yarn run build && cd ..",
-    "test": "cross-env NODE_ENV=test istanbul cover node_modules/jasmine/bin/jasmine.js",
-    "pretest": "eslint ."
+  "description": "notify bc - a versatile notification API server",
+  "keywords": [
+    "loopback-application",
+    "loopback"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=10"
   },
+  "scripts": {
+    "build": "lb-tsc",
+    "build:watch": "lb-tsc --watch",
+    "lint": "npm run prettier:check && npm run eslint",
+    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "prettier:cli": "lb-prettier \"**/*.ts\" \"**/*.js\"",
+    "prettier:check": "npm run prettier:cli -- -l",
+    "prettier:fix": "npm run prettier:cli -- --write",
+    "eslint": "lb-eslint --report-unused-disable-directives .",
+    "eslint:fix": "npm run eslint -- --fix",
+    "pretest": "npm run clean && npm run build",
+    "test": "lb-mocha --allow-console-logs \"dist/__tests__\"",
+    "posttest": "npm run lint",
+    "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
+    "docker:build": "docker build -t notify-bc .",
+    "docker:run": "docker run -p 3000:3000 -d notify-bc",
+    "migrate": "node ./dist/migrate",
+    "openapi-spec": "node ./dist/openapi-spec",
+    "prestart": "npm run build",
+    "start": "node -r source-map-support/register .",
+    "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
+    "cleanbuild": "npm run clean && npm run build",
+    "postinstall": "cd public && yarn install && yarn run build && cd .."
+  },
+  "repository": {
+    "type": "git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ],
   "dependencies": {
+    "@loopback/boot": "^2.3.4",
+    "@loopback/booter-lb3app": "^2.2.4",
+    "@loopback/core": "^2.9.0",
+    "@loopback/openapi-v3": "^3.4.4",
+    "@loopback/repository": "^2.8.0",
+    "@loopback/rest": "^5.1.2",
+    "@loopback/rest-explorer": "^2.2.5",
+    "@loopback/service-proxy": "^2.3.3",
     "async": "^3.0.1",
     "axios": "^0.19.0",
     "compression": "^1.0.3",
@@ -26,7 +71,7 @@
     "lodash": "^4.17.11",
     "loopback": "^3.26.0",
     "loopback-boot": "^3.2.1",
-    "loopback-component-explorer": "f-w/loopback-component-explorer",
+    "loopback-component-explorer": "^6.5.1",
     "loopback-connector-mongodb": "^5.2.2",
     "mailparser": "^2.3.2",
     "morgan": "^1.9.1",
@@ -39,13 +84,18 @@
     "semver": "^5.3.0",
     "serve-favicon": "^2.0.1",
     "smtp-server": "^3.1.0",
-    "strong-error-handler": "^1.0.1",
+    "tslib": "^2.0.0",
     "twilio": "^3.7.0",
     "underscore.string": "^3.3.4"
   },
   "devDependencies": {
+    "@loopback/build": "^6.0.0",
+    "@loopback/eslint-config": "^8.0.2",
+    "@loopback/testlab": "^3.1.8",
+    "@types/lodash": "^4.14.157",
+    "@types/node": "^10.17.26",
     "connect-history-api-fallback": "^1.4.0",
-    "eslint": "^5.3.0",
+    "eslint": "^7.3.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^7.0.1",
@@ -54,19 +104,12 @@
     "istanbul": "^1.0.0-alpha.1",
     "jasmine": "^2.6.0",
     "smtp-connection": "^4.0.2",
+    "source-map-support": "^0.5.19",
     "supertest": "^3.0.0",
+    "typescript": "~3.9.5",
     "webpack": "^3.8.1",
     "webpack-dev-middleware": "^1.12.0",
     "webpack-hot-middleware": "^2.20.0"
   },
-  "repository": {
-    "type": "",
-    "url": ""
-  },
-  "engines": {
-    "node": ">=8.2.1"
-  },
-  "license": "Apache-2.0",
-  "description": "A versatile notification API server",
   "private": true
 }

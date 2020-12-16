@@ -1,18 +1,19 @@
-import {BootMixin} from '@loopback/boot'
-import {ApplicationConfig} from '@loopback/core'
+import {BootMixin} from '@loopback/boot';
+import {Lb3AppBooterComponent} from '@loopback/booter-lb3app';
+import {ApplicationConfig} from '@loopback/core';
+import {RepositoryMixin} from '@loopback/repository';
+import {RestApplication} from '@loopback/rest';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
-} from '@loopback/rest-explorer'
-import {RepositoryMixin} from '@loopback/repository'
-import {RestApplication} from '@loopback/rest'
-import {ServiceMixin} from '@loopback/service-proxy'
-import path from 'path'
-import {MySequence} from './sequence'
-import fs = require('fs')
-import * as _ from 'lodash'
+} from '@loopback/rest-explorer';
+import {ServiceMixin} from '@loopback/service-proxy';
+import * as _ from 'lodash';
+import path from 'path';
+import {MySequence} from './sequence';
+import fs = require('fs');
 
-export {ApplicationConfig}
+export {ApplicationConfig};
 
 export class NotifyBcApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -23,51 +24,52 @@ export class NotifyBcApplication extends BootMixin(
       'config.js',
       'config.local.json',
       'config.local.js',
-    ]
+    ];
     if (process.env.NODE_ENV) {
       configFiles = configFiles.concat([
         `config.${process.env.NODE_ENV}.json`,
         `config.${process.env.NODE_ENV}.js`,
-      ])
+      ]);
     }
     for (const configFile of configFiles) {
-      const f = path.join(__dirname, configFile)
+      const f = path.join(__dirname, configFile);
       if (fs.existsSync(f)) {
         _.mergeWith(options, require(f), (t, s) => {
           if (_.isArray(t)) {
-            return s
+            return s;
           }
-        })
+        });
       }
     }
-    super(options)
+    super(options);
+    this.component(Lb3AppBooterComponent);
 
     // Set up the custom sequence
-    this.sequence(MySequence)
+    this.sequence(MySequence);
 
     // Set up default home page
-    this.static('/', path.join(__dirname, '../public'))
+    this.static('/', path.join(__dirname, '../public'));
 
     // Customize @loopback/rest-explorer configuration here
     this.configure(RestExplorerBindings.COMPONENT).to({
       path: '/explorer',
-    })
-    this.component(RestExplorerComponent)
+    });
+    this.component(RestExplorerComponent);
 
-    let dsFiles = ['db.datasource.local.json', 'db.datasource.local.js']
+    let dsFiles = ['db.datasource.local.json', 'db.datasource.local.js'];
     if (process.env.NODE_ENV) {
       dsFiles = dsFiles.concat([
         `db.datasource.${process.env.NODE_ENV}.json`,
         `db.datasource.${process.env.NODE_ENV}.js`,
-      ])
+      ]);
     }
     for (const dsFile of dsFiles) {
-      const f = path.join(__dirname, 'datasources', dsFile)
+      const f = path.join(__dirname, 'datasources', dsFile);
       if (fs.existsSync(f)) {
-        this.bind('datasources.config.db').to(require(f))
+        this.bind('datasources.config.db').to(require(f));
       }
     }
-    this.projectRoot = __dirname
+    this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {
       controllers: {
@@ -76,6 +78,9 @@ export class NotifyBcApplication extends BootMixin(
         extensions: ['.controller.js'],
         nested: true,
       },
-    }
+      lb3app: {
+        mode: 'fullApp',
+      },
+    };
   }
 }

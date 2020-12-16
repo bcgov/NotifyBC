@@ -8,7 +8,7 @@ By default, HTTP requests submitted by _NotifyBC_ back to itself will be sent to
 
 ```js
 module.exports = {
-  internalHttpHost: 'http://notifybc:3000'
+  internalHttpHost: 'http://notifybc:3000',
 };
 ```
 
