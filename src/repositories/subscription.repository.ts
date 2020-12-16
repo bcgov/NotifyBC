@@ -25,7 +25,7 @@ export class SubscriptionRepository extends BaseCrudRepository<
   ): typeof juggler.PersistedModel {
     const modelClass = super.definePersistedModel(entityClass);
     modelClass.observe('before save', async ctx => {
-      let data = ctx.instance || ctx.data;
+      const data = ctx.instance || ctx.data;
       if (!data) {
         return;
       }
@@ -46,7 +46,7 @@ export class SubscriptionRepository extends BaseCrudRepository<
     });
     modelClass.observe('access', async ctx => {
       const httpCtx = await this.getHttpContext();
-      var u = this.getCurrentUser(httpCtx);
+      const u = this.getCurrentUser(httpCtx);
       if (u) {
         ctx.query.where = ctx.query.where || {};
         ctx.query.where = {

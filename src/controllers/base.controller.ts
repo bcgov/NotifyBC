@@ -24,18 +24,18 @@ export class BaseController {
 
   smsClient: any;
   async sendSMS(to: string, textBody: string, data: any, cb?: Function) {
-    let smsServiceProvider = this.appConfig.smsServiceProvider;
-    let smsConfig = this.appConfig.sms[smsServiceProvider];
+    const smsServiceProvider = this.appConfig.smsServiceProvider;
+    const smsConfig = this.appConfig.sms[smsServiceProvider];
     switch (smsServiceProvider) {
       case 'swift':
         try {
-          let url = `${smsConfig['apiUrlPrefix']}${
+          const url = `${smsConfig['apiUrlPrefix']}${
             smsConfig['accountKey']
           }/${encodeURIComponent(to)}`;
-          let body: SMSBody = {
+          const body: SMSBody = {
             MessageBody: textBody,
           };
-          if (data && data.id) {
+          if (data?.id) {
             body.Reference = data.id;
           }
           await axios.post(url, body, {
@@ -44,14 +44,14 @@ export class BaseController {
             },
           });
         } catch (ex) {
-          return cb && cb(ex);
+          return cb?.(ex);
         }
-        cb && cb();
+        cb?.();
         break;
-      default:
+      default: {
         // Twilio Credentials
-        var accountSid = smsConfig.accountSid;
-        var authToken = smsConfig.authToken;
+        const accountSid = smsConfig.accountSid;
+        const authToken = smsConfig.authToken;
         //require the Twilio module and create a REST client
         this.smsClient =
           this.smsClient || require('twilio')(accountSid, authToken);
@@ -63,9 +63,10 @@ export class BaseController {
             body: textBody,
           },
           function (err: any, message: any) {
-            cb && cb(err, message);
+            cb?.(err, message);
           },
         );
+      }
     }
   }
 
@@ -75,7 +76,7 @@ export class BaseController {
   sendEmail(mailOptions: any, cb?: Function) {
     return new Promise((resolve, reject) => {
       if (!this.transporter) {
-        let smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
+        const smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
         if (smtpCfg.direct) {
           this.transporter = this.nodemailer.createTransport(
             this.directTransport(smtpCfg),
@@ -116,7 +117,7 @@ export class BaseController {
     } catch (ex) {}
     try {
       if (output.match(/\{unsubscription_service_names\}/i)) {
-        let serviceNames = _.union(
+        const serviceNames = _.union(
           [data.serviceName],
           data.unsubscribedAdditionalServices
             ? data.unsubscribedAdditionalServices.names
@@ -132,18 +133,18 @@ export class BaseController {
     } catch (ex) {}
     let httpHost;
     try {
-      let req = httpCtx.req || httpCtx.request;
+      const req = httpCtx.req || httpCtx.request;
       if (req) {
         httpHost = req.protocol + '://' + req.get('host');
       }
       if (this.appConfig.httpHost) {
         httpHost = this.appConfig.httpHost;
       }
-      if (httpCtx.args && httpCtx.args.data && httpCtx.args.data.httpHost) {
+      if (httpCtx.args?.data?.httpHost) {
         httpHost = httpCtx.args.data.httpHost;
-      } else if (httpCtx.instance && httpCtx.instance.httpHost) {
+      } else if (httpCtx.instance?.httpHost) {
         httpHost = httpCtx.instance.httpHost;
-      } else if (data && data.httpHost) {
+      } else if (data?.httpHost) {
         httpHost = data.httpHost;
       }
       output = output.replace(/\{http_host\}/gi, httpHost);
@@ -234,12 +235,12 @@ export class BaseController {
     try {
       if (data.data) {
         // substitute all other tokens with matching data.data properties
-        let matches = output.match(/{.+?}/g);
+        const matches = output.match(/{.+?}/g);
         if (matches) {
           matches.forEach(function (e: string) {
             try {
-              let token = (e.match(/{(.+)}/) || [])[1];
-              let val = _.get(data.data, token);
+              const token = (e.match(/{(.+)}/) ?? [])[1];
+              const val = _.get(data.data, token);
               if (val) {
                 output = output.replace(e, val);
               }
@@ -278,7 +279,7 @@ export class BaseController {
     try {
       res = _.merge({}, res, (data as Configuration).value);
     } catch (ex) {}
-    next && next(null, res);
+    next?.(null, res);
     return res;
   }
 }

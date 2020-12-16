@@ -28,9 +28,9 @@ export class AutoUpdateObserver implements LifeCycleObserver {
     if (process.env.NOTIFYBC_NODE_ROLE === 'slave') {
       return;
     }
-    const pjson = require('../../package.json');
+    const pJson = require('../../package.json');
     const semver = require('semver');
-    const targetVersion = pjson.dbSchemaVersion;
+    const targetVersion = pJson.dbSchemaVersion;
     let data = await this.configurationRepository.findOne({
       where: {name: 'dbSchemaVersion'},
     });
@@ -47,7 +47,7 @@ export class AutoUpdateObserver implements LifeCycleObserver {
     ) {
       await (this.app as NotifyBcApplication).migrateSchema();
       data.value = targetVersion;
-      this.configurationRepository.update(data);
+      await this.configurationRepository.update(data);
       return;
     } else {
       return;

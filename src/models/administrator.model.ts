@@ -6,6 +6,7 @@ import {User} from './user.model';
     strict: false,
     validateUpsert: true,
     idInjection: true,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     indexes: {'$**_text': {keys: {'$**': 'text'}}},
   },
 })

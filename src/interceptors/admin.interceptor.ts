@@ -40,21 +40,16 @@ export class AdminInterceptor implements Provider<Interceptor> {
     invocationCtx: InvocationContext,
     next: () => ValueOrPromise<InvocationResult>,
   ) {
-    try {
-      // Add pre-invocation logic here
-      let targetInstance = invocationCtx.target as BaseController;
-      if (
-        !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
-      ) {
-        throw new HttpErrors[403]('Forbidden');
-      }
-
-      const result = await next();
-      // Add post-invocation logic here
-      return result;
-    } catch (err) {
-      // Add error handling logic here
-      throw err;
+    // Add pre-invocation logic here
+    const targetInstance = invocationCtx.target as BaseController;
+    if (
+      !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
+    ) {
+      throw new HttpErrors[403]('Forbidden');
     }
+
+    const result = await next();
+    // Add post-invocation logic here
+    return result;
   }
 }

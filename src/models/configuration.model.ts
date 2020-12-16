@@ -6,10 +6,12 @@ import {Entity, model, property} from '@loopback/repository';
     validateUpsert: true,
     idInjection: true,
     indexes: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       unique_name_serviceName: {
         keys: {name: 1, serviceName: 1},
         options: {unique: true},
       },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       '$**_text': {keys: {'$**': 'text'}},
     },
   },

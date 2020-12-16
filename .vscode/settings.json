@@ -26,6 +26,7 @@
   "eslint.nodePath": "./node_modules",
   "eslint.validate": ["javascript", "typescript"],
   "cSpell.words": [
+    "Booter",
     "IDAQAB",
     "NDRs",
     "addt",
@@ -33,6 +34,7 @@
     "jmespath",
     "jmespath's",
     "lcov",
+    "mailparser",
     "quickstart",
     "serviceaccount",
     "smgov",

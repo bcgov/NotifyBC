@@ -1,10 +1,9 @@
 import {
-  inject,
   Application,
   CoreBindings,
-  lifeCycleObserver, // The decorator
+  inject,
+  lifeCycleObserver,
   LifeCycleObserver,
-  CoreTags, // The interface
 } from '@loopback/core';
 
 interface SmtpServer {

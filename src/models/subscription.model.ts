@@ -6,8 +6,10 @@ import {AnyObject, Entity, model, property} from '@loopback/repository';
     validateUpsert: true,
     idInjection: true,
     indexes: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       serviceName_state_channel: {keys: {serviceName: 1, state: 1, channel: 1}},
       created: {keys: {created: 1}},
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       '$**_text': {keys: {'$**': 'text'}},
     },
   },

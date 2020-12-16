@@ -28,7 +28,7 @@ module.exports.app = function () {
     let bounceUnsubThreshold = parseInt(
       process.env.BOUNCE_UNSUBSCRIBE_THRESHOLD || 5,
     );
-    let smtpOptsString = process.env.SMTP_SERVER_OPTIONS;
+    const smtpOptsString = process.env.SMTP_SERVER_OPTIONS;
     let smtpOpts = (smtpOptsString && JSON.parse(smtpOptsString)) || {};
     let handleBounce = process.env.SMTP_HANDLE_BOUNCE;
     let bounceSubjectRegex =
@@ -139,7 +139,7 @@ module.exports.app = function () {
       args.options['smtp-server-options'] &&
         (smtpOpts = JSON.parse(args.options['smtp-server-options']));
       args.options['handle-bounce'] &&
-        (handleBounce = args.options['handle-bounce'] == 'true');
+        (handleBounce = args.options['handle-bounce'] === 'true');
       args.options['bounce-subject-regex'] &&
         (bounceSubjectRegex = new RegExp(args.options['bounce-subject-regex']));
       args.options['bounce-smtp-status-code-regex'] &&
@@ -161,9 +161,9 @@ module.exports.app = function () {
       size: MaxMsgSize,
       onRcptTo(address, session, callback) {
         try {
-          let match = address.address.match(validEmailRegEx);
+          const match = address.address.match(validEmailRegEx);
           if (match) {
-            let domain = match[4];
+            const domain = match[4];
             if (
               !allowedSmtpDomains ||
               allowedSmtpDomains.indexOf(domain.toLowerCase()) >= 0
@@ -183,10 +183,10 @@ module.exports.app = function () {
         });
         stream.on('end', async () => {
           for (const e of session.envelope.rcptTo) {
-            let match = e.address.match(validEmailRegEx);
-            let type = match[1];
-            let id = match[2];
-            let unsubscriptionCode = match[3];
+            const match = e.address.match(validEmailRegEx);
+            const type = match[1];
+            const id = match[2];
+            const unsubscriptionCode = match[3];
             switch (type) {
               case 'un':
                 exports.request.get(
@@ -199,7 +199,7 @@ module.exports.app = function () {
                     encodeURIComponent(session.envelope.mailFrom.address),
                   {
                     headers: {
-                      /*jshint camelcase: false */
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
                       is_anonymous: true,
                     },
                   },
@@ -214,27 +214,30 @@ module.exports.app = function () {
                   parsed = await exports.mailParser.simpleParser(msg);
                 } catch (err) {
                   console.error(err);
-                  let error = new Error('parsing error');
+                  const error = new Error('parsing error');
                   error.responseCode = 451;
                   return callback(error);
                 }
-                let incrementBounctCnt = true;
+                let incrementBounceCnt = true;
                 if (
-                  incrementBounctCnt &&
+                  incrementBounceCnt &&
                   bounceSubjectRegex &&
                   (!parsed.subject || !parsed.subject.match(bounceSubjectRegex))
                 ) {
                   console.info(`subject doesn't match filter`);
-                  incrementBounctCnt = false;
+                  incrementBounceCnt = false;
                 }
                 let smtpBody = parsed.html || parsed.text;
                 if (parsed.attachments && parsed.attachments.length > 0) {
-                  let deliveryStatusAttachment = parsed.attachments.find(e => {
-                    return (
-                      e.contentType &&
-                      e.contentType.toLowerCase() === 'message/delivery-status'
-                    );
-                  });
+                  const deliveryStatusAttachment = parsed.attachments.find(
+                    ele => {
+                      return (
+                        ele.contentType &&
+                        ele.contentType.toLowerCase() ===
+                          'message/delivery-status'
+                      );
+                    },
+                  );
                   if (
                     deliveryStatusAttachment &&
                     deliveryStatusAttachment.content
@@ -245,15 +248,15 @@ module.exports.app = function () {
                   }
                 }
                 if (
-                  incrementBounctCnt &&
+                  incrementBounceCnt &&
                   (!smtpBody || !smtpBody.match(bounceSmtpStatusCodeRegex))
                 ) {
                   console.info(`smtp status code doesn't match filter`);
-                  incrementBounctCnt = false;
+                  incrementBounceCnt = false;
                 }
                 let bouncedUserChannelId;
                 if (bounceFailedRecipientRegex) {
-                  let bouncedUserChannelIdMatch = smtpBody.match(
+                  const bouncedUserChannelIdMatch = smtpBody.match(
                     bounceFailedRecipientRegex,
                   );
                   if (bouncedUserChannelIdMatch) {
@@ -275,7 +278,7 @@ module.exports.app = function () {
                 };
                 let body;
                 try {
-                  let res = await exports.request.get(
+                  const res = await exports.request.get(
                     urlPrefix +
                       '/subscriptions?filter=' +
                       encodeURIComponent(JSON.stringify(filter)),
@@ -287,16 +290,16 @@ module.exports.app = function () {
                 if (!(body instanceof Array) || body.length !== 1) {
                   return;
                 }
-                let userChannelId = body[0] && body[0].userChannelId;
+                const userChannelId = body[0] && body[0].userChannelId;
                 if (
-                  incrementBounctCnt &&
+                  incrementBounceCnt &&
                   bouncedUserChannelId &&
                   userChannelId !== bouncedUserChannelId
                 ) {
                   console.info(
                     `userChannelId ${userChannelId} mismatches bouncedUserChannelId ${bouncedUserChannelId}`,
                   );
-                  incrementBounctCnt = false;
+                  incrementBounceCnt = false;
                 }
                 filter = {
                   where: {
@@ -306,7 +309,7 @@ module.exports.app = function () {
                   },
                 };
                 try {
-                  let res = await exports.request.get(
+                  const res = await exports.request.get(
                     urlPrefix +
                       '/bounces?filter=' +
                       encodeURIComponent(JSON.stringify(filter)),
@@ -316,10 +319,10 @@ module.exports.app = function () {
                   return console.error(err);
                 }
                 let bncCnt = (body && body[0] && body[0].hardBounceCount) || 0,
-                  bncId = body && body[0] && body[0].id,
-                  bounceMessages =
-                    (body && body[0] && body[0].bounceMessages) || [];
-                if (incrementBounctCnt) {
+                  bncId = body && body[0] && body[0].id;
+                const bounceMessages =
+                  (body && body[0] && body[0].bounceMessages) || [];
+                if (incrementBounceCnt) {
                   bncCnt += 1;
                 }
                 bounceMessages.unshift({
@@ -333,12 +336,15 @@ module.exports.app = function () {
                     bounceMessages: bounceMessages,
                   });
                 } else {
-                  let res = await exports.request.post(urlPrefix + '/bounces', {
-                    channel: 'email',
-                    userChannelId: userChannelId,
-                    hardBounceCount: bncCnt,
-                    bounceMessages: bounceMessages,
-                  });
+                  const res = await exports.request.post(
+                    urlPrefix + '/bounces',
+                    {
+                      channel: 'email',
+                      userChannelId: userChannelId,
+                      hardBounceCount: bncCnt,
+                      bounceMessages: bounceMessages,
+                    },
+                  );
                   bncId = res.data.id;
                 }
                 // unsub user
@@ -354,7 +360,7 @@ module.exports.app = function () {
                       '&additionalServices=_all',
                     {
                       headers: {
-                        /*jshint camelcase: false */
+                        // eslint-disable-next-line @typescript-eslint/naming-convention
                         is_anonymous: true,
                       },
                       maxRedirects: 0,
@@ -379,6 +385,7 @@ module.exports.app = function () {
     server.listen(parseInt(port), function () {
       console.info(
         `smtp server started listening on port ${
+          // eslint-disable-next-line @typescript-eslint/no-invalid-this
           this.address().port
         }  with:\napi-url-prefix=${urlPrefix}`,
       );

@@ -42,32 +42,27 @@ export class SubscriptionAfterRemoteInteceptor
     invocationCtx: InvocationContext,
     next: () => ValueOrPromise<InvocationResult>,
   ) {
-    try {
-      // Add pre-invocation logic here
-      const data = await next();
-      // Add post-invocation logic here
-      let targetInstance = invocationCtx.target as BaseController;
-      if (
-        !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
-      ) {
-        if (data instanceof Array) {
-          data.forEach(function (e) {
-            e.confirmationRequest = undefined;
-            e.updatedBy = undefined;
-            e.createdBy = undefined;
-            e.unsubscriptionCode = undefined;
-          });
-        } else if (data instanceof Object) {
-          data.confirmationRequest = undefined;
-          data.updatedBy = undefined;
-          data.createdBy = undefined;
-          data.unsubscriptionCode = undefined;
-        }
+    // Add pre-invocation logic here
+    const data = await next();
+    // Add post-invocation logic here
+    const targetInstance = invocationCtx.target as BaseController;
+    if (
+      !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
+    ) {
+      if (data instanceof Array) {
+        data.forEach(function (e) {
+          e.confirmationRequest = undefined;
+          e.updatedBy = undefined;
+          e.createdBy = undefined;
+          e.unsubscriptionCode = undefined;
+        });
+      } else if (data instanceof Object) {
+        data.confirmationRequest = undefined;
+        data.updatedBy = undefined;
+        data.createdBy = undefined;
+        data.unsubscriptionCode = undefined;
       }
-      return data;
-    } catch (err) {
-      // Add error handling logic here
-      throw err;
     }
+    return data;
   }
 }

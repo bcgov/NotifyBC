@@ -23,7 +23,7 @@ import {ConfigurationRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
 @oas.tags('configuration')
-export class ConfigruationController extends BaseController {
+export class ConfigurationController extends BaseController {
   constructor(
     @repository(ConfigurationRepository)
     public configurationRepository: ConfigurationRepository,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import {Entity, model, property} from '@loopback/repository';
 
 @model({
@@ -7,9 +6,11 @@ import {Entity, model, property} from '@loopback/repository';
     validateUpsert: true,
     idInjection: true,
     indexes: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       state_channel_userChannelId: {
         keys: {state: 1, channel: 1, userChannelId: 1},
       },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       '$**_text': {keys: {'$**': 'text'}},
     },
   },

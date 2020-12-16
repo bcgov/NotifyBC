@@ -6,7 +6,7 @@ import {
 } from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {ConfigurationRepository} from '../repositories';
-var NodeRSA = require('node-rsa');
+const NodeRSA = require('node-rsa');
 
 /**
  * This class will be bound to the application as a `LifeCycleObserver` during
@@ -24,15 +24,15 @@ export class RsaObserver implements LifeCycleObserver {
    * This method will be invoked when the application starts
    */
   async start(): Promise<void> {
-    let configurationRepository: ConfigurationRepository = await this.app.get<
-      ConfigurationRepository
-    >('repositories.ConfigurationRepository');
-    let data = await configurationRepository.findOne({
+    const configurationRepository: ConfigurationRepository = await this.app.get<ConfigurationRepository>(
+      'repositories.ConfigurationRepository',
+    );
+    const data = await configurationRepository.findOne({
       where: {
         name: 'rsa',
       },
     });
-    var key = new NodeRSA();
+    const key = new NodeRSA();
     if (data) {
       key.importKey(data.value.private, 'private');
       key.importKey(data.value.public, 'public');
@@ -40,7 +40,8 @@ export class RsaObserver implements LifeCycleObserver {
       return;
     }
     if (process.env.NOTIFYBC_NODE_ROLE === 'slave') {
-      setTimeout(this.start, 5000);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      await this.start();
       return;
     }
     // only the node with cron enabled, which is supposed to be a singleton,
