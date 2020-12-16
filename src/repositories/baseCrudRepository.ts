@@ -48,8 +48,8 @@ export class BaseCrudRepository<
     }
     if (!ignoreAccessToken) {
       try {
-        const token = httpCtx.args.options && httpCtx.args.options.accessToken;
-        if (token && token.userId) {
+        const token = httpCtx.args.options?.accessToken;
+        if (token?.userId) {
           return true;
         }
       } catch (ex) {}
@@ -68,7 +68,7 @@ export class BaseCrudRepository<
     // internal requests
     if (!httpCtx) return null;
     const request = httpCtx.req || httpCtx.request;
-    var currUser =
+    const currUser =
       request.get('SM_UNIVERSALID') ||
       request.get('sm_user') ||
       request.get('smgov_userdisplayname');
@@ -78,15 +78,15 @@ export class BaseCrudRepository<
     if (this.isAdminReq(httpCtx, undefined, true)) {
       return currUser;
     }
-    var siteMinderReverseProxyIps =
+    const siteMinderReverseProxyIps =
       this.appConfig.siteMinderReverseProxyIps ||
       this.appConfig.defaultSiteMinderReverseProxyIps;
     if (!siteMinderReverseProxyIps || siteMinderReverseProxyIps.length <= 0) {
       return null;
     }
     // rely on express 'trust proxy' settings to obtain real ip
-    var realIp = request.ip;
-    var isFromSM = siteMinderReverseProxyIps.some(function (e: string) {
+    const realIp = request.ip;
+    const isFromSM = siteMinderReverseProxyIps.some(function (e: string) {
       return ipRangeCheck(realIp, e);
     });
     return isFromSM ? currUser : null;
@@ -105,42 +105,40 @@ export class BaseCrudRepository<
       let token;
       try {
         // todo: obtain access token
-        token =
-          ctx.options.httpContext.args.options &&
-          ctx.options.httpContext.args.options.accessToken;
+        token = ctx.options.httpContext.args.options?.accessToken;
       } catch (ex) {}
       try {
         if (ctx.instance) {
           ctx.instance.updated = new Date();
           ctx.instance.updatedBy = {
-            ip: req && req.ip,
+            ip: req?.ip,
             eventSrc: ctx.options.eventSrc,
           };
-          if (token && token.userId) {
+          if (token?.userId) {
             ctx.instance.updatedBy.adminUser = token.userId;
           }
           if (ctx.isNewInstance) {
             ctx.instance.createdBy = {
-              ip: req && req.ip,
+              ip: req?.ip,
             };
-            if (token && token.userId) {
+            if (token?.userId) {
               ctx.instance.createdBy.adminUser = token.userId;
             }
           }
         } else if (ctx.data) {
           ctx.data.updated = new Date();
           ctx.data.updatedBy = {
-            ip: req && req.ip,
+            ip: req?.ip,
             eventSrc: ctx.options.eventSrc,
           };
-          if (token && token.userId) {
+          if (token?.userId) {
             ctx.data.updatedBy.adminUser = token.userId;
           }
           if (ctx.isNewInstance) {
             ctx.data.createdBy = {
-              ip: req && req.ip,
+              ip: req?.ip,
             };
-            if (token && token.userId) {
+            if (token?.userId) {
               ctx.data.createdBy.adminUser = token.userId;
             }
           }
