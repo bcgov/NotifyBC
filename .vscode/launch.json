@@ -7,7 +7,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "App",
       "program": "${workspaceFolder}\\dist\\index.js",
       // "autoAttachChildProcesses": true,
       "preLaunchTask": "Clean and Compile Project",
@@ -18,12 +18,21 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Test",
+      "name": "Test",
       "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
       "args": ["dist/__tests__/"],
       "autoAttachChildProcesses": true,
       "console": "internalConsole",
       "preLaunchTask": "Clean and Compile Project"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Doc",
+      "cwd": "${workspaceFolder}/docs",
+      "program": "node_modules/vuepress/cli.js",
+      "args": ["dev"],
+      "console": "internalConsole"
     }
   ]
 }

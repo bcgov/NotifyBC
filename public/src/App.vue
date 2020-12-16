@@ -62,11 +62,19 @@
     </v-navigation-drawer>
     <v-toolbar color="indigo" dark app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title>NotifyBC Web Console - {{ this.$router.currentRoute.name }}</v-toolbar-title>
+      <v-toolbar-title
+        >NotifyBC Web Console -
+        {{ this.$router.currentRoute.name }}</v-toolbar-title
+      >
       <v-spacer></v-spacer>
       <v-toolbar-items class="center-text">
         <div class="mr-1">Access Token</div>
-        <v-text-field dark single-line hide-details v-model="accessToken"></v-text-field>
+        <v-text-field
+          dark
+          single-line
+          hide-details
+          v-model="accessToken"
+        ></v-text-field>
       </v-toolbar-items>
     </v-toolbar>
     <main>
@@ -82,7 +90,8 @@
         <a
           href="https://github.com/bcgov/NotifyBC/blob/master/LICENSE"
           target="_"
-        >Apache License, Version 2.0</a>
+          >Apache License, Version 2.0</a
+        >
       </span>
     </v-footer>
   </v-app>
@@ -92,25 +101,25 @@
 export default {
   name: 'app',
   data: () => ({
-    drawer: true
+    drawer: true,
   }),
   props: {
-    source: String
+    source: String,
   },
   computed: {
     accessToken: {
       get() {
-        return this.$store.state.accessToken
+        return this.$store.state.accessToken;
       },
       set(value) {
-        this.$store.commit('setAccessToken', value)
-      }
-    }
-  }
-}
+        this.$store.commit('setAccessToken', value);
+      },
+    },
+  },
+};
 </script>
 
-<style scoped lang='less'>
+<style scoped lang="less">
 .white--text a {
   color: white !important;
 }

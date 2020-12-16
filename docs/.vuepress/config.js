@@ -1,4 +1,4 @@
-const { description } = require('../package');
+const {description} = require('../package');
 
 module.exports = {
   base: `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`,
@@ -17,13 +17,10 @@ module.exports = {
    * ref：https://v1.vuepress.vuejs.org/config/#head
    */
   head: [
-    ['meta', { name: 'theme-color', content: '#3eaf7c' }],
-    ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
-    [
-      'meta',
-      { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }
-    ],
-    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+    ['meta', {name: 'theme-color', content: '#3eaf7c'}],
+    ['meta', {name: 'apple-mobile-web-app-capable', content: 'yes'}],
+    ['meta', {name: 'apple-mobile-web-app-status-bar-style', content: 'black'}],
+    ['link', {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}],
   ],
 
   /**
@@ -41,16 +38,16 @@ module.exports = {
     nav: [
       {
         text: 'Home',
-        link: '/'
+        link: '/',
       },
       {
         text: 'Docs',
-        link: '/docs/'
+        link: '/docs/',
       },
       {
         text: 'Help',
-        link: '/help/'
-      }
+        link: '/help/',
+      },
     ],
     sidebar: {
       '/docs/': [
@@ -62,8 +59,8 @@ module.exports = {
             'getting-started/overview',
             'getting-started/quickstart',
             'getting-started/installation',
-            'getting-started/usage'
-          ]
+            'getting-started/usage',
+          ],
         },
         {
           title: 'Configuration',
@@ -85,8 +82,8 @@ module.exports = {
             'config/inboundSmtpServer',
             'config/listUnsubscribeByEmail',
             'config/notificationBounce',
-            'config/workerProcessCount'
-          ]
+            'config/workerProcessCount',
+          ],
         },
         {
           title: 'API',
@@ -97,8 +94,8 @@ module.exports = {
             'api/notification',
             'api/config',
             'api/administrator',
-            'api/bounce'
-          ]
+            'api/bounce',
+          ],
         },
         {
           title: 'Miscellaneous',
@@ -106,20 +103,21 @@ module.exports = {
           children: [
             'miscellaneous/benchmarks',
             'miscellaneous/bulk-import',
-            'miscellaneous/developer-notes'
-          ]
+            'miscellaneous/developer-notes',
+            'miscellaneous/migration',
+          ],
         },
-        { title: 'Meta', collapsable: false, children: ['meta/conduct'] }
-      ]
+        {title: 'Meta', collapsable: false, children: ['meta/conduct']},
+      ],
     },
     algolia: {
       apiKey: process.env.ALGOLIA_API_Key,
-      indexName: 'notifybc'
-    }
+      indexName: 'notifybc',
+    },
   },
 
   /**
    * Apply plugins，ref：https://v1.vuepress.vuejs.org/zh/plugin/
    */
-  plugins: ['@vuepress/plugin-back-to-top', '@vuepress/plugin-medium-zoom']
+  plugins: ['@vuepress/plugin-back-to-top', '@vuepress/plugin-medium-zoom'],
 };

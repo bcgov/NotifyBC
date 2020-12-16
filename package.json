@@ -2,7 +2,7 @@
   "name": "notify-bc",
   "version": "2.0.0",
   "dbSchemaVersion": "0.6.0",
-  "description": "notify bc - a versatile notification API server",
+  "description": "A versatile notification API server",
   "keywords": [
     "loopback-application",
     "loopback"

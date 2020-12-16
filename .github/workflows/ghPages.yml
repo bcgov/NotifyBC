@@ -8,7 +8,7 @@ on:
     types:
       - published
 env:
-  notifyBCDocVersion_PATH: /
+  notifyBCDocVersion_PATH: /version/2-pre-alpha/
   ALGOLIA_API_Key: ${{ secrets.ALGOLIA_API_Key }}
 jobs:
   build-and-deploy:
@@ -37,4 +37,3 @@ jobs:
           FOLDER: docs/.vuepress/dist # The folder the action should deploy.
           TARGET_FOLDER: ${{ env.notifyBCDocVersion_PATH }}
           CLEAN: true # Automatically remove deleted files from the deploy branch
-          CLEAN_EXCLUDE: '["version"]'
