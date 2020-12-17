@@ -1,4 +1,4 @@
-import {CoreBindings, inject} from '@loopback/core';
+import {CoreBindings, inject, intercept} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -21,10 +21,12 @@ import {
   RestBindings,
 } from '@loopback/rest';
 import {ApplicationConfig} from '..';
+import {AuthenticatedOrAdminInterceptor} from '../interceptors';
 import {Notification} from '../models';
 import {ConfigurationRepository, NotificationRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
+@intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
 @oas.tags('notification')
 export class NotificationController extends BaseController {
   constructor(

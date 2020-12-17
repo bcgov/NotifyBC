@@ -15,6 +15,7 @@ module.exports = function (Notification) {
     'count',
   ]);
 
+  //migration: done, to NotificationRepository.definePersistedModel
   Notification.observe('access', function (ctx, next) {
     var httpCtx = ctx.options.httpContext;
     ctx.query.where = ctx.query.where || {};
