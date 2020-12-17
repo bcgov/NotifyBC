@@ -1,4 +1,5 @@
 import {Entity, model, property} from '@loopback/repository';
+import {BounceMessageItem} from './bounce-message-item.model';
 
 @model({
   settings: {
@@ -17,9 +18,9 @@ import {Entity, model, property} from '@loopback/repository';
 })
 export class Bounce extends Entity {
   @property({
+    type: 'string',
     mongodb: {dataType: 'ObjectID'},
-    type: 'ObjectID',
-    id: 1,
+    id: true,
     generated: true,
     updateOnly: true,
   })
@@ -51,11 +52,8 @@ export class Bounce extends Entity {
   })
   state: string;
 
-  @property({
-    type: 'array',
-    itemType: 'AnonymousModel_7',
-  })
-  bounceMessages?: string[];
+  @property.array(BounceMessageItem)
+  bounceMessages?: BounceMessageItem[];
 
   @property({
     type: 'date',

@@ -19,8 +19,10 @@ import {Entity, model, property} from '@loopback/repository';
 export class Configuration extends Entity {
   @property({
     type: 'string',
+    mongodb: {dataType: 'ObjectID'},
     id: true,
     generated: true,
+    updateOnly: true,
   })
   id?: string;
 

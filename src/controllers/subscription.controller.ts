@@ -31,7 +31,7 @@ import _ from 'lodash';
 import {
   AdminInterceptor,
   AuthenticatedOrAdminInterceptor,
-  SubscriptionAfterRemoteInteceptor,
+  SubscriptionAfterRemoteInterceptor,
 } from '../interceptors';
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
@@ -39,7 +39,7 @@ import {BaseController} from './base.controller';
 const RandExp = require('randexp');
 const path = require('path');
 
-@intercept(SubscriptionAfterRemoteInteceptor.BINDING_KEY)
+@intercept(SubscriptionAfterRemoteInterceptor.BINDING_KEY)
 @oas.tags('subscription')
 export class SubscriptionController extends BaseController {
   constructor(
@@ -179,7 +179,7 @@ export class SubscriptionController extends BaseController {
       items: {type: 'string'},
     },
     description:
-      'additonal services to unsubscribe. If there is only one item and the value is _all, then unsubscribe all subscribed services.',
+      'additional services to unsubscribe. If there is only one item and the value is _all, then unsubscribe all subscribed services.',
   };
   static readonly idParamSpec: Partial<ParameterObject> = {
     description: 'subscription id',

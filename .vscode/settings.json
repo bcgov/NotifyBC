@@ -36,6 +36,7 @@
     "lcov",
     "mailparser",
     "quickstart",
+    "randexp",
     "serviceaccount",
     "smgov",
     "universalid",

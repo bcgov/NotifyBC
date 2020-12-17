@@ -1,4 +1,5 @@
 module.exports = function (Bounce) {
+  //migration: done, to BounceController
   Bounce.beforeRemote('**', function (ctx, unused, next) {
     if (Bounce.isAdminReq(ctx, true)) {
       return next();

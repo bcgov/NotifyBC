@@ -13,11 +13,11 @@ import {BaseController} from '../controllers/base.controller';
  * `boot`
  */
 @injectable({
-  tags: {key: SubscriptionAfterRemoteInteceptor.BINDING_KEY},
+  tags: {key: SubscriptionAfterRemoteInterceptor.BINDING_KEY},
 })
-export class SubscriptionAfterRemoteInteceptor
+export class SubscriptionAfterRemoteInterceptor
   implements Provider<Interceptor> {
-  static readonly BINDING_KEY = `interceptors.${SubscriptionAfterRemoteInteceptor.name}`;
+  static readonly BINDING_KEY = `interceptors.${SubscriptionAfterRemoteInterceptor.name}`;
 
   /*
   constructor() {}
