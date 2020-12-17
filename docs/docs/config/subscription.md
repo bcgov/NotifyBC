@@ -151,7 +151,7 @@ For anonymous subscription, _NotifyBC_ supports one-click opt-out by allowing un
 - Anonymous unsubscription request requires unsubscription code, which is a random string generated at subscription time. Unsubscription code reduces brute force attack risk by increasing size of key space. Without it, an attacker only needs to successfully guess subscription id. Be aware, however, the unsubscription code has to be embedded in unsubscription link. If the user forwarded a notification to other people, he/she is still vulnerable to unauthorized unsubscription.
 - Acknowledgement notification - a (final) notification is sent to user acknowledging unsubscription, and offers a link to revert had the change been made unauthorized. A deleted subscription (unsubscription) may have a limited lifetime (30 days by default) according to retention policy defined in [cron jobs](../config-cronJobs/) so the reversion can only be performed within the lifetime.
 
-You can customize anonymous unsubscription settings by changing the _anonymousUnsubscription_ configuration. Following is the default settings defined in [config.json](https://github.com/bcgov/NotifyBC/blob/master/server/config.json)
+You can customize anonymous unsubscription settings by changing the _anonymousUnsubscription_ configuration. Following is the default settings defined in [config.json](https://github.com/bcgov/NotifyBC/blob/main/server/config.json)
 
 ```json
 {

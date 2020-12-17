@@ -95,7 +95,7 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
    }
    ```
 
-2. create a number of subscriptions in bulk using script [bulk-post-subs.js](https://github.com/bcgov/NotifyBC/blob/master/utils/load-testing/bulk-post-subs.js). To load test different email volumes, you can create bulk subscriptions in different services. For example, generate 10 subscriptions under service named _load10_; 1,000,000 subscriptions under service _load1000000_ etc. _bulk-post-subs.js_ takes _userChannelId_ and other optional parameters
+2. create a number of subscriptions in bulk using script [bulk-post-subs.js](https://github.com/bcgov/NotifyBC/blob/main/utils/load-testing/bulk-post-subs.js). To load test different email volumes, you can create bulk subscriptions in different services. For example, generate 10 subscriptions under service named _load10_; 1,000,000 subscriptions under service _load1000000_ etc. _bulk-post-subs.js_ takes _userChannelId_ and other optional parameters
 
    ```
    $ node utils/load-testing/bulk-post-subs.js -h
@@ -111,7 +111,7 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
 
    The generated subscriptions contain a filter, hence all load testing results below included time spent on filtering.
 
-3. launch load testing using script [curl-ntf.sh](https://github.com/bcgov/NotifyBC/blob/master/utils/load-testing/curl-ntf.sh), which takes following optional parameters
+3. launch load testing using script [curl-ntf.sh](https://github.com/bcgov/NotifyBC/blob/main/utils/load-testing/curl-ntf.sh), which takes following optional parameters
 
    ```
    utils/load-testing/curl-ntf.sh <apiUrlPrefix> <serviceName> <senderEmail>

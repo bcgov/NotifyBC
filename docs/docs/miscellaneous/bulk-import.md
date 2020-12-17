@@ -10,7 +10,7 @@ To facilitate migrating subscriptions from other notification systems, _NotifyBC
   - NodeJS@>=6.9.1
   - Git
 - Admin Access to a _NotifyBC_ instance by adding your client ip to the [Admin IP List](../config-adminIpList/)
-- a csv file with header row matching [subscription model schema](../api-subscription/#model-schema). A sample csv file is [provided](https://github.com/bcgov/NotifyBC/tree/master/utils/bulk-import/sample-subscription.csv). Compound fields (of object type) should be dot-flattened as shown in the sample for field _confirmationRequest.sendRequest_
+- a csv file with header row matching [subscription model schema](../api-subscription/#model-schema). A sample csv file is [provided](https://github.com/bcgov/NotifyBC/tree/main/utils/bulk-import/sample-subscription.csv). Compound fields (of object type) should be dot-flattened as shown in the sample for field _confirmationRequest.sendRequest_
 
 To run the utility
 
@@ -34,7 +34,7 @@ success row count = ***
 
 ### Field Parsers
 
-The utility script takes care of type conversion for built-in fields. If you need to import proprietary fields, by default the fields are imported as strings. To import non-string fields or manipulating json output, you need to define [custom parsers](https://github.com/Keyang/node-csvtojson#custom-parsers) in file [_utils/bulk-import/subscription.js_](https://github.com/bcgov/NotifyBC/blob/master/utils/bulk-import/subscription.js). For example, to parse _myCustomIntegerField_ to integer, add in the _colParser_ object
+The utility script takes care of type conversion for built-in fields. If you need to import proprietary fields, by default the fields are imported as strings. To import non-string fields or manipulating json output, you need to define [custom parsers](https://github.com/Keyang/node-csvtojson#custom-parsers) in file [_utils/bulk-import/subscription.js_](https://github.com/bcgov/NotifyBC/blob/main/utils/bulk-import/subscription.js). For example, to parse _myCustomIntegerField_ to integer, add in the _colParser_ object
 
 ```js
   colParser: {
