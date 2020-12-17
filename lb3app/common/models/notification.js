@@ -37,6 +37,7 @@ module.exports = function (Notification) {
     next();
   });
 
+  //migration: done, to NotificationController.find
   Notification.afterRemote('find', function (ctx, res, next) {
     if (!res) {
       return;

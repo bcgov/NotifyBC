@@ -100,7 +100,41 @@ export class NotificationController extends BaseController {
   async find(
     @param.filter(Notification) filter?: Filter<Notification>,
   ): Promise<Notification[]> {
-    return this.notificationRepository.find(filter);
+    const res = await this.notificationRepository.find(filter);
+    if (res.length === 0) {
+      return res;
+    }
+    const currUser = this.configurationRepository.getCurrentUser(
+      this.httpContext,
+    );
+    if (!currUser) {
+      return res;
+    }
+    return res.reduce((p: Notification[], e) => {
+      if (e.validTill && Date.parse(e.validTill) < new Date().valueOf()) {
+        return p;
+      }
+      if (
+        e.invalidBefore &&
+        Date.parse(e.invalidBefore) > new Date().valueOf()
+      ) {
+        return p;
+      }
+      if (e.deletedBy && e.deletedBy.indexOf(currUser) >= 0) {
+        return p;
+      }
+      if (e.isBroadcast && e.readBy && e.readBy.indexOf(currUser) >= 0) {
+        e.state = 'read';
+      }
+      if (e.isBroadcast) {
+        e.readBy = null;
+        e.deletedBy = null;
+      }
+      delete e.updatedBy;
+      delete e.createdBy;
+      p.push(e);
+      return p;
+    }, []);
   }
 
   @get('/notifications/{id}', {
