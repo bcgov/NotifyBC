@@ -35,7 +35,6 @@ import {
 } from '../repositories';
 import {BaseController} from './base.controller';
 const jmespath = require('jmespath');
-const parallel = require('async/parallel');
 const queue = require('async/queue');
 
 @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
@@ -219,10 +218,7 @@ export class NotificationController extends BaseController {
     await this.notificationRepository.deleteById(id);
   }
 
-  private async sendPushNotification(
-    data: Notification,
-    sendPushNotificationCB: any,
-  ) {
+  private async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain =
       this.appConfig.inboundSmtpServer?.domain ||
       this.appConfig.subscription?.unsubscriptionEmailDomain;
@@ -280,82 +276,66 @@ export class NotificationController extends BaseController {
           this.mailMerge(data.message.textBody, tokenData, this.httpContext);
         switch (data.channel) {
           case 'sms':
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.sendSMS(
+            await this.sendSMS(
               data.userChannelId as string,
               textBody,
               tokenData,
-              sendPushNotificationCB,
             );
-            break;
-          default:
-            {
-              const htmlBody =
-                data.message.htmlBody &&
-                this.mailMerge(
-                  data.message.htmlBody,
-                  tokenData,
-                  this.httpContext,
-                );
-              const subject =
-                data.message.subject &&
-                this.mailMerge(
-                  data.message.subject,
-                  tokenData,
-                  this.httpContext,
-                );
-              const unsubscriptUrl = this.mailMerge(
-                '{unsubscription_url}',
+            return;
+          default: {
+            const htmlBody =
+              data.message.htmlBody &&
+              this.mailMerge(
+                data.message.htmlBody,
                 tokenData,
                 this.httpContext,
               );
-              let listUnsub = unsubscriptUrl;
-              if (handleListUnsubscribeByEmail && inboundSmtpServerDomain) {
-                const unsubEmail =
-                  this.mailMerge(
-                    'un-{subscription_id}-{unsubscription_code}@',
-                    tokenData,
-                    this.httpContext,
-                  ) + inboundSmtpServerDomain;
-                listUnsub = [[unsubEmail, unsubscriptUrl]];
-              }
-              const mailOptions: AnyObject = {
-                from: data.message.from,
-                to: data.userChannelId,
-                subject: subject,
-                text: textBody,
-                html: htmlBody,
-                list: {
-                  id:
-                    data.httpHost + '/' + encodeURIComponent(data.serviceName),
-                  unsubscribe: listUnsub,
-                },
-              };
-              if (handleBounce && inboundSmtpServerDomain) {
-                const bounceEmail = this.mailMerge(
-                  `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
+            const subject =
+              data.message.subject &&
+              this.mailMerge(data.message.subject, tokenData, this.httpContext);
+            const unsubscriptUrl = this.mailMerge(
+              '{unsubscription_url}',
+              tokenData,
+              this.httpContext,
+            );
+            let listUnsub = unsubscriptUrl;
+            if (handleListUnsubscribeByEmail && inboundSmtpServerDomain) {
+              const unsubEmail =
+                this.mailMerge(
+                  'un-{subscription_id}-{unsubscription_code}@',
                   tokenData,
                   this.httpContext,
-                );
-                mailOptions.envelope = {
-                  from: bounceEmail,
-                  to: data.userChannelId,
-                };
-              }
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.sendEmail(mailOptions, async (err: any) => {
-                if (err) {
-                  return sendPushNotificationCB(err);
-                }
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                updateBounces(data.userChannelId as string, data)
-                  .then(sendPushNotificationCB)
-                  .catch(sendPushNotificationCB);
-              });
+                ) + inboundSmtpServerDomain;
+              listUnsub = [[unsubEmail, unsubscriptUrl]];
             }
-            break;
+            const mailOptions: AnyObject = {
+              from: data.message.from,
+              to: data.userChannelId,
+              subject: subject,
+              text: textBody,
+              html: htmlBody,
+              list: {
+                id: data.httpHost + '/' + encodeURIComponent(data.serviceName),
+                unsubscribe: listUnsub,
+              },
+            };
+            if (handleBounce && inboundSmtpServerDomain) {
+              const bounceEmail = this.mailMerge(
+                `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
+                tokenData,
+                this.httpContext,
+              );
+              mailOptions.envelope = {
+                from: bounceEmail,
+                to: data.userChannelId,
+              };
+            }
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            await this.sendEmail(mailOptions);
+            await updateBounces(data.userChannelId as string, data);
+            return;
+          }
         }
-        break;
       }
       case true: {
         const broadcastSubscriberChunkSize = this.appConfig.notification
@@ -366,9 +346,7 @@ export class NotificationController extends BaseController {
           ?.logSuccessfulBroadcastDispatches;
         let startIdx =
           (this.httpContext.getSync('NotifyBC.startIdx') as number) || 0;
-        const broadcastToChunkSubscribers = async (
-          broadcastToChunkSubscribersCB?: any,
-        ) => {
+        const broadcastToChunkSubscribers = async () => {
           const subscribers = await this.subscriptionRepositoryRepository.find({
             where: {
               serviceName: data.serviceName,
@@ -385,7 +363,7 @@ export class NotificationController extends BaseController {
           if (ft) {
             jmespathSearchOpts.functionTable = ft;
           }
-          const tasks: ((cb: any) => void)[] = [];
+          const tasks: Promise<any>[] = [];
           await Promise.all(
             subscribers.map(async e => {
               if (e.broadcastPushNotificationFilter && data.data) {
@@ -401,152 +379,131 @@ export class NotificationController extends BaseController {
                   return;
                 }
               }
-              tasks.push(cb => {
-                const notificationMsgCB = function (err: any) {
-                  const res: AnyObject = {};
-                  if (err) {
-                    res.fail = {
-                      subscriptionId: e.id,
-                      userChannelId: e.userChannelId,
-                      error: err,
-                    };
-                  } else if (logSuccessfulBroadcastDispatches || handleBounce) {
-                    res.success = e.id;
-                  }
-                  return cb(null, res);
-                };
-                const tokenData = _.assignIn({}, e, {
-                  data: data.data,
-                });
-                const textBody =
-                  data.message.textBody &&
-                  this.mailMerge(
-                    data.message.textBody,
-                    tokenData,
-                    this.httpContext,
-                  );
-                switch (e.channel) {
-                  case 'sms':
-                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                    this.sendSMS(
-                      e.userChannelId,
-                      textBody,
-                      tokenData,
-                      notificationMsgCB,
-                    );
-                    break;
-                  default: {
-                    const subject =
-                      data.message.subject &&
-                      this.mailMerge(
-                        data.message.subject,
-                        tokenData,
-                        this.httpContext,
-                      );
-                    const htmlBody =
-                      data.message.htmlBody &&
-                      this.mailMerge(
-                        data.message.htmlBody,
-                        tokenData,
-                        this.httpContext,
-                      );
-                    const unsubscriptUrl = this.mailMerge(
-                      '{unsubscription_url}',
+              tasks.push(
+                new Promise(resolve => {
+                  const notificationMsgCB = function (err: any) {
+                    const res: AnyObject = {};
+                    if (err) {
+                      res.fail = {
+                        subscriptionId: e.id,
+                        userChannelId: e.userChannelId,
+                        error: err,
+                      };
+                    } else if (
+                      logSuccessfulBroadcastDispatches ||
+                      handleBounce
+                    ) {
+                      res.success = e.id;
+                    }
+                    return resolve(res);
+                  };
+                  const tokenData = _.assignIn({}, e, {
+                    data: data.data,
+                  });
+                  const textBody =
+                    data.message.textBody &&
+                    this.mailMerge(
+                      data.message.textBody,
                       tokenData,
                       this.httpContext,
                     );
-                    let listUnsub = unsubscriptUrl;
-                    if (
-                      handleListUnsubscribeByEmail &&
-                      inboundSmtpServerDomain
-                    ) {
-                      const unsubEmail =
+                  switch (e.channel) {
+                    case 'sms':
+                      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                      this.sendSMS(
+                        e.userChannelId,
+                        textBody,
+                        tokenData,
+                        notificationMsgCB,
+                      );
+                      break;
+                    default: {
+                      const subject =
+                        data.message.subject &&
                         this.mailMerge(
-                          'un-{subscription_id}-{unsubscription_code}@',
+                          data.message.subject,
                           tokenData,
                           this.httpContext,
-                        ) + inboundSmtpServerDomain;
-                      listUnsub = [[unsubEmail, unsubscriptUrl]];
-                    }
-                    const mailOptions: AnyObject = {
-                      from: data.message.from,
-                      to: e.userChannelId,
-                      subject: subject,
-                      text: textBody,
-                      html: htmlBody,
-                      list: {
-                        id:
-                          data.httpHost +
-                          '/' +
-                          encodeURIComponent(data.serviceName),
-                        unsubscribe: listUnsub,
-                      },
-                    };
-                    if (handleBounce && inboundSmtpServerDomain) {
-                      const bounceEmail = this.mailMerge(
-                        `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
+                        );
+                      const htmlBody =
+                        data.message.htmlBody &&
+                        this.mailMerge(
+                          data.message.htmlBody,
+                          tokenData,
+                          this.httpContext,
+                        );
+                      const unsubscriptUrl = this.mailMerge(
+                        '{unsubscription_url}',
                         tokenData,
                         this.httpContext,
                       );
-                      mailOptions.envelope = {
-                        from: bounceEmail,
+                      let listUnsub = unsubscriptUrl;
+                      if (
+                        handleListUnsubscribeByEmail &&
+                        inboundSmtpServerDomain
+                      ) {
+                        const unsubEmail =
+                          this.mailMerge(
+                            'un-{subscription_id}-{unsubscription_code}@',
+                            tokenData,
+                            this.httpContext,
+                          ) + inboundSmtpServerDomain;
+                        listUnsub = [[unsubEmail, unsubscriptUrl]];
+                      }
+                      const mailOptions: AnyObject = {
+                        from: data.message.from,
                         to: e.userChannelId,
+                        subject: subject,
+                        text: textBody,
+                        html: htmlBody,
+                        list: {
+                          id:
+                            data.httpHost +
+                            '/' +
+                            encodeURIComponent(data.serviceName),
+                          unsubscribe: listUnsub,
+                        },
                       };
+                      if (handleBounce && inboundSmtpServerDomain) {
+                        const bounceEmail = this.mailMerge(
+                          `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
+                          tokenData,
+                          this.httpContext,
+                        );
+                        mailOptions.envelope = {
+                          from: bounceEmail,
+                          to: e.userChannelId,
+                        };
+                      }
+                      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                      this.sendEmail(mailOptions, notificationMsgCB);
                     }
-                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                    this.sendEmail(mailOptions, notificationMsgCB);
                   }
-                }
-              });
+                }),
+              );
             }),
           );
-          parallel(tasks, function (err: any, resArr: AnyObject[]) {
-            const ret: AnyObject = {
-              fail: [],
-              success: [],
-            };
-            for (const res of resArr) {
-              if (res.fail) {
-                ret.fail.push(res.fail);
-              } else if (res.success) {
-                ret.success.push(res.success);
-              }
+          const resArr = await Promise.all(tasks);
+          const ret: AnyObject = {
+            fail: [],
+            success: [],
+          };
+          for (const res of resArr) {
+            if (res.fail) {
+              ret.fail.push(res.fail);
+            } else if (res.success) {
+              ret.success.push(res.success);
             }
-            return (
-              broadcastToChunkSubscribersCB || sendPushNotificationCB
-            )(err, ret);
-          });
+          }
+          return ret;
         };
         if (typeof startIdx !== 'number') {
-          const postBroadcastProcessing = async (
-            postBroadcastProcessingCb: any,
-          ) => {
-            const res = await this.subscriptionRepositoryRepository.find({
-              fields: {
-                userChannelId: true,
-              },
-              where: {
-                id: {
-                  inq: data.successfulDispatches,
-                },
-              },
-            });
-            const userChannelIds = res.map(e => e.userChannelId);
-            const errUserChannelIds = (data.failedDispatches || []).map(
-              (e: {userChannelId: any}) => e.userChannelId,
-            );
-            _.pullAll(userChannelIds, errUserChannelIds);
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            updateBounces(userChannelIds, data)
-              .then(postBroadcastProcessingCb)
-              .catch(postBroadcastProcessingCb);
-          };
           const postBroadcastProcessingCb = () => {
             if (!logSuccessfulBroadcastDispatches) {
               delete data.successfulDispatches;
             }
             if (!data.asyncBroadcastPushNotification) {
-              sendPushNotificationCB();
+              return;
             } else {
               if (data.state !== 'error') {
                 data.state = 'sent';
@@ -572,6 +529,25 @@ export class NotificationController extends BaseController {
               );
             }
           };
+          const postBroadcastProcessing = async () => {
+            const res = await this.subscriptionRepositoryRepository.find({
+              fields: {
+                userChannelId: true,
+              },
+              where: {
+                id: {
+                  inq: data.successfulDispatches,
+                },
+              },
+            });
+            const userChannelIds = res.map(e => e.userChannelId);
+            const errUserChannelIds = (data.failedDispatches || []).map(
+              (e: {userChannelId: any}) => e.userChannelId,
+            );
+            _.pullAll(userChannelIds, errUserChannelIds);
+            await updateBounces(userChannelIds, data);
+            postBroadcastProcessingCb();
+          };
           const count = (
             await this.subscriptionRepositoryRepository.count({
               serviceName: data.serviceName,
@@ -582,17 +558,15 @@ export class NotificationController extends BaseController {
 
           if (count <= broadcastSubscriberChunkSize) {
             startIdx = 0;
+            const res = await broadcastToChunkSubscribers();
+            if (res.fail) {
+              data.failedDispatches = res.fail;
+            }
+            if (res.success) {
+              data.successfulDispatches = res.success;
+            }
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            broadcastToChunkSubscribers((err: any, res: AnyObject) => {
-              if (res.fail) {
-                data.failedDispatches = res.fail;
-              }
-              if (res.success) {
-                data.successfulDispatches = res.success;
-              }
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              postBroadcastProcessing(postBroadcastProcessingCb);
-            });
+            await postBroadcastProcessing();
           } else {
             // call broadcastToChunkSubscribers, coordinate output
             const chunks = Math.ceil(count / broadcastSubscriberChunkSize);
@@ -654,10 +628,6 @@ export class NotificationController extends BaseController {
               },
               broadcastSubRequestBatchSize,
             );
-            q.drain(function () {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              postBroadcastProcessing(postBroadcastProcessingCb);
-            });
             const queuedTasks = [];
             let i = 0;
             while (i < chunks) {
@@ -691,9 +661,11 @@ export class NotificationController extends BaseController {
                 }
               },
             );
+            await q.drain();
+            await postBroadcastProcessing();
           }
           if (data.asyncBroadcastPushNotification) {
-            sendPushNotificationCB(null);
+            return;
           }
         } else {
           await broadcastToChunkSubscribers();
@@ -703,10 +675,7 @@ export class NotificationController extends BaseController {
     }
   }
 
-  private async dispatchNotification(
-    res: Notification,
-    next: (err?: any) => void,
-  ) {
+  private async dispatchNotification(res: Notification) {
     // send non-inApp notifications immediately
     switch (res.channel) {
       case 'email':
@@ -726,27 +695,21 @@ export class NotificationController extends BaseController {
               this.httpContext.request.get('host');
           }
         }
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.sendPushNotification(res, (errSend: any) => {
-          if (errSend) {
-            res.state = 'error';
-          } else if (res.isBroadcast && res.asyncBroadcastPushNotification) {
+        try {
+          await this.sendPushNotification(res);
+          if (res.isBroadcast && res.asyncBroadcastPushNotification) {
             // async
           } else {
             res.state = 'sent';
           }
-          res.save(
-            {
-              httpContext: this.httpContext,
-            },
-            function (errSave: any) {
-              next(errSend || errSave);
-            },
-          );
+        } catch (errSend: any) {
+          res.state = 'error';
+        }
+        await res.save({
+          httpContext: this.httpContext,
         });
         break;
       default:
-        next();
         break;
     }
   }
