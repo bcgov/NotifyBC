@@ -555,7 +555,6 @@ export class NotificationController extends BaseController {
               channel: data.channel,
             })
           ).count;
-
           if (count <= broadcastSubscriberChunkSize) {
             startIdx = 0;
             const res = await broadcastToChunkSubscribers();
@@ -664,9 +663,6 @@ export class NotificationController extends BaseController {
             await q.drain();
             await postBroadcastProcessing();
           }
-          if (data.asyncBroadcastPushNotification) {
-            return;
-          }
         } else {
           await broadcastToChunkSubscribers();
         }
@@ -696,10 +692,12 @@ export class NotificationController extends BaseController {
           }
         }
         try {
-          await this.sendPushNotification(res);
           if (res.isBroadcast && res.asyncBroadcastPushNotification) {
             // async
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.sendPushNotification(res);
           } else {
+            await this.sendPushNotification(res);
             res.state = 'sent';
           }
         } catch (errSend: any) {
