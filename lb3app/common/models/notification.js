@@ -145,6 +145,7 @@ module.exports = function (Notification) {
   Notification.beforeRemote('create', Notification.preCreationValidation);
   Notification.beforeRemote('replaceById', Notification.preCreationValidation);
 
+  //migration: in-progress to NotificationController
   Notification.dispatchNotification = function (ctx, res, next) {
     // send non-inApp notifications immediately
     switch (res.channel) {
@@ -243,6 +244,7 @@ module.exports = function (Notification) {
     this.patchAttributes(options.httpContext.args.data, options, callback);
   };
 
+  //migration: in-progress to NotificationController
   function sendPushNotification(ctx, data, cb) {
     const inboundSmtpServerDomain =
       Notification.app.get('inboundSmtpServer').domain ||
@@ -699,6 +701,7 @@ module.exports = function (Notification) {
     start,
     callback,
   ) {
+    //todo: bind NotifyBC.startIdx to start
     sendPushNotification(options.httpContext, this, (err, data) => {
       callback(err, data);
     });

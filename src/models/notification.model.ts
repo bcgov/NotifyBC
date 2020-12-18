@@ -1,4 +1,4 @@
-import {Entity, model, property} from '@loopback/repository';
+import {AnyObject, Entity, model, property} from '@loopback/repository';
 
 @model({
   settings: {
@@ -28,7 +28,6 @@ export class Notification extends Entity {
 
   @property({
     type: 'string',
-    required: true,
     default: 'new',
   })
   state: string;
@@ -43,7 +42,7 @@ export class Notification extends Entity {
     required: true,
     default: {},
   })
-  message: object;
+  message: AnyObject;
 
   @property({
     type: 'date',
