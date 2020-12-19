@@ -80,7 +80,8 @@ export class NotificationController extends BaseController {
     })
     notification: Omit<Notification, 'id'>,
   ): Promise<Notification> {
-    return this.notificationRepository.create(notification);
+    const res = await this.notificationRepository.create(notification);
+    return this.dispatchNotification(res);
   }
 
   @get('/notifications/count', {
@@ -205,6 +206,7 @@ export class NotificationController extends BaseController {
     @requestBody() notification: Notification,
   ): Promise<void> {
     await this.notificationRepository.replaceById(id, notification);
+    await this.dispatchNotification(notification);
   }
 
   @del('/notifications/{id}', {
@@ -264,13 +266,13 @@ export class NotificationController extends BaseController {
 
     switch (data.isBroadcast) {
       case false: {
-        const tokenData = _.assignIn(
-          {},
-          this.httpContext.getSync('NotifyBC.subscription'),
-          {
-            data: data.data,
-          },
-        );
+        let sub = {};
+        try {
+          sub = await this.httpContext.get('NotifyBC.subscription');
+        } catch (ex) {}
+        const tokenData = _.assignIn({}, sub, {
+          data: data.data,
+        });
         const textBody =
           data.message.textBody &&
           this.mailMerge(data.message.textBody, tokenData, this.httpContext);
@@ -344,8 +346,10 @@ export class NotificationController extends BaseController {
           ?.broadcastSubRequestBatchSize;
         const logSuccessfulBroadcastDispatches = this.appConfig.notification
           ?.logSuccessfulBroadcastDispatches;
-        let startIdx =
-          (this.httpContext.getSync('NotifyBC.startIdx') as number) || 0;
+        let startIdx: undefined | number;
+        try {
+          startIdx = await this.httpContext.get('NotifyBC.startIdx');
+        } catch (ex) {}
         const broadcastToChunkSubscribers = async () => {
           const subscribers = await this.subscriptionRepositoryRepository.find({
             where: {
@@ -498,7 +502,7 @@ export class NotificationController extends BaseController {
           return ret;
         };
         if (typeof startIdx !== 'number') {
-          const postBroadcastProcessingCb = () => {
+          const postBroadcastProcessingCb = async () => {
             if (!logSuccessfulBroadcastDispatches) {
               delete data.successfulDispatches;
             }
@@ -508,25 +512,21 @@ export class NotificationController extends BaseController {
               if (data.state !== 'error') {
                 data.state = 'sent';
               }
-              data.save(
-                {
-                  httpContext: this.httpContext,
-                },
-                async function () {
-                  if (typeof data.asyncBroadcastPushNotification === 'string') {
-                    const options = {
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                    };
-                    await request.post(
-                      data.asyncBroadcastPushNotification,
-                      data,
-                      options,
-                    );
-                  }
-                },
-              );
+              await this.notificationRepository.save(data, {
+                httpContext: this.httpContext,
+              });
+              if (typeof data.asyncBroadcastPushNotification === 'string') {
+                const options = {
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                };
+                await request.post(
+                  data.asyncBroadcastPushNotification,
+                  data,
+                  options,
+                );
+              }
             }
           };
           const postBroadcastProcessing = async () => {
@@ -546,7 +546,7 @@ export class NotificationController extends BaseController {
             );
             _.pullAll(userChannelIds, errUserChannelIds);
             await updateBounces(userChannelIds, data);
-            postBroadcastProcessingCb();
+            await postBroadcastProcessingCb();
           };
           const count = (
             await this.subscriptionRepositoryRepository.count({
@@ -671,7 +671,7 @@ export class NotificationController extends BaseController {
     }
   }
 
-  private async dispatchNotification(res: Notification) {
+  private async dispatchNotification(res: Notification): Promise<Notification> {
     // send non-inApp notifications immediately
     switch (res.channel) {
       case 'email':
@@ -680,7 +680,7 @@ export class NotificationController extends BaseController {
           res.invalidBefore &&
           Date.parse(res.invalidBefore) > new Date().valueOf()
         ) {
-          return;
+          return res;
         }
         if (!res.httpHost) {
           res.httpHost = this.appConfig.httpHost;
@@ -703,12 +703,13 @@ export class NotificationController extends BaseController {
         } catch (errSend: any) {
           res.state = 'error';
         }
-        await res.save({
+        await this.notificationRepository.save(res, {
           httpContext: this.httpContext,
         });
         break;
       default:
         break;
     }
+    return res;
   }
 }
