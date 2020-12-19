@@ -696,12 +696,12 @@ module.exports = function (Notification) {
    * @param {Function(Error, array)} callback
    */
 
+  //migration: done, to NotificationController.broadcastToChunkSubscribers
   Notification.prototype.broadcastToChunkSubscribers = function (
     options,
     start,
     callback,
   ) {
-    //todo: bind NotifyBC.startIdx to start
     sendPushNotification(options.httpContext, this, (err, data) => {
       callback(err, data);
     });

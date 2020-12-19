@@ -220,6 +220,22 @@ export class NotificationController extends BaseController {
     await this.notificationRepository.deleteById(id);
   }
 
+  @get('/notifications/{id}/broadcastToChunkSubscribers', {
+    responses: {
+      '200': {
+        description: 'Operation Successful',
+      },
+    },
+  })
+  async broadcastToChunkSubscribers(
+    @param.path.string('id') id: string,
+    @param.query.integer('start') startIdx: number,
+  ) {
+    const notification = await this.notificationRepository.findById(id);
+    this.httpContext.bind('NotifyBC.startIdx').to(startIdx);
+    return this.sendPushNotification(notification);
+  }
+
   private async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain =
       this.appConfig.inboundSmtpServer?.domain ||
@@ -538,11 +554,13 @@ export class NotificationController extends BaseController {
                     'Content-Type': 'application/json',
                   },
                 };
-                await request.post(
-                  data.asyncBroadcastPushNotification,
-                  data,
-                  options,
-                );
+                try {
+                  await request.post(
+                    data.asyncBroadcastPushNotification,
+                    data,
+                    options,
+                  );
+                } catch (ex) {}
               }
             }
           };
@@ -568,7 +586,7 @@ export class NotificationController extends BaseController {
             // call broadcastToChunkSubscribers, coordinate output
             const chunks = Math.ceil(count / broadcastSubscriberChunkSize);
             let httpHost = this.appConfig.internalHttpHost;
-            const restApiRoot = this.appConfig.restApiRoot;
+            const restApiRoot = this.appConfig.rest.basePath ?? '';
             if (!httpHost) {
               httpHost =
                 data.httpHost ||
@@ -662,7 +680,7 @@ export class NotificationController extends BaseController {
             await postBroadcastProcessing();
           }
         } else {
-          await broadcastToChunkSubscribers();
+          return broadcastToChunkSubscribers();
         }
         break;
       }
