@@ -502,7 +502,24 @@ export class NotificationController extends BaseController {
           return ret;
         };
         if (typeof startIdx !== 'number') {
-          const postBroadcastProcessingCb = async () => {
+          const postBroadcastProcessing = async () => {
+            const res = await this.subscriptionRepositoryRepository.find({
+              fields: {
+                userChannelId: true,
+              },
+              where: {
+                id: {
+                  inq: data.successfulDispatches,
+                },
+              },
+            });
+            const userChannelIds = res.map(e => e.userChannelId);
+            const errUserChannelIds = (data.failedDispatches || []).map(
+              (e: {userChannelId: any}) => e.userChannelId,
+            );
+            _.pullAll(userChannelIds, errUserChannelIds);
+            await updateBounces(userChannelIds, data);
+
             if (!logSuccessfulBroadcastDispatches) {
               delete data.successfulDispatches;
             }
@@ -528,25 +545,6 @@ export class NotificationController extends BaseController {
                 );
               }
             }
-          };
-          const postBroadcastProcessing = async () => {
-            const res = await this.subscriptionRepositoryRepository.find({
-              fields: {
-                userChannelId: true,
-              },
-              where: {
-                id: {
-                  inq: data.successfulDispatches,
-                },
-              },
-            });
-            const userChannelIds = res.map(e => e.userChannelId);
-            const errUserChannelIds = (data.failedDispatches || []).map(
-              (e: {userChannelId: any}) => e.userChannelId,
-            );
-            _.pullAll(userChannelIds, errUserChannelIds);
-            await updateBounces(userChannelIds, data);
-            await postBroadcastProcessingCb();
           };
           const count = (
             await this.subscriptionRepositoryRepository.count({
