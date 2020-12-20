@@ -187,6 +187,7 @@ module.exports = function (Notification) {
   Notification.afterRemote('create', Notification.dispatchNotification);
   Notification.afterRemote('replaceById', Notification.dispatchNotification);
 
+  //migration: done to NotificationController.updateById
   function beforePatchAttributes() {
     var ctx = arguments[0];
     var next = arguments[arguments.length - 1];
@@ -229,6 +230,7 @@ module.exports = function (Notification) {
     next();
   }
 
+  //migration: skipped
   function afterPatchAttributes() {
     var ctx = arguments[0];
     var next = arguments[arguments.length - 1];
@@ -236,7 +238,6 @@ module.exports = function (Notification) {
     ctx.result = {};
     next();
   }
-
   Notification.beforeRemote('prototype.patchAttributes', beforePatchAttributes);
   Notification.afterRemote('prototype.patchAttributes', afterPatchAttributes);
   Notification.beforeRemote('prototype.deleteItemById', beforePatchAttributes);

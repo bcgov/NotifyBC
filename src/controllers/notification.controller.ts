@@ -180,6 +180,12 @@ export class NotificationController extends BaseController {
       '204': {
         description: 'Notification PATCH success',
       },
+      '403': {
+        description: 'Forbidden',
+      },
+      '400': {
+        description: 'Bad Request',
+      },
     },
   })
   async updateById(
@@ -191,8 +197,43 @@ export class NotificationController extends BaseController {
         },
       },
     })
-    notification: Notification,
+    notification: Partial<Notification>,
   ): Promise<void> {
+    const ctx = this.httpContext;
+    // only allow changing inApp state for non-admin requests
+    if (!this.configurationRepository.isAdminReq(ctx)) {
+      const currUser = this.configurationRepository.getCurrentUser(ctx);
+      if (!currUser) {
+        throw new HttpErrors[403]('Forbidden');
+      }
+      const instance = await this.notificationRepository.findById(id);
+      if (instance.channel !== 'inApp') {
+        throw new HttpErrors[403]('Forbidden');
+      }
+      if (!notification.state) {
+        throw new HttpErrors[400]();
+      }
+      notification = {
+        state: notification.state,
+      };
+      if (instance.isBroadcast) {
+        switch (notification.state) {
+          case 'read':
+            notification.readBy = instance.readBy || [];
+            if (notification.readBy.indexOf(currUser) < 0) {
+              notification.readBy.push(currUser);
+            }
+            break;
+          case 'deleted':
+            notification.deletedBy = instance.deletedBy || [];
+            if (notification.deletedBy.indexOf(currUser) < 0) {
+              notification.deletedBy.push(currUser);
+            }
+            break;
+        }
+        delete notification.state;
+      }
+    }
     await this.notificationRepository.updateById(id, notification);
   }
 
@@ -217,10 +258,15 @@ export class NotificationController extends BaseController {
       '204': {
         description: 'Notification DELETE success',
       },
+      '403': {
+        description: 'Forbidden',
+      },
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.notificationRepository.deleteById(id);
+    const data = await this.notificationRepository.findById(id);
+    data.state = 'deleted';
+    await this.updateById(id, data);
   }
 
   @oas.visibility(OperationVisibility.UNDOCUMENTED)
