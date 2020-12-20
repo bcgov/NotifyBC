@@ -5,6 +5,7 @@
   "remoting": {
     "rest": {
       "normalizeHttpPath": false,
+      "handleUnknownPaths": false,
       "xml": false,
       "handleErrors": false
     },

@@ -1,13 +1,13 @@
-import {ApplicationConfig, NotifyBcApplication} from './application';
+import {ApplicationConfig, ExpressServer} from './server';
 
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
-  const app = new NotifyBcApplication(options);
+  const app = new ExpressServer(options);
   await app.boot();
   await app.start();
 
-  const url = app.restServer.url;
+  const url = app.url;
   console.log(`Server is running at ${url}`);
   console.log(`Try ${url}/ping`);
 
@@ -31,6 +31,8 @@ if (require.main === module) {
         // useful when used with OpenAPI-to-GraphQL to locate your application
         setServersFromRequest: true,
       },
+      // Use the LB4 application as a route. It should not be listening.
+      listenOnStart: false,
     },
   };
   main(config).catch(err => {
