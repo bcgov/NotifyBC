@@ -70,6 +70,7 @@ module.exports = function (Notification) {
     next();
   });
 
+  //migration: done to NotificationController.preCreationValidation
   Notification.preCreationValidation = function () {
     let ctx = arguments[0];
     let next = arguments[arguments.length - 1];

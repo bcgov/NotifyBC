@@ -47,7 +47,7 @@ export class NotificationController extends BaseController {
     @repository(BounceRepository)
     public bounceRepository: BounceRepository,
     @repository(SubscriptionRepository)
-    public subscriptionRepositoryRepository: SubscriptionRepository,
+    public subscriptionRepository: SubscriptionRepository,
     @inject(CoreBindings.APPLICATION_CONFIG)
     appConfig: ApplicationConfig,
     @repository(ConfigurationRepository)
@@ -81,6 +81,7 @@ export class NotificationController extends BaseController {
     })
     notification: Omit<Notification, 'id'>,
   ): Promise<Notification> {
+    await this.preCreationValidation(notification);
     const res = await this.notificationRepository.create(notification);
     return this.dispatchNotification(res);
   }
@@ -206,6 +207,7 @@ export class NotificationController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() notification: Notification,
   ): Promise<void> {
+    await this.preCreationValidation(notification);
     await this.notificationRepository.replaceById(id, notification);
     await this.dispatchNotification(notification);
   }
@@ -350,7 +352,6 @@ export class NotificationController extends BaseController {
                 to: data.userChannelId,
               };
             }
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             await this.sendEmail(mailOptions);
             await updateBounces(data.userChannelId as string, data);
             return;
@@ -369,7 +370,7 @@ export class NotificationController extends BaseController {
           startIdx = await this.httpContext.get('NotifyBC.startIdx');
         } catch (ex) {}
         const broadcastToChunkSubscribers = async () => {
-          const subscribers = await this.subscriptionRepositoryRepository.find({
+          const subscribers = await this.subscriptionRepository.find({
             where: {
               serviceName: data.serviceName,
               state: 'confirmed',
@@ -521,7 +522,7 @@ export class NotificationController extends BaseController {
         };
         if (typeof startIdx !== 'number') {
           const postBroadcastProcessing = async () => {
-            const res = await this.subscriptionRepositoryRepository.find({
+            const res = await this.subscriptionRepository.find({
               fields: {
                 userChannelId: true,
               },
@@ -567,7 +568,7 @@ export class NotificationController extends BaseController {
             }
           };
           const count = (
-            await this.subscriptionRepositoryRepository.count({
+            await this.subscriptionRepository.count({
               serviceName: data.serviceName,
               state: 'confirmed',
               channel: data.channel,
@@ -621,7 +622,7 @@ export class NotificationController extends BaseController {
                   .catch(async () => {
                     let subs, err;
                     try {
-                      subs = await this.subscriptionRepositoryRepository.find({
+                      subs = await this.subscriptionRepository.find({
                         where: {
                           serviceName: data.serviceName,
                           state: 'confirmed',
@@ -729,5 +730,62 @@ export class NotificationController extends BaseController {
         break;
     }
     return res;
+  }
+
+  private async preCreationValidation(data: Partial<Notification>) {
+    if (!this.configurationRepository.isAdminReq(this.httpContext)) {
+      throw new HttpErrors[403]('Forbidden');
+    }
+    if (
+      !data.isBroadcast &&
+      data.skipSubscriptionConfirmationCheck &&
+      !data.userChannelId
+    ) {
+      throw new HttpErrors[403]('invalid user');
+    }
+    if (
+      data.channel === 'inApp' ||
+      data.skipSubscriptionConfirmationCheck ||
+      data.isBroadcast
+    ) {
+      return;
+    }
+    if (!data.userChannelId && !data.userId) {
+      throw new HttpErrors[403]('invalid user');
+    }
+    // validate userChannelId/userId of a unicast push notification against subscription data
+    const whereClause: Where<Notification> = {
+      serviceName: data.serviceName,
+      state: 'confirmed',
+      channel: data.channel,
+    };
+    if (data.userChannelId) {
+      // email address check should be case insensitive
+      const escapedUserChannelId = data.userChannelId.replace(
+        /[-[\]{}()*+?.,\\^$|#\s]/g,
+        '\\$&',
+      );
+      const escapedUserChannelIdRegExp = new RegExp(escapedUserChannelId, 'i');
+      whereClause.userChannelId = {
+        regexp: escapedUserChannelIdRegExp,
+      };
+    }
+    if (data.userId) {
+      whereClause.userId = data.userId;
+    }
+
+    try {
+      const subscription = await this.subscriptionRepository.findOne({
+        where: whereClause,
+      });
+      if (!subscription) {
+        throw new HttpErrors[403]('invalid user');
+      }
+      // in case request supplies userId instead of userChannelId
+      data.userChannelId = subscription?.userChannelId;
+      this.httpContext.bind('NotifyBC.subscription').to(subscription);
+    } catch (ex) {
+      throw new HttpErrors[403]('invalid user');
+    }
   }
 }
