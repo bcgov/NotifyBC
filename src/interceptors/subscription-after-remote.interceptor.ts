@@ -51,16 +51,17 @@ export class SubscriptionAfterRemoteInterceptor
     ) {
       if (data instanceof Array) {
         data.forEach(function (e) {
-          e.confirmationRequest = undefined;
-          e.updatedBy = undefined;
-          e.createdBy = undefined;
-          e.unsubscriptionCode = undefined;
+          if (!(e instanceof Object)) return;
+          delete e.confirmationRequest;
+          delete e.updatedBy;
+          delete e.createdBy;
+          delete e.unsubscriptionCode;
         });
       } else if (data instanceof Object) {
-        data.confirmationRequest = undefined;
-        data.updatedBy = undefined;
-        data.createdBy = undefined;
-        data.unsubscriptionCode = undefined;
+        delete data.confirmationRequest;
+        delete data.updatedBy;
+        delete data.createdBy;
+        delete data.unsubscriptionCode;
       }
     }
     return data;
