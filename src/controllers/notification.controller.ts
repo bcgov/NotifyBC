@@ -15,6 +15,7 @@ import {
   HttpErrors,
   MiddlewareContext,
   oas,
+  OperationVisibility,
   param,
   patch,
   post,
@@ -220,6 +221,7 @@ export class NotificationController extends BaseController {
     await this.notificationRepository.deleteById(id);
   }
 
+  @oas.visibility(OperationVisibility.UNDOCUMENTED)
   @get('/notifications/{id}/broadcastToChunkSubscribers', {
     responses: {
       '200': {
@@ -545,7 +547,7 @@ export class NotificationController extends BaseController {
               if (data.state !== 'error') {
                 data.state = 'sent';
               }
-              await this.notificationRepository.save(data, {
+              await this.notificationRepository.updateById(data.id, data, {
                 httpContext: this.httpContext,
               });
               if (typeof data.asyncBroadcastPushNotification === 'string') {
@@ -719,7 +721,7 @@ export class NotificationController extends BaseController {
         } catch (errSend: any) {
           res.state = 'error';
         }
-        await this.notificationRepository.save(res, {
+        await this.notificationRepository.updateById(res.id, res, {
           httpContext: this.httpContext,
         });
         break;
