@@ -6,7 +6,6 @@
 import {once} from 'events';
 import express from 'express';
 import http from 'http';
-import path from 'path';
 import {ApplicationConfig, NotifyBcApplication} from './application';
 import webAdminConsole from './web-admin-console';
 const loopback = require('loopback');
@@ -58,8 +57,6 @@ export class ExpressServer {
 
     // Custom Express routes
     webAdminConsole(this);
-    // Serve static files in the public folder
-    this.app.use(express.static(path.join(__dirname, '../public')));
   }
 
   public async boot() {

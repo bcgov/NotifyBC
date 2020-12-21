@@ -9,10 +9,12 @@
       "request": "launch",
       "name": "App",
       "program": "${workspaceFolder}\\dist\\index.js",
-      // "autoAttachChildProcesses": true,
+      "autoAttachChildProcesses": true,
+      "console": "internalConsole",
       "preLaunchTask": "Clean and Compile Project",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "dev",
+        "NOTIFYBC_WORKER_PROCESS_COUNT": "1"
       }
     },
     {

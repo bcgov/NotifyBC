@@ -78,6 +78,8 @@ boot(app, __dirname, function (err) {
     return app.start();
   }
 });
+
+//migration: done, to index.ts
 if (require.main === module) {
   let numWorkers = parseInt(process.env.NOTIFYBC_WORKER_PROCESS_COUNT);
   if (isNaN(numWorkers)) {

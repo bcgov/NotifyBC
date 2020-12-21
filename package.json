@@ -14,6 +14,7 @@
   },
   "scripts": {
     "build": "lb-tsc",
+    "postbuild": "yarn --cwd public install && yarn --cwd public run build",
     "build:watch": "lb-tsc --watch",
     "lint": "npm run prettier:check && npm run eslint",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
@@ -31,11 +32,9 @@
     "migrate": "node ./dist/migrate",
     "openapi-spec": "node ./dist/openapi-spec",
     "prestart": "npm run build",
-    "start": "pm2 start ecosystem.config.js --env production",
-    "stop": "pm2 stop ecosystem.config.js --env production",
+    "start": "node .",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
-    "cleanbuild": "npm run clean && npm run build",
-    "postinstall": "cd public && yarn install && yarn run build && cd .."
+    "cleanbuild": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git"
@@ -81,7 +80,6 @@
     "nodemailer": "^4.1.2",
     "nodemailer-direct-transport": "^3.3.2",
     "pluralize": "^7.0.0",
-    "pm2": "^4.4.0",
     "randexp": "^0.4.3",
     "semver": "^5.3.0",
     "serve-favicon": "^2.0.1",

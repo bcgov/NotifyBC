@@ -1,6 +1,7 @@
 import {CoreBindings} from '@loopback/core';
-import {Request, Response} from 'express';
+import express, {Request, Response} from 'express';
 import {ExpressServer} from './server';
+import path = require('path');
 export default (server: ExpressServer) => {
   const app = server.app;
   app.engine('html', require('ejs').renderFile);
@@ -27,7 +28,7 @@ export default (server: ExpressServer) => {
       }),
     );
   }
-  app.set('views', require('path').join(__dirname, viewRelDir));
+  app.set('views', path.join(__dirname, viewRelDir));
   app.use(/^\/(index\.html)?$/, (request: Request, response: Response) => {
     const appConfig = server.lbApp.getSync(CoreBindings.APPLICATION_CONFIG);
     response.render('index.html', {
@@ -36,4 +37,6 @@ export default (server: ExpressServer) => {
       ApiExplorerUrlPrefix: `${appConfig.restApiRoot}/explorer`,
     });
   });
+  // Serve static files in the public folder
+  app.use(express.static(path.join(__dirname, viewRelDir)));
 };
