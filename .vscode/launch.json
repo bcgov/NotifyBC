@@ -43,7 +43,8 @@
       "cwd": "${workspaceFolder}/docs",
       "program": "node_modules/vuepress/cli.js",
       "args": ["dev"],
-      "console": "internalConsole"
+      "console": "internalConsole",
+      "envFile": "${workspaceFolder}/docs/.env"
     }
   ]
 }

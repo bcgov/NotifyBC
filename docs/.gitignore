@@ -1,10 +1,3 @@
-# jekyll
-_site/
-*.swp
-pkg/
-test/
-Gemfile.lock
-
 # vuepress
 pids
 logs
@@ -18,3 +11,6 @@ dist
 .basement
 config.local.js
 basement_dist
+
+#NotifyBC
+.env

@@ -5,6 +5,7 @@ on:
       - main
 env:
   notifyBCDocVersion_PATH: /
+  ALGOLIA_API_Key: ${{ secrets.ALGOLIA_API_Key }}
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
