@@ -29,6 +29,8 @@
     "Booter",
     "IDAQAB",
     "NDRs",
+    "Ntfctn",
+    "addmeta",
     "addt",
     "createsend",
     "feedparser",
