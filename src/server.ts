@@ -4,10 +4,11 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {once} from 'events';
-import express, {Request, Response} from 'express';
+import express from 'express';
 import http from 'http';
 import path from 'path';
 import {ApplicationConfig, NotifyBcApplication} from './application';
+import webAdminConsole from './web-admin-console';
 const loopback = require('loopback');
 const compression = require('compression');
 const cors = require('cors');
@@ -42,7 +43,6 @@ export class ExpressServer {
           maxAge: 0,
           includeSubDomains: true,
         },
-        frameguard: {action: 'deny'},
       }),
     );
 
@@ -54,13 +54,10 @@ export class ExpressServer {
 
     // Mount the LB4 REST API
     this.lbApp = new NotifyBcApplication(options);
-    this.app.use(this.lbApp.requestHandler);
+    this.app.use(options.restApiRoot, this.lbApp.requestHandler);
 
     // Custom Express routes
-    this.app.get('/hello', function (_req: Request, res: Response) {
-      res.send('Hello world!');
-    });
-
+    webAdminConsole(this);
     // Serve static files in the public folder
     this.app.use(express.static(path.join(__dirname, '../public')));
   }
