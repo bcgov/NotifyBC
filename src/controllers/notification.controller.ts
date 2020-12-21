@@ -635,7 +635,7 @@ export class NotificationController extends BaseController {
             // call broadcastToChunkSubscribers, coordinate output
             const chunks = Math.ceil(count / broadcastSubscriberChunkSize);
             let httpHost = this.appConfig.internalHttpHost;
-            const restApiRoot = this.appConfig.rest.basePath ?? '';
+            const restApiRoot = this.appConfig.restApiRoot ?? '';
             if (!httpHost) {
               httpHost =
                 data.httpHost ||
