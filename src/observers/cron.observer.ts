@@ -36,9 +36,7 @@ export class CronObserver implements LifeCycleObserver {
       cronTime: cronConfigPurgeData.timeSpec,
       onTick: await cronTasks.purgeData(this.app),
       start: true,
-      runOnInit: true,
     });
-    /*
     // start dispatchLiveNotifications cron
     const cronConfigDispatchLiveNotifications =
       cronConfig.dispatchLiveNotifications || {};
@@ -46,7 +44,9 @@ export class CronObserver implements LifeCycleObserver {
       cronTime: cronConfigDispatchLiveNotifications.timeSpec,
       onTick: await cronTasks.dispatchLiveNotifications(this.app),
       start: true,
+      runOnInit: true,
     });
+    /*
     // start checkRssConfigUpdates cron
     const cronConfigCheckRssConfigUpdates =
       cronConfig.checkRssConfigUpdates || {};

@@ -52,7 +52,7 @@ export class NotificationController extends BaseController {
     appConfig: ApplicationConfig,
     @repository(ConfigurationRepository)
     public configurationRepository: ConfigurationRepository,
-    @inject(RestBindings.Http.CONTEXT)
+    @inject(RestBindings.Http.CONTEXT, {optional: true})
     private httpContext: MiddlewareContext,
   ) {
     super(appConfig, configurationRepository);

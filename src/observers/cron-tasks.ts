@@ -1,5 +1,6 @@
 import {Application, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
+import {NotificationController} from '../controllers';
 import {
   BounceRepository,
   NotificationRepository,
@@ -144,7 +145,6 @@ module.exports.purgeData = async (app: Application) => {
   };
 };
 
-/*
 module.exports.dispatchLiveNotifications = function (app: Application) {
   return async () => {
     const notificationRepo: NotificationRepository = await app.get(
@@ -171,7 +171,10 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
     return Promise.all(
       livePushNotifications.map(async livePushNotification => {
         livePushNotification.state = 'sending';
-        if (livePushNotification.asyncBroadcastPushNotification === undefined) {
+        if (
+          livePushNotification.asyncBroadcastPushNotification === undefined ||
+          livePushNotification.asyncBroadcastPushNotification === null
+        ) {
           livePushNotification.asyncBroadcastPushNotification = true;
         }
         await notificationRepo.updateById(
@@ -192,6 +195,7 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
   };
 };
 
+/*
 let lastConfigCheck = 0;
 const rssTasks: AnyObject = {};
 module.exports.checkRssConfigUpdates = async (
