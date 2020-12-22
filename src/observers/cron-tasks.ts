@@ -1,4 +1,6 @@
+import {Application, ApplicationConfig} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
+import {NotificationRepository} from '../repositories';
 
 const parallel = require('async/parallel');
 const FeedParser = require('feedparser');
@@ -6,8 +8,10 @@ const request = require('axios');
 const _ = require('lodash');
 
 module.exports.request = request;
-module.exports.purgeData = async function (...args: any[]) {
-  const app = args[0];
+module.exports.purgeData = async function (
+  app: Application,
+  appConfig: ApplicationConfig,
+) {
   const cronConfig = app.get('cron').purgeData || {};
 
   return new Promise((resolve, reject) => {
@@ -149,88 +153,78 @@ module.exports.purgeData = async function (...args: any[]) {
   });
 };
 
-module.exports.dispatchLiveNotifications = function (...args: any[]) {
-  const app = args[0];
-  return new Promise((resolve, reject) => {
-    app.models.Notification.find(
-      {
-        where: {
-          state: 'new',
-          channel: {
-            neq: 'inApp',
-          },
-          invalidBefore: {
-            lt: Date.now(),
-          },
-        },
+module.exports.dispatchLiveNotifications = async function (
+  app: Application,
+  appConfig: ApplicationConfig,
+) {
+  const notificationRepo: NotificationRepository = await app.get(
+    'repositories.NotificationRepository',
+  );
+  const livePushNotifications = await notificationRepo.find({
+    where: {
+      state: 'new',
+      channel: {
+        neq: 'inApp',
       },
-      function (err: any, livePushNotifications: any) {
-        if (
-          err ||
-          (livePushNotifications && livePushNotifications.length === 0)
-        ) {
-          // eslint-disable-next-line no-unused-expressions
-          err ? reject(err) : resolve(livePushNotifications);
-          return;
+      invalidBefore: {
+        lt: Date.now(),
+      },
+    },
+  });
+  if (livePushNotifications && livePushNotifications.length === 0) {
+    return livePushNotifications;
+  }
+  const notificationTasks = livePushNotifications.map(
+    function (livePushNotification: {
+      state: string;
+      asyncBroadcastPushNotification: boolean | undefined;
+      save: (arg0: (errSave: any) => any) => void;
+    }) {
+      return function (cb: (arg0: null, arg1?: undefined) => any) {
+        livePushNotification.state = 'sending';
+        if (livePushNotification.asyncBroadcastPushNotification === undefined) {
+          livePushNotification.asyncBroadcastPushNotification = true;
         }
-        const notificationTasks = livePushNotifications.map(
-          function (livePushNotification: {
-            state: string;
-            asyncBroadcastPushNotification: boolean | undefined;
-            save: (arg0: (errSave: any) => any) => void;
-          }) {
-            return function (cb: (arg0: null, arg1?: undefined) => any) {
-              livePushNotification.state = 'sending';
-              if (
-                livePushNotification.asyncBroadcastPushNotification ===
-                undefined
-              ) {
-                livePushNotification.asyncBroadcastPushNotification = true;
+        livePushNotification.save(function (errSave) {
+          if (errSave) {
+            return cb(null, errSave);
+          }
+          const ctx: AnyObject = {};
+          ctx.args = {};
+          ctx.args.data = livePushNotification;
+          app.models.Notification.preCreationValidation(
+            ctx,
+            function (errPreCreationValidation: any) {
+              if (errPreCreationValidation) {
+                return cb(errPreCreationValidation);
               }
-              livePushNotification.save(function (errSave) {
-                if (errSave) {
-                  return cb(null, errSave);
-                }
-                const ctx: AnyObject = {};
-                ctx.args = {};
-                ctx.args.data = livePushNotification;
-                app.models.Notification.preCreationValidation(
-                  ctx,
-                  function (errPreCreationValidation: any) {
-                    if (errPreCreationValidation) {
-                      return cb(errPreCreationValidation);
-                    }
-                    app.models.Notification.dispatchNotification(
-                      ctx,
-                      livePushNotification,
-                      function (errDispatchNotification: undefined) {
-                        return cb(null, errDispatchNotification);
-                      },
-                    );
-                  },
-                );
-              });
-            };
-          },
-        );
-        parallel(notificationTasks, function (err: any, results: unknown) {
-          err ? reject(err) : resolve(results);
-          return;
+              app.models.Notification.dispatchNotification(
+                ctx,
+                livePushNotification,
+                function (errDispatchNotification: undefined) {
+                  return cb(null, errDispatchNotification);
+                },
+              );
+            },
+          );
         });
-      },
-    );
+      };
+    },
+  );
+  parallel(notificationTasks, function (err: any, results: unknown) {
+    err ? reject(err) : resolve(results);
+    return;
   });
 };
 
 let lastConfigCheck = 0;
 const rssTasks: AnyObject = {};
-module.exports.checkRssConfigUpdates = function (...args: any[]) {
-  const app = args[0];
+module.exports.checkRssConfigUpdates = function (
+  app: Application,
+  appConfig: ApplicationConfig,
+  runOnInit: boolean = false,
+) {
   const CronJob = require('cron').CronJob;
-  let runOnInit = false;
-  if (args.length > 1) {
-    runOnInit = args[args.length - 1];
-  }
   return new Promise((resolve, reject) => {
     app.models.Configuration.find(
       {
@@ -454,8 +448,10 @@ module.exports.checkRssConfigUpdates = function (...args: any[]) {
   });
 };
 
-module.exports.deleteBounces = function (...args: any[]) {
-  const app = args[0];
+module.exports.deleteBounces = function (
+  app: Application,
+  appConfig: ApplicationConfig,
+) {
   return new Promise((resolve, reject) => {
     app.models.Bounce.find(
       {

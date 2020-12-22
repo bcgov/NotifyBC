@@ -15,7 +15,7 @@ interface SmtpServer {
  * This class will be bound to the application as a `LifeCycleObserver` during
  * `boot`
  */
-@lifeCycleObserver('server')
+@lifeCycleObserver('g6')
 export class SmtpServerObserver implements LifeCycleObserver {
   smtpServer: SmtpServer;
   constructor(

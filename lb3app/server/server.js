@@ -8,6 +8,7 @@ var boot = require('loopback-boot');
 module.exports = app = loopback();
 app.use(loopback.token());
 app.start = function () {
+  //migration: done, to CronObserver
   if (process.env.NOTIFYBC_NODE_ROLE !== 'slave') {
     var CronJob = require('cron').CronJob;
     var cronTasks = require('./cron-tasks');

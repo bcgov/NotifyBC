@@ -2,6 +2,7 @@ import {
   Application,
   CoreBindings,
   inject,
+  lifeCycleObserver,
   LifeCycleObserver,
 } from '@loopback/core';
 import {repository} from '@loopback/repository';
@@ -12,7 +13,7 @@ const NodeRSA = require('node-rsa');
  * This class will be bound to the application as a `LifeCycleObserver` during
  * `boot`
  */
-//@lifeCycleObserver('database')
+@lifeCycleObserver('g4')
 export class RsaObserver implements LifeCycleObserver {
   constructor(
     @repository(ConfigurationRepository)
@@ -56,12 +57,5 @@ export class RsaObserver implements LifeCycleObserver {
       },
     });
     return;
-  }
-
-  /**
-   * This method will be invoked when the application stops
-   */
-  async stop(): Promise<void> {
-    // Add your logic for stop
   }
 }
