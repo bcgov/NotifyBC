@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   extends: '@loopback/eslint-config',
   rules: {
     'no-empty': ['error', {allowEmptyCatch: true}],

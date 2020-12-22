@@ -40,7 +40,7 @@ export class Configuration extends Entity {
   @property({
     type: 'string',
   })
-  serivceName?: string;
+  serviceName?: string;
 
   @property({
     type: 'date',

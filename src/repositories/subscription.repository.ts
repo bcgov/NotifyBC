@@ -45,7 +45,10 @@ export class SubscriptionRepository extends BaseCrudRepository<
       return;
     });
     modelClass.observe('access', async ctx => {
-      const httpCtx = await this.getHttpContext();
+      let httpCtx;
+      try {
+        httpCtx = await this.getHttpContext();
+      } catch (ex) {}
       const u = this.getCurrentUser(httpCtx);
       if (u) {
         ctx.query.where = ctx.query.where || {};

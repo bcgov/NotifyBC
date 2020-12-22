@@ -1,11 +1,11 @@
 import {
   Application,
-  ApplicationConfig,
   CoreBindings,
   inject,
   lifeCycleObserver,
   LifeCycleObserver,
 } from '@loopback/core';
+import {AnyObject} from '@loopback/repository';
 
 /**
  * This class will be bound to the application as a `LifeCycleObserver` during
@@ -15,8 +15,6 @@ import {
 export class CronObserver implements LifeCycleObserver {
   constructor(
     @inject(CoreBindings.APPLICATION_INSTANCE) private app: Application,
-    @inject(CoreBindings.APPLICATION_CONFIG)
-    private appConfig: ApplicationConfig,
   ) {}
 
   /**
@@ -27,46 +25,43 @@ export class CronObserver implements LifeCycleObserver {
     if (process.env.NOTIFYBC_NODE_ROLE === 'slave') {
       return;
     }
-    var CronJob = require('cron').CronJob;
-    var cronTasks = require('./cron-tasks');
-    var cronConfig = this.appConfig.cron || {};
+    const CronJob = require('cron').CronJob;
+    const cronTasks = require('./cron-tasks');
+    const cronConfig: AnyObject =
+      (await this.app.getConfig(CoreBindings.APPLICATION_INSTANCE, 'cron')) ??
+      {};
     // start purgeData cron
-    var cronConfigPurgeData = cronConfig.purgeData || {};
+    const cronConfigPurgeData = cronConfig.purgeData || {};
     new CronJob({
       cronTime: cronConfigPurgeData.timeSpec,
-      onTick: () => {
-        cronTasks.purgeData(this.app, this.appConfig);
-      },
+      onTick: await cronTasks.purgeData(this.app),
       start: true,
+      runOnInit: true,
     });
+    /*
     // start dispatchLiveNotifications cron
-    var cronConfigDispatchLiveNotifications =
+    const cronConfigDispatchLiveNotifications =
       cronConfig.dispatchLiveNotifications || {};
     new CronJob({
       cronTime: cronConfigDispatchLiveNotifications.timeSpec,
-      onTick: () => {
-        cronTasks.dispatchLiveNotifications(this.app, this.appConfig);
-      },
+      onTick: await cronTasks.dispatchLiveNotifications(this.app),
       start: true,
     });
     // start checkRssConfigUpdates cron
-    var cronConfigCheckRssConfigUpdates =
+    const cronConfigCheckRssConfigUpdates =
       cronConfig.checkRssConfigUpdates || {};
     new CronJob({
       cronTime: cronConfigCheckRssConfigUpdates.timeSpec,
-      onTick: () => {
-        cronTasks.checkRssConfigUpdates(this.app, this.appConfig);
-      },
+      onTick: await cronTasks.checkRssConfigUpdates(this.app),
       start: true,
     });
     // start deleteBounces cron
-    let deleteBounces = cronConfig.deleteBounces || {};
+    const deleteBounces = cronConfig.deleteBounces || {};
     new CronJob({
       cronTime: deleteBounces.timeSpec,
-      onTick: () => {
-        cronTasks.deleteBounces(this.app, this.appConfig);
-      },
+      onTick: await cronTasks.deleteBounces(this.app),
       start: true,
     });
+    */
   }
 }

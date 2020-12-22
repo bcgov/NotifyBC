@@ -736,7 +736,7 @@ export class NotificationController extends BaseController {
     }
   }
 
-  private async dispatchNotification(res: Notification): Promise<Notification> {
+  public async dispatchNotification(res: Notification): Promise<Notification> {
     // send non-inApp notifications immediately
     switch (res.channel) {
       case 'email':
@@ -778,7 +778,7 @@ export class NotificationController extends BaseController {
     return res;
   }
 
-  private async preCreationValidation(data: Partial<Notification>) {
+  public async preCreationValidation(data: Partial<Notification>) {
     if (!this.configurationRepository.isAdminReq(this.httpContext)) {
       throw new HttpErrors[403]('Forbidden');
     }

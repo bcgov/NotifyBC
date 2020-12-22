@@ -25,7 +25,10 @@ export class NotificationRepository extends BaseCrudRepository<
   ): typeof juggler.PersistedModel {
     const modelClass = super.definePersistedModel(entityClass);
     modelClass.observe('access', async ctx => {
-      const httpCtx = await this.getHttpContext();
+      let httpCtx;
+      try {
+        httpCtx = await this.getHttpContext();
+      } catch (ex) {}
       ctx.query.where = ctx.query.where || {};
       const currUser = this.getCurrentUser(httpCtx);
       if (currUser) {
