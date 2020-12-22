@@ -1,13 +1,15 @@
 import {Application, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
 import {NotificationController} from '../controllers';
+import {RssItem} from '../models';
 import {
   BounceRepository,
+  ConfigurationRepository,
   NotificationRepository,
+  RssRepository,
   SubscriptionRepository,
 } from '../repositories';
 
-const parallel = require('async/parallel');
 const FeedParser = require('feedparser');
 const request = require('axios');
 const _ = require('lodash');
@@ -195,7 +197,6 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
   };
 };
 
-/*
 let lastConfigCheck = 0;
 const rssTasks: AnyObject = {};
 module.exports.checkRssConfigUpdates = async (
@@ -203,12 +204,14 @@ module.exports.checkRssConfigUpdates = async (
   runOnInit = false,
 ) => {
   const CronJob = require('cron').CronJob;
-  const configurationRepo: ConfigurationRepository = await app.get(
+  const configurationRepository: ConfigurationRepository = await app.get(
     'repositories.ConfigurationRepository',
   );
-
+  const rssRepository: RssRepository = await app.get(
+    'repositories.RssRepository',
+  );
   return async () => {
-    const rssNtfctnConfigItems = await configurationRepo.find({
+    const rssNtfctnConfigItems = await configurationRepository.find({
       where: {
         name: 'notification',
         'value.rss': {
@@ -238,173 +241,161 @@ module.exports.checkRssConfigUpdates = async (
       if (!rssTasks[rssNtfctnConfigItem.id as string]) {
         rssTasks[rssNtfctnConfigItem.id as string] = new CronJob({
           cronTime: rssNtfctnConfigItem.value.rss.timeSpec,
-          onTick: function () {
-            app.models.Rss.findOrCreate(
-              {
-                where: {
-                  serviceName: rssNtfctnConfigItem.serviceName,
-                },
+          onTick: async () => {
+            let lastSavedRssData = await rssRepository.findOne({
+              where: {
+                serviceName: rssNtfctnConfigItem.serviceName,
               },
-              {
+            });
+            if (!lastSavedRssData) {
+              lastSavedRssData = await rssRepository.create({
                 serviceName: rssNtfctnConfigItem.serviceName,
                 items: [],
-              },
-              (
-                _err: any,
-                lastSavedRssData: {
-                  items: any[];
-                  lastPoll: Date;
-                  save: (arg0: () => void) => void;
-                },
-              ) => {
-                let lastSavedRssItems: any[] = [];
-                try {
-                  lastSavedRssItems = lastSavedRssData.items;
-                } catch (ex) {}
-                const feedparser = new FeedParser({
-                  addmeta: false,
-                });
-                module.exports
-                  .request({
-                    method: 'get',
-                    url: rssNtfctnConfigItem.value.rss.url,
-                    responseType: 'stream',
-                  })
-                  .then(function (res: {
-                    status: number;
-                    data: {pipe: (arg0: any) => void};
-                  }) {
-                    if (res.status !== 200) {
-                      reject(new Error('Bad status code'));
-                    } else {
-                      res.data.pipe(feedparser);
-                    }
-                  })
-                  .catch(reject);
+              });
+            }
+            let lastSavedRssItems: any[] = [];
+            try {
+              lastSavedRssItems = lastSavedRssData.items ?? [];
+            } catch (ex) {}
+            const feedparser = new FeedParser({
+              addmeta: false,
+            });
+            const res = await module.exports.request({
+              method: 'get',
+              url: rssNtfctnConfigItem.value.rss.url,
+              responseType: 'stream',
+            });
+            if (res.status !== 200) {
+              throw new Error('Bad status code');
+            } else {
+              res.data.pipe(feedparser);
+            }
 
-                feedparser.on('error', function (error: any) {
-                  // always handle errors
-                  console.info(error);
-                });
+            feedparser.on('error', function (error: any) {
+              // always handle errors
+              console.info(error);
+            });
 
-                const items: any[] = [];
-                const ts = new Date();
-                feedparser.on('readable', () => {
-                  // This is where the action is!
-                  const stream = this; // `this` is `feedparser`, which is a stream
-                  const meta = this.meta; // **NOTE** the "meta" is always available in the context of the feedparser instance
-                  let item;
-                  while ((item = stream.read())) {
-                    item._notifyBCLastPoll = ts;
-                    items.push(item);
+            const items: any[] = [];
+            const ts = new Date();
+            feedparser.on('readable', function () {
+              // This is where the action is!
+              const stream = feedparser;
+              let item;
+              while ((item = stream.read())) {
+                item._notifyBCLastPoll = ts;
+                items.push(item);
+              }
+            });
+            feedparser.on('end', function () {
+              const itemKeyField =
+                rssNtfctnConfigItem.value.rss.itemKeyField || 'guid';
+              const fieldsToCheckForUpdate = rssNtfctnConfigItem.value.rss
+                .fieldsToCheckForUpdate || ['pubDate'];
+              const newOrUpdatedItems = _.differenceWith(
+                items,
+                lastSavedRssItems,
+                function (arrVal: RssItem, othVal: RssItem) {
+                  if (arrVal[itemKeyField] !== othVal[itemKeyField]) {
+                    return false;
                   }
-                });
-                feedparser.on('end', function () {
-                  const itemKeyField =
-                    rssNtfctnConfigItem.value.rss.itemKeyField || 'guid';
-                  const fieldsToCheckForUpdate = rssNtfctnConfigItem.value.rss
-                    .fieldsToCheckForUpdate || ['pubDate'];
-                  const newOrUpdatedItems = _.differenceWith(
-                    items,
-                    lastSavedRssItems,
-                    function (
-                      arrVal: {[x: string]: {toString: () => any}},
-                      othVal: {[x: string]: {toString: () => any}},
-                    ) {
-                      if (arrVal[itemKeyField] !== othVal[itemKeyField]) {
-                        return false;
-                      }
-                      if (!rssNtfctnConfigItem.value.rss.includeUpdatedItems) {
-                        return arrVal[itemKeyField] === othVal[itemKeyField];
-                      }
-                      return !fieldsToCheckForUpdate.some(
-                        (compareField: string | number) => {
-                          return (
-                            arrVal[compareField] &&
-                            othVal[compareField] &&
-                            arrVal[compareField].toString() !==
-                              othVal[compareField].toString()
-                          );
-                        },
+                  if (!rssNtfctnConfigItem.value.rss.includeUpdatedItems) {
+                    return arrVal[itemKeyField] === othVal[itemKeyField];
+                  }
+                  return !fieldsToCheckForUpdate.some(
+                    (compareField: string | number) => {
+                      return (
+                        arrVal[compareField] &&
+                        othVal[compareField] &&
+                        arrVal[compareField].toString() !==
+                          othVal[compareField].toString()
                       );
                     },
                   );
-                  const outdatedItemRetentionGenerations =
-                    rssNtfctnConfigItem.value.rss
-                      .outdatedItemRetentionGenerations || 1;
-                  let lastPollInterval = ts.getTime();
+                },
+              );
+              const outdatedItemRetentionGenerations =
+                rssNtfctnConfigItem.value.rss
+                  .outdatedItemRetentionGenerations || 1;
+              let lastPollInterval = ts.getTime();
+              try {
+                lastPollInterval =
+                  ts.getTime() - Date.parse(lastSavedRssData?.lastPoll ?? '0');
+              } catch (ex) {}
+              const retainedOutdatedItems = _.differenceWith(
+                lastSavedRssItems,
+                items,
+                function (
+                  arrVal: {
+                    [x: string]: any;
+                    _notifyBCLastPoll: {getTime: () => number};
+                  },
+                  othVal: {[x: string]: any},
+                ) {
                   try {
-                    lastPollInterval =
-                      ts.getTime() - lastSavedRssData.lastPoll.getTime();
-                  } catch (ex) {}
-                  const retainedOutdatedItems = _.differenceWith(
-                    lastSavedRssItems,
-                    items,
-                    function (
-                      arrVal: {
-                        [x: string]: any;
-                        _notifyBCLastPoll: {getTime: () => number};
-                      },
-                      othVal: {[x: string]: any},
+                    const age =
+                      ts.getTime() - arrVal._notifyBCLastPoll.getTime();
+                    if (
+                      Math.round(age / lastPollInterval) >=
+                      outdatedItemRetentionGenerations
                     ) {
-                      try {
-                        const age =
-                          ts.getTime() - arrVal._notifyBCLastPoll.getTime();
-                        if (
-                          Math.round(age / lastPollInterval) >=
-                          outdatedItemRetentionGenerations
-                        ) {
-                          return true;
-                        }
-                      } catch (ex) {}
-                      return arrVal[itemKeyField] === othVal[itemKeyField];
-                    },
-                  );
-                  // notify new or updated items
-                  newOrUpdatedItems.forEach(function (newOrUpdatedItem: any) {
-                    for (const channel in rssNtfctnConfigItem.value
-                      .messageTemplates) {
-                      if (
-                        !rssNtfctnConfigItem.value.messageTemplates.hasOwnProperty(
-                          channel,
-                        )
-                      ) {
-                        continue;
-                      }
-                      const notificationObject = {
-                        serviceName: rssNtfctnConfigItem.serviceName,
-                        channel: channel,
-                        isBroadcast: true,
-                        message:
-                          rssNtfctnConfigItem.value.messageTemplates[channel],
-                        data: newOrUpdatedItem,
-                        httpHost: rssNtfctnConfigItem.value.httpHost,
-                      };
-                      const httpHost =
-                        app.get('internalHttpHost') ||
-                        rssNtfctnConfigItem.value.httpHost;
-                      const url =
-                        httpHost + app.get('restApiRoot') + '/notifications';
-                      const options = {
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                      };
-                      module.exports.request.post(
-                        url,
-                        notificationObject,
-                        options,
-                      );
+                      return true;
                     }
-                  });
-                  lastSavedRssData.items = items.concat(retainedOutdatedItems);
-                  lastSavedRssData.lastPoll = ts;
-                  lastSavedRssData.save(() => {
-                    resolve(rssTasks);
-                  });
-                });
-              },
-            );
+                  } catch (ex) {}
+                  return arrVal[itemKeyField] === othVal[itemKeyField];
+                },
+              );
+              // notify new or updated items
+              newOrUpdatedItems.forEach(async (newOrUpdatedItem: any) => {
+                for (const channel in rssNtfctnConfigItem.value
+                  .messageTemplates) {
+                  if (
+                    // eslint-disable-next-line no-prototype-builtins
+                    !rssNtfctnConfigItem.value.messageTemplates.hasOwnProperty(
+                      channel,
+                    )
+                  ) {
+                    continue;
+                  }
+                  const notificationObject = {
+                    serviceName: rssNtfctnConfigItem.serviceName,
+                    channel: channel,
+                    isBroadcast: true,
+                    message:
+                      rssNtfctnConfigItem.value.messageTemplates[channel],
+                    data: newOrUpdatedItem,
+                    httpHost: rssNtfctnConfigItem.value.httpHost,
+                  };
+                  const httpHost =
+                    (await app.getConfig(
+                      CoreBindings.APPLICATION_INSTANCE,
+                      'internalHttpHost',
+                    )) || rssNtfctnConfigItem.value.httpHost;
+                  const url =
+                    httpHost +
+                    (await app.getConfig(
+                      CoreBindings.APPLICATION_INSTANCE,
+                      'restApiRoot',
+                    )) +
+                    '/notifications';
+                  const options = {
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  };
+                  module.exports.request.post(url, notificationObject, options);
+                }
+              });
+              if (!lastSavedRssData) {
+                return;
+              }
+              lastSavedRssData.items = items.concat(retainedOutdatedItems);
+              lastSavedRssData.lastPoll = ts.toISOString();
+              return rssRepository.updateById(
+                lastSavedRssData.id,
+                lastSavedRssData,
+              );
+            });
           },
           start: true,
           runOnInit: runOnInit,
@@ -414,6 +405,8 @@ module.exports.checkRssConfigUpdates = async (
     lastConfigCheck = Date.now();
   };
 };
+
+/*
 
 module.exports.deleteBounces = function (app: Application) {
   return new Promise((resolve, reject) => {
