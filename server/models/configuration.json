@@ -32,7 +32,7 @@
     "value": {
       "type": "any"
     },
-    "serivceName": {
+    "serviceName": {
       "type": "string"
     },
     "created": {
