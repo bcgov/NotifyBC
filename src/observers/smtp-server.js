@@ -285,10 +285,13 @@ module.exports.app = function () {
                   );
                   body = res.data;
                 } catch (err) {
-                  return console.error(err);
+                  console.error(err);
+                  const error = new Error('processing error');
+                  error.responseCode = 451;
+                  return callback(error);
                 }
                 if (!(body instanceof Array) || body.length !== 1) {
-                  return;
+                  return callback(null);
                 }
                 const userChannelId = body[0] && body[0].userChannelId;
                 if (
@@ -316,7 +319,10 @@ module.exports.app = function () {
                   );
                   body = res.data;
                 } catch (err) {
-                  return console.error(err);
+                  console.error(err);
+                  const error = new Error('processing error');
+                  error.responseCode = 451;
+                  return callback(error);
                 }
                 let bncCnt = (body && body[0] && body[0].hardBounceCount) || 0,
                   bncId = body && body[0] && body[0].id;
@@ -326,7 +332,7 @@ module.exports.app = function () {
                   bncCnt += 1;
                 }
                 bounceMessages.unshift({
-                  date: Date.now(),
+                  date: new Date().toISOString(),
                   message: msg,
                 });
                 // upsert bounce

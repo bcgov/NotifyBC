@@ -406,59 +406,46 @@ module.exports.checkRssConfigUpdates = async (
   };
 };
 
-/*
+module.exports.deleteBounces = async (app: Application) => {
+  return async () => {
+    const bounceRepository: BounceRepository = await app.get(
+      'repositories.BounceRepository',
+    );
 
-module.exports.deleteBounces = function (app: Application) {
-  return new Promise((resolve, reject) => {
-    app.models.Bounce.find(
-      {
-        where: {
-          state: 'active',
-          latestNotificationEnded: {
-            lt:
-              Date.now() -
-              app.get('cron').deleteBounces
-                .minLapsedHoursSinceLatestNotificationEnded *
-                3600000,
-          },
-          latestNotificationStarted: {
-            neq: null,
-          },
-          bounceMessages: {
-            neq: null,
-          },
+    const minHrs: number = parseInt(
+      (await app.getConfig(
+        CoreBindings.APPLICATION_INSTANCE,
+        'cron.deleteBounces.minLapsedHoursSinceLatestNotificationEnded',
+      )) ?? '0',
+    );
+    const activeBounces = await bounceRepository.find({
+      where: {
+        state: 'active',
+        latestNotificationEnded: {
+          lt: Date.now() - minHrs * 3600000,
+        },
+        latestNotificationStarted: {
+          neq: null,
+        },
+        bounceMessages: {
+          neq: null,
         },
       },
-      (err: any, activeBounces: any[]) => {
-        if (err) {
-          reject(err);
+    });
+    return Promise.all(
+      activeBounces.map(async activeBounce => {
+        const latestBounceMessageDate = activeBounce.bounceMessages?.[0].date;
+        if (
+          !activeBounce.latestNotificationStarted ||
+          !latestBounceMessageDate ||
+          Date.parse(latestBounceMessageDate) >
+            Date.parse(activeBounce.latestNotificationStarted)
+        ) {
           return;
         }
-        let deleteTasks: ((cb: any) => any)[] = [];
-        if (activeBounces instanceof Array) {
-          deleteTasks = activeBounces.map(activeBounce => {
-            return cb => {
-              const latestBounceMessageDate =
-                activeBounce.bounceMessages[0].date;
-              if (
-                latestBounceMessageDate > activeBounce.latestNotificationStarted
-              ) {
-                return cb();
-              }
-              activeBounce.state = 'deleted';
-              activeBounce.save().then(() => cb(), cb);
-            };
-          });
-        }
-        parallel(deleteTasks, (err: any, results: unknown) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(results);
-          }
-        });
-      },
+        activeBounce.state = 'deleted';
+        await bounceRepository.updateById(activeBounce.id, activeBounce);
+      }),
     );
-  });
+  };
 };
-*/

@@ -1,4 +1,4 @@
-//migration: in-progress, to cron-tasks.ts
+//migration: done, to cron-tasks.ts
 var parallel = require('async/parallel');
 var FeedParser = require('feedparser');
 const request = require('axios');
@@ -188,21 +188,20 @@ module.exports.dispatchLiveNotifications = function () {
               let ctx = {};
               ctx.args = {};
               ctx.args.data = livePushNotification;
-              app.models.Notification.preCreationValidation(
-                ctx,
-                function (errPreCreationValidation) {
-                  if (errPreCreationValidation) {
-                    return cb(errPreCreationValidation);
-                  }
-                  app.models.Notification.dispatchNotification(
-                    ctx,
-                    livePushNotification,
-                    function (errDispatchNotification) {
-                      return cb(null, errDispatchNotification);
-                    },
-                  );
-                },
-              );
+              app.models.Notification.preCreationValidation(ctx, function (
+                errPreCreationValidation,
+              ) {
+                if (errPreCreationValidation) {
+                  return cb(errPreCreationValidation);
+                }
+                app.models.Notification.dispatchNotification(
+                  ctx,
+                  livePushNotification,
+                  function (errDispatchNotification) {
+                    return cb(null, errDispatchNotification);
+                  },
+                );
+              });
             });
           };
         });

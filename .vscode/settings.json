@@ -34,6 +34,7 @@
     "addt",
     "createsend",
     "feedparser",
+    "getopt",
     "hsts",
     "jmespath",
     "jmespath's",

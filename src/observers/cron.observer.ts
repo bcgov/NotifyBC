@@ -52,9 +52,7 @@ export class CronObserver implements LifeCycleObserver {
       cronTime: cronConfigCheckRssConfigUpdates.timeSpec,
       onTick: await cronTasks.checkRssConfigUpdates(this.app),
       start: true,
-      //      runOnInit: true,
     });
-    /*
     // start deleteBounces cron
     const deleteBounces = cronConfig.deleteBounces || {};
     new CronJob({
@@ -62,6 +60,5 @@ export class CronObserver implements LifeCycleObserver {
       onTick: await cronTasks.deleteBounces(this.app),
       start: true,
     });
-    */
   }
 }

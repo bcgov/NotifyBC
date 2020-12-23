@@ -41,13 +41,11 @@ export class Bounce extends Entity {
   @property({
     type: 'number',
     default: 0,
-    required: true,
   })
   hardBounceCount: number;
 
   @property({
     type: 'string',
-    required: true,
     default: 'active',
   })
   state: string;
