@@ -20,8 +20,28 @@ export default {
   },
   created: async function() {
     try {
-      const res = await Axios.get('/NotifyBC/versions.json');
-      this.options = res.data;
+      let res = await Axios.get(
+        'https://api.github.com/repos/bcgov/NotifyBC/git/trees/gh-pages'
+      );
+      const versionNode = res.data.tree.find(e => {
+        return e.path.toLowerCase() === 'version';
+      });
+      res = await Axios.get(versionNode.url);
+      this.options = res.data.tree.map(e => {
+        return { value: e.path, text: e.path };
+      });
+      this.options.sort((e1, e2) => {
+        const e1Arr = e1.text.split('.');
+        const e2Arr = e2.text.split('.');
+        for (const i = 0; i < e1Arr.length && i < e2Arr.length; i++) {
+          const e1V = parseInt(e1Arr[i]);
+          const e2V = parseInt(e2Arr[i]);
+          if (e1V !== e2V) return e1V > e2V;
+          if (e1Arr[i] !== e2Arr[i]) return e1Arr[i] > e2Arr[i];
+        }
+        return e1.text > e2.text;
+      });
+      this.options.unshift({ value: 'main', text: 'main' });
       const path = window.location.pathname.toLowerCase();
       if (path.startsWith('/notifybc/version/')) {
         const start = 18;
