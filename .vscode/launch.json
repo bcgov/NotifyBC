@@ -22,7 +22,7 @@
       "request": "launch",
       "name": "Test",
       "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
-      "args": ["dist/__tests__/"],
+      "args": ["--timeout", "999999", "dist/__tests__/"],
       "autoAttachChildProcesses": true,
       "console": "internalConsole",
       "preLaunchTask": "Clean and Compile Project"

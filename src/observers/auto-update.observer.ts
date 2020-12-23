@@ -28,6 +28,9 @@ export class AutoUpdateObserver implements LifeCycleObserver {
     if (process.env.NOTIFYBC_NODE_ROLE === 'slave') {
       return;
     }
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
     const pJson = require('../../package.json');
     const semver = require('semver');
     const targetVersion = pJson.dbSchemaVersion;

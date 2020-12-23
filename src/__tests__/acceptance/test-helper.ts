@@ -1,11 +1,12 @@
-import {NotifyBcApplication} from '../..';
 import {
+  Client,
   createRestAppClient,
   givenHttpServerConfig,
-  Client,
 } from '@loopback/testlab';
+import {NotifyBcApplication} from '../..';
 
 process.env['NODE_ENV'] = 'test';
+
 export async function setupApplication(): Promise<AppWithClient> {
   const restConfig = givenHttpServerConfig({
     // Customize the server configuration here.

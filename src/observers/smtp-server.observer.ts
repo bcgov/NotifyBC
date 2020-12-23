@@ -26,6 +26,9 @@ export class SmtpServerObserver implements LifeCycleObserver {
    * This method will be invoked when the application starts
    */
   async start(): Promise<void> {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
     const appConfig = await this.app.get<any>(CoreBindings.APPLICATION_CONFIG);
     const smtpSvr = appConfig.inboundSmtpServer;
     if (!smtpSvr.enabled) {
@@ -40,6 +43,9 @@ export class SmtpServerObserver implements LifeCycleObserver {
    */
   async stop(): Promise<void> {
     return new Promise(resolve => {
+      if (!this.smtpServer) {
+        return resolve();
+      }
       this.smtpServer.close(() => resolve());
     });
   }

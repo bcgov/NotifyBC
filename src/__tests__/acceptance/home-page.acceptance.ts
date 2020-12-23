@@ -2,13 +2,13 @@ import {Client} from '@loopback/testlab';
 import {NotifyBcApplication} from '../..';
 import {setupApplication} from './test-helper';
 
-describe('HomePage', () => {
+describe('HomePage', function () {
   let app: NotifyBcApplication;
   let client: Client;
 
-  before('setupApplication', async function (this: Mocha.Context) {
-    this.timeout(10000);
+  before('setupApplication', async function () {
     ({app, client} = await setupApplication());
+    return;
   });
 
   after(async () => {
@@ -17,9 +17,9 @@ describe('HomePage', () => {
 
   it('exposes a default home page', async () => {
     await client
-      .get('/')
+      .get('/notifications')
       .expect(200)
-      .expect('Content-Type', /text\/html/);
+      .expect('Content-Type', /application\/json/);
   });
 
   it('exposes self-hosted explorer', async () => {

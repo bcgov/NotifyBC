@@ -41,6 +41,7 @@ export class NotifyBcApplication extends BootMixin(
         });
       }
     }
+    options.rest = options.rest ?? {};
     options.rest.host = options.host;
     options.rest.port = options.port;
     //    options.rest.basePath = options.restApiRoot;
@@ -82,10 +83,13 @@ export class NotifyBcApplication extends BootMixin(
         extensions: ['.controller.js'],
         nested: true,
       },
-      lb3app: {
-        mode: 'fullApp',
-        restApiRoot: options.restApiRoot,
-      },
+    };
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+    this.bootOptions.lb3app = {
+      mode: 'fullApp',
+      restApiRoot: options.restApiRoot,
     };
     this.component(Lb3AppBooterComponent);
   }
