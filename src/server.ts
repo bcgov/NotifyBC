@@ -10,7 +10,6 @@ import {ApplicationConfig, NotifyBcApplication} from './application';
 import webAdminConsole from './web-admin-console';
 const loopback = require('loopback');
 const compression = require('compression');
-const cors = require('cors');
 const helmet = require('helmet');
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const morgan = require('morgan');
@@ -29,13 +28,6 @@ export class ExpressServer {
     // Middleware migrated from LoopBack 3
     this.app.use(loopback.favicon('favicon.ico'));
     this.app.use(compression());
-    this.app.use(
-      cors({
-        origin: true,
-        credentials: true,
-        maxAge: 86400,
-      }),
-    );
     this.app.use(
       helmet({
         hsts: {
