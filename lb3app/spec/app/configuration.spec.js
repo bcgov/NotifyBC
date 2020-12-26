@@ -1,3 +1,4 @@
+//migration: done, to configuration.acceptance.ts
 let app;
 var request = require('supertest');
 beforeAll(done => {

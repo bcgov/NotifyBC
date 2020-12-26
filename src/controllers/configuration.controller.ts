@@ -1,4 +1,9 @@
-import {ApplicationConfig, CoreBindings, inject} from '@loopback/core';
+import {
+  ApplicationConfig,
+  CoreBindings,
+  inject,
+  intercept,
+} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -18,10 +23,12 @@ import {
   put,
   requestBody,
 } from '@loopback/rest';
+import {AdminInterceptor} from '../interceptors';
 import {Configuration} from '../models';
 import {ConfigurationRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
+@intercept(AdminInterceptor.BINDING_KEY)
 @oas.tags('configuration')
 export class ConfigurationController extends BaseController {
   constructor(

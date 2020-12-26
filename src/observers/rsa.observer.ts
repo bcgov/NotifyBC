@@ -25,6 +25,9 @@ export class RsaObserver implements LifeCycleObserver {
    * This method will be invoked when the application starts
    */
   async start(): Promise<void> {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
     const configurationRepository: ConfigurationRepository = await this.app.get<ConfigurationRepository>(
       'repositories.ConfigurationRepository',
     );

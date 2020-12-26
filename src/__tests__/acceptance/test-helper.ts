@@ -25,6 +25,10 @@ export async function setupApplication(): Promise<AppWithClient> {
 
   const client = createRestAppClient(app);
 
+  beforeEach(async () => {
+    await app.migrateSchema({existingSchema: 'drop'});
+  });
+
   return {app, client};
 }
 
