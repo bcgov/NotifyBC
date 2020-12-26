@@ -1,3 +1,4 @@
+//migration: done, to src\__tests__\acceptance\test-helper.ts
 let app;
 beforeAll(done => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;

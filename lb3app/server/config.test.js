@@ -1,3 +1,4 @@
+//migration: done, to src\config.test.js
 const _ = require('lodash');
 module.exports = {
   restApiRoot: '/api',
