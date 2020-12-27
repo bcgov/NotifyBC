@@ -2,6 +2,7 @@ import {Client, expect} from '@loopback/testlab';
 import {fail} from 'assert';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
+import {NotificationController} from '../../controllers';
 import {
   BounceRepository,
   NotificationRepository,
@@ -10,17 +11,19 @@ import {
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
 const cronTasks = require('../../observers/cron-tasks');
-const parallel = require('async/parallel');
-const path = require('path');
-const fs = require('fs');
+// const parallel = require('async/parallel');
+// const path = require('path');
+// const fs = require('fs');
 let app: NotifyBcApplication;
 let client: Client;
 let notificationRepository: NotificationRepository;
 let subscriptionRepository: SubscriptionRepository;
 let bounceRepository: BounceRepository;
+let notificationController: NotificationController;
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   notificationRepository = await app.get('repositories.NotificationRepository');
+  notificationController = await app.get('controllers.NotificationController');
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
   bounceRepository = await app.get('repositories.BounceRepository');
 });
@@ -216,12 +219,11 @@ describe('CRON purgeData', function () {
     expect(data).not.equal(null);
   });
 });
-/*
 describe('CRON dispatchLiveNotifications', function () {
   beforeEach(async function () {
     await Promise.all([
       (async () => {
-        await notificationRepository.create({
+        return notificationRepository.create({
           channel: 'email',
           message: {
             from: 'admin@foo.com',
@@ -237,7 +239,7 @@ describe('CRON dispatchLiveNotifications', function () {
         });
       })(),
       (async () => {
-        await notificationRepository.create({
+        return notificationRepository.create({
           channel: 'email',
           message: {
             from: 'admin@foo.com',
@@ -252,7 +254,7 @@ describe('CRON dispatchLiveNotifications', function () {
         });
       })(),
       (async () => {
-        await subscriptionRepository.create({
+        return subscriptionRepository.create({
           serviceName: 'myService',
           channel: 'email',
           userChannelId: 'bar@foo.com',
@@ -265,13 +267,15 @@ describe('CRON dispatchLiveNotifications', function () {
 
   it('should send all live push notifications', async function () {
     try {
-      const results = await cronTasks.dispatchLiveNotifications(app);
+      const results = await (await cronTasks.dispatchLiveNotifications(app))();
       expect(results.length).equal(1);
     } catch (err) {
       fail(err);
     }
-    expect(BaseController.prototype.sendEmail).toHaveBeenCalledWith(
-      jasmine.objectContaining({
+
+    sinon.assert.calledWithMatch(
+      notificationController.sendEmail as sinon.SinonStub,
+      {
         from: 'admin@foo.com',
         to: 'bar@foo.com',
         subject: 'test',
@@ -286,10 +290,11 @@ describe('CRON dispatchLiveNotifications', function () {
             ],
           ],
         },
-      }),
-      jasmine.any(Function),
+      },
     );
-    expect(notificationRepository.sendEmail).toHaveBeenCalledTimes(1);
+    sinon.assert.calledOnce(
+      notificationController.sendEmail as sinon.SinonStub,
+    );
     const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
@@ -301,6 +306,7 @@ describe('CRON dispatchLiveNotifications', function () {
   });
 });
 
+/*
 describe('CRON checkRssConfigUpdates', function () {
   beforeEach(function (done) {
     spyOn(cronTasks, 'request').and.callFake(async function () {

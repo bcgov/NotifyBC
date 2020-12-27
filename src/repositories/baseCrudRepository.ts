@@ -36,6 +36,9 @@ export class BaseCrudRepository<
       return true;
     }
     const request = httpCtx.req || httpCtx.request;
+    if (!request) {
+      return true;
+    }
     if (!ignoreSurrogate) {
       if (
         request.get('SM_UNIVERSALID') ||
@@ -68,6 +71,7 @@ export class BaseCrudRepository<
     // internal requests
     if (!httpCtx) return null;
     const request = httpCtx.req || httpCtx.request;
+    if (!request) return null;
     const currUser =
       request.get('SM_UNIVERSALID') ||
       request.get('sm_user') ||

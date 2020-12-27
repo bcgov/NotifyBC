@@ -140,8 +140,12 @@ export class BaseController {
       if (this.appConfig.httpHost) {
         httpHost = this.appConfig.httpHost;
       }
-      if (httpCtx.args?.data?.httpHost) {
-        httpHost = httpCtx.args.data.httpHost;
+      let args: any;
+      try {
+        args = httpCtx.getSync('args');
+      } catch (ex) {}
+      if (args?.data?.httpHost) {
+        httpHost = args.data.httpHost;
       } else if (httpCtx.instance?.httpHost) {
         httpHost = httpCtx.instance.httpHost;
       } else if (data?.httpHost) {

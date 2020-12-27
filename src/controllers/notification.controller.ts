@@ -83,6 +83,7 @@ export class NotificationController extends BaseController {
   ): Promise<Notification> {
     await this.preCreationValidation(notification);
     const res = await this.notificationRepository.create(notification);
+    this.httpContext.bind('args').to({data: res});
     return this.dispatchNotification(res);
   }
 
@@ -250,6 +251,7 @@ export class NotificationController extends BaseController {
   ): Promise<void> {
     await this.preCreationValidation(notification);
     await this.notificationRepository.replaceById(id, notification);
+    this.httpContext.bind('args').to({data: notification});
     await this.dispatchNotification(notification);
   }
 
@@ -282,6 +284,7 @@ export class NotificationController extends BaseController {
     @param.query.integer('start') startIdx: number,
   ) {
     const notification = await this.notificationRepository.findById(id);
+    this.httpContext.bind('args').to({data: notification});
     this.httpContext.bind('NotifyBC.startIdx').to(startIdx);
     return this.sendPushNotification(notification);
   }

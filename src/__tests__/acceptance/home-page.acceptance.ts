@@ -1,13 +1,11 @@
 import {Client} from '@loopback/testlab';
-import {NotifyBcApplication} from '../..';
 import {setupApplication} from './test-helper';
 
 describe('HomePage', function () {
-  let app: NotifyBcApplication;
   let client: Client;
 
   before('setupApplication', async function () {
-    ({app, client} = await setupApplication());
+    ({client} = await setupApplication());
     return;
   });
 

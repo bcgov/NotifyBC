@@ -1,5 +1,6 @@
-import {Application, CoreBindings} from '@loopback/core';
+import {Application, Context, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
+import {RestBindings} from '@loopback/rest';
 import {NotificationController} from '../controllers';
 import {RssItem} from '../models';
 import {
@@ -152,9 +153,6 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
     const notificationRepo: NotificationRepository = await app.get(
       'repositories.NotificationRepository',
     );
-    const notificationController: NotificationController = await app.get(
-      'controllers.NotificationController',
-    );
 
     const livePushNotifications = await notificationRepo.find({
       where: {
@@ -183,9 +181,12 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
           livePushNotification.id,
           livePushNotification,
         );
-        const ctx: AnyObject = {};
-        ctx.args = {};
-        ctx.args.data = livePushNotification;
+        const ctx: Context = new Context();
+        ctx.bind('args').to({data: livePushNotification});
+        app.bind(RestBindings.Http.CONTEXT).to(ctx);
+        const notificationController: NotificationController = await app.get(
+          'controllers.NotificationController',
+        );
         await notificationController.preCreationValidation(
           livePushNotification,
         );
