@@ -30,7 +30,9 @@ export async function setupApplication(): Promise<AppWithClient> {
   beforeEach(async () => {
     await app.migrateSchema({existingSchema: 'drop'});
   });
-
+  after(async () => {
+    await app.stop();
+  });
   return {app, client};
 }
 
@@ -39,7 +41,7 @@ export interface AppWithClient {
   client: Client;
 }
 
-before(function () {
+beforeEach(function () {
   async function fakeSendEmail(_mailOptions: any, cb?: Function) {
     console.log('faking sendEmail');
     cb?.(null, null);
@@ -57,4 +59,9 @@ before(function () {
 
   sinon.stub(BaseController.prototype, 'sendEmail').callsFake(fakeSendEmail);
   sinon.stub(BaseController.prototype, 'sendSMS').callsFake(fakeSendSMS);
+});
+
+afterEach(() => {
+  // Restore the default sandbox here
+  sinon.restore();
 });

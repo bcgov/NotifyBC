@@ -11,10 +11,6 @@ describe('PingController', function () {
     ({app, client} = await setupApplication());
   });
 
-  after(async () => {
-    await app.stop();
-  });
-
   it('invokes GET /ping', async () => {
     const res = await client.get('/api/ping?msg=world').expect(200);
     expect(res.body).to.containEql({greeting: 'Hello from LoopBack'});

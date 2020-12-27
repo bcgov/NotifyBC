@@ -41,6 +41,7 @@
     "jmespath's",
     "lcov",
     "mailparser",
+    "nonexpired",
     "quickstart",
     "randexp",
     "remoting",

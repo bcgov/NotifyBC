@@ -11,18 +11,13 @@ describe('GET /configuration', function () {
 
   before('setupApplication', async function () {
     ({app, client} = await setupApplication());
-    return;
-  });
-
-  after(async () => {
-    await app.stop();
-  });
-
-  beforeEach(async function () {
     configurationRepository = await app.get(
       'repositories.ConfigurationRepository',
     );
+    return;
+  });
 
+  beforeEach(async function () {
     await configurationRepository.create({
       name: 'subscription',
       serviceName: 'myService',

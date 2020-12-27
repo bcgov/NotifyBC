@@ -1,8 +1,8 @@
 const _ = require('lodash');
 module.exports = {
-  restApiRoot: '/api',
   rest: {
     basePath: '/api',
+    port: 0,
   },
   adminIps: [],
   httpHost: '',

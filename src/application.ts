@@ -42,8 +42,8 @@ export class NotifyBcApplication extends BootMixin(
       }
     }
     options.rest = options.rest ?? {};
-    options.rest.host = options.host;
-    options.rest.port = options.port;
+    if (options.rest.host === undefined) options.rest.host = options.host;
+    if (options.rest.port === undefined) options.rest.port = options.port;
     //    options.rest.basePath = options.restApiRoot;
     super(options);
 

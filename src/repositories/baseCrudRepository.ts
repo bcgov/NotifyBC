@@ -92,59 +92,63 @@ export class BaseCrudRepository<
     return isFromSM ? currUser : null;
   }
 
+  async updateTimestamp(ctx: any) {
+    let req;
+    try {
+      const httpCtx = await this.getHttpContext();
+      req = httpCtx.request;
+    } catch (ex) {}
+    let token;
+    try {
+      // todo: obtain access token
+      token = ctx.options.httpContext.args.options?.accessToken;
+    } catch (ex) {}
+    try {
+      if (ctx.instance) {
+        ctx.instance.updated = new Date();
+        ctx.instance.updatedBy = {
+          ip: req?.ip,
+          eventSrc: ctx.options.eventSrc,
+        };
+        if (token?.userId) {
+          ctx.instance.updatedBy.adminUser = token.userId;
+        }
+        if (ctx.isNewInstance) {
+          ctx.instance.createdBy = {
+            ip: req?.ip,
+          };
+          if (token?.userId) {
+            ctx.instance.createdBy.adminUser = token.userId;
+          }
+        }
+      } else if (ctx.data) {
+        ctx.data.updated = new Date();
+        ctx.data.updatedBy = {
+          ip: req?.ip,
+          eventSrc: ctx.options.eventSrc,
+        };
+        if (token?.userId) {
+          ctx.data.updatedBy.adminUser = token.userId;
+        }
+        if (ctx.isNewInstance) {
+          ctx.data.createdBy = {
+            ip: req?.ip,
+          };
+          if (token?.userId) {
+            ctx.data.createdBy.adminUser = token.userId;
+          }
+        }
+      }
+    } catch (ex) {}
+  }
+
   protected definePersistedModel(
     entityClass: typeof Model,
   ): typeof juggler.PersistedModel {
     const modelClass = super.definePersistedModel(entityClass);
-    modelClass.observe('before save', async ctx => {
-      let req;
-      try {
-        const httpCtx = await this.getHttpContext();
-        req = httpCtx.request;
-      } catch (ex) {}
-      let token;
-      try {
-        // todo: obtain access token
-        token = ctx.options.httpContext.args.options?.accessToken;
-      } catch (ex) {}
-      try {
-        if (ctx.instance) {
-          ctx.instance.updated = new Date();
-          ctx.instance.updatedBy = {
-            ip: req?.ip,
-            eventSrc: ctx.options.eventSrc,
-          };
-          if (token?.userId) {
-            ctx.instance.updatedBy.adminUser = token.userId;
-          }
-          if (ctx.isNewInstance) {
-            ctx.instance.createdBy = {
-              ip: req?.ip,
-            };
-            if (token?.userId) {
-              ctx.instance.createdBy.adminUser = token.userId;
-            }
-          }
-        } else if (ctx.data) {
-          ctx.data.updated = new Date();
-          ctx.data.updatedBy = {
-            ip: req?.ip,
-            eventSrc: ctx.options.eventSrc,
-          };
-          if (token?.userId) {
-            ctx.data.updatedBy.adminUser = token.userId;
-          }
-          if (ctx.isNewInstance) {
-            ctx.data.createdBy = {
-              ip: req?.ip,
-            };
-            if (token?.userId) {
-              ctx.data.createdBy.adminUser = token.userId;
-            }
-          }
-        }
-      } catch (ex) {}
-    });
+    modelClass.observe('before save', async (ctx: any) =>
+      this.updateTimestamp(ctx),
+    );
     return modelClass;
   }
 }
