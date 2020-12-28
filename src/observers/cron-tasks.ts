@@ -2,7 +2,7 @@ import {Application, Context, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
 import {RestBindings} from '@loopback/rest';
 import {NotificationController} from '../controllers';
-import {RssItem} from '../models';
+import {Rss, RssItem, RssRelations} from '../models';
 import {
   BounceRepository,
   ConfigurationRepository,
@@ -200,6 +200,9 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
 
 let lastConfigCheck = 0;
 const rssTasks: AnyObject = {};
+module.exports.getRssTasks = () => {
+  return rssTasks;
+};
 module.exports.checkRssConfigUpdates = async (
   app: Application,
   runOnInit = false,
@@ -211,200 +214,218 @@ module.exports.checkRssConfigUpdates = async (
   const rssRepository: RssRepository = await app.get(
     'repositories.RssRepository',
   );
-  return async () => {
-    const rssNtfctnConfigItems = await configurationRepository.find({
-      where: {
-        name: 'notification',
-        'value.rss': {
-          neq: null,
+  return new Promise((resolve, reject) => {
+    configurationRepository
+      .find({
+        where: {
+          name: 'notification',
+          'value.rss': {
+            neq: null,
+          },
         },
-      },
-    });
-    for (const key in rssTasks) {
-      // eslint-disable-next-line no-prototype-builtins
-      if (!rssTasks.hasOwnProperty(key)) {
-        continue;
-      }
+      })
+      .then(rssNtfctnConfigItems => {
+        for (const key in rssTasks) {
+          // eslint-disable-next-line no-prototype-builtins
+          if (!rssTasks.hasOwnProperty(key)) {
+            continue;
+          }
 
-      const rssNtfctnConfigItem = rssNtfctnConfigItems.find(function (e) {
-        return e.id?.toString() === key;
-      });
+          const rssNtfctnConfigItem = rssNtfctnConfigItems.find(function (e) {
+            return e.id?.toString() === key;
+          });
 
-      if (
-        !rssNtfctnConfigItem ||
-        Date.parse(rssNtfctnConfigItem.updated ?? '') > lastConfigCheck
-      ) {
-        rssTasks[key].stop();
-        delete rssTasks[key];
-      }
-    }
-    rssNtfctnConfigItems.forEach(function (rssNtfctnConfigItem) {
-      if (!rssTasks[rssNtfctnConfigItem.id as string]) {
-        rssTasks[rssNtfctnConfigItem.id as string] = new CronJob({
-          cronTime: rssNtfctnConfigItem.value.rss.timeSpec,
-          onTick: async () => {
-            let lastSavedRssData = await rssRepository.findOne({
-              where: {
-                serviceName: rssNtfctnConfigItem.serviceName,
-              },
-            });
-            if (!lastSavedRssData) {
-              lastSavedRssData = await rssRepository.create({
-                serviceName: rssNtfctnConfigItem.serviceName,
-                items: [],
-              });
-            }
-            let lastSavedRssItems: any[] = [];
-            try {
-              lastSavedRssItems = lastSavedRssData.items ?? [];
-            } catch (ex) {}
-            const feedparser = new FeedParser({
-              addmeta: false,
-            });
-            const res = await module.exports.request({
-              method: 'get',
-              url: rssNtfctnConfigItem.value.rss.url,
-              responseType: 'stream',
-            });
-            if (res.status !== 200) {
-              throw new Error('Bad status code');
-            } else {
-              res.data.pipe(feedparser);
-            }
-
-            feedparser.on('error', function (error: any) {
-              // always handle errors
-              console.info(error);
-            });
-
-            const items: any[] = [];
-            const ts = new Date();
-            feedparser.on('readable', function () {
-              // This is where the action is!
-              const stream = feedparser;
-              let item;
-              while ((item = stream.read())) {
-                item._notifyBCLastPoll = ts;
-                items.push(item);
-              }
-            });
-            feedparser.on('end', function () {
-              const itemKeyField =
-                rssNtfctnConfigItem.value.rss.itemKeyField || 'guid';
-              const fieldsToCheckForUpdate = rssNtfctnConfigItem.value.rss
-                .fieldsToCheckForUpdate || ['pubDate'];
-              const newOrUpdatedItems = _.differenceWith(
-                items,
-                lastSavedRssItems,
-                function (arrVal: RssItem, othVal: RssItem) {
-                  if (arrVal[itemKeyField] !== othVal[itemKeyField]) {
-                    return false;
+          if (
+            !rssNtfctnConfigItem ||
+            Date.parse(rssNtfctnConfigItem.updated ?? '') > lastConfigCheck
+          ) {
+            rssTasks[key].stop();
+            delete rssTasks[key];
+          }
+        }
+        rssNtfctnConfigItems.forEach(function (rssNtfctnConfigItem) {
+          if (!rssTasks[rssNtfctnConfigItem.id as string]) {
+            rssTasks[rssNtfctnConfigItem.id as string] = new CronJob({
+              cronTime: rssNtfctnConfigItem.value.rss.timeSpec,
+              onTick: async () => {
+                let lastSavedRssData: (Rss & RssRelations) | null = null;
+                try {
+                  lastSavedRssData = await rssRepository.findOne({
+                    where: {
+                      serviceName: rssNtfctnConfigItem.serviceName,
+                    },
+                  });
+                } catch (ex) {}
+                if (!lastSavedRssData) {
+                  lastSavedRssData = await rssRepository.create({
+                    serviceName: rssNtfctnConfigItem.serviceName,
+                    items: [],
+                  });
+                }
+                let lastSavedRssItems: any[] = [];
+                try {
+                  lastSavedRssItems = lastSavedRssData.items ?? [];
+                } catch (ex) {}
+                const feedparser = new FeedParser({
+                  addmeta: false,
+                });
+                try {
+                  const res = await module.exports.request({
+                    method: 'get',
+                    url: rssNtfctnConfigItem.value.rss.url,
+                    responseType: 'stream',
+                  });
+                  if (res.status !== 200) {
+                    reject(new Error('Bad status code'));
+                  } else {
+                    res.data.pipe(feedparser);
                   }
-                  if (!rssNtfctnConfigItem.value.rss.includeUpdatedItems) {
-                    return arrVal[itemKeyField] === othVal[itemKeyField];
+                } catch (ex) {
+                  reject(ex);
+                }
+
+                feedparser.on('error', function (error: any) {
+                  // always handle errors
+                  console.info(error);
+                });
+
+                const items: any[] = [];
+                const ts = new Date();
+                feedparser.on('readable', function () {
+                  // This is where the action is!
+                  const stream = feedparser;
+                  let item;
+                  while ((item = stream.read())) {
+                    item._notifyBCLastPoll = ts;
+                    items.push(item);
                   }
-                  return !fieldsToCheckForUpdate.some(
-                    (compareField: string | number) => {
-                      return (
-                        arrVal[compareField] &&
-                        othVal[compareField] &&
-                        arrVal[compareField].toString() !==
-                          othVal[compareField].toString()
+                });
+                feedparser.on('end', function () {
+                  const itemKeyField =
+                    rssNtfctnConfigItem.value.rss.itemKeyField || 'guid';
+                  const fieldsToCheckForUpdate = rssNtfctnConfigItem.value.rss
+                    .fieldsToCheckForUpdate || ['pubDate'];
+                  const newOrUpdatedItems = _.differenceWith(
+                    items,
+                    lastSavedRssItems,
+                    function (arrVal: RssItem, othVal: RssItem) {
+                      if (arrVal[itemKeyField] !== othVal[itemKeyField]) {
+                        return false;
+                      }
+                      if (!rssNtfctnConfigItem.value.rss.includeUpdatedItems) {
+                        return arrVal[itemKeyField] === othVal[itemKeyField];
+                      }
+                      return !fieldsToCheckForUpdate.some(
+                        (compareField: string | number) => {
+                          return (
+                            arrVal[compareField] &&
+                            othVal[compareField] &&
+                            arrVal[compareField].toString() !==
+                              othVal[compareField].toString()
+                          );
+                        },
                       );
                     },
                   );
-                },
-              );
-              const outdatedItemRetentionGenerations =
-                rssNtfctnConfigItem.value.rss
-                  .outdatedItemRetentionGenerations || 1;
-              let lastPollInterval = ts.getTime();
-              try {
-                lastPollInterval =
-                  ts.getTime() - Date.parse(lastSavedRssData?.lastPoll ?? '0');
-              } catch (ex) {}
-              const retainedOutdatedItems = _.differenceWith(
-                lastSavedRssItems,
-                items,
-                function (
-                  arrVal: {
-                    [x: string]: any;
-                    _notifyBCLastPoll: {getTime: () => number};
-                  },
-                  othVal: {[x: string]: any},
-                ) {
+                  const outdatedItemRetentionGenerations =
+                    rssNtfctnConfigItem.value.rss
+                      .outdatedItemRetentionGenerations || 1;
+                  let lastPollInterval = ts.getTime();
                   try {
-                    const age =
-                      ts.getTime() - arrVal._notifyBCLastPoll.getTime();
-                    if (
-                      Math.round(age / lastPollInterval) >=
-                      outdatedItemRetentionGenerations
-                    ) {
-                      return true;
-                    }
+                    lastPollInterval =
+                      ts.getTime() -
+                      Date.parse(lastSavedRssData?.lastPoll ?? '0');
                   } catch (ex) {}
-                  return arrVal[itemKeyField] === othVal[itemKeyField];
-                },
-              );
-              // notify new or updated items
-              newOrUpdatedItems.forEach(async (newOrUpdatedItem: any) => {
-                for (const channel in rssNtfctnConfigItem.value
-                  .messageTemplates) {
-                  if (
-                    // eslint-disable-next-line no-prototype-builtins
-                    !rssNtfctnConfigItem.value.messageTemplates.hasOwnProperty(
-                      channel,
-                    )
-                  ) {
-                    continue;
-                  }
-                  const notificationObject = {
-                    serviceName: rssNtfctnConfigItem.serviceName,
-                    channel: channel,
-                    isBroadcast: true,
-                    message:
-                      rssNtfctnConfigItem.value.messageTemplates[channel],
-                    data: newOrUpdatedItem,
-                    httpHost: rssNtfctnConfigItem.value.httpHost,
-                  };
-                  const httpHost =
-                    (await app.getConfig(
-                      CoreBindings.APPLICATION_INSTANCE,
-                      'internalHttpHost',
-                    )) || rssNtfctnConfigItem.value.httpHost;
-                  const url =
-                    httpHost +
-                    (await app.getConfig(
-                      CoreBindings.APPLICATION_INSTANCE,
-                      'restApiRoot',
-                    )) +
-                    '/notifications';
-                  const options = {
-                    headers: {
-                      'Content-Type': 'application/json',
+                  const retainedOutdatedItems = _.differenceWith(
+                    lastSavedRssItems,
+                    items,
+                    function (
+                      arrVal: {
+                        [x: string]: any;
+                        _notifyBCLastPoll: {getTime: () => number};
+                      },
+                      othVal: {[x: string]: any},
+                    ) {
+                      try {
+                        const age =
+                          ts.getTime() - arrVal._notifyBCLastPoll.getTime();
+                        if (
+                          Math.round(age / lastPollInterval) >=
+                          outdatedItemRetentionGenerations
+                        ) {
+                          return true;
+                        }
+                      } catch (ex) {}
+                      return arrVal[itemKeyField] === othVal[itemKeyField];
                     },
-                  };
-                  module.exports.request.post(url, notificationObject, options);
-                }
-              });
-              if (!lastSavedRssData) {
-                return;
-              }
-              lastSavedRssData.items = items.concat(retainedOutdatedItems);
-              lastSavedRssData.lastPoll = ts.toISOString();
-              return rssRepository.updateById(
-                lastSavedRssData.id,
-                lastSavedRssData,
-              );
+                  );
+                  // notify new or updated items
+                  newOrUpdatedItems.forEach(async (newOrUpdatedItem: any) => {
+                    for (const channel in rssNtfctnConfigItem.value
+                      .messageTemplates) {
+                      if (
+                        // eslint-disable-next-line no-prototype-builtins
+                        !rssNtfctnConfigItem.value.messageTemplates.hasOwnProperty(
+                          channel,
+                        )
+                      ) {
+                        continue;
+                      }
+                      const notificationObject = {
+                        serviceName: rssNtfctnConfigItem.serviceName,
+                        channel: channel,
+                        isBroadcast: true,
+                        message:
+                          rssNtfctnConfigItem.value.messageTemplates[channel],
+                        data: newOrUpdatedItem,
+                        httpHost: rssNtfctnConfigItem.value.httpHost,
+                      };
+                      const httpHost =
+                        (await app.getConfig(
+                          CoreBindings.APPLICATION_INSTANCE,
+                          'internalHttpHost',
+                        )) || rssNtfctnConfigItem.value.httpHost;
+                      const url =
+                        httpHost +
+                        (await app.getConfig(
+                          CoreBindings.APPLICATION_INSTANCE,
+                          'restApiRoot',
+                        )) +
+                        '/notifications';
+                      const options = {
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                      };
+                      module.exports.request.post(
+                        url,
+                        notificationObject,
+                        options,
+                      );
+                    }
+                  });
+                  if (!lastSavedRssData) {
+                    return;
+                  }
+                  lastSavedRssData.items = items.concat(retainedOutdatedItems);
+                  lastSavedRssData.lastPoll = ts.toISOString();
+                  rssRepository
+                    .updateById(lastSavedRssData.id, lastSavedRssData)
+                    .then(() => {
+                      resolve(rssTasks);
+                    })
+                    .catch(reject);
+                });
+              },
+              start: true,
+              runOnInit: runOnInit,
             });
-          },
-          start: true,
-          runOnInit: runOnInit,
+          }
         });
-      }
-    });
-    lastConfigCheck = Date.now();
-  };
+        lastConfigCheck = Date.now();
+      })
+      .catch(reject);
+  });
 };
 
 module.exports.deleteBounces = async (app: Application) => {

@@ -1,27 +1,35 @@
-import {Client, expect} from '@loopback/testlab';
+import {AnyObject} from '@loopback/repository';
+import {expect} from '@loopback/testlab';
 import {fail} from 'assert';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {NotificationController} from '../../controllers';
 import {
   BounceRepository,
+  ConfigurationRepository,
   NotificationRepository,
+  RssRepository,
   SubscriptionRepository,
 } from '../../repositories';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
 const cronTasks = require('../../observers/cron-tasks');
 // const parallel = require('async/parallel');
-// const path = require('path');
-// const fs = require('fs');
+const path = require('path');
+const fs = require('fs');
 let app: NotifyBcApplication;
-let client: Client;
+let rssRepository: RssRepository;
 let notificationRepository: NotificationRepository;
 let subscriptionRepository: SubscriptionRepository;
+let configurationRepository: ConfigurationRepository;
 let bounceRepository: BounceRepository;
 let notificationController: NotificationController;
 before('setupApplication', async function () {
-  ({app, client} = await setupApplication());
+  ({app} = await setupApplication());
+  rssRepository = await app.get('repositories.RssRepository');
+  configurationRepository = await app.get(
+    'repositories.ConfigurationRepository',
+  );
   notificationRepository = await app.get('repositories.NotificationRepository');
   notificationController = await app.get('controllers.NotificationController');
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
@@ -306,92 +314,84 @@ describe('CRON dispatchLiveNotifications', function () {
   });
 });
 
-/*
 describe('CRON checkRssConfigUpdates', function () {
-  beforeEach(function (done) {
-    spyOn(cronTasks, 'request').and.callFake(async function () {
+  beforeEach(async function () {
+    sinon.stub(cronTasks, 'request').callsFake(async function () {
       const output = fs.createReadStream(__dirname + path.sep + 'rss.xml');
       return {
         status: 200,
         data: output,
       };
     });
-    spyOn(cronTasks.request, 'post');
-    parallel(
-      [
-        function (cb) {
-          app.models.Configuration.create(
-            {
-              name: 'notification',
-              serviceName: 'myService',
-              value: {
-                rss: {
-                  url: 'http://myService/rss',
-                  timeSpec: '0 0 1 0 0',
-                  outdatedItemRetentionGenerations: 1,
-                  includeUpdatedItems: false,
-                  fieldsToCheckForUpdate: ['title'],
-                },
-                messageTemplates: {
-                  email: {
-                    from: 'no_reply@invlid.local',
-                    subject: '{title}',
-                    textBody: '{description}',
-                    htmlBody: '{description}',
-                  },
-                },
-                httpHost: 'http://foo',
+    sinon.spy(cronTasks.request, 'post');
+    const res = await Promise.all([
+      (async () => {
+        return configurationRepository.create({
+          name: 'notification',
+          serviceName: 'myService',
+          value: {
+            rss: {
+              url: 'http://myService/rss',
+              timeSpec: '0 0 1 0 0',
+              outdatedItemRetentionGenerations: 1,
+              includeUpdatedItems: false,
+              fieldsToCheckForUpdate: ['title'],
+            },
+            messageTemplates: {
+              email: {
+                from: 'no_reply@invlid.local',
+                subject: '{title}',
+                textBody: '{description}',
+                htmlBody: '{description}',
               },
             },
-            function (err, res) {
-              cb(err, res);
-            },
-          );
-        },
-        function (cb) {
-          subscriptionRepository.create(
-            {
-              serviceName: 'myService',
-              channel: 'email',
-              userChannelId: 'bar@foo.com',
-              state: 'confirmed',
-              unsubscriptionCode: '12345',
-            },
-            function (err, res) {
-              cb(err, res);
-            },
-          );
-        },
-      ],
-      function (err, results) {
-        expect(err).toBeNull();
-        done();
-      },
-    );
+            httpHost: 'http://foo',
+          },
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          unsubscriptionCode: '12345',
+        });
+      })(),
+    ]);
+    return res;
+  });
+
+  afterEach(() => {
+    const rssTasks = cronTasks.getRssTasks();
+    if (!rssTasks) return;
+    for (const idx in rssTasks) {
+      rssTasks[idx].stop();
+      delete rssTasks[idx];
+    }
   });
 
   it('should create rss task and post notifications at initial run', async function () {
     try {
       const rssTasks = await cronTasks.checkRssConfigUpdates(app, true);
-      expect(rssTasks['1']).not.toBeNull();
+      expect(rssTasks['1']).not.null();
     } catch (err) {
       fail(err);
     }
-    expect(cronTasks.request.post).toHaveBeenCalledTimes(1);
-    const joc = jasmine.objectContaining;
-    expect(cronTasks.request.post).toHaveBeenCalledWith(
+    sinon.assert.calledOnce(cronTasks.request.post);
+    sinon.assert.calledOnceWithMatch(
+      cronTasks.request.post,
       'http://foo/api/notifications',
-      joc({
+      {
         httpHost: 'http://foo',
-      }),
-      jasmine.any(Object),
+      },
     );
-    const results = await app.models.Rss.find();
+    const results = (await rssRepository.find()) as AnyObject;
     expect(results[0].items[0].author).equal('foo');
   });
 
   it('should avoid sending notification for unchanged items', async function () {
-    await app.models.Rss.create({
+    const data: any = {
       serviceName: 'myService',
       items: [
         {
@@ -416,21 +416,21 @@ describe('CRON checkRssConfigUpdates', function () {
         },
       ],
       lastPoll: '1970-01-01T00:00:00.000Z',
-    });
+    };
+    await rssRepository.create(data);
     await cronTasks.checkRssConfigUpdates(app, true);
-    expect(cronTasks.request.post).not.toHaveBeenCalled();
-    const results = await app.models.Rss.find();
+    sinon.assert.notCalled(cronTasks.request.post);
+    const results = (await rssRepository.find()) as AnyObject;
     expect(results[0].items[0].author).equal('foo');
   });
 
   it('should send notification for updated item', async function () {
-    const res = await app.models.Configuration.findById(1);
+    const res = await configurationRepository.findById('1');
     const newVal = res.value;
     newVal.rss.includeUpdatedItems = true;
     newVal.rss.outdatedItemRetentionGenerations = 100;
-    await res.updateAttribute('value', newVal);
-
-    await app.models.Rss.create({
+    await configurationRepository.updateById(res.id, {value: newVal});
+    const data: any = {
       serviceName: 'myService',
       items: [
         {
@@ -444,26 +444,28 @@ describe('CRON checkRssConfigUpdates', function () {
         },
       ],
       lastPoll: '1970-01-01T00:00:00.000Z',
-    });
-    const rssTasks = await cronTasks.checkRssConfigUpdates(app, true);
-    expect(cronTasks.request.post).toHaveBeenCalledTimes(1);
+    };
+    await rssRepository.create(data);
+    await cronTasks.checkRssConfigUpdates(app, true);
+    sinon.assert.calledOnce(cronTasks.request.post);
   });
 
   it('should handle error', async function () {
-    cronTasks.request = jasmine.createSpy().and.callFake(async function () {
+    cronTasks.request = sinon.stub().callsFake(async function () {
       return {
         status: 300,
       };
     });
     try {
       const rssTasks = await cronTasks.checkRssConfigUpdates(app, true);
-      expect(rssTasks['1']).not.toBeNull();
+      expect(rssTasks['1']).not.null();
     } catch (err) {
-      expect(err).not.toBeNull();
+      expect(err).not.null();
     }
   });
 });
 
+/*
 describe('CRON deleteBounces', function () {
   it('should delete bounce records in which no messages since latestNotificationStarted', async function () {
     await bounceRepository.create({
