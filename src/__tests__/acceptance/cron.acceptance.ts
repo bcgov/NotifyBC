@@ -465,7 +465,6 @@ describe('CRON checkRssConfigUpdates', function () {
   });
 });
 
-/*
 describe('CRON deleteBounces', function () {
   it('should delete bounce records in which no messages since latestNotificationStarted', async function () {
     await bounceRepository.create({
@@ -481,13 +480,13 @@ describe('CRON deleteBounces', function () {
           message: 'blah',
         },
       ],
-    });
+    } as AnyObject);
     try {
-      await cronTasks.deleteBounces(app);
+      await (await cronTasks.deleteBounces(app))();
     } catch (err) {
       fail(err);
     }
-    const item = await bounceRepository.findById(1);
+    const item = await bounceRepository.findById('1');
     expect(item.state).equal('deleted');
   });
   it('should not delete bounce records in which there are messages since latestNotificationStarted', async function () {
@@ -504,14 +503,13 @@ describe('CRON deleteBounces', function () {
           message: 'blah',
         },
       ],
-    });
+    } as AnyObject);
     try {
-      await cronTasks.deleteBounces(app);
+      await (await cronTasks.deleteBounces(app))();
     } catch (err) {
       fail(err);
     }
-    const item = await bounceRepository.findById(1);
+    const item = await bounceRepository.findById('1');
     expect(item.state).equal('active');
   });
 });
-*/
