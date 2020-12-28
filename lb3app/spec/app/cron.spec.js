@@ -1,3 +1,4 @@
+//migration: done, to src\__tests__\acceptance\cron.acceptance.ts
 let app;
 var cronTasks = require('../../server/cron-tasks');
 var parallel = require('async/parallel');

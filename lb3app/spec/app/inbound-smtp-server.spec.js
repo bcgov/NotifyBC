@@ -1,3 +1,4 @@
+//migration: done, to src\__tests__\acceptance\inbound-smtp-server.acceptance.ts
 let app;
 const parallel = require('async/parallel');
 const request = require('supertest');

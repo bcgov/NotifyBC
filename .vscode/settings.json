@@ -27,6 +27,7 @@
   "eslint.validate": ["javascript", "typescript"],
   "cSpell.words": [
     "Booter",
+    "Defang",
     "IDAQAB",
     "NDRs",
     "Ntfctn",
@@ -36,6 +37,7 @@
     "createsend",
     "feedparser",
     "getopt",
+    "gsmtp",
     "hsts",
     "jmespath",
     "jmespath's",
