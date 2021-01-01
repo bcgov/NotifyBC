@@ -32,6 +32,7 @@ import {
   AdminInterceptor,
   AuthenticatedOrAdminInterceptor,
   SubscriptionAfterRemoteInterceptor,
+  SubscriptionBeforeSaveInterceptor,
 } from '../interceptors';
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
@@ -40,6 +41,7 @@ const RandExp = require('randexp');
 const path = require('path');
 
 @intercept(SubscriptionAfterRemoteInterceptor.BINDING_KEY)
+@intercept(SubscriptionBeforeSaveInterceptor.BINDING_KEY)
 @oas.tags('subscription')
 export class SubscriptionController extends BaseController {
   constructor(
