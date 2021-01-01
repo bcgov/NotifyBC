@@ -1,11 +1,19 @@
-import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
+import {
+  ApplicationConfig,
+  CoreBindings,
+  Getter,
+  inject,
+  intercept,
+} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 import {HttpErrors, MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
+import {SubscriptionAccessInterceptor} from '../interceptors';
 import {Subscription} from '../models';
 import {BaseCrudRepository} from './baseCrudRepository';
 const jmespath = require('jmespath');
 
+@intercept(SubscriptionAccessInterceptor.BINDING_KEY)
 export class SubscriptionRepository extends BaseCrudRepository<
   Subscription,
   typeof Subscription.prototype.id
@@ -41,28 +49,6 @@ export class SubscriptionRepository extends BaseCrudRepository<
         jmespath.compile(filter);
       } catch (ex) {
         throw new HttpErrors[400]('invalid broadcastPushNotificationFilter');
-      }
-      return;
-    });
-    modelClass.observe('access', async ctx => {
-      let httpCtx;
-      try {
-        httpCtx = await this.getHttpContext();
-      } catch (ex) {}
-      const u = this.getCurrentUser(httpCtx);
-      if (u) {
-        ctx.query.where = ctx.query.where || {};
-        ctx.query.where = {
-          and: [
-            ctx.query.where,
-            {userId: u},
-            {
-              state: {
-                neq: 'deleted',
-              },
-            },
-          ],
-        };
       }
       return;
     });

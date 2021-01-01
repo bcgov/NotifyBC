@@ -43,7 +43,9 @@ const path = require('path');
 @oas.tags('subscription')
 export class SubscriptionController extends BaseController {
   constructor(
-    @repository(SubscriptionRepository)
+    @inject('repositories.SubscriptionRepository', {
+      asProxyWithInterceptors: true,
+    })
     public subscriptionRepository: SubscriptionRepository,
     @inject(CoreBindings.APPLICATION_CONFIG)
     appConfig: ApplicationConfig,
@@ -80,7 +82,10 @@ export class SubscriptionController extends BaseController {
     }
     delete subscription.id;
     await this.beforeUpsert(this.httpContext, subscription);
-    const result = await this.subscriptionRepository.create(subscription);
+    const result = await this.subscriptionRepository.create(
+      subscription,
+      undefined,
+    );
     if (!result.confirmationRequest) {
       return result;
     }
@@ -101,7 +106,7 @@ export class SubscriptionController extends BaseController {
   async count(
     @param.where(Subscription) where?: Where<Subscription>,
   ): Promise<Count> {
-    return this.subscriptionRepository.count(where);
+    return this.subscriptionRepository.count(where, undefined);
   }
 
   @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
@@ -122,7 +127,7 @@ export class SubscriptionController extends BaseController {
     @param.query.object('filter', getFilterSchemaFor(Subscription))
     filter?: Filter,
   ): Promise<Subscription[]> {
-    return this.subscriptionRepository.find(filter);
+    return this.subscriptionRepository.find(filter, undefined);
   }
 
   @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
@@ -138,7 +143,11 @@ export class SubscriptionController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() subscription: DataObject<Subscription>,
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findById(id);
+    const instance = await this.subscriptionRepository.findById(
+      id,
+      undefined,
+      undefined,
+    );
     const filteredData = _.merge({}, instance);
     if (
       subscription.userChannelId &&
@@ -148,7 +157,7 @@ export class SubscriptionController extends BaseController {
       filteredData.userChannelId = subscription.userChannelId;
     }
     await this.beforeUpsert(this.httpContext, filteredData);
-    await this.subscriptionRepository.updateById(id, filteredData);
+    await this.subscriptionRepository.updateById(id, filteredData, undefined);
     if (!filteredData.confirmationRequest) {
       return;
     }
@@ -168,7 +177,7 @@ export class SubscriptionController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() subscription: Subscription,
   ): Promise<void> {
-    await this.subscriptionRepository.replaceById(id, subscription);
+    await this.subscriptionRepository.replaceById(id, subscription, undefined);
   }
 
   static readonly additionalServicesParamSpec: ParameterObject = {
@@ -215,7 +224,11 @@ export class SubscriptionController extends BaseController {
     @param(SubscriptionController.additionalServicesParamSpec)
     additionalServices?: string[],
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findById(id);
+    const instance = await this.subscriptionRepository.findById(
+      id,
+      undefined,
+      undefined,
+    );
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,
@@ -265,6 +278,7 @@ export class SubscriptionController extends BaseController {
             state: 'deleted',
           },
           query,
+          undefined,
         );
         const handleUnsubscriptionResponse = async () => {
           // send acknowledgement notification
@@ -326,9 +340,13 @@ export class SubscriptionController extends BaseController {
         if (!addtServices) {
           return handleUnsubscriptionResponse();
         }
-        await this.subscriptionRepository.updateById(id, {
-          unsubscribedAdditionalServices: addtServices,
-        });
+        await this.subscriptionRepository.updateById(
+          id,
+          {
+            unsubscribedAdditionalServices: addtServices,
+          },
+          undefined,
+        );
         await handleUnsubscriptionResponse();
       };
       if (!additionalServices) {
@@ -342,16 +360,19 @@ export class SubscriptionController extends BaseController {
       }
       const getAdditionalServiceIds = async (): Promise<AdditionalServices> => {
         if (additionalServices.length > 1) {
-          const res = await this.subscriptionRepository.find({
-            fields: {id: true, serviceName: true},
-            where: {
-              serviceName: {
-                inq: additionalServices,
+          const res = await this.subscriptionRepository.find(
+            {
+              fields: {id: true, serviceName: true},
+              where: {
+                serviceName: {
+                  inq: additionalServices,
+                },
+                channel: instance.channel,
+                userChannelId: instance.userChannelId,
               },
-              channel: instance.channel,
-              userChannelId: instance.userChannelId,
             },
-          });
+            undefined,
+          );
           return {
             names: res.map(e => e.serviceName),
             ids: res.map(e => e.id) as string[],
@@ -359,28 +380,34 @@ export class SubscriptionController extends BaseController {
         }
         if (additionalServices.length === 1) {
           if (additionalServices[0] !== '_all') {
-            const res = await this.subscriptionRepository.find({
-              fields: {id: true, serviceName: true},
-              where: {
-                serviceName: additionalServices[0],
-                channel: instance.channel,
-                userChannelId: instance.userChannelId,
+            const res = await this.subscriptionRepository.find(
+              {
+                fields: {id: true, serviceName: true},
+                where: {
+                  serviceName: additionalServices[0],
+                  channel: instance.channel,
+                  userChannelId: instance.userChannelId,
+                },
               },
-            });
+              undefined,
+            );
             return {
               names: res.map(e => e.serviceName),
               ids: res.map(e => e.id) as string[],
             };
           }
           // get all subscribed services
-          const res = await this.subscriptionRepository.find({
-            fields: {id: true, serviceName: true},
-            where: {
-              userChannelId: instance.userChannelId,
-              channel: instance.channel,
-              state: 'confirmed',
+          const res = await this.subscriptionRepository.find(
+            {
+              fields: {id: true, serviceName: true},
+              where: {
+                userChannelId: instance.userChannelId,
+                channel: instance.channel,
+                state: 'confirmed',
+              },
             },
-          });
+            undefined,
+          );
           return {
             names: res.map(e => e.serviceName),
             ids: res.map(e => e.id) as string[],
@@ -471,7 +498,11 @@ export class SubscriptionController extends BaseController {
     })
     replace?: boolean,
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findById(id);
+    const instance = await this.subscriptionRepository.findById(
+      id,
+      undefined,
+      undefined,
+    );
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,
@@ -545,11 +576,16 @@ export class SubscriptionController extends BaseController {
             state: 'deleted',
           },
           whereClause,
+          undefined,
         );
       }
-      await this.subscriptionRepository.updateById(instance.id, {
-        state: 'confirmed',
-      });
+      await this.subscriptionRepository.updateById(
+        instance.id,
+        {
+          state: 'confirmed',
+        },
+        undefined,
+      );
     } catch (err) {
       return await handleConfirmationAcknowledgement(err);
     }
@@ -576,7 +612,11 @@ export class SubscriptionController extends BaseController {
     })
     unsubscriptionCode?: string,
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findById(id);
+    const instance = await this.subscriptionRepository.findById(
+      id,
+      undefined,
+      undefined,
+    );
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,
@@ -584,7 +624,13 @@ export class SubscriptionController extends BaseController {
     const anonymousUndoUnsubscription =
       mergedSubscriptionConfig.anonymousUndoUnsubscription;
     try {
-      if (!this.subscriptionRepository.isAdminReq(this.httpContext)) {
+      if (
+        !this.subscriptionRepository.isAdminReq(
+          this.httpContext,
+          undefined,
+          undefined,
+        )
+      ) {
         if (
           instance.unsubscriptionCode &&
           unsubscriptionCode !== instance.unsubscriptionCode
@@ -604,6 +650,7 @@ export class SubscriptionController extends BaseController {
             state: 'confirmed',
           },
           query,
+          undefined,
         );
         this.httpContext.response.setHeader('Content-Type', 'text/plain');
         if (anonymousUndoUnsubscription.redirectUrl) {
@@ -623,7 +670,11 @@ export class SubscriptionController extends BaseController {
       }
       const unsubscribedAdditionalServicesIds = instance.unsubscribedAdditionalServices.ids.slice();
       delete instance.unsubscribedAdditionalServices;
-      await this.subscriptionRepository.replaceById(instance.id, instance);
+      await this.subscriptionRepository.replaceById(
+        instance.id,
+        instance,
+        undefined,
+      );
       await revertItems({
         or: [
           {
@@ -672,7 +723,13 @@ export class SubscriptionController extends BaseController {
     },
   })
   async getSubscribedServiceNames(): Promise<string[]> {
-    if (!this.subscriptionRepository.isAdminReq(this.httpContext)) {
+    if (
+      !this.subscriptionRepository.isAdminReq(
+        this.httpContext,
+        undefined,
+        undefined,
+      )
+    ) {
       throw new HttpErrors[403]('Forbidden');
     }
     const subscriptionCollection = this.subscriptionRepository.dataSource.connector?.collection(
@@ -693,15 +750,18 @@ export class SubscriptionController extends BaseController {
         );
       });
     }
-    const data = await this.subscriptionRepository.find({
-      fields: {
-        serviceName: true,
+    const data = await this.subscriptionRepository.find(
+      {
+        fields: {
+          serviceName: true,
+        },
+        where: {
+          state: 'confirmed',
+        },
+        order: ['serviceName ASC'],
       },
-      where: {
-        state: 'confirmed',
-      },
-      order: ['serviceName ASC'],
-    });
+      undefined,
+    );
     if (!data || data.length === 0) {
       return [];
     }
@@ -779,9 +839,12 @@ export class SubscriptionController extends BaseController {
         regexp: phoneNumberRegex,
       };
     }
-    const subscription = await this.subscriptionRepository.findOne({
-      where: whereClause,
-    });
+    const subscription = await this.subscriptionRepository.findOne(
+      {
+        where: whereClause,
+      },
+      undefined,
+    );
     if (!subscription) {
       this.httpContext.response.send('ok');
       return;
