@@ -42,11 +42,15 @@ const queue = require('async/queue');
 @oas.tags('notification')
 export class NotificationController extends BaseController {
   constructor(
-    @repository(NotificationRepository)
+    @inject('repositories.NotificationRepository', {
+      asProxyWithInterceptors: true,
+    })
     public notificationRepository: NotificationRepository,
     @repository(BounceRepository)
     public bounceRepository: BounceRepository,
-    @repository(SubscriptionRepository)
+    @inject('repositories.SubscriptionRepository', {
+      asProxyWithInterceptors: true,
+    })
     public subscriptionRepository: SubscriptionRepository,
     @inject(CoreBindings.APPLICATION_CONFIG)
     appConfig: ApplicationConfig,
@@ -82,7 +86,10 @@ export class NotificationController extends BaseController {
     notification: Omit<Notification, 'id'>,
   ): Promise<Notification> {
     await this.preCreationValidation(notification);
-    const res = await this.notificationRepository.create(notification);
+    const res = await this.notificationRepository.create(
+      notification,
+      undefined,
+    );
     this.httpContext.bind('args').to({data: res});
     return this.dispatchNotification(res);
   }
@@ -98,7 +105,7 @@ export class NotificationController extends BaseController {
   async count(
     @param.where(Notification) where?: Where<Notification>,
   ): Promise<Count> {
-    return this.notificationRepository.count(where);
+    return this.notificationRepository.count(where, undefined);
   }
 
   @get('/notifications', {
@@ -119,7 +126,7 @@ export class NotificationController extends BaseController {
   async find(
     @param.filter(Notification) filter?: Filter<Notification>,
   ): Promise<Notification[]> {
-    const res = await this.notificationRepository.find(filter);
+    const res = await this.notificationRepository.find(filter, undefined);
     if (res.length === 0) {
       return res;
     }
@@ -173,7 +180,7 @@ export class NotificationController extends BaseController {
     @param.filter(Notification, {exclude: 'where'})
     filter?: FilterExcludingWhere<Notification>,
   ): Promise<Notification> {
-    return this.notificationRepository.findById(id, filter);
+    return this.notificationRepository.findById(id, filter, undefined);
   }
 
   @patch('/notifications/{id}', {
@@ -207,7 +214,11 @@ export class NotificationController extends BaseController {
       if (!currUser) {
         throw new HttpErrors[403]('Forbidden');
       }
-      const instance = await this.notificationRepository.findById(id);
+      const instance = await this.notificationRepository.findById(
+        id,
+        undefined,
+        undefined,
+      );
       if (instance.channel !== 'inApp') {
         throw new HttpErrors[403]('Forbidden');
       }
@@ -235,7 +246,7 @@ export class NotificationController extends BaseController {
         delete notification.state;
       }
     }
-    await this.notificationRepository.updateById(id, notification);
+    await this.notificationRepository.updateById(id, notification, undefined);
   }
 
   @put('/notifications/{id}', {
@@ -250,7 +261,7 @@ export class NotificationController extends BaseController {
     @requestBody() notification: Notification,
   ): Promise<void> {
     await this.preCreationValidation(notification);
-    await this.notificationRepository.replaceById(id, notification);
+    await this.notificationRepository.replaceById(id, notification, undefined);
     this.httpContext.bind('args').to({data: notification});
     await this.dispatchNotification(notification);
   }
@@ -266,7 +277,11 @@ export class NotificationController extends BaseController {
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    const data = await this.notificationRepository.findById(id);
+    const data = await this.notificationRepository.findById(
+      id,
+      undefined,
+      undefined,
+    );
     data.state = 'deleted';
     await this.updateById(id, data);
   }
@@ -283,7 +298,11 @@ export class NotificationController extends BaseController {
     @param.path.string('id') id: string,
     @param.query.integer('start') startIdx: number,
   ) {
-    const notification = await this.notificationRepository.findById(id);
+    const notification = await this.notificationRepository.findById(
+      id,
+      undefined,
+      undefined,
+    );
     this.httpContext.bind('args').to({data: notification});
     this.httpContext.bind('NotifyBC.startIdx').to(startIdx);
     return this.sendPushNotification(notification);
@@ -419,16 +438,19 @@ export class NotificationController extends BaseController {
           startIdx = await this.httpContext.get('NotifyBC.startIdx');
         } catch (ex) {}
         const broadcastToChunkSubscribers = async () => {
-          const subscribers = await this.subscriptionRepository.find({
-            where: {
-              serviceName: data.serviceName,
-              state: 'confirmed',
-              channel: data.channel,
+          const subscribers = await this.subscriptionRepository.find(
+            {
+              where: {
+                serviceName: data.serviceName,
+                state: 'confirmed',
+                channel: data.channel,
+              },
+              order: ['created ASC'],
+              skip: startIdx,
+              limit: broadcastSubscriberChunkSize,
             },
-            order: ['created ASC'],
-            skip: startIdx,
-            limit: broadcastSubscriberChunkSize,
-          });
+            undefined,
+          );
           const jmespathSearchOpts: AnyObject = {};
           const ft = this.appConfig.notification
             ?.broadcastCustomFilterFunctions;
@@ -571,16 +593,19 @@ export class NotificationController extends BaseController {
         };
         if (typeof startIdx !== 'number') {
           const postBroadcastProcessing = async () => {
-            const res = await this.subscriptionRepository.find({
-              fields: {
-                userChannelId: true,
-              },
-              where: {
-                id: {
-                  inq: data.successfulDispatches,
+            const res = await this.subscriptionRepository.find(
+              {
+                fields: {
+                  userChannelId: true,
+                },
+                where: {
+                  id: {
+                    inq: data.successfulDispatches,
+                  },
                 },
               },
-            });
+              undefined,
+            );
             const userChannelIds = res.map(e => e.userChannelId);
             const errUserChannelIds = (data.failedDispatches || []).map(
               (e: {userChannelId: any}) => e.userChannelId,
@@ -617,11 +642,14 @@ export class NotificationController extends BaseController {
             }
           };
           const count = (
-            await this.subscriptionRepository.count({
-              serviceName: data.serviceName,
-              state: 'confirmed',
-              channel: data.channel,
-            })
+            await this.subscriptionRepository.count(
+              {
+                serviceName: data.serviceName,
+                state: 'confirmed',
+                channel: data.channel,
+              },
+              undefined,
+            )
           ).count;
           if (count <= broadcastSubscriberChunkSize) {
             startIdx = 0;
@@ -671,19 +699,22 @@ export class NotificationController extends BaseController {
                   .catch(async () => {
                     let subs, err;
                     try {
-                      subs = await this.subscriptionRepository.find({
-                        where: {
-                          serviceName: data.serviceName,
-                          state: 'confirmed',
-                          channel: data.channel,
+                      subs = await this.subscriptionRepository.find(
+                        {
+                          where: {
+                            serviceName: data.serviceName,
+                            state: 'confirmed',
+                            channel: data.channel,
+                          },
+                          order: ['created ASC'],
+                          skip: parseInt(task.startIdx),
+                          limit: broadcastSubscriberChunkSize,
+                          fields: {
+                            userChannelId: true,
+                          },
                         },
-                        order: ['created ASC'],
-                        skip: parseInt(task.startIdx),
-                        limit: broadcastSubscriberChunkSize,
-                        fields: {
-                          userChannelId: true,
-                        },
-                      });
+                        undefined,
+                      );
                     } catch (ex) {
                       err = ex;
                     }
@@ -824,9 +855,12 @@ export class NotificationController extends BaseController {
     }
 
     try {
-      const subscription = await this.subscriptionRepository.findOne({
-        where: whereClause,
-      });
+      const subscription = await this.subscriptionRepository.findOne(
+        {
+          where: whereClause,
+        },
+        undefined,
+      );
       if (!subscription) {
         throw new HttpErrors[403]('invalid user');
       }
