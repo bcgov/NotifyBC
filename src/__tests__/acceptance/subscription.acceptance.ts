@@ -469,8 +469,8 @@ describe('POST /subscriptions', function () {
     expect(data.length).equal(1);
   });
 });
-/*
-describe('PATCH /subscriptions/{id}', function () {
+
+describe.only('PATCH /subscriptions/{id}', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({
       serviceName: 'myService',
@@ -490,7 +490,7 @@ describe('PATCH /subscriptions/{id}', function () {
     });
   });
   it('should allow sm users change their user channel id', async function () {
-    let res = await client
+    const res = await client
       .patch('/api/subscriptions/1')
       .send({
         userChannelId: 'baz@foo.com',
@@ -500,8 +500,8 @@ describe('PATCH /subscriptions/{id}', function () {
     expect(res.body.state).equal('unconfirmed');
     expect(res.body.userChannelId).equal('baz@foo.com');
   });
-  it("should deny sm user from changing other user's subscription", async function () {
-    let res = await client
+  it.only("should deny sm user from changing other user's subscription", async function () {
+    const res = await client
       .patch('/api/subscriptions/1')
       .send({
         userChannelId: 'baz@foo.com',
@@ -511,7 +511,7 @@ describe('PATCH /subscriptions/{id}', function () {
     expect(res.status).equal(404);
   });
   it("should deny anonymous user's access", async function () {
-    let res = await client
+    const res = await client
       .patch('/api/subscriptions/1')
       .send({
         userChannelId: 'baz@foo.com',
@@ -520,7 +520,7 @@ describe('PATCH /subscriptions/{id}', function () {
     expect(res.status).equal(403);
   });
 });
-
+/*
 describe('GET /subscriptions/{id}/verify', function () {
   let data;
   beforeEach(async function () {

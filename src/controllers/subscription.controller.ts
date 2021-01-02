@@ -135,15 +135,16 @@ export class SubscriptionController extends BaseController {
   @patch('/subscriptions/{id}', {
     summary: 'update a subscription',
     responses: {
-      '204': {
-        description: 'Subscription PATCH success',
+      '200': {
+        description: 'Subscription model instance',
+        content: {'application/json': {schema: {'x-ts-type': Subscription}}},
       },
     },
   })
   async updateById(
     @param.path.string('id') id: string,
     @requestBody() subscription: DataObject<Subscription>,
-  ): Promise<void> {
+  ): Promise<Subscription> {
     const instance = await this.subscriptionRepository.findById(
       id,
       undefined,
@@ -160,9 +161,10 @@ export class SubscriptionController extends BaseController {
     await this.beforeUpsert(this.httpContext, filteredData);
     await this.subscriptionRepository.updateById(id, filteredData, undefined);
     if (!filteredData.confirmationRequest) {
-      return;
+      return filteredData;
     }
     await this.handleConfirmationRequest(this.httpContext, filteredData);
+    return filteredData;
   }
 
   @intercept(AdminInterceptor.BINDING_KEY)
