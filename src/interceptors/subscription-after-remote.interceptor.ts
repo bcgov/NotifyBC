@@ -6,7 +6,7 @@ import {
   Provider,
   ValueOrPromise,
 } from '@loopback/core';
-import {BaseController} from '../controllers/base.controller';
+import {SubscriptionRepository} from '../repositories';
 
 /**
  * This class will be bound to the application as an `Interceptor` during
@@ -45,24 +45,24 @@ export class SubscriptionAfterRemoteInterceptor
     // Add pre-invocation logic here
     const data = await next();
     // Add post-invocation logic here
-    const targetInstance = invocationCtx.target as BaseController;
-    if (
-      !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
-    ) {
-      if (data instanceof Array) {
-        data.forEach(function (e) {
-          if (!(e instanceof Object)) return;
-          delete e.confirmationRequest;
-          delete e.updatedBy;
-          delete e.createdBy;
-          delete e.unsubscriptionCode;
-        });
-      } else if (data instanceof Object) {
-        delete data.confirmationRequest;
-        delete data.updatedBy;
-        delete data.createdBy;
-        delete data.unsubscriptionCode;
-      }
+    const targetInstance = invocationCtx.target as SubscriptionRepository;
+    if (targetInstance.isAdminReq(invocationCtx.parent)) {
+      return data;
+    }
+
+    if (data instanceof Array) {
+      data.forEach(function (e) {
+        if (!(e instanceof Object)) return;
+        delete e.confirmationRequest;
+        delete e.updatedBy;
+        delete e.createdBy;
+        delete e.unsubscriptionCode;
+      });
+    } else if (data instanceof Object) {
+      delete data.confirmationRequest;
+      delete data.updatedBy;
+      delete data.createdBy;
+      delete data.unsubscriptionCode;
     }
     return data;
   }

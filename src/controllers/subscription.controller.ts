@@ -31,8 +31,6 @@ import _ from 'lodash';
 import {
   AdminInterceptor,
   AuthenticatedOrAdminInterceptor,
-  SubscriptionAfterRemoteInterceptor,
-  SubscriptionBeforeSaveInterceptor,
 } from '../interceptors';
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
@@ -40,8 +38,6 @@ import {BaseController} from './base.controller';
 const RandExp = require('randexp');
 const path = require('path');
 
-@intercept(SubscriptionAfterRemoteInterceptor.BINDING_KEY)
-@intercept(SubscriptionBeforeSaveInterceptor.BINDING_KEY)
 @oas.tags('subscription')
 export class SubscriptionController extends BaseController {
   constructor(
