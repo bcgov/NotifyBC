@@ -1,6 +1,7 @@
 import {Client, expect} from '@loopback/testlab';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
+import {axios, BaseController} from '../../controllers/base.controller';
 import {SubscriptionRepository} from '../../repositories';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
@@ -68,8 +69,7 @@ describe('GET /subscriptions', function () {
   });
 });
 
-/*
-describe.only('POST /subscriptions', function () {
+describe('POST /subscriptions', function () {
   it('should allow admin users create subscriptions without sending confirmation request', async function () {
     sinon
       .stub(BaseCrudRepository.prototype, 'isAdminReq')
@@ -288,7 +288,8 @@ describe.only('POST /subscriptions', function () {
   });
 
   it('should allow non-admin user create sms subscription using swift provider', async function () {
-    (BaseController.prototype.sendSMS as sinon.SinonStub).callThrough();
+    (BaseController.prototype.sendSMS as sinon.SinonStub).restore();
+    sinon.stub(BaseController.prototype, 'sendSMS').callThrough();
     const axiosStub = sinon.stub(axios, 'post').callsFake(async () => {
       return;
     });
@@ -309,7 +310,7 @@ describe.only('POST /subscriptions', function () {
       axiosStub,
       'https://secure.smsgateway.ca/services/message.svc/123/12345',
     );
-    expect(axios.post.calls.argsFor(0)[1]['MessageBody']).toMatch(
+    expect(axiosStub.getCall(0).args[1]['MessageBody']).match(
       /Enter \d{5} on screen/,
     );
     const data = await subscriptionRepository.find({
@@ -318,7 +319,7 @@ describe.only('POST /subscriptions', function () {
         userChannelId: '12345',
       },
     });
-    expect(data[0].unsubscriptionCode).toMatch(/\d{5}/);
+    expect(data[0].unsubscriptionCode).match(/\d{5}/);
   });
 
   it('should ignore message supplied by non-admin user when creating a subscription', async function () {
@@ -339,17 +340,20 @@ describe.only('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(BaseController.prototype.sendEmail).toHaveBeenCalledTimes(1);
+    sinon.assert.calledOnce(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+    );
     const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: 'nobody@local.invalid',
       },
     });
-    expect(data[0].confirmationRequest.textBody).not.toContain('spoofed');
+    expect(data[0].confirmationRequest?.textBody).not.match('spoofed');
     expect(
-      BaseController.prototype.sendEmail.calls.argsFor(0)[0].subject,
-    ).not.toContain('spoofed');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.subject,
+    ).not.match('spoofed');
   });
 
   it('should reject subscriptions with invalid string broadcastPushNotificationFilter', async function () {
@@ -383,7 +387,9 @@ describe.only('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(subscriptionRepository.sendSMS).toHaveBeenCalledTimes(1);
+    sinon.assert.calledOnce(
+      BaseController.prototype.sendSMS as sinon.SinonStub,
+    );
     const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
@@ -396,7 +402,7 @@ describe.only('POST /subscriptions', function () {
   it('should detect duplicated subscription', async function () {
     sinon
       .stub(BaseController.prototype, 'getMergedConfig')
-      .callsFake(async function () {
+      .callsFake(async function (...args) {
         const res = {
           detectDuplicatedSubscription: true,
           duplicatedSubscriptionNotification: {
@@ -423,7 +429,7 @@ describe.only('POST /subscriptions', function () {
             },
           },
         };
-        const cb = arguments[arguments.length - 1];
+        const cb = args[args.length - 1];
         if (typeof cb === 'function') {
           return process.nextTick(cb, null, res);
         } else {
@@ -447,7 +453,7 @@ describe.only('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(BaseController.prototype.sendEmail).toHaveBeenCalled();
+    sinon.assert.called(BaseController.prototype.sendEmail as sinon.SinonStub);
     sinon.assert.calledWith(
       BaseController.prototype.sendEmail as sinon.SinonStub,
       sinon.match.has('text', sinon.match('A duplicated subscription')),
@@ -463,7 +469,7 @@ describe.only('POST /subscriptions', function () {
     expect(data.length).equal(1);
   });
 });
-
+/*
 describe('PATCH /subscriptions/{id}', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({

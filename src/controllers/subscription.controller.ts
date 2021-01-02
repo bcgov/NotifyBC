@@ -84,10 +84,13 @@ export class SubscriptionController extends BaseController {
       subscription,
       undefined,
     );
-    if (!result.confirmationRequest) {
+    if (!subscription.confirmationRequest) {
       return result;
     }
-    await this.handleConfirmationRequest(this.httpContext, result);
+    await this.handleConfirmationRequest(
+      this.httpContext,
+      Object.assign({}, result, subscription),
+    );
     return result;
   }
 
@@ -857,7 +860,10 @@ export class SubscriptionController extends BaseController {
 
   // use private modifier to avoid class level interceptor
   private async handleConfirmationRequest(ctx: any, data: any) {
-    if (data.state !== 'unconfirmed' || !data.confirmationRequest.sendRequest) {
+    if (
+      data.state !== 'unconfirmed' ||
+      !data.confirmationRequest?.sendRequest
+    ) {
       return;
     }
     let textBody =
