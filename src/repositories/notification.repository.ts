@@ -7,10 +7,14 @@ import {
 } from '@loopback/core';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
-import {NotificationAccessInterceptor} from '../interceptors';
+import {
+  NotificationAccessInterceptor,
+  RepositoryBeforeSaveInterceptor,
+} from '../interceptors';
 import {Notification, NotificationRelations} from '../models';
 import {BaseCrudRepository} from './baseCrudRepository';
 
+@intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
 @intercept(NotificationAccessInterceptor.BINDING_KEY)
 export class NotificationRepository extends BaseCrudRepository<
   Notification,

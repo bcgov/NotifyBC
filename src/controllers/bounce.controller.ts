@@ -32,7 +32,9 @@ import {BaseController} from './base.controller';
 @oas.tags('bounce')
 export class BounceController extends BaseController {
   constructor(
-    @repository(BounceRepository)
+    @inject('repositories.BounceRepository', {
+      asProxyWithInterceptors: true,
+    })
     public bounceRepository: BounceRepository,
     @inject(CoreBindings.APPLICATION_CONFIG)
     appConfig: ApplicationConfig,
@@ -63,7 +65,7 @@ export class BounceController extends BaseController {
     })
     bounce: Omit<Bounce, 'id'>,
   ): Promise<Bounce> {
-    return this.bounceRepository.create(bounce);
+    return this.bounceRepository.create(bounce, undefined);
   }
 
   @get('/bounces/count', {
@@ -75,7 +77,7 @@ export class BounceController extends BaseController {
     },
   })
   async count(@param.where(Bounce) where?: Where<Bounce>): Promise<Count> {
-    return this.bounceRepository.count(where);
+    return this.bounceRepository.count(where, undefined);
   }
 
   @get('/bounces', {
@@ -94,7 +96,7 @@ export class BounceController extends BaseController {
     },
   })
   async find(@param.filter(Bounce) filter?: Filter<Bounce>): Promise<Bounce[]> {
-    return this.bounceRepository.find(filter);
+    return this.bounceRepository.find(filter, undefined);
   }
 
   @patch('/bounces', {
@@ -116,7 +118,7 @@ export class BounceController extends BaseController {
     bounce: Bounce,
     @param.where(Bounce) where?: Where<Bounce>,
   ): Promise<Count> {
-    return this.bounceRepository.updateAll(bounce, where);
+    return this.bounceRepository.updateAll(bounce, where, undefined);
   }
 
   @get('/bounces/{id}', {
@@ -136,7 +138,7 @@ export class BounceController extends BaseController {
     @param.filter(Bounce, {exclude: 'where'})
     filter?: FilterExcludingWhere<Bounce>,
   ): Promise<Bounce> {
-    return this.bounceRepository.findById(id, filter);
+    return this.bounceRepository.findById(id, filter, undefined);
   }
 
   @patch('/bounces/{id}', {
@@ -157,7 +159,7 @@ export class BounceController extends BaseController {
     })
     bounce: Bounce,
   ): Promise<void> {
-    await this.bounceRepository.updateById(id, bounce);
+    await this.bounceRepository.updateById(id, bounce, undefined);
   }
 
   @put('/bounces/{id}', {
@@ -171,7 +173,7 @@ export class BounceController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() bounce: Bounce,
   ): Promise<void> {
-    await this.bounceRepository.replaceById(id, bounce);
+    await this.bounceRepository.replaceById(id, bounce, undefined);
   }
 
   @del('/bounces/{id}', {
@@ -182,6 +184,6 @@ export class BounceController extends BaseController {
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.bounceRepository.deleteById(id);
+    await this.bounceRepository.deleteById(id, undefined);
   }
 }

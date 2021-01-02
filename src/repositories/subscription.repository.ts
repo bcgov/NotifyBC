@@ -8,6 +8,7 @@ import {
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
 import {
+  RepositoryBeforeSaveInterceptor,
   SubscriptionAccessInterceptor,
   SubscriptionAfterRemoteInterceptor,
   SubscriptionBeforeSaveInterceptor,
@@ -15,6 +16,7 @@ import {
 import {Subscription} from '../models';
 import {BaseCrudRepository} from './baseCrudRepository';
 
+@intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
 @intercept(SubscriptionBeforeSaveInterceptor.BINDING_KEY)
 @intercept(SubscriptionAfterRemoteInterceptor.BINDING_KEY)
 @intercept(SubscriptionAccessInterceptor.BINDING_KEY)

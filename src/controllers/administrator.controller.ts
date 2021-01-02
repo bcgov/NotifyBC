@@ -1,19 +1,19 @@
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
-  repository,
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
 } from '@loopback/rest';
 import {Administrator} from '../models';
@@ -21,15 +21,19 @@ import {AdministratorRepository} from '../repositories';
 
 export class AdministratorController {
   constructor(
-    @repository(AdministratorRepository)
-    public administratorRepository : AdministratorRepository,
+    @inject('repositories.AdministratorRepository', {
+      asProxyWithInterceptors: true,
+    })
+    public administratorRepository: AdministratorRepository,
   ) {}
 
   @post('/administrators', {
     responses: {
       '200': {
         description: 'Administrator model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Administrator)}},
+        content: {
+          'application/json': {schema: getModelSchemaRef(Administrator)},
+        },
       },
     },
   })
@@ -46,7 +50,7 @@ export class AdministratorController {
     })
     administrator: Omit<Administrator, 'id'>,
   ): Promise<Administrator> {
-    return this.administratorRepository.create(administrator);
+    return this.administratorRepository.create(administrator, undefined);
   }
 
   @get('/administrators/count', {
@@ -60,7 +64,7 @@ export class AdministratorController {
   async count(
     @param.where(Administrator) where?: Where<Administrator>,
   ): Promise<Count> {
-    return this.administratorRepository.count(where);
+    return this.administratorRepository.count(where, undefined);
   }
 
   @get('/administrators', {
@@ -81,7 +85,7 @@ export class AdministratorController {
   async find(
     @param.filter(Administrator) filter?: Filter<Administrator>,
   ): Promise<Administrator[]> {
-    return this.administratorRepository.find(filter);
+    return this.administratorRepository.find(filter, undefined);
   }
 
   @patch('/administrators', {
@@ -103,7 +107,11 @@ export class AdministratorController {
     administrator: Administrator,
     @param.where(Administrator) where?: Where<Administrator>,
   ): Promise<Count> {
-    return this.administratorRepository.updateAll(administrator, where);
+    return this.administratorRepository.updateAll(
+      administrator,
+      where,
+      undefined,
+    );
   }
 
   @get('/administrators/{id}', {
@@ -120,9 +128,10 @@ export class AdministratorController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Administrator, {exclude: 'where'}) filter?: FilterExcludingWhere<Administrator>
+    @param.filter(Administrator, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Administrator>,
   ): Promise<Administrator> {
-    return this.administratorRepository.findById(id, filter);
+    return this.administratorRepository.findById(id, filter, undefined);
   }
 
   @patch('/administrators/{id}', {
@@ -143,7 +152,7 @@ export class AdministratorController {
     })
     administrator: Administrator,
   ): Promise<void> {
-    await this.administratorRepository.updateById(id, administrator);
+    await this.administratorRepository.updateById(id, administrator, undefined);
   }
 
   @put('/administrators/{id}', {
@@ -157,7 +166,11 @@ export class AdministratorController {
     @param.path.string('id') id: string,
     @requestBody() administrator: Administrator,
   ): Promise<void> {
-    await this.administratorRepository.replaceById(id, administrator);
+    await this.administratorRepository.replaceById(
+      id,
+      administrator,
+      undefined,
+    );
   }
 
   @del('/administrators/{id}', {
@@ -168,6 +181,6 @@ export class AdministratorController {
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.administratorRepository.deleteById(id);
+    await this.administratorRepository.deleteById(id, undefined);
   }
 }

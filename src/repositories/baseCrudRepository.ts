@@ -1,10 +1,5 @@
 import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
-import {
-  DefaultCrudRepository,
-  Entity,
-  juggler,
-  Model,
-} from '@loopback/repository';
+import {DefaultCrudRepository, Entity, juggler} from '@loopback/repository';
 import {MiddlewareBindings, MiddlewareContext} from '@loopback/rest';
 const ipRangeCheck = require('ip-range-check');
 
@@ -108,28 +103,11 @@ export class BaseCrudRepository<
       token = ctx.options.httpContext.args.options?.accessToken;
     } catch (ex) {}
     try {
-      if (ctx.instance) {
-        ctx.instance.updated = new Date();
-        ctx.instance.updatedBy = {
-          ip: req?.ip,
-          eventSrc: ctx.options.eventSrc,
-        };
-        if (token?.userId) {
-          ctx.instance.updatedBy.adminUser = token.userId;
-        }
-        if (ctx.isNewInstance) {
-          ctx.instance.createdBy = {
-            ip: req?.ip,
-          };
-          if (token?.userId) {
-            ctx.instance.createdBy.adminUser = token.userId;
-          }
-        }
-      } else if (ctx.data) {
+      if (ctx.data) {
         ctx.data.updated = new Date();
         ctx.data.updatedBy = {
           ip: req?.ip,
-          eventSrc: ctx.options.eventSrc,
+          eventSrc: ctx.options?.eventSrc,
         };
         if (token?.userId) {
           ctx.data.updatedBy.adminUser = token.userId;
@@ -144,15 +122,5 @@ export class BaseCrudRepository<
         }
       }
     } catch (ex) {}
-  }
-
-  protected definePersistedModel(
-    entityClass: typeof Model,
-  ): typeof juggler.PersistedModel {
-    const modelClass = super.definePersistedModel(entityClass);
-    modelClass.observe('before save', async (ctx: any) =>
-      this.updateTimestamp(ctx),
-    );
-    return modelClass;
   }
 }

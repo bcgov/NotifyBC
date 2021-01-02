@@ -1,9 +1,17 @@
-import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
+import {
+  ApplicationConfig,
+  CoreBindings,
+  Getter,
+  inject,
+  intercept,
+} from '@loopback/core';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
+import {RepositoryBeforeSaveInterceptor} from '../interceptors';
 import {Rss, RssRelations} from '../models';
 import {BaseCrudRepository} from './baseCrudRepository';
 
+@intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
 export class RssRepository extends BaseCrudRepository<
   Rss,
   typeof Rss.prototype.id,

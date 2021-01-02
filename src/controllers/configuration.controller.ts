@@ -9,7 +9,6 @@ import {
   CountSchema,
   Filter,
   FilterExcludingWhere,
-  repository,
   Where,
 } from '@loopback/repository';
 import {
@@ -32,7 +31,9 @@ import {BaseController} from './base.controller';
 @oas.tags('configuration')
 export class ConfigurationController extends BaseController {
   constructor(
-    @repository(ConfigurationRepository)
+    @inject('repositories.ConfigurationRepository', {
+      asProxyWithInterceptors: true,
+    })
     public configurationRepository: ConfigurationRepository,
     @inject(CoreBindings.APPLICATION_CONFIG)
     appConfig: ApplicationConfig,
@@ -63,7 +64,7 @@ export class ConfigurationController extends BaseController {
     })
     configuration: Omit<Configuration, 'id'>,
   ): Promise<Configuration> {
-    return this.configurationRepository.create(configuration);
+    return this.configurationRepository.create(configuration, undefined);
   }
 
   @get('/configurations/count', {
@@ -77,7 +78,7 @@ export class ConfigurationController extends BaseController {
   async count(
     @param.where(Configuration) where?: Where<Configuration>,
   ): Promise<Count> {
-    return this.configurationRepository.count(where);
+    return this.configurationRepository.count(where, undefined);
   }
 
   @get('/configurations', {
@@ -98,7 +99,7 @@ export class ConfigurationController extends BaseController {
   async find(
     @param.filter(Configuration) filter?: Filter<Configuration>,
   ): Promise<Configuration[]> {
-    return this.configurationRepository.find(filter);
+    return this.configurationRepository.find(filter, undefined);
   }
 
   @patch('/configurations', {
@@ -120,7 +121,11 @@ export class ConfigurationController extends BaseController {
     configuration: Configuration,
     @param.where(Configuration) where?: Where<Configuration>,
   ): Promise<Count> {
-    return this.configurationRepository.updateAll(configuration, where);
+    return this.configurationRepository.updateAll(
+      configuration,
+      where,
+      undefined,
+    );
   }
 
   @get('/configurations/{id}', {
@@ -140,7 +145,7 @@ export class ConfigurationController extends BaseController {
     @param.filter(Configuration, {exclude: 'where'})
     filter?: FilterExcludingWhere<Configuration>,
   ): Promise<Configuration> {
-    return this.configurationRepository.findById(id, filter);
+    return this.configurationRepository.findById(id, filter, undefined);
   }
 
   @patch('/configurations/{id}', {
@@ -161,7 +166,7 @@ export class ConfigurationController extends BaseController {
     })
     configuration: Configuration,
   ): Promise<void> {
-    await this.configurationRepository.updateById(id, configuration);
+    await this.configurationRepository.updateById(id, configuration, undefined);
   }
 
   @put('/configurations/{id}', {
@@ -175,7 +180,11 @@ export class ConfigurationController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() configuration: Configuration,
   ): Promise<void> {
-    await this.configurationRepository.replaceById(id, configuration);
+    await this.configurationRepository.replaceById(
+      id,
+      configuration,
+      undefined,
+    );
   }
 
   @del('/configurations/{id}', {
@@ -186,6 +195,6 @@ export class ConfigurationController extends BaseController {
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.configurationRepository.deleteById(id);
+    await this.configurationRepository.deleteById(id, undefined);
   }
 }

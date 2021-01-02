@@ -46,7 +46,9 @@ export class NotificationController extends BaseController {
       asProxyWithInterceptors: true,
     })
     public notificationRepository: NotificationRepository,
-    @repository(BounceRepository)
+    @inject('repositories.BounceRepository', {
+      asProxyWithInterceptors: true,
+    })
     public bounceRepository: BounceRepository,
     @inject('repositories.SubscriptionRepository', {
       asProxyWithInterceptors: true,
@@ -349,6 +351,7 @@ export class NotificationController extends BaseController {
           latestNotificationStarted: dataNotification.updated,
           latestNotificationEnded: Date.now(),
         },
+        undefined,
       );
     };
 
