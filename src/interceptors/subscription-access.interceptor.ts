@@ -42,7 +42,7 @@ export class SubscriptionAccessInterceptor implements Provider<Interceptor> {
     // Add pre-invocation logic here
     const httpCtx = invocationCtx.parent;
     const subscriptionRepository = invocationCtx.target as SubscriptionRepository;
-    const u = subscriptionRepository.getCurrentUser(httpCtx);
+    const u = await subscriptionRepository.getCurrentUser(httpCtx);
     if (!u) {
       return next();
     }

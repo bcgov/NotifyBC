@@ -175,10 +175,10 @@ describe('bounce', function () {
   });
 
   it('should create bounce record', function (done) {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(bounceRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
     sinon.stub(origRequest, 'get').callsFake(function (...args) {
@@ -246,10 +246,10 @@ describe('bounce', function () {
   });
 
   it('should increment bounce record', function (done) {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(bounceRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
     sinon.stub(origRequest, 'get').callsFake(function (...args) {
@@ -330,10 +330,10 @@ describe('bounce', function () {
   });
 
   it("should not increment bounce record if subject doesn't match", function (done) {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(bounceRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
     sinon.stub(origRequest, 'get').callsFake(function (...args) {
@@ -414,10 +414,10 @@ describe('bounce', function () {
   });
 
   it("should not increment bounce record if status code doesn't match", function (done) {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(bounceRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
     sinon.stub(origRequest, 'get').callsFake(function (...args) {
@@ -498,10 +498,10 @@ describe('bounce', function () {
   });
 
   it("should not increment bounce record if email doesn't match", function (done) {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(bounceRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
     sinon.stub(origRequest, 'get').callsFake(function (...args) {
@@ -582,10 +582,10 @@ describe('bounce', function () {
   });
 
   it('should check header x-failed-recipients', function (done) {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(bounceRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
     sinon.stub(origRequest, 'get').callsFake(function (...args) {
@@ -666,10 +666,10 @@ describe('bounce', function () {
   });
 
   it('should unsubscribe and delete bounce record when hardBounceCount exceeds threshold', function (done) {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(bounceRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
     sinon.stub(origRequest, 'get').callsFake(function (...args) {

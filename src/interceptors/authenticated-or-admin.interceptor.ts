@@ -42,12 +42,14 @@ export class AuthenticatedOrAdminInterceptor implements Provider<Interceptor> {
   ) {
     // Add pre-invocation logic here
     const targetInstance = invocationCtx.target as BaseController;
-    const userId = targetInstance.configurationRepository.getCurrentUser(
+    const userId = await targetInstance.configurationRepository.getCurrentUser(
       invocationCtx.parent,
     );
     if (
       !userId &&
-      !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
+      !(await targetInstance.configurationRepository.isAdminReq(
+        invocationCtx.parent,
+      ))
     ) {
       throw new HttpErrors[403]('Forbidden');
     }

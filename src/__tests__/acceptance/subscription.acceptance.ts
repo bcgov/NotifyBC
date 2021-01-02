@@ -13,7 +13,7 @@ before('setupApplication', async function () {
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
 });
 
-describe.only('GET /subscriptions', function () {
+describe('GET /subscriptions', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({
       serviceName: 'myService',
@@ -60,9 +60,7 @@ describe.only('GET /subscriptions', function () {
   it('should be allowed by admin users', async function () {
     sinon
       .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(function () {
-        return true;
-      });
+      .callsFake(async () => true);
     const res = await client.get('/api/subscriptions');
     expect(res.status).equal(200);
     expect(res.body.length).equal(1);
@@ -71,12 +69,14 @@ describe.only('GET /subscriptions', function () {
 });
 
 /*
-describe('POST /subscriptions', function () {
+describe.only('POST /subscriptions', function () {
   it('should allow admin users create subscriptions without sending confirmation request', async function () {
-    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => {
+        return true;
+      });
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -89,8 +89,10 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(subscriptionRepository.sendEmail).not.toHaveBeenCalled();
-    let data = await subscriptionRepository.find({
+    sinon.assert.notCalled(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+    );
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: 'bar@foo.com',
@@ -100,10 +102,12 @@ describe('POST /subscriptions', function () {
   });
 
   it('should allow admin users create subscriptions and send confirmation request with proper mail merge', async function () {
-    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => {
+        return true;
+      });
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -121,68 +125,98 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(subscriptionRepository.sendEmail).toHaveBeenCalled();
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{subscription_confirmation_code}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{service_name}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{http_host}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{rest_api_root}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{subscription_id}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{unsubscription_code}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{unsubscription_url}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{subscription_confirmation_url}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{unsubscription_reversion_url}');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('12345');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('myService');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('http://127.0.0.1');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('/api');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('1 ');
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('54321');
-    //unsubscription_url
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('/api/subscriptions/1/unsubscribe?unsubscriptionCode=54321');
-    //subscription_confirmation_url
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('/api/subscriptions/1/verify?confirmationCode=12345');
-    //unsubscription_reversion_url
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain(
-      '/api/subscriptions/1/unsubscribe/undo?unsubscriptionCode=54321',
+    sinon.assert.called(BaseController.prototype.sendEmail as sinon.SinonStub);
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{subscription_confirmation_code}')),
+    );
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{service_name}')),
+    );
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{http_host}')),
+    );
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{rest_api_root}')),
+    );
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{subscription_id}')),
+    );
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{unsubscription_code}')),
+    );
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{unsubscription_url}')),
+    );
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{subscription_confirmation_url}')),
+    );
+    sinon.assert.neverCalledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('{unsubscription_reversion_url}')),
     );
 
-    let data = await subscriptionRepository.find({
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('12345')),
+    );
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('myService')),
+    );
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('http://127.0.0.1')),
+    );
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('/api')),
+    );
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('1 ')),
+    );
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('54321')),
+    );
+    //unsubscription_url
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has(
+        'text',
+        sinon.match(
+          '/api/subscriptions/1/unsubscribe?unsubscriptionCode=54321',
+        ),
+      ),
+    );
+    //subscription_confirmation_url
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has(
+        'text',
+        sinon.match('/api/subscriptions/1/verify?confirmationCode=12345'),
+      ),
+    );
+    //unsubscription_reversion_url
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has(
+        'text',
+        sinon.match(
+          '/api/subscriptions/1/unsubscribe/undo?unsubscriptionCode=54321',
+        ),
+      ),
+    );
+
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: 'foo@bar.com',
@@ -192,10 +226,12 @@ describe('POST /subscriptions', function () {
   });
 
   it('should generate unsubscription code for subscriptions created by admin user', async function () {
-    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => {
+        return true;
+      });
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -204,21 +240,25 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(subscriptionRepository.sendSMS).toHaveBeenCalledTimes(1);
-    let data = await subscriptionRepository.find({
+    sinon.assert.calledOnce(
+      BaseController.prototype.sendSMS as sinon.SinonStub,
+    );
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: '12345',
       },
     });
-    expect(data[0].unsubscriptionCode).toMatch(/\d{5}/);
+    expect(data[0].unsubscriptionCode).match(/\d{5}/);
   });
 
   it('should generate unsubscription code for subscriptions created by admin user with confirmationRequest field populated', async function () {
-    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => {
+        return true;
+      });
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -235,24 +275,25 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(subscriptionRepository.sendEmail).toHaveBeenCalledTimes(1);
-    let data = await subscriptionRepository.find({
+    sinon.assert.calledOnce(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+    );
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: 'foo@bar.com',
       },
     });
-    expect(data[0].confirmationRequest.confirmationCode).equal('12345');
+    expect(data?.[0]?.confirmationRequest?.confirmationCode).equal('12345');
   });
 
   it('should allow non-admin user create sms subscription using swift provider', async function () {
-    subscriptionRepository.sendSMS.and.stub().and.callThrough();
-    let common = require('../../common/mixins/common');
-    sinon.stub(common.axios, 'post').callsFake(async () => {
+    (BaseController.prototype.sendSMS as sinon.SinonStub).callThrough();
+    const axiosStub = sinon.stub(axios, 'post').callsFake(async () => {
       return;
     });
 
-    let res = await client
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -261,14 +302,17 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(subscriptionRepository.sendSMS).toHaveBeenCalledTimes(1);
-    expect(common.axios.post.calls.argsFor(0)[0]).equal(
+    sinon.assert.calledOnce(
+      BaseController.prototype.sendSMS as sinon.SinonStub,
+    );
+    sinon.assert.calledWith(
+      axiosStub,
       'https://secure.smsgateway.ca/services/message.svc/123/12345',
     );
-    expect(common.axios.post.calls.argsFor(0)[1]['MessageBody']).toMatch(
+    expect(axios.post.calls.argsFor(0)[1]['MessageBody']).toMatch(
       /Enter \d{5} on screen/,
     );
-    let data = await subscriptionRepository.find({
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: '12345',
@@ -278,7 +322,7 @@ describe('POST /subscriptions', function () {
   });
 
   it('should ignore message supplied by non-admin user when creating a subscription', async function () {
-    let res = await client
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -295,8 +339,8 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(subscriptionRepository.sendEmail).toHaveBeenCalledTimes(1);
-    let data = await subscriptionRepository.find({
+    expect(BaseController.prototype.sendEmail).toHaveBeenCalledTimes(1);
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: 'nobody@local.invalid',
@@ -304,12 +348,12 @@ describe('POST /subscriptions', function () {
     });
     expect(data[0].confirmationRequest.textBody).not.toContain('spoofed');
     expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].subject,
+      BaseController.prototype.sendEmail.calls.argsFor(0)[0].subject,
     ).not.toContain('spoofed');
   });
 
   it('should reject subscriptions with invalid string broadcastPushNotificationFilter', async function () {
-    let res = await client
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -319,7 +363,7 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(400);
-    let data = await subscriptionRepository.find({
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: '12345',
@@ -329,7 +373,7 @@ describe('POST /subscriptions', function () {
   });
 
   it('should accept subscriptions with valid broadcastPushNotificationFilter', async function () {
-    let res = await client
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -340,18 +384,19 @@ describe('POST /subscriptions', function () {
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
     expect(subscriptionRepository.sendSMS).toHaveBeenCalledTimes(1);
-    let data = await subscriptionRepository.find({
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         userChannelId: '12345',
       },
     });
-    expect(data[0].unsubscriptionCode).toMatch(/\d{5}/);
+    expect(data[0].unsubscriptionCode).match(/\d{5}/);
   });
 
   it('should detect duplicated subscription', async function () {
-    sinon.stub(BaseController.prototype, 'getMergedConfig').callsFake(
-      async function () {
+    sinon
+      .stub(BaseController.prototype, 'getMergedConfig')
+      .callsFake(async function () {
         const res = {
           detectDuplicatedSubscription: true,
           duplicatedSubscriptionNotification: {
@@ -378,14 +423,13 @@ describe('POST /subscriptions', function () {
             },
           },
         };
-        let cb = arguments[arguments.length - 1];
+        const cb = arguments[arguments.length - 1];
         if (typeof cb === 'function') {
           return process.nextTick(cb, null, res);
         } else {
           return res;
         }
-      },
-    );
+      });
 
     await subscriptionRepository.create({
       serviceName: 'myService',
@@ -394,7 +438,7 @@ describe('POST /subscriptions', function () {
       userChannelId: 'bar@invalid.local',
       state: 'confirmed',
     });
-    let res = await client
+    const res = await client
       .post('/api/subscriptions')
       .send({
         serviceName: 'myService',
@@ -403,11 +447,12 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(subscriptionRepository.sendEmail).toHaveBeenCalled();
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('A duplicated subscription');
-    let data = await subscriptionRepository.find({
+    expect(BaseController.prototype.sendEmail).toHaveBeenCalled();
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('A duplicated subscription')),
+    );
+    const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
         channel: 'email',
@@ -884,9 +929,10 @@ describe('GET /subscriptions/{id}/unsubscribe', function () {
       },
     });
     expect(res.length).equal(3);
-    expect(
-      subscriptionRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('services myService1, myService2 and myService3');
+    sinon.assert.calledWith(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      sinon.match.has('text', sinon.match('services myService1, myService2 and myService3')),
+    );
   });
 
   it('should allow bulk unsubscribing selected additional service', async function () {
@@ -1071,7 +1117,7 @@ describe('PUT /subscriptions/{id}', function () {
     });
   });
   it('should allow admin user replace subscription', async function () {
-    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(async () => {
       return true;
     });
     let res = await client
@@ -1124,7 +1170,7 @@ describe('GET /subscriptions/services', function () {
     });
   });
   it(`should allow admin user's access`, async function () {
-    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(async () => {
       return true;
     });
     let res = await client

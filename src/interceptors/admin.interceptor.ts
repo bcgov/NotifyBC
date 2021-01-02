@@ -43,7 +43,11 @@ export class AdminInterceptor implements Provider<Interceptor> {
     // Add pre-invocation logic here
     const targetInstance = invocationCtx.target as BaseController;
     if (
-      !targetInstance.configurationRepository.isAdminReq(invocationCtx.parent)
+      !(await targetInstance.configurationRepository.isAdminReq(
+        invocationCtx.parent,
+        undefined,
+        undefined,
+      ))
     ) {
       throw new HttpErrors[403]('Forbidden');
     }

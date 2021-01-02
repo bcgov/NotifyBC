@@ -67,9 +67,9 @@ export class SubscriptionController extends BaseController {
   async create(
     @requestBody() subscription: Subscription,
   ): Promise<Subscription> {
-    if (!this.configurationRepository.isAdminReq(this.httpContext)) {
+    if (!(await this.configurationRepository.isAdminReq(this.httpContext))) {
       delete subscription.state;
-      const userId = this.configurationRepository.getCurrentUser(
+      const userId = await this.configurationRepository.getCurrentUser(
         this.httpContext,
       );
       if (!userId) {
@@ -235,8 +235,8 @@ export class SubscriptionController extends BaseController {
       mergedSubscriptionConfig.anonymousUnsubscription;
     try {
       let forbidden = false;
-      if (!this.configurationRepository.isAdminReq(this.httpContext)) {
-        const userId = this.configurationRepository.getCurrentUser(
+      if (!(await this.configurationRepository.isAdminReq(this.httpContext))) {
+        const userId = await this.configurationRepository.getCurrentUser(
           this.httpContext,
         );
         if (userId) {
@@ -623,11 +623,11 @@ export class SubscriptionController extends BaseController {
       mergedSubscriptionConfig.anonymousUndoUnsubscription;
     try {
       if (
-        !this.subscriptionRepository.isAdminReq(
+        !(await this.subscriptionRepository.isAdminReq(
           this.httpContext,
           undefined,
           undefined,
-        )
+        ))
       ) {
         if (
           instance.unsubscriptionCode &&
@@ -636,7 +636,9 @@ export class SubscriptionController extends BaseController {
           throw new HttpErrors[403]('Forbidden');
         }
         if (
-          this.subscriptionRepository.getCurrentUser(this.httpContext) ||
+          (await this.subscriptionRepository.getCurrentUser(
+            this.httpContext,
+          )) ||
           instance.state !== 'deleted'
         ) {
           throw new HttpErrors[403]('Forbidden');
@@ -722,11 +724,11 @@ export class SubscriptionController extends BaseController {
   })
   async getSubscribedServiceNames(): Promise<string[]> {
     if (
-      !this.subscriptionRepository.isAdminReq(
+      !(await this.subscriptionRepository.isAdminReq(
         this.httpContext,
         undefined,
         undefined,
-      )
+      ))
     ) {
       throw new HttpErrors[403]('Forbidden');
     }
@@ -954,11 +956,11 @@ export class SubscriptionController extends BaseController {
       'subscription',
       data.serviceName,
     );
-    const userId = this.configurationRepository.getCurrentUser(ctx);
+    const userId = await this.configurationRepository.getCurrentUser(ctx);
     if (userId) {
       data.userId = userId;
     } else if (
-      !this.configurationRepository.isAdminReq(ctx) ||
+      !(await this.configurationRepository.isAdminReq(ctx)) ||
       !data.unsubscriptionCode
     ) {
       // generate unsubscription code
@@ -986,7 +988,7 @@ export class SubscriptionController extends BaseController {
     }
     // use request without encrypted payload
     if (
-      !this.configurationRepository.isAdminReq(ctx) ||
+      !(await this.configurationRepository.isAdminReq(ctx)) ||
       !data.confirmationRequest
     ) {
       try {

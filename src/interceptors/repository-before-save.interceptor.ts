@@ -69,7 +69,9 @@ export class RepositoryBeforeSaveInterceptor implements Provider<Interceptor> {
       );
     } else if (data instanceof Array) {
       for (const e of data) {
-        baseCrudRepository.updateTimestamp(Object.assign({}, ctx, {data: e}));
+        await baseCrudRepository.updateTimestamp(
+          Object.assign({}, ctx, {data: e}),
+        );
       }
     }
 

@@ -43,7 +43,7 @@ export class NotificationAccessInterceptor implements Provider<Interceptor> {
     // Add pre-invocation logic here
     const notificationRepository = invocationCtx.target as NotificationRepository;
     const httpCtx = invocationCtx.parent;
-    const currUser = notificationRepository.getCurrentUser(httpCtx);
+    const currUser = await notificationRepository.getCurrentUser(httpCtx);
     if (currUser) {
       if (
         ['find', 'findOne', 'count', 'updateAll', 'deleteAll'].indexOf(
@@ -92,7 +92,9 @@ export class NotificationAccessInterceptor implements Provider<Interceptor> {
       } else {
         invocationCtx.args[argIdx] = whereClause;
       }
-    } else if (!notificationRepository.isAdminReq(httpCtx)) {
+    } else if (
+      !(await notificationRepository.isAdminReq(httpCtx, undefined, undefined))
+    ) {
       throw new HttpErrors[403]('Forbidden');
     }
     const result = await next();

@@ -21,11 +21,11 @@ export class BaseCrudRepository<
     super(entityClass, dataSource);
   }
 
-  isAdminReq(
+  async isAdminReq(
     httpCtx: any,
     ignoreAccessToken?: boolean,
     ignoreSurrogate?: boolean,
-  ): boolean {
+  ): Promise<boolean> {
     // internal requests
     if (!httpCtx) {
       return true;
@@ -54,7 +54,7 @@ export class BaseCrudRepository<
     }
 
     const adminIps = this.appConfig.adminIps || this.appConfig.defaultAdminIps;
-    if (adminIps) {
+    if (adminIps && adminIps.length > 0) {
       return adminIps.some(function (e: string) {
         return ipRangeCheck(request.ip, e);
       });
@@ -62,7 +62,7 @@ export class BaseCrudRepository<
     return false;
   }
 
-  getCurrentUser(httpCtx: any) {
+  async getCurrentUser(httpCtx: any) {
     // internal requests
     if (!httpCtx) return null;
     const request = httpCtx.req || httpCtx.request;
@@ -74,7 +74,7 @@ export class BaseCrudRepository<
     if (!currUser) {
       return null;
     }
-    if (this.isAdminReq(httpCtx, undefined, true)) {
+    if (await this.isAdminReq(httpCtx, undefined, true)) {
       return currUser;
     }
     const siteMinderReverseProxyIps =

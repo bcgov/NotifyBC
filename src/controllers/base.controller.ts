@@ -287,3 +287,5 @@ export class BaseController {
     return res;
   }
 }
+
+export {axios};

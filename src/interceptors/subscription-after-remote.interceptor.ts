@@ -46,7 +46,13 @@ export class SubscriptionAfterRemoteInterceptor
     const data = await next();
     // Add post-invocation logic here
     const targetInstance = invocationCtx.target as SubscriptionRepository;
-    if (targetInstance.isAdminReq(invocationCtx.parent)) {
+    if (
+      await targetInstance.isAdminReq(
+        invocationCtx.parent,
+        undefined,
+        undefined,
+      )
+    ) {
       return data;
     }
 

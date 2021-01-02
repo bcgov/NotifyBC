@@ -132,7 +132,7 @@ export class NotificationController extends BaseController {
     if (res.length === 0) {
       return res;
     }
-    const currUser = this.configurationRepository.getCurrentUser(
+    const currUser = await this.configurationRepository.getCurrentUser(
       this.httpContext,
     );
     if (!currUser) {
@@ -211,8 +211,8 @@ export class NotificationController extends BaseController {
   ): Promise<void> {
     const ctx = this.httpContext;
     // only allow changing inApp state for non-admin requests
-    if (!this.configurationRepository.isAdminReq(ctx)) {
-      const currUser = this.configurationRepository.getCurrentUser(ctx);
+    if (!(await this.configurationRepository.isAdminReq(ctx))) {
+      const currUser = await this.configurationRepository.getCurrentUser(ctx);
       if (!currUser) {
         throw new HttpErrors[403]('Forbidden');
       }
@@ -816,7 +816,7 @@ export class NotificationController extends BaseController {
   }
 
   public async preCreationValidation(data: Partial<Notification>) {
-    if (!this.configurationRepository.isAdminReq(this.httpContext)) {
+    if (!(await this.configurationRepository.isAdminReq(this.httpContext))) {
       throw new HttpErrors[403]('Forbidden');
     }
     if (

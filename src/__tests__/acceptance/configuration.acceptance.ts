@@ -42,7 +42,9 @@ describe('GET /configuration', function () {
     expect(res.status).equal(403);
   });
   it('should be allowed by admin user', async function () {
-    sinon.stub(ConfigurationRepository.prototype, 'isAdminReq').returns(true);
+    sinon
+      .stub(ConfigurationRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
     const res = await client.get('/api/configurations');
     expect(res.status).equal(200);
   });
