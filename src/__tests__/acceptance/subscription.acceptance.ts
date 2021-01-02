@@ -2,6 +2,7 @@ import {Client, expect} from '@loopback/testlab';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {SubscriptionRepository} from '../../repositories';
+import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
 
 let app: NotifyBcApplication;
@@ -57,9 +58,11 @@ describe.only('GET /subscriptions', function () {
   });
 
   it('should be allowed by admin users', async function () {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
-      return true;
-    });
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(function () {
+        return true;
+      });
     const res = await client.get('/api/subscriptions');
     expect(res.status).equal(200);
     expect(res.body.length).equal(1);
@@ -70,7 +73,7 @@ describe.only('GET /subscriptions', function () {
 /*
 describe('POST /subscriptions', function () {
   it('should allow admin users create subscriptions without sending confirmation request', async function () {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
       return true;
     });
     let res = await client
@@ -97,7 +100,7 @@ describe('POST /subscriptions', function () {
   });
 
   it('should allow admin users create subscriptions and send confirmation request with proper mail merge', async function () {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
       return true;
     });
     let res = await client
@@ -189,7 +192,7 @@ describe('POST /subscriptions', function () {
   });
 
   it('should generate unsubscription code for subscriptions created by admin user', async function () {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
       return true;
     });
     let res = await client
@@ -212,7 +215,7 @@ describe('POST /subscriptions', function () {
   });
 
   it('should generate unsubscription code for subscriptions created by admin user with confirmationRequest field populated', async function () {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
       return true;
     });
     let res = await client
@@ -347,7 +350,7 @@ describe('POST /subscriptions', function () {
   });
 
   it('should detect duplicated subscription', async function () {
-    sinon.stub(subscriptionRepository, 'getMergedConfig').callsFake(
+    sinon.stub(BaseController.prototype, 'getMergedConfig').callsFake(
       async function () {
         const res = {
           detectDuplicatedSubscription: true,
@@ -750,7 +753,7 @@ describe('DELETE /subscriptions/{id}', function () {
   });
 
   it('should redirect onscreen acknowledgements with error', async function () {
-    sinon.stub(subscriptionRepository, 'getMergedConfig').callsFake(
+    sinon.stub(BaseController.prototype, 'getMergedConfig').callsFake(
       async function () {
         return {
           anonymousUnsubscription: {
@@ -778,7 +781,7 @@ describe('DELETE /subscriptions/{id}', function () {
   });
 
   it('should display onScreen acknowledgements failureMessage', async function () {
-    sinon.stub(subscriptionRepository, 'getMergedConfig').callsFake(
+    sinon.stub(BaseController.prototype, 'getMergedConfig').callsFake(
       async function () {
         return {
           anonymousUnsubscription: {
@@ -849,7 +852,7 @@ describe('GET /subscriptions/{id}/unsubscribe', function () {
   });
 
   it('should allow bulk unsubscribing all services', async function () {
-    sinon.stub(subscriptionRepository, 'getMergedConfig').callsFake(
+    sinon.stub(BaseController.prototype, 'getMergedConfig').callsFake(
       async function () {
         return {
           anonymousUnsubscription: {
@@ -1068,7 +1071,7 @@ describe('PUT /subscriptions/{id}', function () {
     });
   });
   it('should allow admin user replace subscription', async function () {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
       return true;
     });
     let res = await client
@@ -1121,7 +1124,7 @@ describe('GET /subscriptions/services', function () {
     });
   });
   it(`should allow admin user's access`, async function () {
-    sinon.stub(subscriptionRepository, 'isAdminReq').callsFake(function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(function () {
       return true;
     });
     let res = await client
