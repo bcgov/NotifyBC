@@ -89,7 +89,7 @@ export class SubscriptionController extends BaseController {
     }
     await this.handleConfirmationRequest(
       this.httpContext,
-      Object.assign({}, result, subscription),
+      Object.assign({}, subscription, result),
     );
     return result;
   }
@@ -145,11 +145,13 @@ export class SubscriptionController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() subscription: DataObject<Subscription>,
   ): Promise<Subscription> {
-    const instance = await this.subscriptionRepository.findById(
-      id,
-      undefined,
+    const instance = await this.subscriptionRepository.findOne(
+      {where: {id: id}},
       undefined,
     );
+    if (!instance) {
+      throw new HttpErrors[404]();
+    }
     const filteredData = _.merge({}, instance);
     if (
       subscription.userChannelId &&
@@ -227,11 +229,11 @@ export class SubscriptionController extends BaseController {
     @param(SubscriptionController.additionalServicesParamSpec)
     additionalServices?: string[],
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findById(
-      id,
-      undefined,
+    const instance = await this.subscriptionRepository.findOne(
+      {where: {id}},
       undefined,
     );
+    if (!instance) throw new HttpErrors[404]();
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,
@@ -501,11 +503,11 @@ export class SubscriptionController extends BaseController {
     })
     replace?: boolean,
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findById(
-      id,
-      undefined,
+    const instance = await this.subscriptionRepository.findOne(
+      {where: {id}},
       undefined,
     );
+    if (!instance) throw new HttpErrors[404]();
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,
@@ -615,11 +617,11 @@ export class SubscriptionController extends BaseController {
     })
     unsubscriptionCode?: string,
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findById(
-      id,
-      undefined,
+    const instance = await this.subscriptionRepository.findOne(
+      {where: {id}},
       undefined,
     );
+    if (!instance) throw new HttpErrors[404]();
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
       instance.serviceName,

@@ -470,7 +470,7 @@ describe('POST /subscriptions', function () {
   });
 });
 
-describe.only('PATCH /subscriptions/{id}', function () {
+describe('PATCH /subscriptions/{id}', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({
       serviceName: 'myService',
@@ -500,7 +500,7 @@ describe.only('PATCH /subscriptions/{id}', function () {
     expect(res.body.state).equal('unconfirmed');
     expect(res.body.userChannelId).equal('baz@foo.com');
   });
-  it.only("should deny sm user from changing other user's subscription", async function () {
+  it("should deny sm user from changing other user's subscription", async function () {
     const res = await client
       .patch('/api/subscriptions/1')
       .send({

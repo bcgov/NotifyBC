@@ -181,8 +181,11 @@ export class NotificationController extends BaseController {
     @param.path.string('id') id: string,
     @param.filter(Notification, {exclude: 'where'})
     filter?: FilterExcludingWhere<Notification>,
-  ): Promise<Notification> {
-    return this.notificationRepository.findById(id, filter, undefined);
+  ): Promise<Notification | null> {
+    return this.notificationRepository.findOne(
+      Object.assign({}, {where: {id}}, filter),
+      undefined,
+    );
   }
 
   @patch('/notifications/{id}', {
@@ -216,12 +219,11 @@ export class NotificationController extends BaseController {
       if (!currUser) {
         throw new HttpErrors[403]('Forbidden');
       }
-      const instance = await this.notificationRepository.findById(
-        id,
-        undefined,
+      const instance = await this.notificationRepository.findOne(
+        {where: {id}},
         undefined,
       );
-      if (instance.channel !== 'inApp') {
+      if (instance?.channel !== 'inApp') {
         throw new HttpErrors[403]('Forbidden');
       }
       if (!notification.state) {
@@ -279,11 +281,11 @@ export class NotificationController extends BaseController {
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    const data = await this.notificationRepository.findById(
-      id,
-      undefined,
+    const data = await this.notificationRepository.findOne(
+      {where: {id}},
       undefined,
     );
+    if (!data) throw new HttpErrors[404]();
     data.state = 'deleted';
     await this.updateById(id, data);
   }
@@ -300,11 +302,11 @@ export class NotificationController extends BaseController {
     @param.path.string('id') id: string,
     @param.query.integer('start') startIdx: number,
   ) {
-    const notification = await this.notificationRepository.findById(
-      id,
-      undefined,
+    const notification = await this.notificationRepository.findOne(
+      {where: {id}},
       undefined,
     );
+    if (!notification) throw new HttpErrors[404]();
     this.httpContext.bind('args').to({data: notification});
     this.httpContext.bind('NotifyBC.startIdx').to(startIdx);
     return this.sendPushNotification(notification);

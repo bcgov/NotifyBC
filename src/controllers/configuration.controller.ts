@@ -144,8 +144,11 @@ export class ConfigurationController extends BaseController {
     @param.path.string('id') id: string,
     @param.filter(Configuration, {exclude: 'where'})
     filter?: FilterExcludingWhere<Configuration>,
-  ): Promise<Configuration> {
-    return this.configurationRepository.findById(id, filter, undefined);
+  ): Promise<Configuration | null> {
+    return this.configurationRepository.findOne(
+      Object.assign({}, {where: {id}}, filter),
+      undefined,
+    );
   }
 
   @patch('/configurations/{id}', {

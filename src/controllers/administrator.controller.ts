@@ -130,8 +130,11 @@ export class AdministratorController {
     @param.path.string('id') id: string,
     @param.filter(Administrator, {exclude: 'where'})
     filter?: FilterExcludingWhere<Administrator>,
-  ): Promise<Administrator> {
-    return this.administratorRepository.findById(id, filter, undefined);
+  ): Promise<Administrator | null> {
+    return this.administratorRepository.findOne(
+      Object.assign({}, {where: {id: id}}, filter),
+      undefined,
+    );
   }
 
   @patch('/administrators/{id}', {

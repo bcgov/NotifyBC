@@ -137,8 +137,11 @@ export class BounceController extends BaseController {
     @param.path.string('id') id: string,
     @param.filter(Bounce, {exclude: 'where'})
     filter?: FilterExcludingWhere<Bounce>,
-  ): Promise<Bounce> {
-    return this.bounceRepository.findById(id, filter, undefined);
+  ): Promise<Bounce | null> {
+    return this.bounceRepository.findOne(
+      Object.assign({}, {where: {id: id}}, filter),
+      undefined,
+    );
   }
 
   @patch('/bounces/{id}', {
