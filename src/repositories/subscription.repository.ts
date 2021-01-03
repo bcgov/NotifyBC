@@ -10,7 +10,6 @@ import {DbDataSource} from '../datasources';
 import {
   RepositoryBeforeSaveInterceptor,
   SubscriptionAccessInterceptor,
-  SubscriptionAfterRemoteInterceptor,
   SubscriptionBeforeSaveInterceptor,
 } from '../interceptors';
 import {Subscription} from '../models';
@@ -18,7 +17,6 @@ import {BaseCrudRepository} from './baseCrudRepository';
 
 @intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
 @intercept(SubscriptionBeforeSaveInterceptor.BINDING_KEY)
-@intercept(SubscriptionAfterRemoteInterceptor.BINDING_KEY)
 @intercept(SubscriptionAccessInterceptor.BINDING_KEY)
 export class SubscriptionRepository extends BaseCrudRepository<
   Subscription,

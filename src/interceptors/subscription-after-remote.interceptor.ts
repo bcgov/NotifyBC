@@ -6,7 +6,7 @@ import {
   Provider,
   ValueOrPromise,
 } from '@loopback/core';
-import {SubscriptionRepository} from '../repositories';
+import {SubscriptionController} from '../controllers';
 
 /**
  * This class will be bound to the application as an `Interceptor` during
@@ -45,9 +45,9 @@ export class SubscriptionAfterRemoteInterceptor
     // Add pre-invocation logic here
     const data = await next();
     // Add post-invocation logic here
-    const targetInstance = invocationCtx.target as SubscriptionRepository;
+    const targetInstance = invocationCtx.target as SubscriptionController;
     if (
-      await targetInstance.isAdminReq(
+      await targetInstance.configurationRepository.isAdminReq(
         invocationCtx.parent,
         undefined,
         undefined,

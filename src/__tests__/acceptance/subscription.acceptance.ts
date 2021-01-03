@@ -2,6 +2,7 @@ import {Client, expect} from '@loopback/testlab';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {axios, BaseController} from '../../controllers/base.controller';
+import {Subscription} from '../../models';
 import {SubscriptionRepository} from '../../repositories';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
@@ -520,62 +521,47 @@ describe('PATCH /subscriptions/{id}', function () {
     expect(res.status).equal(403);
   });
 });
-/*
+
 describe('GET /subscriptions/{id}/verify', function () {
-  let data;
+  let data: Subscription[];
   beforeEach(async function () {
-    data = await parallel([
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userId: 'bar',
-            userChannelId: 'bar@foo.com',
-            state: 'unconfirmed',
-            confirmationRequest: {
-              confirmationCode: '37688',
-            },
+    data = await Promise.all([
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userId: 'bar',
+          userChannelId: 'bar@foo.com',
+          state: 'unconfirmed',
+          confirmationRequest: {
+            confirmationCode: '37688',
           },
-          function (err, res) {
-            cb(err, res);
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'unconfirmed',
+          confirmationRequest: {
+            confirmationCode: '37689',
           },
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'unconfirmed',
-            confirmationRequest: {
-              confirmationCode: '37689',
-            },
-          },
-          function (err, res) {
-            cb(err, res);
-          },
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'confirmed',
-          },
-          function (err, res) {
-            cb(err, res);
-          },
-        );
-      },
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+        });
+      })(),
     ]);
   });
 
   it('should verify confirmation code sent by sm user', async function () {
-    let res = await client
+    let res: any = await client
       .get(
         '/api/subscriptions/' + data[0].id + '/verify?confirmationCode=37688',
       )
@@ -587,7 +573,7 @@ describe('GET /subscriptions/{id}/verify', function () {
   });
 
   it('should verify confirmation code sent by anonymous user', async function () {
-    let res = await client.get(
+    let res: any = await client.get(
       '/api/subscriptions/' + data[1].id + '/verify?confirmationCode=37689',
     );
     expect(res.status).equal(200);
@@ -596,7 +582,7 @@ describe('GET /subscriptions/{id}/verify', function () {
   });
 
   it('should deny incorrect confirmation code', async function () {
-    let res = await client.get(
+    let res: any = await client.get(
       '/api/subscriptions/' + data[1].id + '/verify?confirmationCode=0000',
     );
     expect(res.status).equal(403);
@@ -605,7 +591,7 @@ describe('GET /subscriptions/{id}/verify', function () {
   });
 
   it('should unsubscribe existing subscriptions when replace paramter is supplied', async function () {
-    let res = await client.get(
+    let res: any = await client.get(
       '/api/subscriptions/' +
         data[1].id +
         '/verify?confirmationCode=37689&replace=true',
@@ -615,7 +601,7 @@ describe('GET /subscriptions/{id}/verify', function () {
     expect(res.state).equal('deleted');
   });
 });
-
+/*
 describe('DELETE /subscriptions/{id}', function () {
   let data;
   beforeEach(async function () {
