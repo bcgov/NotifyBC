@@ -228,10 +228,10 @@ export class SubscriptionController extends BaseController {
     @param(SubscriptionController.additionalServicesParamSpec)
     additionalServices?: string[],
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findOne(
+    let instance = (await this.subscriptionRepository.findOne(
       {where: {id}},
       undefined,
-    );
+    )) as Subscription;
     if (!instance) throw new HttpErrors[404]();
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
@@ -351,6 +351,11 @@ export class SubscriptionController extends BaseController {
           },
           undefined,
         );
+        instance = (await this.subscriptionRepository.findOne(
+          {where: {id}},
+          undefined,
+        )) as Subscription;
+        if (!instance) throw new HttpErrors[404]();
         await handleUnsubscriptionResponse();
       };
       if (!additionalServices) {
@@ -502,10 +507,10 @@ export class SubscriptionController extends BaseController {
     })
     replace?: boolean,
   ): Promise<void> {
-    const instance = await this.subscriptionRepository.findOne(
+    let instance = (await this.subscriptionRepository.findOne(
       {where: {id}},
       undefined,
-    );
+    )) as Subscription;
     if (!instance) throw new HttpErrors[404]();
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
@@ -588,6 +593,10 @@ export class SubscriptionController extends BaseController {
         },
         undefined,
       );
+      instance = (await this.subscriptionRepository.findOne(
+        {where: {id}},
+        undefined,
+      )) as Subscription;
     } catch (err) {
       return await handleConfirmationAcknowledgement(err);
     }

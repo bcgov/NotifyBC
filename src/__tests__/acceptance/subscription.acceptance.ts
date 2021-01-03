@@ -827,53 +827,45 @@ describe('DELETE /subscriptions/{id}', function () {
     expect(res.type).equal('text/plain');
   });
 });
-/*
+
 describe('GET /subscriptions/{id}/unsubscribe', function () {
-  let data;
+  let data: Subscription[];
   beforeEach(async function () {
-    data = await parallel([
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService1',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'confirmed',
-            unsubscriptionCode: '12345',
-          },
-          cb,
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService2',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'confirmed',
-            unsubscriptionCode: '54321',
-          },
-          cb,
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService3',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'confirmed',
-            unsubscriptionCode: '11111',
-          },
-          cb,
-        );
-      },
+    data = await Promise.all([
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService1',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          unsubscriptionCode: '12345',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService2',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          unsubscriptionCode: '54321',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService3',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          unsubscriptionCode: '11111',
+        });
+      })(),
     ]);
   });
 
   it('should allow bulk unsubscribing all services', async function () {
-    sinon.stub(BaseController.prototype, 'getMergedConfig').callsFake(
-      async function () {
+    sinon
+      .stub(BaseController.prototype, 'getMergedConfig')
+      .callsFake(async function () {
         return {
           anonymousUnsubscription: {
             acknowledgements: {
@@ -889,10 +881,9 @@ describe('GET /subscriptions/{id}/unsubscribe', function () {
             },
           },
         };
-      },
-    );
+      });
 
-    let res = await client.get(
+    let res: any = await client.get(
       '/api/subscriptions/' +
         data[0].id +
         '/unsubscribe?unsubscriptionCode=12345&additionalServices=_all',
@@ -906,12 +897,15 @@ describe('GET /subscriptions/{id}/unsubscribe', function () {
     expect(res.length).equal(3);
     sinon.assert.calledWith(
       BaseController.prototype.sendEmail as sinon.SinonStub,
-      sinon.match.has('text', sinon.match('services myService1, myService2 and myService3')),
+      sinon.match.has(
+        'text',
+        sinon.match('services myService1, myService2 and myService3'),
+      ),
     );
   });
 
   it('should allow bulk unsubscribing selected additional service', async function () {
-    let res = await client.get(
+    let res: any = await client.get(
       '/api/subscriptions/' +
         data[0].id +
         '/unsubscribe?unsubscriptionCode=12345&additionalServices=myService3',
@@ -926,10 +920,10 @@ describe('GET /subscriptions/{id}/unsubscribe', function () {
   });
 
   it('should allow bulk unsubscribing selected additional service as an array', async function () {
-    let res = await client.get(
+    let res: any = await client.get(
       '/api/subscriptions/' +
         data[0].id +
-        '/unsubscribe?unsubscriptionCode=12345&additionalServices=["myService3"]',
+        '/unsubscribe?unsubscriptionCode=12345&additionalServices[]=myService3',
     );
     expect(res.status).equal(200);
     res = await subscriptionRepository.find({
@@ -940,7 +934,7 @@ describe('GET /subscriptions/{id}/unsubscribe', function () {
     expect(res.length).equal(2);
   });
 });
-
+/*
 describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
   let data;
   beforeEach(async function () {
