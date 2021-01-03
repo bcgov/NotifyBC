@@ -3,16 +3,23 @@ import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {axios, BaseController} from '../../controllers/base.controller';
 import {Subscription} from '../../models';
-import {SubscriptionRepository} from '../../repositories';
+import {
+  ConfigurationRepository,
+  SubscriptionRepository,
+} from '../../repositories';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
 
 let app: NotifyBcApplication;
 let subscriptionRepository: SubscriptionRepository;
+let configurationRepository: ConfigurationRepository;
 let client: Client;
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
+  configurationRepository = await app.get(
+    'repositories.ConfigurationRepository',
+  );
 });
 
 describe('GET /subscriptions', function () {
@@ -601,123 +608,99 @@ describe('GET /subscriptions/{id}/verify', function () {
     expect(res.state).equal('deleted');
   });
 });
-/*
+
 describe('DELETE /subscriptions/{id}', function () {
-  let data;
+  let data: any[];
   beforeEach(async function () {
-    data = await parallel([
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userId: 'bar',
-            userChannelId: 'bar@foo.com',
-            state: 'confirmed',
-            confirmationRequest: {
-              confirmationCodeRegex: '\\d{5}',
-              sendRequest: true,
-              from: 'no_reply@invlid.local',
-              subject: 'Subscription confirmation',
-              textBody: 'enter {confirmation_code} in this email',
-              confirmationCode: '37688',
-            },
+    data = await Promise.all([
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userId: 'bar',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          confirmationRequest: {
+            confirmationCodeRegex: '\\d{5}',
+            sendRequest: true,
+            from: 'no_reply@invlid.local',
+            subject: 'Subscription confirmation',
+            textBody: 'enter {confirmation_code} in this email',
+            confirmationCode: '37688',
           },
-          function (err, res) {
-            cb(err, res);
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          confirmationRequest: {
+            confirmationCodeRegex: '\\d{5}',
+            sendRequest: true,
+            from: 'no_reply@invlid.local',
+            subject: 'Subscription confirmation',
+            textBody: 'enter {confirmation_code} in this email',
+            confirmationCode: '37689',
           },
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'confirmed',
-            confirmationRequest: {
-              confirmationCodeRegex: '\\d{5}',
-              sendRequest: true,
-              from: 'no_reply@invlid.local',
-              subject: 'Subscription confirmation',
-              textBody: 'enter {confirmation_code} in this email',
-              confirmationCode: '37689',
-            },
-            unsubscriptionCode: '50032',
+          unsubscriptionCode: '50032',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'unconfirmed',
+          confirmationRequest: {
+            confirmationCodeRegex: '\\d{5}',
+            sendRequest: true,
+            from: 'no_reply@invlid.local',
+            subject: 'Subscription confirmation',
+            textBody: 'enter {confirmation_code} in this email',
+            confirmationCode: '37689',
           },
-          function (err, res) {
-            cb(err, res);
-          },
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'unconfirmed',
-            confirmationRequest: {
-              confirmationCodeRegex: '\\d{5}',
-              sendRequest: true,
-              from: 'no_reply@invlid.local',
-              subject: 'Subscription confirmation',
-              textBody: 'enter {confirmation_code} in this email',
-              confirmationCode: '37689',
-            },
-          },
-          function (err, res) {
-            cb(err, res);
-          },
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'redirectAck',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'confirmed',
-            unsubscriptionCode: '12345',
-          },
-          cb,
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'redirectAck',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'deleted',
-            unsubscriptionCode: '12345',
-          },
-          cb,
-        );
-      },
-      function (cb) {
-        app.models.Configuration.create(
-          {
-            name: 'subscription',
-            serviceName: 'redirectAck',
-            value: {
-              anonymousUnsubscription: {
-                acknowledgements: {
-                  onScreen: {
-                    redirectUrl: 'http://nowhere',
-                  },
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'redirectAck',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          unsubscriptionCode: '12345',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'redirectAck',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'deleted',
+          unsubscriptionCode: '12345',
+        });
+      })(),
+      (async () => {
+        return configurationRepository.create({
+          name: 'subscription',
+          serviceName: 'redirectAck',
+          value: {
+            anonymousUnsubscription: {
+              acknowledgements: {
+                onScreen: {
+                  redirectUrl: 'http://nowhere',
                 },
               },
             },
           },
-          cb,
-        );
-      },
+        });
+      })(),
     ]);
   });
 
   it('should allow unsubscription by sm user', async function () {
-    let res = await client
+    let res: any = await client
       .delete('/api/subscriptions/' + data[0].id)
       .set('Accept', 'application/json')
       .set('SM_USER', 'bar');
@@ -727,7 +710,7 @@ describe('DELETE /subscriptions/{id}', function () {
   });
 
   it('should allow unsubscription by anonymous user', async function () {
-    let res = await client
+    let res: any = await client
       .get(
         '/api/subscriptions/' +
           data[1].id +
@@ -740,7 +723,7 @@ describe('DELETE /subscriptions/{id}', function () {
   });
 
   it('should deny unsubscription by anonymous user with incorrect unsubscriptionCode', async function () {
-    let res = await client
+    let res: any = await client
       .get(
         '/api/subscriptions/' +
           data[1].id +
@@ -753,7 +736,7 @@ describe('DELETE /subscriptions/{id}', function () {
   });
 
   it('should deny unsubscription if state is not confirmed', async function () {
-    let res = await client
+    let res: any = await client
       .get(
         '/api/subscriptions/' +
           data[2].id +
@@ -766,7 +749,7 @@ describe('DELETE /subscriptions/{id}', function () {
   });
 
   it('should deny unsubscription by another sm user', async function () {
-    let res = await client
+    let res: any = await client
       .delete('/api/subscriptions/' + data[0].id)
       .set('Accept', 'application/json')
       .set('SM_USER', 'baz');
@@ -776,7 +759,7 @@ describe('DELETE /subscriptions/{id}', function () {
   });
 
   it('should redirect onscreen acknowledgements', async function () {
-    let res = await client
+    let res: any = await client
       .get(
         '/api/subscriptions/' +
           data[3].id +
@@ -790,8 +773,9 @@ describe('DELETE /subscriptions/{id}', function () {
   });
 
   it('should redirect onscreen acknowledgements with error', async function () {
-    sinon.stub(BaseController.prototype, 'getMergedConfig').callsFake(
-      async function () {
+    sinon
+      .stub(BaseController.prototype, 'getMergedConfig')
+      .callsFake(async function () {
         return {
           anonymousUnsubscription: {
             acknowledgements: {
@@ -801,10 +785,9 @@ describe('DELETE /subscriptions/{id}', function () {
             },
           },
         };
-      },
-    );
+      });
 
-    let res = await client
+    const res = await client
       .get(
         '/api/subscriptions/' +
           data[4].id +
@@ -813,13 +796,14 @@ describe('DELETE /subscriptions/{id}', function () {
       .set('Accept', 'application/json');
     expect(res.status).equal(302);
     expect(res.header.location).equal(
-      'http://nowhere?channel=email&err=Error%3A%20Forbidden',
+      'http://nowhere?channel=email&err=ForbiddenError%3A%20Forbidden',
     );
   });
 
   it('should display onScreen acknowledgements failureMessage', async function () {
-    sinon.stub(BaseController.prototype, 'getMergedConfig').callsFake(
-      async function () {
+    sinon
+      .stub(BaseController.prototype, 'getMergedConfig')
+      .callsFake(async function () {
         return {
           anonymousUnsubscription: {
             acknowledgements: {
@@ -829,10 +813,9 @@ describe('DELETE /subscriptions/{id}', function () {
             },
           },
         };
-      },
-    );
+      });
 
-    let res = await client
+    const res = await client
       .get(
         '/api/subscriptions/' +
           data[4].id +
@@ -844,7 +827,7 @@ describe('DELETE /subscriptions/{id}', function () {
     expect(res.type).equal('text/plain');
   });
 });
-
+/*
 describe('GET /subscriptions/{id}/unsubscribe', function () {
   let data;
   beforeEach(async function () {

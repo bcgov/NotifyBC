@@ -271,7 +271,7 @@ export class SubscriptionController extends BaseController {
         forbidden = true;
       }
       if (forbidden) {
-        throw new HttpErrors[403]('Forbidden');
+        throw new HttpErrors[403]();
       }
       const unsubscribeItems = async (
         query: Where<Subscription>,
@@ -552,9 +552,7 @@ export class SubscriptionController extends BaseController {
       (instance.confirmationRequest &&
         confirmationCode !== instance.confirmationRequest.confirmationCode)
     ) {
-      return handleConfirmationAcknowledgement(
-        new HttpErrors[403]('Forbidden'),
-      );
+      return handleConfirmationAcknowledgement(new HttpErrors[403]());
     }
     try {
       if (replace && instance.userChannelId) {
@@ -639,7 +637,7 @@ export class SubscriptionController extends BaseController {
           instance.unsubscriptionCode &&
           unsubscriptionCode !== instance.unsubscriptionCode
         ) {
-          throw new HttpErrors[403]('Forbidden');
+          throw new HttpErrors[403]();
         }
         if (
           (await this.subscriptionRepository.getCurrentUser(
@@ -647,7 +645,7 @@ export class SubscriptionController extends BaseController {
           )) ||
           instance.state !== 'deleted'
         ) {
-          throw new HttpErrors[403]('Forbidden');
+          throw new HttpErrors[403]();
         }
       }
       const revertItems = async (query: Where<Subscription>) => {
@@ -736,7 +734,7 @@ export class SubscriptionController extends BaseController {
         undefined,
       ))
     ) {
-      throw new HttpErrors[403]('Forbidden');
+      throw new HttpErrors[403]();
     }
     const subscriptionCollection = this.subscriptionRepository.dataSource.connector?.collection(
       Subscription.modelName,
@@ -816,14 +814,14 @@ export class SubscriptionController extends BaseController {
     }
     */
     if (this.appConfig['smsServiceProvider'] !== 'swift') {
-      throw new HttpErrors[403]('Forbidden');
+      throw new HttpErrors[403]();
     }
     const smsConfig = this.appConfig.sms;
     if (!smsConfig || !smsConfig.swift || !smsConfig.swift.notifyBCSwiftKey) {
-      throw new HttpErrors[403]('Forbidden');
+      throw new HttpErrors[403]();
     }
     if (smsConfig.swift.notifyBCSwiftKey !== body.notifyBCSwiftKey) {
-      throw new HttpErrors[403]('Forbidden');
+      throw new HttpErrors[403]();
     }
     const whereClause: Where<Subscription> = {
       state: 'confirmed',
@@ -833,7 +831,7 @@ export class SubscriptionController extends BaseController {
       whereClause.id = body.Reference;
     } else {
       if (!body.PhoneNumber) {
-        throw new HttpErrors[403]('Forbidden');
+        throw new HttpErrors[403]();
       }
       const phoneNumberArr = body.PhoneNumber.split('');
       // country code is optional

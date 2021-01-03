@@ -51,7 +51,7 @@ export class AuthenticatedOrAdminInterceptor implements Provider<Interceptor> {
         invocationCtx.parent,
       ))
     ) {
-      throw new HttpErrors[403]('Forbidden');
+      throw new HttpErrors[403]();
     }
     const result = await next();
     // Add post-invocation logic here

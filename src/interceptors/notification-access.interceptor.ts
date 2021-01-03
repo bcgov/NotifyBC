@@ -95,7 +95,7 @@ export class NotificationAccessInterceptor implements Provider<Interceptor> {
     } else if (
       !(await notificationRepository.isAdminReq(httpCtx, undefined, undefined))
     ) {
-      throw new HttpErrors[403]('Forbidden');
+      throw new HttpErrors[403]();
     }
     const result = await next();
     // Add post-invocation logic here

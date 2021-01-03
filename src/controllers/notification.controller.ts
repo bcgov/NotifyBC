@@ -217,14 +217,14 @@ export class NotificationController extends BaseController {
     if (!(await this.configurationRepository.isAdminReq(ctx))) {
       const currUser = await this.configurationRepository.getCurrentUser(ctx);
       if (!currUser) {
-        throw new HttpErrors[403]('Forbidden');
+        throw new HttpErrors[403]();
       }
       const instance = await this.notificationRepository.findOne(
         {where: {id}},
         undefined,
       );
       if (instance?.channel !== 'inApp') {
-        throw new HttpErrors[403]('Forbidden');
+        throw new HttpErrors[403]();
       }
       if (!notification.state) {
         throw new HttpErrors[400]();
@@ -819,7 +819,7 @@ export class NotificationController extends BaseController {
 
   public async preCreationValidation(data: Partial<Notification>) {
     if (!(await this.configurationRepository.isAdminReq(this.httpContext))) {
-      throw new HttpErrors[403]('Forbidden');
+      throw new HttpErrors[403]();
     }
     if (
       !data.isBroadcast &&

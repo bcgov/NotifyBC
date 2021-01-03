@@ -49,7 +49,7 @@ export class AdminInterceptor implements Provider<Interceptor> {
         undefined,
       ))
     ) {
-      throw new HttpErrors[403]('Forbidden');
+      throw new HttpErrors[403]();
     }
 
     const result = await next();
