@@ -1109,7 +1109,7 @@ describe('PUT /subscriptions/{id}', function () {
     expect(res.status).equal(403);
   });
 });
-/*
+
 describe('GET /subscriptions/services', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({
@@ -1130,23 +1130,25 @@ describe('GET /subscriptions/services', function () {
     });
   });
   it(`should allow admin user's access`, async function () {
-    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(async () => {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => {
+        return true;
+      });
+    const res = await client
       .get('/api/subscriptions/services')
       .set('Accept', 'application/json');
     expect(res.body instanceof Array).equal(true);
     expect(res.body.length).equal(1);
   });
   it("should deny anonymous user's access", async function () {
-    let res = await client
+    const res = await client
       .get('/api/subscriptions/services')
       .set('Accept', 'application/json');
     expect(res.status).equal(403);
   });
 });
-
+/*
 describe('POST /subscriptions/swift', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({
