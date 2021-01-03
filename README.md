@@ -1,10 +1,9 @@
-* [![Build Status](https://jenkins-gcpe-notifybc-tools.pathfinder.gov.bc.ca/buildStatus/icon?job=notify-bc-dev)](https://jenkins-gcpe-notifybc-tools.pathfinder.gov.bc.ca/job/notify-bc-dev/) deploying to OpenShift 
-* [![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+- [![Build Status](https://jenkins-gcpe-notifybc-tools.pathfinder.gov.bc.ca/buildStatus/icon?job=notify-bc-dev)](https://jenkins-gcpe-notifybc-tools.pathfinder.gov.bc.ca/job/notify-bc-dev/) deploying to OpenShift
+- [![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
-NotifyBC
-===========
+# NotifyBC
 
-A general purpose notification subscription API Server supporting multi-channel delivery. The application is designed for MyGovBC but can be used independently. See **[full documentation](https://bcgov.github.io/NotifyBC/)**.
+A general purpose notification subscription API Server supporting multi-channel delivery. See **[full documentation](https://bcgov.github.io/NotifyBC/)**.
 
 ## License
 
@@ -12,7 +11,7 @@ A general purpose notification subscription API Server supporting multi-channel 
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at 
+    You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
