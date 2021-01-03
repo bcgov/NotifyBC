@@ -934,66 +934,55 @@ describe('GET /subscriptions/{id}/unsubscribe', function () {
     expect(res.length).equal(2);
   });
 });
-/*
+
 describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
-  let data;
+  let data: Subscription[];
   beforeEach(async function () {
-    data = await parallel([
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'deleted',
-            unsubscriptionCode: '50032',
+    data = await Promise.all([
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'deleted',
+          unsubscriptionCode: '50032',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'unconfirmed',
+          confirmationRequest: {
+            confirmationCodeRegex: '\\d{5}',
+            sendRequest: true,
+            from: 'no_reply@invlid.local',
+            subject: 'Subscription confirmation',
+            textBody: 'enter {confirmation_code} in this email',
+            confirmationCode: '37689',
           },
-          cb,
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'unconfirmed',
-            confirmationRequest: {
-              confirmationCodeRegex: '\\d{5}',
-              sendRequest: true,
-              from: 'no_reply@invlid.local',
-              subject: 'Subscription confirmation',
-              textBody: 'enter {confirmation_code} in this email',
-              confirmationCode: '37689',
-            },
-            unsubscriptionCode: '50032',
+          unsubscriptionCode: '50032',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService2',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'deleted',
+          unsubscriptionCode: '12345',
+          unsubscribedAdditionalServices: {
+            names: ['myService'],
+            ids: [1],
           },
-          function (err, res) {
-            cb(err, res);
-          },
-        );
-      },
-      function (cb) {
-        subscriptionRepository.create(
-          {
-            serviceName: 'myService2',
-            channel: 'email',
-            userChannelId: 'bar@foo.com',
-            state: 'deleted',
-            unsubscriptionCode: '12345',
-            unsubscribedAdditionalServices: {
-              names: ['myService'],
-              ids: [1],
-            },
-          },
-          cb,
-        );
-      },
+        });
+      })(),
     ]);
   });
 
   it('should allow undelete subscription by anonymous user', async function () {
-    let res = await client
+    let res: any = await client
       .get(
         '/api/subscriptions/' +
           data[0].id +
@@ -1006,7 +995,7 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
   });
 
   it('should forbid undelete subscription by anonymous user with incorrect unsubscriptionCode', async function () {
-    let res = await client
+    let res: any = await client
       .get(
         '/api/subscriptions/' +
           data[0].id +
@@ -1019,7 +1008,7 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
   });
 
   it('should forbid undelete subscription where state is not deleted', async function () {
-    let res = await client
+    let res: any = await client
       .get(
         '/api/subscriptions/' +
           data[1].id +
@@ -1032,7 +1021,7 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
   });
 
   it('should redirect response if set so', async function () {
-    await app.models.Configuration.create({
+    await configurationRepository.create({
       name: 'subscription',
       serviceName: 'myService',
       value: {
@@ -1041,7 +1030,7 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
         },
       },
     });
-    let res = await client.get(
+    let res: any = await client.get(
       '/api/subscriptions/' +
         data[0].id +
         '/unsubscribe/undo?unsubscriptionCode=50032',
@@ -1053,7 +1042,7 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
   });
 
   it('should allow bulk undo unsubscriptions by anonymous user', async function () {
-    let res = await client.get(
+    let res: any = await client.get(
       '/api/subscriptions/' +
         data[2].id +
         '/unsubscribe/undo?unsubscriptionCode=12345',
@@ -1065,7 +1054,7 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
     expect(res.unsubscribedAdditionalServices).undefined();
   });
 });
-
+/*
 describe('PUT /subscriptions/{id}', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({
