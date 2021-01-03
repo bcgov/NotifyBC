@@ -83,6 +83,12 @@ export class NotificationController extends BaseController {
             exclude: ['id'],
           }),
         },
+        'application/x-www-form-urlencoded': {
+          schema: getModelSchemaRef(Notification, {
+            title: 'NewNotification',
+            exclude: ['id'],
+          }),
+        },
       },
     })
     notification: Omit<Notification, 'id'>,
@@ -206,6 +212,9 @@ export class NotificationController extends BaseController {
     @requestBody({
       content: {
         'application/json': {
+          schema: getModelSchemaRef(Notification, {partial: true}),
+        },
+        'application/x-www-form-urlencoded': {
           schema: getModelSchemaRef(Notification, {partial: true}),
         },
       },

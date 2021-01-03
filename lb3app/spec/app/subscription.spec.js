@@ -1,3 +1,4 @@
+//migration: done, to src\__tests__\acceptance\subscription.acceptance.ts
 let app;
 var request = require('supertest');
 var parallel = require('async/parallel');

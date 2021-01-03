@@ -807,6 +807,11 @@ export class SubscriptionController extends BaseController {
             type: 'object',
           },
         },
+        'application/json': {
+          schema: {
+            type: 'object',
+          },
+        },
       },
     })
     body: AnyObject,

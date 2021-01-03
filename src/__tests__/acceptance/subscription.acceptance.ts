@@ -1,3 +1,5 @@
+import {CoreBindings} from '@loopback/core';
+import {AnyObject} from '@loopback/repository';
 import {Client, expect} from '@loopback/testlab';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
@@ -1148,8 +1150,20 @@ describe('GET /subscriptions/services', function () {
     expect(res.status).equal(403);
   });
 });
-/*
+
 describe('POST /subscriptions/swift', function () {
+  let origConfig: AnyObject;
+  before(async function () {
+    origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        sms: {swift: {notifyBCSwiftKey: '12345'}},
+      }),
+    );
+  });
+  after(async function () {
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+  });
   beforeEach(async function () {
     await subscriptionRepository.create({
       serviceName: 'myService',
@@ -1160,17 +1174,7 @@ describe('POST /subscriptions/swift', function () {
     });
   });
   it(`should unsubscribe with valid id reference`, async function () {
-    let realGet = subscriptionRepository.app.get;
-    sinon.stub(subscriptionRepository.app, 'get').callsFake(function (param) {
-      if (param === 'sms') {
-        return {
-          swift: {notifyBCSwiftKey: '12345'},
-        };
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-    let res = await client.post('/api/subscriptions/swift').send({
+    let res: any = await client.post('/api/subscriptions/swift').send({
       Reference: 1,
       PhoneNumber: '12500000000',
       notifyBCSwiftKey: '12345',
@@ -1181,17 +1185,7 @@ describe('POST /subscriptions/swift', function () {
     expect(res.state).equal('deleted');
   });
   it(`should unsubscribe with valid phone number`, async function () {
-    let realGet = subscriptionRepository.app.get;
-    sinon.stub(subscriptionRepository.app, 'get').callsFake(function (param) {
-      if (param === 'sms') {
-        return {
-          swift: {notifyBCSwiftKey: '12345'},
-        };
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-    let res = await client.post('/api/subscriptions/swift').send({
+    let res: any = await client.post('/api/subscriptions/swift').send({
       PhoneNumber: '12500000000',
       notifyBCSwiftKey: '12345',
     });
@@ -1201,17 +1195,7 @@ describe('POST /subscriptions/swift', function () {
     expect(res.state).equal('deleted');
   });
   it(`should deny invalid Reference`, async function () {
-    let realGet = subscriptionRepository.app.get;
-    sinon.stub(subscriptionRepository.app, 'get').callsFake(function (param) {
-      if (param === 'sms') {
-        return {
-          swift: {notifyBCSwiftKey: '12345'},
-        };
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-    let res = await client.post('/api/subscriptions/swift').send({
+    let res: any = await client.post('/api/subscriptions/swift').send({
       Reference: 1,
       PhoneNumber: '12500000000',
       notifyBCSwiftKey: 'invalid',
@@ -1221,4 +1205,3 @@ describe('POST /subscriptions/swift', function () {
     expect(res.state).equal('confirmed');
   });
 });
-*/
