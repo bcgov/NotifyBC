@@ -1054,7 +1054,7 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
     expect(res.unsubscribedAdditionalServices).undefined();
   });
 });
-/*
+
 describe('PUT /subscriptions/{id}', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({
@@ -1075,10 +1075,12 @@ describe('PUT /subscriptions/{id}', function () {
     });
   });
   it('should allow admin user replace subscription', async function () {
-    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').callsFake(async () => {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => {
+        return true;
+      });
+    const res = await client
       .put('/api/subscriptions/1')
       .send({
         serviceName: 'myService',
@@ -1093,7 +1095,7 @@ describe('PUT /subscriptions/{id}', function () {
     expect(res.body.confirmationRequest).undefined();
   });
   it('should deny anonymous user replace subscription', async function () {
-    let res = await client
+    const res = await client
       .put('/api/subscriptions/1')
       .send({
         serviceName: 'myService',
@@ -1107,7 +1109,7 @@ describe('PUT /subscriptions/{id}', function () {
     expect(res.status).equal(403);
   });
 });
-
+/*
 describe('GET /subscriptions/services', function () {
   beforeEach(async function () {
     await subscriptionRepository.create({

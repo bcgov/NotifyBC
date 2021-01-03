@@ -172,16 +172,18 @@ export class SubscriptionController extends BaseController {
   @put('/subscriptions/{id}', {
     summary: 'replace a subscription',
     responses: {
-      '204': {
-        description: 'Subscription PUT success',
+      '200': {
+        description: 'Subscription model instance',
+        content: {'application/json': {schema: {'x-ts-type': Subscription}}},
       },
     },
   })
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() subscription: Subscription,
-  ): Promise<void> {
+  ): Promise<Subscription | null> {
     await this.subscriptionRepository.replaceById(id, subscription, undefined);
+    return this.subscriptionRepository.findOne({where: {id}}, undefined);
   }
 
   static readonly additionalServicesParamSpec: ParameterObject = {
