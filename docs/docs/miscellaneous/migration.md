@@ -15,3 +15,7 @@ In v1 array can be specified in query parameter using two formats
 2. by repeating the query parameters, for example `&additionalServices=s1&additionalServices=s2`
 
 In v2 only the latter format is supported.
+
+### Date-Time fields
+
+In v1 date-time fields can be specified in date-only string such as 2020-01-01. In v2 the field must be specified in ISO 8601 extended format such as 2020-01-01T00:00:00Z.

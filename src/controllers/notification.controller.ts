@@ -35,6 +35,7 @@ import {
   SubscriptionRepository,
 } from '../repositories';
 import {BaseController} from './base.controller';
+export {request};
 const jmespath = require('jmespath');
 const queue = require('async/queue');
 
@@ -344,12 +345,16 @@ export class NotificationController extends BaseController {
       }
       await this.bounceRepository.updateAll(
         {
+          latestNotificationStarted: dataNotification.updated,
+          latestNotificationEnded: new Date().toISOString(),
+        },
+        {
           state: 'active',
           channel: dataNotification.channel,
           userChannelId: userChannelIdQry,
           or: [
             {
-              latestNotificationStarted: undefined,
+              latestNotificationStarted: null,
             },
             {
               latestNotificationStarted: {
@@ -357,10 +362,6 @@ export class NotificationController extends BaseController {
               },
             },
           ],
-        },
-        {
-          latestNotificationStarted: dataNotification.updated,
-          latestNotificationEnded: Date.now(),
         },
         undefined,
       );

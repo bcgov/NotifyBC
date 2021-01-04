@@ -1,15 +1,29 @@
+import {CoreBindings} from '@loopback/core';
+import {AnyObject} from '@loopback/repository';
 import {Client, expect} from '@loopback/testlab';
+import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
-import {NotificationRepository} from '../../repositories';
+import {BaseController} from '../../controllers/base.controller';
+import {request} from '../../controllers/notification.controller';
+import {
+  BounceRepository,
+  NotificationRepository,
+  SubscriptionRepository,
+} from '../../repositories';
+import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
 
 let app: NotifyBcApplication;
 let client: Client;
 let notificationRepository: NotificationRepository;
+let subscriptionRepository: SubscriptionRepository;
+let bounceRepository: BounceRepository;
 
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   notificationRepository = await app.get('repositories.NotificationRepository');
+  subscriptionRepository = await app.get('repositories.SubscriptionRepository');
+  bounceRepository = await app.get('repositories.BounceRepository');
 });
 
 async function wait(ms: number) {
@@ -103,95 +117,78 @@ describe('GET /notifications', function () {
     expect(res.body.length).equal(1);
   });
 });
-/*
+
 describe('POST /notifications', function () {
   beforeEach(async function () {
-    data = await parallel([
-      function (cb) {
-        app.models.Subscription.create(
-          {
-            serviceName: 'myService',
-            channel: 'email',
-            userId: 'bar',
-            userChannelId: 'bar@foo.com',
-            state: 'confirmed',
-            confirmationRequest: {
-              confirmationCodeRegex: '\\d{5}',
-              sendRequest: true,
-              from: 'no_reply@invlid.local',
-              subject: 'Subscription confirmation',
-              textBody: 'enter {confirmation_code} in this email',
-              confirmationCode: '12345',
-            },
-            unsubscriptionCode: '54321',
+    await Promise.all([
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userId: 'bar',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          confirmationRequest: {
+            confirmationCodeRegex: '\\d{5}',
+            sendRequest: true,
+            from: 'no_reply@invlid.local',
+            subject: 'Subscription confirmation',
+            textBody: 'enter {confirmation_code} in this email',
+            confirmationCode: '12345',
           },
-          cb,
-        );
-      },
-      function (cb) {
-        app.models.Subscription.create(
-          {
-            serviceName: 'myService',
-            channel: 'sms',
-            userChannelId: '12345',
-            state: 'confirmed',
-          },
-          cb,
-        );
-      },
-      function (cb) {
-        app.models.Subscription.create(
-          {
-            serviceName: 'myChunkedBroadcastService',
-            channel: 'email',
-            userChannelId: 'bar1@foo.com',
-            state: 'confirmed',
-          },
-          cb,
-        );
-      },
-      function (cb) {
-        app.models.Subscription.create(
-          {
-            serviceName: 'myChunkedBroadcastService',
-            channel: 'email',
-            userChannelId: 'bar2@invalid',
-            state: 'confirmed',
-          },
-          cb,
-        );
-      },
-      function (cb) {
-        app.models.Subscription.create(
-          {
-            serviceName: 'myFilterableBroadcastService',
-            channel: 'email',
-            userChannelId: 'bar2@invalid',
-            state: 'confirmed',
-            broadcastPushNotificationFilter: "contains(name,'f')",
-          },
-          cb,
-        );
-      },
-      function (cb) {
-        app.models.Subscription.create(
-          {
-            serviceName: 'myInvalideEmailService',
-            channel: 'email',
-            userChannelId: 'bar@invalid.local',
-            state: 'confirmed',
-          },
-          cb,
-        );
-      },
+          unsubscriptionCode: '54321',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'sms',
+          userChannelId: '12345',
+          state: 'confirmed',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myChunkedBroadcastService',
+          channel: 'email',
+          userChannelId: 'bar1@foo.com',
+          state: 'confirmed',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myChunkedBroadcastService',
+          channel: 'email',
+          userChannelId: 'bar2@invalid',
+          state: 'confirmed',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myFilterableBroadcastService',
+          channel: 'email',
+          userChannelId: 'bar2@invalid',
+          state: 'confirmed',
+          broadcastPushNotificationFilter: "contains(name,'f')",
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myInvalidEmailService',
+          channel: 'email',
+          userChannelId: 'bar@invalid.local',
+          state: 'confirmed',
+        });
+      })(),
     ]);
   });
 
   it('should send broadcast email notifications with proper mail merge', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -212,94 +209,121 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendEmail).toHaveBeenCalled();
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{confirmation_code}');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{service_name}');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{http_host}');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{rest_api_root}');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{subscription_id}');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).not.toContain('{unsubscription_code}');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('12345');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('myService');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('http://127.0.0.1');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('/api');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('1 ');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('54321');
-    expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('bar foo');
+    sinon.assert.called(BaseController.prototype.sendEmail as sinon.SinonStub);
 
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).not.toContain('{confirmation_code}');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).not.containEql('{confirmation_code}');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).not.toContain('{service_name}');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).not.containEql('{service_name}');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).not.toContain('{http_host}');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).not.containEql('{http_host}');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).not.toContain('{rest_api_root}');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).not.containEql('{rest_api_root}');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).not.toContain('{subscription_id}');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).not.containEql('{subscription_id}');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).not.toContain('{unsubscription_code}');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).not.containEql('{unsubscription_code}');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).toContain('12345');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).containEql('12345');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).toContain('myService');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).containEql('myService');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).toContain('http://127.0.0.1');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).containEql('http://127.0.0.1');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).toContain('/api');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).containEql('/api');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).toContain('1 ');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).containEql('1 ');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].html,
-    ).toContain('54321');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).containEql('54321');
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].text,
-    ).toContain('bar foo');
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).containEql('bar foo');
+
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).not.containEql('{confirmation_code}');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).not.containEql('{service_name}');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).not.containEql('{http_host}');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).not.containEql('{rest_api_root}');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).not.containEql('{subscription_id}');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).not.containEql('{unsubscription_code}');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).containEql('12345');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).containEql('myService');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).containEql('http://127.0.0.1');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).containEql('/api');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).containEql('1 ');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.html,
+    ).containEql('54321');
+    expect(
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.text,
+    ).containEql('bar foo');
     // test list-unsubscribe header
     expect(
-      notificationRepository.sendEmail.calls
-        .argsFor(0)[0]
-        .list.unsubscribe[0].indexOf('un-1-54321@invalid.local'),
+      (BaseController.prototype.sendEmail as sinon.SinonStub)
+        .getCall(0)
+        .firstArg.list.unsubscribe[0].indexOf('un-1-54321@invalid.local'),
     ).equal(0);
 
-    let data = await notificationRepository.find({
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
       },
@@ -308,10 +332,10 @@ describe('POST /notifications', function () {
   });
 
   it('should send unicast email notification', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -329,8 +353,8 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendEmail).toHaveBeenCalled();
-    let data = await notificationRepository.find({
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).called);
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
       },
@@ -339,10 +363,10 @@ describe('POST /notifications', function () {
   });
 
   it('should send unicast sms notification', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -356,8 +380,8 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendSMS).toHaveBeenCalled();
-    let data = await notificationRepository.find({
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).called);
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
       },
@@ -366,10 +390,10 @@ describe('POST /notifications', function () {
   });
 
   it('should send broadcast sms notification', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -382,8 +406,8 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendSMS).toHaveBeenCalled();
-    let data = await notificationRepository.find({
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).called);
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
       },
@@ -392,10 +416,10 @@ describe('POST /notifications', function () {
   });
 
   it('should not send future-dated notification', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -407,12 +431,12 @@ describe('POST /notifications', function () {
         },
         channel: 'email',
         userId: 'bar',
-        invalidBefore: '3017-06-01',
+        invalidBefore: '3017-06-01T00:00:00Z',
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendEmail).not.toHaveBeenCalled();
-    let data = await notificationRepository.find({
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).notCalled);
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
       },
@@ -421,10 +445,10 @@ describe('POST /notifications', function () {
   });
 
   it('should deny skipSubscriptionConfirmationCheck unicast notification missing userChannelId', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -440,7 +464,7 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(403);
-    let data = await notificationRepository.find({
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
       },
@@ -449,10 +473,10 @@ describe('POST /notifications', function () {
   });
 
   it('should deny unicast notification missing both userChannelId and userId', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -466,7 +490,7 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(403);
-    let data = await notificationRepository.find({
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
       },
@@ -475,7 +499,7 @@ describe('POST /notifications', function () {
   });
 
   it('should deny anonymous user', async function () {
-    let res = await client
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -490,8 +514,9 @@ describe('POST /notifications', function () {
       .set('Accept', 'application/json');
     expect(res.status).equal(403);
   });
+
   it('should deny sm user', async function () {
-    let res = await client
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -509,21 +534,23 @@ describe('POST /notifications', function () {
   });
 
   it('should perform async callback for broadcast push notification if asyncBroadcastPushNotification is set', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    notificationRepository.sendEmail = jasmine
-      .createSpy()
-      .and.callFake(function () {
-        let cb = arguments[arguments.length - 1];
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
+    sinon
+      .stub(BaseController.prototype, 'sendEmail')
+      .callsFake(async (...args) => {
+        const cb = args[args.length - 1];
         console.log('faking delayed sendEmail');
-        setTimeout(function () {
-          return cb(null, null);
-        }, 1000);
+        await wait(1000);
+        if (args.length === 2 && cb instanceof Function) {
+          cb();
+        }
       });
-    spyOn(notificationRepository.request, 'post');
+    sinon.spy(request, 'post');
 
-    let res = await client
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -554,30 +581,29 @@ describe('POST /notifications', function () {
     });
     expect(data.length).equal(1);
     expect(data[0].state).equal('sent');
-    expect(notificationRepository.request.post).toHaveBeenCalledWith(
-      'http://foo.com',
-      jasmine.any(Object),
-      jasmine.any(Object),
+    expect(
+      (request.post as sinon.SinonStub).calledWith(
+        'http://foo.com',
+        sinon.match.object,
+        sinon.match.object,
+      ),
     );
   });
 
   it('should send chunked sync broadcast email notifications', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let realGet = notificationRepository.app.get;
-    spyOn(notificationRepository.app, 'get').and.callFake(function (param) {
-      if (param === 'notification') {
-        return {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        notification: {
           broadcastSubscriberChunkSize: 1,
           broadcastSubRequestBatchSize: 10,
-        };
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-
-    let res = await client
+        },
+      }),
+    );
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myChunkedBroadcastService',
@@ -591,55 +617,59 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendEmail).toHaveBeenCalledTimes(2);
-    let data = await notificationRepository.find({
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledTwice);
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myChunkedBroadcastService',
       },
     });
     expect(data.length).equal(1);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should send chunked async broadcast email notifications', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let realGet = notificationRepository.app.get;
-    spyOn(notificationRepository.app, 'get').and.callFake(function (param) {
-      if (param === 'notification') {
-        return {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        notification: {
           broadcastSubscriberChunkSize: 1,
           broadcastSubRequestBatchSize: 10,
-        };
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-    spyOn(notificationRepository.request, 'post');
-    spyOn(notificationRepository.request, 'get').and.callFake(async function (
-      url,
-    ) {
-      let uri = url.substring(url.indexOf('/api/notifications'));
-      let response = await client
+        },
+      }),
+    );
+    sinon.spy(request, 'post');
+    sinon.stub(request, 'get').callsFake(async function (url: string) {
+      const uri = url.substring(url.indexOf('/api/notifications'));
+      const response: AnyObject = await client
         .get(uri)
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/);
       response.data = response.body;
       return response;
     });
-    notificationRepository.sendEmail = jasmine
-      .createSpy()
-      .and.callFake(function () {
-        let cb = arguments[arguments.length - 1];
-        let to = arguments[0].to;
-        let error = null;
+    (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
+    sinon
+      .stub(BaseController.prototype, 'sendEmail')
+      .callsFake(async (...args) => {
+        const cb = args[args.length - 1];
+        const to = args[0].to;
+        let error: any = null;
         if (to.indexOf('invalid') >= 0) {
           error = to;
         }
         console.log('faking sendEmail with error for invalid recipient');
-        return cb(error, null);
+        if (args.length === 2 && cb instanceof Function) {
+          cb(error, null);
+        }
+        if (error) {
+          throw error;
+        }
       });
-    let res = await client
+
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myChunkedBroadcastService',
@@ -669,26 +699,27 @@ describe('POST /notifications', function () {
     });
     expect(data.length).equal(1);
     expect(data[0].state).equal('sent');
-    expect(notificationRepository.request.post).toHaveBeenCalledWith(
-      'http://foo.com',
-      jasmine.any(Object),
-      jasmine.any(Object),
+    expect(
+      (request.post as sinon.SinonStub).calledWith(
+        'http://foo.com',
+        sinon.match.object,
+        sinon.match.object,
+      ),
     );
-    expect(notificationRepository.sendEmail).toHaveBeenCalledTimes(2);
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledTwice);
     expect(data[0].failedDispatches.length).equal(1);
-    expect(data[0].failedDispatches[0]).toEqual(
-      jasmine.objectContaining({
-        userChannelId: 'bar2@invalid',
-        error: 'bar2@invalid',
-      }),
-    );
+    expect(data[0].failedDispatches[0]).containEql({
+      userChannelId: 'bar2@invalid',
+      error: 'bar2@invalid',
+    });
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should send broadcast email notification with matching filter', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myFilterableBroadcastService',
@@ -705,8 +736,8 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendEmail).toHaveBeenCalledTimes(1);
-    let data = await notificationRepository.find({
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledOnce);
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myFilterableBroadcastService',
       },
@@ -714,11 +745,11 @@ describe('POST /notifications', function () {
     expect(data.length).equal(1);
   });
 
-  it('should skip broadcast email notification with unmatching filter', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+  it('should skip broadcast email notification with un-matching filter', async function () {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myFilterableBroadcastService',
@@ -735,8 +766,8 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendEmail).toHaveBeenCalledTimes(0);
-    let data = await notificationRepository.find({
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).notCalled);
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'myFilterableBroadcastService',
       },
@@ -745,15 +776,16 @@ describe('POST /notifications', function () {
     expect(data[0].state).equal('sent');
   });
 
-  xit('should unsubscribe recipients of invalid emails', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    notificationRepository.sendEmail = jasmine
-      .createSpy()
-      .and.callFake(function () {
-        let cb = arguments[arguments.length - 1];
-        let to = arguments[0].to;
+  it.skip('should unsubscribe recipients of invalid emails', async function () {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
+    sinon
+      .stub(BaseController.prototype, 'sendEmail')
+      .callsFake(async (...args) => {
+        const cb = args[args.length - 1];
+        const to = args[0].to;
         let error = null;
         if (to.indexOf('invalid') >= 0) {
           error = {
@@ -761,12 +793,16 @@ describe('POST /notifications', function () {
           };
         }
         console.log('faking sendEmail with error for invalid recipient');
-        return cb(error, null);
+        if (args.length === 2 && cb instanceof Function) cb(error, null);
+        if (error) {
+          throw error;
+        }
       });
-    let res = await client
+
+    const res = await client
       .post('/api/notifications')
       .send({
-        serviceName: 'myInvalideEmailService',
+        serviceName: 'myInvalidEmailService',
         message: {
           from: 'no_reply@invalid.local',
           subject: 'test',
@@ -777,52 +813,51 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    let data = await notificationRepository.find({
+    let data: AnyObject[] = await notificationRepository.find({
       where: {
-        serviceName: 'myInvalideEmailService',
+        serviceName: 'myInvalidEmailService',
       },
     });
     expect(data.length).equal(1);
     expect(data[0].state).equal('sent');
-    expect(notificationRepository.sendEmail).toHaveBeenCalledTimes(1);
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledOnce);
     expect(data[0].failedDispatches.length).equal(1);
-    expect(data[0].failedDispatches[0]).toEqual(
-      jasmine.objectContaining({
+    expect(data[0].failedDispatches[0]).equal(
+      sinon.match({
         userChannelId: 'bar@invalid.local',
         error: {
           responseCode: 550,
         },
       }),
     );
-    data = await app.models.Subscription.find({
+    data = await subscriptionRepository.find({
       where: {
-        serviceName: 'myInvalideEmailService',
+        serviceName: 'myInvalidEmailService',
       },
     });
     expect(data.length).equal(1);
     expect(data[0].state).equal('deleted');
   });
 
-  xit('should unsubscribe recipients of invalid emails when sending async broadcast email notifications', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let realGet = notificationRepository.app.get;
-    spyOn(notificationRepository.app, 'get').and.callFake(function (param) {
-      if (param === 'notification') {
-        return {
+  it.skip('should unsubscribe recipients of invalid emails when sending async broadcast email notifications', async function () {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        notification: {
           broadcastSubscriberChunkSize: 100,
           broadcastSubRequestBatchSize: 10,
-        };
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-    notificationRepository.sendEmail = jasmine
-      .createSpy()
-      .and.callFake(function () {
-        let cb = arguments[arguments.length - 1];
-        let to = arguments[0].to;
+        },
+      }),
+    );
+    (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
+    sinon
+      .stub(BaseController.prototype, 'sendEmail')
+      .callsFake(async (...args) => {
+        const cb = args[args.length - 1];
+        const to = args[0].to;
         let error = null;
         if (to.indexOf('invalid') >= 0) {
           error = {
@@ -830,12 +865,14 @@ describe('POST /notifications', function () {
           };
         }
         console.log('faking sendEmail with error for invalid recipient');
-        return cb(error, null);
+        if (args.length === 2 && cb instanceof Function) cb(error, null);
+        if (error) throw error;
       });
-    let res = await client
+
+    const res = await client
       .post('/api/notifications')
       .send({
-        serviceName: 'myInvalideEmailService',
+        serviceName: 'myInvalidEmailService',
         message: {
           from: 'no_reply@bar.com',
           subject: 'test',
@@ -848,27 +885,28 @@ describe('POST /notifications', function () {
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
     await wait(3000);
-    let data = await app.models.Subscription.find({
+    const data = await subscriptionRepository.find({
       where: {
-        serviceName: 'myInvalideEmailService',
+        serviceName: 'myInvalidEmailService',
       },
     });
     expect(data.length).equal(1);
     expect(data[0].state).equal('deleted');
-    expect(notificationRepository.sendEmail).toHaveBeenCalledTimes(1);
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledOnce);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should update bounce record after sending unicast email notification', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    await app.models.Bounce.create({
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    await bounceRepository.create({
       channel: 'email',
       userChannelId: 'bar@foo.com',
       hardBounceCount: 1,
       state: 'active',
     });
-    let res = await client
+    await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -882,25 +920,25 @@ describe('POST /notifications', function () {
         userChannelId: 'bar@foo.COM',
       })
       .set('Accept', 'application/json');
-    let data = await app.models.Bounce.findById(1);
-    expect(data.latestNotificationStarted).toBeDefined();
-    expect(data.latestNotificationEnded).toBeDefined();
-    expect(data.latestNotificationEnded).toBeGreaterThanOrEqual(
-      data.latestNotificationStarted,
-    );
+    const data = await bounceRepository.findById('1');
+    expect(data.latestNotificationStarted !== undefined);
+    expect(data.latestNotificationEnded !== undefined);
+    expect(
+      Date.parse(data.latestNotificationEnded as string),
+    ).greaterThanOrEqual(Date.parse(data.latestNotificationStarted as string));
   });
 
   it('should update bounce record after sending broadcast email notification', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    await app.models.Bounce.create({
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    await bounceRepository.create({
       channel: 'email',
       userChannelId: 'bar@foo.com',
       hardBounceCount: 1,
       state: 'active',
     });
-    let res = await client
+    await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -913,29 +951,27 @@ describe('POST /notifications', function () {
         isBroadcast: true,
       })
       .set('Accept', 'application/json');
-    let data = await app.models.Bounce.findById(1);
-    expect(data.latestNotificationStarted).toBeDefined();
-    expect(data.latestNotificationEnded).toBeDefined();
-    expect(data.latestNotificationEnded).toBeGreaterThanOrEqual(
-      data.latestNotificationStarted,
-    );
+    const data = await bounceRepository.findById('1');
+    expect(data.latestNotificationStarted !== undefined);
+    expect(data.latestNotificationEnded !== undefined);
+    expect(
+      Date.parse(data.latestNotificationEnded as string),
+    ).greaterThanOrEqual(Date.parse(data.latestNotificationStarted as string));
   });
 
   it('should log successful dispatches after sending broadcast email notification if configured so', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    const realGet = notificationRepository.app.get;
-    spyOn(notificationRepository.app, 'get').and.callFake(function (param) {
-      if (param === 'notification') {
-        let val = Object.create(realGet.call(app, param));
-        val.logSuccessfulBroadcastDispatches = true;
-        return val;
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        notification: Object.assign({}, origConfig.notification, {
+          logSuccessfulBroadcastDispatches: true,
+        }),
+      }),
+    );
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -949,14 +985,15 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(res.body.successfulDispatches[0]).toEqual(1);
+    expect(res.body.successfulDispatches[0]).equal('1');
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should not log successful dispatches after sending broadcast email notification if configured so', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -970,14 +1007,14 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(res.body.successfulDispatches).toBeUndefined();
+    expect(res.body.successfulDispatches === undefined);
   });
 
   it('should set envelope address when bounce is enabled and inboundSmtpServer.domain is defined', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -992,26 +1029,24 @@ describe('POST /notifications', function () {
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].envelope.from,
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.envelope.from,
     ).equal('bn-1-54321@invalid.local');
   });
 
   it('should not set envelope address when bounce is disabled', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    const realGet = notificationRepository.app.get;
-    spyOn(notificationRepository.app, 'get').and.callFake(function (param) {
-      if (param === 'notification') {
-        let val = Object.create(realGet.call(app, param));
-        val.handleBounce = false;
-        return val;
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        notification: Object.assign({}, origConfig.notification, {
+          handleBounce: true,
+        }),
+      }),
+    );
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -1026,26 +1061,25 @@ describe('POST /notifications', function () {
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].envelope,
-    ).toBeUndefined();
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.envelope === undefined,
+    );
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should not set envelope address when inboundSmtpServer.domain is undefined', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    const realGet = notificationRepository.app.get;
-    spyOn(notificationRepository.app, 'get').and.callFake(function (param) {
-      if (param === 'inboundSmtpServer') {
-        let val = Object.create(realGet.call(app, param));
-        val.domain = undefined;
-        return val;
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-
-    let res = await client
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        inboundSmtpServer: Object.assign({}, origConfig.inboundSmtpServer, {
+          domain: undefined,
+        }),
+      }),
+    );
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
@@ -1060,33 +1094,30 @@ describe('POST /notifications', function () {
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
     expect(
-      notificationRepository.sendEmail.calls.argsFor(0)[0].envelope,
-    ).toBeUndefined();
+      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+        .firstArg.envelope === undefined,
+    );
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should handle batch broadcast request error', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    const realGet = notificationRepository.app.get;
-    spyOn(notificationRepository.app, 'get').and.callFake(function (param) {
-      if (param === 'notification') {
-        let val = Object.create(realGet.call(app, param));
-        val.broadcastSubscriberChunkSize = 1;
-        val.broadcastSubRequestBatchSize = 2;
-        return val;
-      } else {
-        return realGet.call(app, param);
-      }
-    });
-
-    spyOn(notificationRepository.request, 'get').and.callFake(
-      async function () {
-        throw 'error';
-      },
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        notification: Object.assign({}, origConfig.notification, {
+          broadcastSubscriberChunkSize: 1,
+          broadcastSubRequestBatchSize: 2,
+        }),
+      }),
     );
+    sinon.stub(request, 'get').callsFake(async function () {
+      throw new Error('error');
+    });
 
-    let res = await client
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myChunkedBroadcastService',
@@ -1102,17 +1133,18 @@ describe('POST /notifications', function () {
     expect(res.status).equal(200);
     expect(
       res.body.failedDispatches.indexOf('bar1@foo.com'),
-    ).toBeGreaterThanOrEqual(0);
+    ).greaterThanOrEqual(0);
     expect(
       res.body.failedDispatches.indexOf('bar2@invalid'),
-    ).toBeGreaterThanOrEqual(0);
+    ).greaterThanOrEqual(0);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should handle async broadcastCustomFilterFunctions', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
-    await app.models.Subscription.create({
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    await subscriptionRepository.create({
       serviceName: 'broadcastCustomFilterFunctionsTest',
       channel: 'email',
       userChannelId: 'bar2@invalid',
@@ -1120,7 +1152,7 @@ describe('POST /notifications', function () {
       broadcastPushNotificationFilter: "contains_ci(name,'FOO')",
     });
 
-    let res = await client
+    const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'broadcastCustomFilterFunctionsTest',
@@ -1137,8 +1169,8 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(notificationRepository.sendEmail).toHaveBeenCalledTimes(1);
-    let data = await notificationRepository.find({
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledOnce);
+    const data = await notificationRepository.find({
       where: {
         serviceName: 'broadcastCustomFilterFunctionsTest',
       },
@@ -1146,6 +1178,7 @@ describe('POST /notifications', function () {
     expect(data[0].state).equal('sent');
   });
 });
+/*
 describe('PATCH /notifications/{id}', function () {
   beforeEach(async function () {
     await notificationRepository.create({
@@ -1170,13 +1203,13 @@ describe('PATCH /notifications/{id}', function () {
       .set('SM_USER', 'bar');
     expect(res.status).equal(200);
     let data = await notificationRepository.findById(1);
-    expect(data.readBy).toContain('bar');
+    expect(data.readBy).containEql('bar');
     expect(data.state).equal('new');
   });
   it('should set state field of broadcast inApp notifications for admin users', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
     let res = await client
       .patch('/api/notifications/1')
       .send({
@@ -1218,13 +1251,13 @@ describe('DELETE /notifications/{id}', function () {
       .set('SM_USER', 'bar');
     expect(res.status).equal(200);
     let data = await notificationRepository.findById(1);
-    expect(data.deletedBy).toContain('bar');
+    expect(data.deletedBy).containEql('bar');
     expect(data.state).equal('new');
   });
   it('should set state field of broadcast inApp notifications for admin users', async function () {
-    spyOn(notificationRepository, 'isAdminReq').and.callFake(function () {
-      return true;
-    });
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
     let res = await client
       .delete('/api/notifications/1')
       .set('Accept', 'application/json');

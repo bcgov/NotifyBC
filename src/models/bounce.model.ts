@@ -55,6 +55,7 @@ export class Bounce extends Entity {
 
   @property({
     type: 'date',
+    default: null,
   })
   latestNotificationStarted?: string;
 
