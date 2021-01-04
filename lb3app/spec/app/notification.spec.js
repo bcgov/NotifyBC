@@ -1,3 +1,4 @@
+//migration: done, to src\__tests__\acceptance\notification.acceptance.ts
 let app;
 var request = require('supertest');
 var parallel = require('async/parallel');
@@ -216,8 +217,8 @@ describe('POST /notifications', function () {
             '{1}, This is a broadcast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code} {2} {1}',
         },
         data: {
-          '1': 'foo',
-          '2': 'bar',
+          1: 'foo',
+          2: 'bar',
         },
         channel: 'email',
         isBroadcast: true,

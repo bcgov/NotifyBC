@@ -19,3 +19,10 @@ In v2 only the latter format is supported.
 ### Date-Time fields
 
 In v1 date-time fields can be specified in date-only string such as 2020-01-01. In v2 the field must be specified in ISO 8601 extended format such as 2020-01-01T00:00:00Z.
+
+### Return status codes
+
+HTTP response code of success calls to some APIs that don't return important information are changed from 200 to 204
+
+- PATCH /notifications/
+- DELETE /notifications/

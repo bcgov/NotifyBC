@@ -1178,7 +1178,7 @@ describe('POST /notifications', function () {
     expect(data[0].state).equal('sent');
   });
 });
-/*
+
 describe('PATCH /notifications/{id}', function () {
   beforeEach(async function () {
     await notificationRepository.create({
@@ -1193,7 +1193,7 @@ describe('PATCH /notifications/{id}', function () {
     });
   });
   it('should set readBy field of broadcast inApp notifications for sm users', async function () {
-    let res = await client
+    const res = await client
       .patch('/api/notifications/1')
       .send({
         serviceName: 'myService',
@@ -1201,8 +1201,8 @@ describe('PATCH /notifications/{id}', function () {
       })
       .set('Accept', 'application/json')
       .set('SM_USER', 'bar');
-    expect(res.status).equal(200);
-    let data = await notificationRepository.findById(1);
+    expect(res.status).equal(204);
+    const data = await notificationRepository.findById('1');
     expect(data.readBy).containEql('bar');
     expect(data.state).equal('new');
   });
@@ -1210,18 +1210,18 @@ describe('PATCH /notifications/{id}', function () {
     sinon
       .stub(BaseCrudRepository.prototype, 'isAdminReq')
       .callsFake(async () => true);
-    let res = await client
+    const res = await client
       .patch('/api/notifications/1')
       .send({
         state: 'deleted',
       })
       .set('Accept', 'application/json');
-    expect(res.status).equal(200);
-    let data = await notificationRepository.findById(1);
+    expect(res.status).equal(204);
+    const data = await notificationRepository.findById('1');
     expect(data.state).equal('deleted');
   });
   it('should deny anonymous user', async function () {
-    let res = await client
+    const res = await client
       .patch('/api/notifications/1')
       .send({
         serviceName: 'myService',
@@ -1231,6 +1231,7 @@ describe('PATCH /notifications/{id}', function () {
     expect(res.status).equal(403);
   });
 });
+
 describe('DELETE /notifications/{id}', function () {
   beforeEach(async function () {
     await notificationRepository.create({
@@ -1245,12 +1246,12 @@ describe('DELETE /notifications/{id}', function () {
     });
   });
   it('should set deletedBy field of broadcast inApp notifications for sm users', async function () {
-    let res = await client
+    const res = await client
       .delete('/api/notifications/1')
       .set('Accept', 'application/json')
       .set('SM_USER', 'bar');
-    expect(res.status).equal(200);
-    let data = await notificationRepository.findById(1);
+    expect(res.status).equal(204);
+    const data = await notificationRepository.findById('1');
     expect(data.deletedBy).containEql('bar');
     expect(data.state).equal('new');
   });
@@ -1258,18 +1259,17 @@ describe('DELETE /notifications/{id}', function () {
     sinon
       .stub(BaseCrudRepository.prototype, 'isAdminReq')
       .callsFake(async () => true);
-    let res = await client
+    const res = await client
       .delete('/api/notifications/1')
       .set('Accept', 'application/json');
-    expect(res.status).equal(200);
-    let data = await notificationRepository.findById(1);
+    expect(res.status).equal(204);
+    const data = await notificationRepository.findById('1');
     expect(data.state).equal('deleted');
   });
   it('should deny anonymous user', async function () {
-    let res = await client
+    const res = await client
       .delete('/api/notifications/1')
       .set('Accept', 'application/json');
     expect(res.status).equal(403);
   });
 });
-*/

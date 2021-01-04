@@ -197,7 +197,7 @@ export class NotificationController extends BaseController {
 
   @patch('/notifications/{id}', {
     responses: {
-      '204': {
+      '200': {
         description: 'Notification PATCH success',
       },
       '403': {
