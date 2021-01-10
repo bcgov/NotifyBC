@@ -10,6 +10,7 @@ import {
   del,
   get,
   getModelSchemaRef,
+  oas,
   param,
   patch,
   post,
@@ -19,6 +20,7 @@ import {
 import {Administrator} from '../models';
 import {AdministratorRepository} from '../repositories';
 
+@oas.tags('administrator')
 export class AdministratorController {
   constructor(
     @inject('repositories.AdministratorRepository', {

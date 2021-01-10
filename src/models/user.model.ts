@@ -4,7 +4,6 @@ import {Entity, model, property} from '@loopback/repository';
   settings: {
     strict: false,
     caseSensitiveEmail: true,
-    hidden: ['password', 'verificationToken'],
     maxTTL: 31556926,
     ttl: 1209600,
   },
@@ -22,16 +21,12 @@ export class User extends Entity {
   @property({
     type: 'string',
   })
-  realm?: string;
-
-  @property({
-    type: 'string',
-  })
   username?: string;
 
   @property({
     type: 'string',
     required: true,
+    hidden: true,
   })
   password: string;
 
