@@ -1,3 +1,4 @@
+import {AuthenticationComponent} from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {Lb3AppBooterComponent} from '@loopback/booter-lb3app';
 import {ApplicationConfig} from '@loopback/core';
@@ -92,5 +93,6 @@ export class NotifyBcApplication extends BootMixin(
       restApiRoot: options.restApiRoot,
     };
     this.component(Lb3AppBooterComponent);
+    this.component(AuthenticationComponent);
   }
 }

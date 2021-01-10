@@ -242,6 +242,17 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
+"@loopback/authentication@^7.0.5":
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/@loopback/authentication/-/authentication-7.0.5.tgz#2652ba6be6327cd60dc036e1234641c966632c8f"
+  integrity sha512-7ITC58EHjpsnq13rMt/UAuRg512BTuE1V1nR0dMvr75zHoQy3IzCp3DeznON8oYRIu0XCbYoLWf8CbkgwsPkbg==
+  dependencies:
+    "@loopback/security" "^0.3.5"
+    "@types/express" "^4.17.9"
+    "@types/lodash" "^4.14.165"
+    lodash "^4.17.20"
+    tslib "^2.0.3"
+
 "@loopback/boot@^3.1.2":
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/@loopback/boot/-/boot-3.1.2.tgz#da7924355d5ce371c0b9d63aa2c95747c80c8b45"
@@ -451,6 +462,14 @@
     tslib "^2.0.3"
     type-is "^1.6.18"
     validator "^13.5.1"
+
+"@loopback/security@^0.3.5":
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/@loopback/security/-/security-0.3.5.tgz#c7c8cbbfc4a78fb81f21339bcbbd83a11468f494"
+  integrity sha512-h7EKSqnCNY15eHF4E4FQYiWQS1bhoIMDQfWSgKIUrh/ZZbjYXHYqMC1XNRBvok0sUMeWDbqtrwOBjWwB0PIVHw==
+  dependencies:
+    debug "^4.3.1"
+    tslib "^2.0.3"
 
 "@loopback/service-proxy@^3.0.5":
   version "3.0.5"
@@ -673,6 +692,11 @@
   version "4.14.157"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.157.tgz#fdac1c52448861dfde1a2e1515dbc46e54926dc8"
   integrity sha512-Ft5BNFmv2pHDgxV5JDsndOWTRJ+56zte0ZpYLowp03tW+K+t8u8YMOzAnpuqPgzX6WO1XpDIUm7u04M8vdDiVQ==
+
+"@types/lodash@^4.14.165":
+  version "4.14.167"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.167.tgz#ce7d78553e3c886d4ea643c37ec7edc20f16765e"
+  integrity sha512-w7tQPjARrvdeBkX/Rwg95S592JwxqOjmms3zWQ0XZgSyxSLdzWaYH3vErBhdVS/lRBX7F8aBYcYJYTr5TMGOzw==
 
 "@types/mime@*":
   version "2.0.2"
