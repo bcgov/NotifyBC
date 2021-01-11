@@ -20,7 +20,7 @@ module.exports = {
     handleBounce: true,
     logSuccessfulBroadcastDispatches: false,
     broadcastCustomFilterFunctions: {
-      /*jshint camelcase: false */
+      // eslint-disable-next-line  @typescript-eslint/naming-convention
       contains_ci: {
         _func: async function (resolvedArgs) {
           if (!resolvedArgs[0] || !resolvedArgs[1]) {

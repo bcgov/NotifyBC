@@ -675,7 +675,6 @@ export class NotificationController extends BaseController {
             if (res.success) {
               data.successfulDispatches = res.success;
             }
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             await postBroadcastProcessing();
           } else {
             // call broadcastToChunkSubscribers, coordinate output

@@ -6,3 +6,4 @@
 /public/
 /dist/
 ecosystem.config.js
+.eslintrc.js

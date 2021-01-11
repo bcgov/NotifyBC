@@ -14,7 +14,6 @@ export class BounceMessageItem extends Model {
   })
   message: string;
 
-
   constructor(data?: Partial<BounceMessageItem>) {
     super(data);
   }
@@ -24,4 +23,5 @@ export interface BounceMessageItemRelations {
   // describe navigational properties here
 }
 
-export type BounceMessageItemWithRelations = BounceMessageItem & BounceMessageItemRelations;
+export type BounceMessageItemWithRelations = BounceMessageItem &
+  BounceMessageItemRelations;

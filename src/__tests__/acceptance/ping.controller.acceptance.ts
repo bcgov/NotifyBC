@@ -1,4 +1,3 @@
-/* eslint-disable mocha/handle-done-callback */
 import {Client, expect} from '@loopback/testlab';
 import {setupApplication} from './test-helper';
 
