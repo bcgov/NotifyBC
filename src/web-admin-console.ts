@@ -7,14 +7,14 @@ export default (server: ExpressServer) => {
   app.engine('html', require('ejs').renderFile);
   app.set('view engine', 'html');
   let extraIncludes = '';
-  let viewRelDir = '../public/dist';
+  let viewRelDir = '../client/dist';
   app.use(require('connect-history-api-fallback')());
   if (process.env.NODE_ENV === 'dev') {
-    viewRelDir = '../public';
+    viewRelDir = '../client';
     extraIncludes = '<script type="text/javascript" src="/app.js"></script>';
     const webpack = require('webpack');
     const webpackDevMiddleware = require('webpack-dev-middleware');
-    const config = require('../public/build/webpack.dev.conf');
+    const config = require('../client/build/webpack.dev.conf');
     const compiler = webpack(config);
     const hotMiddleware = require('webpack-hot-middleware')(compiler, {
       log: false,
@@ -37,6 +37,6 @@ export default (server: ExpressServer) => {
       ApiExplorerUrlPrefix: `${appConfig.restApiRoot}/explorer`,
     });
   });
-  // Serve static files in the public folder
+  // Serve static files in the client folder
   app.use(express.static(path.join(__dirname, viewRelDir)));
 };

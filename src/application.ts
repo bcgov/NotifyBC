@@ -53,7 +53,7 @@ export class NotifyBcApplication extends BootMixin(
 
     // Set up default home page
     // const staticHomeRelPath =
-    //   process.env.NODE_ENV === 'dev' ? '../public' : '../public/dist';
+    //   process.env.NODE_ENV === 'dev' ? '../client' : '../client/dist';
     // this.static('/', path.join(__dirname, staticHomeRelPath));
 
     // Customize @loopback/rest-explorer configuration here
