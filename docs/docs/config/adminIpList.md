@@ -21,10 +21,3 @@ module.exports = {
 ```
 
 It should be noted that _NotifyBC_ may generate http requests sending to itself. These http requests are expected to be admin requests. If you have created an app cluster such as in OpenShift, you should add the cluster ip range to _adminIps_. In OpenShift, this ip range is a private ip range. In BCGov's OpenShift cluster, the ip range starts with octet 172.
-
-::: danger Define static array config in one file only
-
-Due to a <a href="https://github.com/strongloop/loopback-boot/issues/172">bug</a> in Loopback a config of array type such as <i>adminIps</i> cannot be merged if defined in multiple files with different length. To mitigate, only define an array config in one file.
-It is for this reason that the default admin ip list has to use a different name <i>defaultAdminIps</i> as shown above.
-
-:::
