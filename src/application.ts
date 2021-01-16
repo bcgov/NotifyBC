@@ -1,4 +1,8 @@
 import {AuthenticationComponent} from '@loopback/authentication';
+import {
+  JWTAuthenticationComponent,
+  UserServiceBindings,
+} from '@loopback/authentication-jwt';
 import {BootMixin} from '@loopback/boot';
 import {Lb3AppBooterComponent} from '@loopback/booter-lb3app';
 import {ApplicationConfig} from '@loopback/core';
@@ -11,6 +15,7 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import * as _ from 'lodash';
 import path from 'path';
+import {DbDataSource} from './datasources';
 import {MySequence} from './sequence';
 import fs = require('fs');
 
@@ -94,5 +99,9 @@ export class NotifyBcApplication extends BootMixin(
     };
     this.component(Lb3AppBooterComponent);
     this.component(AuthenticationComponent);
+    // Mount jwt component
+    this.component(JWTAuthenticationComponent);
+    // Bind datasource
+    this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
   }
 }
