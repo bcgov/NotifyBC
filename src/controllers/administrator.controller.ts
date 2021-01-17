@@ -1,11 +1,5 @@
 import {authenticate, TokenService} from '@loopback/authentication';
-import {
-  ApplicationConfig,
-  CoreBindings,
-  inject,
-  intercept,
-  service,
-} from '@loopback/core';
+import {ApplicationConfig, CoreBindings, inject, service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -27,9 +21,8 @@ import {
   requestBody,
   SchemaObject,
 } from '@loopback/rest';
-import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
-import {AdminInterceptor} from '../interceptors';
 import {Administrator} from '../models';
 import {
   AdministratorRepository,
@@ -75,7 +68,7 @@ export const CredentialsRequestBody = {
 };
 
 @oas.tags('administrator')
-@intercept(AdminInterceptor.BINDING_KEY)
+@authenticate('ipWhitelist')
 export class AdministratorController extends BaseController {
   constructor(
     @inject('repositories.AdministratorRepository', {
@@ -163,28 +156,6 @@ export class AdministratorController extends BaseController {
     // create a JSON Web Token based on the user profile
     const token = await this.accessTokenService.generateToken(userProfile);
     return {token};
-  }
-
-  @authenticate('accessToken')
-  @get('/whoAmI', {
-    responses: {
-      '200': {
-        description: 'Return current user',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    },
-  })
-  async whoAmI(
-    @inject(SecurityBindings.USER)
-    currentUserProfile: UserProfile,
-  ): Promise<string> {
-    return currentUserProfile[securityId];
   }
 
   @post('/administrators', {

@@ -21,16 +21,22 @@ export class AccessTokenAuthenticationStrategy
   ) {}
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
-    const token: string = this.extractCredentials(request);
-    const userProfile: UserProfile = await this.tokenService.verifyToken(token);
-    (this.httpContext as AnyObject).args = Object.assign(
-      {},
-      (this.httpContext as AnyObject).args,
-      {
-        options: {accessToken: userProfile},
-      },
-    );
-    return userProfile;
+    try {
+      const token: string = this.extractCredentials(request);
+      const userProfile: UserProfile = await this.tokenService.verifyToken(
+        token,
+      );
+      (this.httpContext as AnyObject).args = Object.assign(
+        {},
+        (this.httpContext as AnyObject).args,
+        {
+          options: {accessToken: userProfile},
+        },
+      );
+      return userProfile;
+    } catch (ex) {
+      return undefined;
+    }
   }
 
   extractCredentials(request: Request): string {

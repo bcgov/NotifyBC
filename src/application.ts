@@ -14,7 +14,10 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import * as _ from 'lodash';
 import path from 'path';
-import {AccessTokenAuthenticationStrategy} from './auth-strategies';
+import {
+  AccessTokenAuthenticationStrategy,
+  IpWhitelistAuthenticationStrategy,
+} from './auth-strategies';
 import {MySequence} from './sequence';
 import fs = require('fs');
 
@@ -92,5 +95,6 @@ export class NotifyBcApplication extends BootMixin(
     this.component(Lb3AppBooterComponent);
     this.component(AuthenticationComponent);
     registerAuthenticationStrategy(this, AccessTokenAuthenticationStrategy);
+    registerAuthenticationStrategy(this, IpWhitelistAuthenticationStrategy);
   }
 }
