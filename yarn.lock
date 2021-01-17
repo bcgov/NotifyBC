@@ -242,16 +242,6 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
-"@loopback/authentication-jwt@^0.7.5":
-  version "0.7.5"
-  resolved "https://registry.yarnpkg.com/@loopback/authentication-jwt/-/authentication-jwt-0.7.5.tgz#4989b39ef985100187107f5de4cd6ddc171f1643"
-  integrity sha512-5un8HGqXS1mBuzauwiOP/pTLOpE4hLemYnydJ4Nd3c8jZwEJtrdYJh2E+F1hTV79Wy8eOK+jw42qoIfsuauj7w==
-  dependencies:
-    "@loopback/security" "^0.3.5"
-    "@types/bcryptjs" "2.4.2"
-    bcryptjs "^2.4.3"
-    jsonwebtoken "^8.5.1"
-
 "@loopback/authentication@^7.0.5":
   version "7.0.5"
   resolved "https://registry.yarnpkg.com/@loopback/authentication/-/authentication-7.0.5.tgz#2652ba6be6327cd60dc036e1234641c966632c8f"
@@ -588,7 +578,7 @@
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.1.tgz#8da5c6530915653f3a1f38fd5f101d8c3f8079c5"
   integrity sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
 
-"@types/bcryptjs@2.4.2":
+"@types/bcryptjs@^2.4.2":
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/@types/bcryptjs/-/bcryptjs-2.4.2.tgz#e3530eac9dd136bfdfb0e43df2c4c5ce1f77dfae"
   integrity sha512-LiMQ6EOPob/4yUL66SZzu6Yh77cbzJFYll+ZfaPiPPFswtIlA/Fs1MzdKYA7JApHU49zQTbJGX3PDmCpIdDBRQ==
@@ -2206,6 +2196,13 @@ crypto-browserify@^3.11.0:
     public-encrypt "^4.0.0"
     randombytes "^2.0.0"
     randomfill "^1.0.3"
+
+crypto-random-string@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-3.3.0.tgz#c7a4682b2a87146a1f8b7378ea2606f95775e7e6"
+  integrity sha512-teWAwfMb1d6brahYyKqcBEb5Yp8PJPvPOdOonXDnvaKOTmKDFNVE8E3Y2XQuzjNV/3XMwHbrX9fHWvrhRKt4Gg==
+  dependencies:
+    type-fest "^0.8.1"
 
 csvtojson@^1.1.7:
   version "1.1.12"

@@ -1,13 +1,11 @@
 import {authenticate, TokenService} from '@loopback/authentication';
 import {
-  Credentials,
-  MyUserService,
-  TokenServiceBindings,
-  User,
-  UserRepository,
-  UserServiceBindings,
-} from '@loopback/authentication-jwt';
-import {inject} from '@loopback/core';
+  ApplicationConfig,
+  CoreBindings,
+  inject,
+  intercept,
+  service,
+} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -15,7 +13,6 @@ import {
   FilterExcludingWhere,
   model,
   property,
-  repository,
   Where,
 } from '@loopback/repository';
 import {
@@ -32,18 +29,28 @@ import {
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
-import _ from 'lodash';
+import {AdminInterceptor} from '../interceptors';
 import {Administrator} from '../models';
-import {AdministratorRepository} from '../repositories';
+import {
+  AdministratorRepository,
+  ConfigurationRepository,
+} from '../repositories';
+import {AccessTokenService, AdminUserService} from '../services';
+import {BaseController} from './base.controller';
 
 @model()
-export class NewUserRequest extends User {
+export class NewUserRequest extends Administrator {
   @property({
     type: 'string',
     required: true,
   })
   password: string;
 }
+
+export declare type Credentials = {
+  email: string;
+  password: string;
+};
 
 const CredentialsSchema: SchemaObject = {
   type: 'object',
@@ -68,20 +75,28 @@ export const CredentialsRequestBody = {
 };
 
 @oas.tags('administrator')
-export class AdministratorController {
+@intercept(AdminInterceptor.BINDING_KEY)
+export class AdministratorController extends BaseController {
   constructor(
     @inject('repositories.AdministratorRepository', {
       asProxyWithInterceptors: true,
     })
     public administratorRepository: AdministratorRepository,
-    @inject(TokenServiceBindings.TOKEN_SERVICE)
-    public jwtService: TokenService,
-    @inject(UserServiceBindings.USER_SERVICE)
-    public userService: MyUserService,
+    @service(AccessTokenService)
+    public accessTokenService: TokenService,
+    @service(AdminUserService)
+    public userService: AdminUserService,
     @inject(SecurityBindings.USER, {optional: true})
     public user: UserProfile,
-    @repository(UserRepository) protected userRepository: UserRepository,
-  ) {}
+    @inject('repositories.ConfigurationRepository', {
+      asProxyWithInterceptors: true,
+    })
+    public configurationRepository: ConfigurationRepository,
+    @inject(CoreBindings.APPLICATION_CONFIG)
+    appConfig: ApplicationConfig,
+  ) {
+    super(appConfig, configurationRepository);
+  }
 
   @post('/signup', {
     responses: {
@@ -90,7 +105,7 @@ export class AdministratorController {
         content: {
           'application/json': {
             schema: {
-              'x-ts-type': User,
+              'x-ts-type': Administrator,
             },
           },
         },
@@ -108,14 +123,13 @@ export class AdministratorController {
       },
     })
     newUserRequest: NewUserRequest,
-  ): Promise<User> {
+  ): Promise<Administrator> {
     const password = await hash(newUserRequest.password, await genSalt());
-    const savedUser = await this.userRepository.create(
-      _.omit(newUserRequest, 'password'),
+    newUserRequest.password = password;
+    const savedUser = await this.administratorRepository.create(
+      newUserRequest,
+      undefined,
     );
-
-    await this.userRepository.userCredentials(savedUser.id).create({password});
-
     return savedUser;
   }
 
@@ -147,11 +161,11 @@ export class AdministratorController {
     const userProfile = this.userService.convertToUserProfile(user);
 
     // create a JSON Web Token based on the user profile
-    const token = await this.jwtService.generateToken(userProfile);
+    const token = await this.accessTokenService.generateToken(userProfile);
     return {token};
   }
 
-  @authenticate('jwt')
+  @authenticate('accessToken')
   @get('/whoAmI', {
     responses: {
       '200': {

@@ -1,8 +1,7 @@
-import {AuthenticationComponent} from '@loopback/authentication';
 import {
-  JWTAuthenticationComponent,
-  UserServiceBindings,
-} from '@loopback/authentication-jwt';
+  AuthenticationComponent,
+  registerAuthenticationStrategy,
+} from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {Lb3AppBooterComponent} from '@loopback/booter-lb3app';
 import {ApplicationConfig} from '@loopback/core';
@@ -15,7 +14,7 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import * as _ from 'lodash';
 import path from 'path';
-import {DbDataSource} from './datasources';
+import {AccessTokenAuthenticationStrategy} from './auth-strategies';
 import {MySequence} from './sequence';
 import fs = require('fs');
 
@@ -82,14 +81,7 @@ export class NotifyBcApplication extends BootMixin(
     }
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
-    this.bootOptions = {
-      controllers: {
-        // Customize ControllerBooter Conventions here
-        dirs: ['controllers'],
-        extensions: ['.controller.js'],
-        nested: true,
-      },
-    };
+    this.bootOptions = {};
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -99,9 +91,6 @@ export class NotifyBcApplication extends BootMixin(
     };
     this.component(Lb3AppBooterComponent);
     this.component(AuthenticationComponent);
-    // Mount jwt component
-    this.component(JWTAuthenticationComponent);
-    // Bind datasource
-    this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
+    registerAuthenticationStrategy(this, AccessTokenAuthenticationStrategy);
   }
 }

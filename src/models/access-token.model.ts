@@ -4,11 +4,10 @@ import {Entity, model, property} from '@loopback/repository';
 export class AccessToken extends Entity {
   @property({
     type: 'string',
-    mongodb: {dataType: 'ObjectID'},
     id: true,
-    generated: true,
+    generated: false,
   })
-  id?: string;
+  id: string;
 
   @property({
     type: 'number',
@@ -19,13 +18,6 @@ export class AccessToken extends Entity {
   ttl?: number;
 
   @property({
-    type: 'array',
-    description: 'Array of scopes granted to this access token.',
-    itemType: 'string',
-  })
-  scopes?: string[];
-
-  @property({
     type: 'date',
     defaultFn: 'now',
   })
@@ -33,8 +25,9 @@ export class AccessToken extends Entity {
 
   @property({
     type: 'string',
+    required: true,
   })
-  userId?: string;
+  userId: string;
 
   // Define well-known properties here
 
