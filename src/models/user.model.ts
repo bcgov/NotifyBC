@@ -1,6 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({
+  name: 'user',
   settings: {
     strict: false,
     caseSensitiveEmail: true,

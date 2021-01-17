@@ -1,6 +1,7 @@
 import {AnyObject, Entity, model, property} from '@loopback/repository';
 
 @model({
+  name: 'subscription',
   settings: {
     strict: false,
     validateUpsert: true,

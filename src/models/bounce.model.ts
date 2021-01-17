@@ -2,6 +2,7 @@ import {Entity, model, property} from '@loopback/repository';
 import {BounceMessageItem} from './bounce-message-item.model';
 
 @model({
+  name: 'bounce',
   settings: {
     strict: false,
     validateUpsert: true,

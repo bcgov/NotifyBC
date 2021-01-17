@@ -2,6 +2,7 @@ import {model} from '@loopback/repository';
 import {User} from './user.model';
 
 @model({
+  name: 'administrator',
   settings: {
     strict: false,
     validateUpsert: true,

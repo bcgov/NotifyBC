@@ -15,6 +15,7 @@
   "scripts": {
     "build": "yarn build:serverOnly",
     "postbuild": "yarn --cwd client install && yarn --cwd client run build",
+    "postinstall": "yarn postbuild",
     "build:serverOnly": "lb-tsc && cp src/__tests__/acceptance/rss.xml dist/__tests__/acceptance",
     "build:watch": "lb-tsc --watch",
     "lint": "yarn prettier:check && yarn eslint",

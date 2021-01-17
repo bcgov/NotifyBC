@@ -1,7 +1,10 @@
 import {Entity, model, property} from '@loopback/repository';
 import {RssItem} from './rss-item.model';
 
-@model({settings: {strict: false, validateUpsert: true, idInjection: true}})
+@model({
+  name: 'rss',
+  settings: {strict: false, validateUpsert: true, idInjection: true},
+})
 export class Rss extends Entity {
   @property({
     type: 'string',
