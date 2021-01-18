@@ -59,7 +59,7 @@ export class CronObserver implements LifeCycleObserver {
     this.jobs.push(
       new CronJob({
         cronTime: cronConfigCheckRssConfigUpdates.timeSpec,
-        onTick: async function () {
+        onTick: async () => {
           await cronTasks.checkRssConfigUpdates(this.app);
         },
         start: true,
