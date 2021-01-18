@@ -58,7 +58,7 @@ export class AccessTokenService implements TokenService {
     }
     let id: string;
     try {
-      id = cryptoRandomString({length: 64});
+      id = cryptoRandomString({length: 64, type: 'alphanumeric'});
       const opts = options ?? {};
       const accessToken = new AccessToken(
         Object.assign({}, opts, {
