@@ -105,7 +105,7 @@ describe('GET /notifications', function () {
 
   it('should be forbidden by anonymous user', async function () {
     const res = await client.get('/api/notifications');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
 
   it('should be allowed to sm user for current, non-expired, non-deleted inApp notifications', async function () {
@@ -512,7 +512,7 @@ describe('POST /notifications', function () {
         isBroadcast: true,
       })
       .set('Accept', 'application/json');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
 
   it('should deny sm user', async function () {
@@ -1228,7 +1228,7 @@ describe('PATCH /notifications/{id}', function () {
         state: 'read',
       })
       .set('Accept', 'application/json');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
 });
 
@@ -1270,6 +1270,6 @@ describe('DELETE /notifications/{id}', function () {
     const res = await client
       .delete('/api/notifications/1')
       .set('Accept', 'application/json');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
 });

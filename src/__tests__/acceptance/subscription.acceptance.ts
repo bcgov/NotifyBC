@@ -46,7 +46,7 @@ describe('GET /subscriptions', function () {
 
   it('should be forbidden by anonymous user', async function () {
     const res = await client.get('/api/subscriptions');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
 
   it("should return sm user's own subscription", async function () {
@@ -527,7 +527,7 @@ describe('PATCH /subscriptions/{id}', function () {
         userChannelId: 'baz@foo.com',
       })
       .set('Accept', 'application/json');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
 });
 
@@ -1108,7 +1108,7 @@ describe('PUT /subscriptions/{id}', function () {
         unsubscriptionCode: '50032',
       })
       .set('Accept', 'application/json');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
 });
 

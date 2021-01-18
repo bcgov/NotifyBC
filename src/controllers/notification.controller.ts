@@ -1,4 +1,5 @@
-import {CoreBindings, inject, intercept} from '@loopback/core';
+import {authenticate} from '@loopback/authentication';
+import {CoreBindings, inject} from '@loopback/core';
 import {
   AnyObject,
   Count,
@@ -26,7 +27,6 @@ import {
 import request from 'axios';
 import _ from 'lodash';
 import {ApplicationConfig} from '..';
-import {AuthenticatedOrAdminInterceptor} from '../interceptors';
 import {Notification} from '../models';
 import {
   BounceRepository,
@@ -39,7 +39,7 @@ export {request};
 const jmespath = require('jmespath');
 const queue = require('async/queue');
 
-@intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
+@authenticate('ipWhitelist', 'accessToken', 'siteMinder')
 @oas.tags('notification')
 export class NotificationController extends BaseController {
   constructor(

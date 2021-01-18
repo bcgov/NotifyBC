@@ -18,7 +18,8 @@ import {
   AccessTokenAuthenticationStrategy,
   AnonymousAuthenticationStrategy,
   IpWhitelistAuthenticationStrategy,
-} from './auth-strategies';
+  SiteMinderAuthenticationStrategy,
+} from './authn-strategies';
 import {MySequence} from './sequence';
 import fs = require('fs');
 
@@ -91,6 +92,7 @@ export class NotifyBcApplication extends BootMixin(
     registerAuthenticationStrategy(this, AccessTokenAuthenticationStrategy);
     registerAuthenticationStrategy(this, IpWhitelistAuthenticationStrategy);
     registerAuthenticationStrategy(this, AnonymousAuthenticationStrategy);
+    registerAuthenticationStrategy(this, SiteMinderAuthenticationStrategy);
     if (process.env.NODE_ENV === 'test') {
       return;
     }

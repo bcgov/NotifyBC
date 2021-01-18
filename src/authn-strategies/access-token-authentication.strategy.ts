@@ -33,7 +33,7 @@ export class AccessTokenAuthenticationStrategy
           options: {accessToken: userProfile},
         },
       );
-      return userProfile;
+      return Object.assign({}, userProfile, {authnStrategy: this.name});
     } catch (ex) {
       return undefined;
     }

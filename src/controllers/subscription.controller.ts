@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   ApplicationConfig,
   CoreBindings,
@@ -28,11 +29,7 @@ import {
   RestBindings,
 } from '@loopback/rest';
 import _ from 'lodash';
-import {
-  AdminInterceptor,
-  AuthenticatedOrAdminInterceptor,
-  SubscriptionAfterRemoteInterceptor,
-} from '../interceptors';
+import {SubscriptionAfterRemoteInterceptor} from '../interceptors';
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
@@ -93,7 +90,7 @@ export class SubscriptionController extends BaseController {
     return result;
   }
 
-  @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
+  @authenticate('ipWhitelist', 'accessToken', 'siteMinder')
   @get('/subscriptions/count', {
     summary: 'count subscriptions',
     responses: {
@@ -109,7 +106,7 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.count(where, undefined);
   }
 
-  @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
+  @authenticate('ipWhitelist', 'accessToken', 'siteMinder')
   @get('/subscriptions', {
     summary: 'get subscriptions',
     responses: {
@@ -130,7 +127,7 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.find(filter, undefined);
   }
 
-  @intercept(AuthenticatedOrAdminInterceptor.BINDING_KEY)
+  @authenticate('ipWhitelist', 'accessToken', 'siteMinder')
   @patch('/subscriptions/{id}', {
     summary: 'update a subscription',
     responses: {
@@ -168,7 +165,7 @@ export class SubscriptionController extends BaseController {
     return filteredData;
   }
 
-  @intercept(AdminInterceptor.BINDING_KEY)
+  @authenticate('ipWhitelist', 'accessToken')
   @put('/subscriptions/{id}', {
     summary: 'replace a subscription',
     responses: {

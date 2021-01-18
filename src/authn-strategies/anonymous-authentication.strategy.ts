@@ -9,6 +9,7 @@ export class AnonymousAuthenticationStrategy implements AuthenticationStrategy {
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     return {
       [securityId]: 'anonymous',
+      authnStrategy: this.name,
     };
   }
 }

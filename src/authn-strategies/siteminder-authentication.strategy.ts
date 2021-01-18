@@ -4,9 +4,9 @@ import {MiddlewareContext, Request, RestBindings} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {ConfigurationRepository} from '../repositories';
 
-export class IpWhitelistAuthenticationStrategy
+export class SiteMinderAuthenticationStrategy
   implements AuthenticationStrategy {
-  name = 'ipWhitelist';
+  name = 'siteMinder';
   constructor(
     @inject('repositories.ConfigurationRepository')
     public configurationRepository: ConfigurationRepository,
@@ -16,15 +16,13 @@ export class IpWhitelistAuthenticationStrategy
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     let userProfile: UserProfile | undefined;
-    if (
-      await this.configurationRepository.isAdminReq(
-        this.httpContext,
-        true,
-        true,
-      )
-    ) {
+    const currUser = await this.configurationRepository.getCurrentUser(
+      this.httpContext,
+    );
+    if (currUser) {
       userProfile = {
-        [securityId]: request.ip,
+        [securityId]: currUser,
+        authnStrategy: this.name,
       };
     }
     return userProfile;
