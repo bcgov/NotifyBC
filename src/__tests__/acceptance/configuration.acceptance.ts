@@ -39,7 +39,7 @@ describe('GET /configuration', function () {
   });
   it('should be forbidden by anonymous user', async function () {
     const res = await client.get('/api/configurations');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
   it('should be allowed by admin user', async function () {
     sinon

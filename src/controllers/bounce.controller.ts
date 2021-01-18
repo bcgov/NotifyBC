@@ -1,9 +1,5 @@
-import {
-  ApplicationConfig,
-  CoreBindings,
-  inject,
-  intercept,
-} from '@loopback/core';
+import {authenticate} from '@loopback/authentication';
+import {ApplicationConfig, CoreBindings, inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -23,12 +19,11 @@ import {
   put,
   requestBody,
 } from '@loopback/rest';
-import {AdminInterceptor} from '../interceptors';
 import {Bounce} from '../models';
 import {BounceRepository, ConfigurationRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
-@intercept(AdminInterceptor.BINDING_KEY)
+@authenticate('ipWhitelist', 'accessToken')
 @oas.tags('bounce')
 export class BounceController extends BaseController {
   constructor(

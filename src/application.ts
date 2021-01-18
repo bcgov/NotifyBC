@@ -16,6 +16,7 @@ import * as _ from 'lodash';
 import path from 'path';
 import {
   AccessTokenAuthenticationStrategy,
+  AnonymousAuthenticationStrategy,
   IpWhitelistAuthenticationStrategy,
 } from './auth-strategies';
 import {MySequence} from './sequence';
@@ -85,6 +86,11 @@ export class NotifyBcApplication extends BootMixin(
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {};
+    this.component(Lb3AppBooterComponent);
+    this.component(AuthenticationComponent);
+    registerAuthenticationStrategy(this, AccessTokenAuthenticationStrategy);
+    registerAuthenticationStrategy(this, IpWhitelistAuthenticationStrategy);
+    registerAuthenticationStrategy(this, AnonymousAuthenticationStrategy);
     if (process.env.NODE_ENV === 'test') {
       return;
     }
@@ -92,9 +98,5 @@ export class NotifyBcApplication extends BootMixin(
       mode: 'fullApp',
       restApiRoot: options.restApiRoot,
     };
-    this.component(Lb3AppBooterComponent);
-    this.component(AuthenticationComponent);
-    registerAuthenticationStrategy(this, AccessTokenAuthenticationStrategy);
-    registerAuthenticationStrategy(this, IpWhitelistAuthenticationStrategy);
   }
 }

@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/context';
 import {ApplicationConfig, CoreBindings} from '@loopback/core';
 import {repository} from '@loopback/repository';
@@ -14,6 +15,7 @@ interface SMSBody {
   [key: string]: string;
 }
 
+@authenticate('ipWhitelist', 'accessToken', 'anonymous')
 export class BaseController {
   constructor(
     @inject(CoreBindings.APPLICATION_CONFIG)
