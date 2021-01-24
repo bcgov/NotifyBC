@@ -4,7 +4,7 @@ import {
 } from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {Lb3AppBooterComponent} from '@loopback/booter-lb3app';
-import {ApplicationConfig} from '@loopback/core';
+import {ApplicationConfig, createBindingFromClass} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {
@@ -21,6 +21,7 @@ import {
   SiteMinderAuthenticationStrategy,
 } from './authn-strategies';
 import {MySequence} from './sequence';
+import {SecuritySpecEnhancer} from './services';
 import fs = require('fs');
 
 export {ApplicationConfig};
@@ -93,6 +94,7 @@ export class NotifyBcApplication extends BootMixin(
     registerAuthenticationStrategy(this, IpWhitelistAuthenticationStrategy);
     registerAuthenticationStrategy(this, AnonymousAuthenticationStrategy);
     registerAuthenticationStrategy(this, SiteMinderAuthenticationStrategy);
+    this.add(createBindingFromClass(SecuritySpecEnhancer));
     if (process.env.NODE_ENV === 'test') {
       return;
     }

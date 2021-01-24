@@ -40,27 +40,16 @@ export class AccessTokenAuthenticationStrategy
   }
 
   extractCredentials(request: Request): string {
-    if (!request.headers.authorization) {
-      throw new HttpErrors.Unauthorized(`Authorization header not found.`);
+    // from Authorization header
+    let token = request.headers.authorization;
+    if (token) {
+      return token;
     }
-
-    // for example : Bearer xxx.yyy.zzz
-    const authHeaderValue = request.headers.authorization;
-
-    if (!authHeaderValue.startsWith('Bearer')) {
-      throw new HttpErrors.Unauthorized(
-        `Authorization header is not of type 'Bearer'.`,
-      );
+    // from access_token query parameter
+    token = request.query?.access_token as string | undefined;
+    if (!token) {
+      throw new HttpErrors.Unauthorized(`Access token not found.`);
     }
-
-    //split the string into 2 parts : 'Bearer ' and the `xxx.yyy.zzz`
-    const parts = authHeaderValue.split(' ');
-    if (parts.length !== 2)
-      throw new HttpErrors.Unauthorized(
-        `Authorization header value has too many parts.`,
-      );
-    const token = parts[1];
-
     return token;
   }
 }
