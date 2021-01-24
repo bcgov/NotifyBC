@@ -1,10 +1,15 @@
+import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import axios from 'axios';
 
 Vue.use(Vuex);
 
 const ApiUrlPrefix = window.ApiUrlPrefix || '/api';
+let accessToken;
+try {
+  accessToken = JSON.parse(localStorage.getItem('authorized')).accessToken
+    .value;
+} catch (ex) {}
 export default new Vuex.Store({
   state: {
     notifications: {
@@ -37,7 +42,7 @@ export default new Vuex.Store({
       totalCount: undefined,
       search: undefined,
     },
-    accessToken: localStorage.getItem('swagger_accessToken'),
+    accessToken,
   },
   mutations: {
     setLocalItems(state, payload) {
@@ -53,10 +58,25 @@ export default new Vuex.Store({
       state[payload.model].search = payload.value;
     },
     setAccessToken(state, payload) {
+      let auth = JSON.parse(localStorage.getItem('authorized')) || {};
       if (payload && payload.length > 0) {
-        localStorage.setItem('swagger_accessToken', payload);
+        auth.accessToken = {
+          name: 'accessToken',
+          schema: {
+            type: 'apiKey',
+            in: 'header',
+            name: 'Authorization',
+          },
+          value: payload,
+        };
+        localStorage.setItem('authorized', JSON.stringify(auth));
       } else {
-        localStorage.removeItem('swagger_accessToken');
+        delete auth.accessToken;
+        if (Object.keys(auth).length > 0) {
+          localStorage.setItem('authorized', JSON.stringify(auth));
+        } else {
+          localStorage.removeItem('authorized');
+        }
         payload = undefined;
       }
       state['accessToken'] = payload;
