@@ -44,6 +44,7 @@
     "lcov",
     "mailparser",
     "nonexpired",
+    "preauthorize",
     "quickstart",
     "randexp",
     "remoting",
