@@ -1,5 +1,6 @@
-import {model} from '@loopback/repository';
+import {model, hasMany} from '@loopback/repository';
 import {User} from './user.model';
+import {AccessToken} from './access-token.model';
 
 @model({
   name: 'administrator',
@@ -12,6 +13,9 @@ import {User} from './user.model';
   },
 })
 export class Administrator extends User {
+
+  @hasMany(() => AccessToken, {keyTo: 'userId'})
+  accessTokens: AccessToken[];
   // Define well-known properties here
 
   // Indexer property to allow additional data

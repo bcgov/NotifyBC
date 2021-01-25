@@ -91,7 +91,7 @@ export class AdministratorController extends BaseController {
     super(appConfig, configurationRepository);
   }
 
-  @post('/signup', {
+  @post('/administrators', {
     responses: {
       '200': {
         description: 'User',
@@ -126,7 +126,7 @@ export class AdministratorController extends BaseController {
     return savedUser;
   }
 
-  @post('/users/login', {
+  @post('/administrators/login', {
     responses: {
       '200': {
         description: 'Token',
@@ -156,32 +156,6 @@ export class AdministratorController extends BaseController {
     // create a JSON Web Token based on the user profile
     const token = await this.accessTokenService.generateToken(userProfile);
     return {token};
-  }
-
-  @post('/administrators', {
-    responses: {
-      '200': {
-        description: 'Administrator model instance',
-        content: {
-          'application/json': {schema: getModelSchemaRef(Administrator)},
-        },
-      },
-    },
-  })
-  async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Administrator, {
-            title: 'NewAdministrator',
-            exclude: ['id'],
-          }),
-        },
-      },
-    })
-    administrator: Omit<Administrator, 'id'>,
-  ): Promise<Administrator> {
-    return this.administratorRepository.create(administrator, undefined);
   }
 
   @get('/administrators/count', {
