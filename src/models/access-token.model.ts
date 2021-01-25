@@ -13,9 +13,7 @@ export class AccessToken extends Base {
 
   @property({
     type: 'number',
-    ttl: true,
-    default: 1209600,
-    description: 'time to live in seconds (2 weeks by default)',
+    description: 'time to live in seconds',
   })
   ttl?: number;
 

@@ -21,15 +21,6 @@ import {BounceMessageItem} from './bounce-message-item.model';
 export class Bounce extends Base {
   @property({
     type: 'string',
-    mongodb: {dataType: 'ObjectID'},
-    id: true,
-    generated: true,
-    updateOnly: true,
-  })
-  id?: string;
-
-  @property({
-    type: 'string',
     required: true,
   })
   channel: string;

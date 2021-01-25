@@ -52,7 +52,6 @@ export class ConfigurationController extends BaseController {
         'application/json': {
           schema: getModelSchemaRef(Configuration, {
             title: 'NewConfiguration',
-            exclude: ['id'],
           }),
         },
       },

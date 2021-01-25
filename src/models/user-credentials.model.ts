@@ -5,13 +5,6 @@ import {Base} from './base.model';
 export class UserCredentials extends Base {
   @property({
     type: 'string',
-    id: true,
-    generated: true,
-  })
-  id?: string;
-
-  @property({
-    type: 'string',
     required: true,
   })
   password: string;
@@ -25,7 +18,6 @@ export class UserCredentials extends Base {
   // Define well-known properties here
 
   // Indexer property to allow additional data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
 
   constructor(data?: Partial<UserCredentials>) {
@@ -37,4 +29,5 @@ export interface UserCredentialsRelations {
   // describe navigational properties here
 }
 
-export type UserCredentialsWithRelations = UserCredentials & UserCredentialsRelations;
+export type UserCredentialsWithRelations = UserCredentials &
+  UserCredentialsRelations;

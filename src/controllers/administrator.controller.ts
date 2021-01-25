@@ -1,4 +1,4 @@
-import {authenticate, TokenService} from '@loopback/authentication';
+import {authenticate} from '@loopback/authentication';
 import {ApplicationConfig, CoreBindings, inject, service} from '@loopback/core';
 import {
   Count,
@@ -14,6 +14,7 @@ import {
   del,
   get,
   getModelSchemaRef,
+  HttpErrors,
   oas,
   param,
   patch,
@@ -22,11 +23,12 @@ import {
   requestBody,
   SchemaObject,
 } from '@loopback/rest';
-import {SecurityBindings, UserProfile} from '@loopback/security';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import _ from 'lodash';
 import {Administrator} from '../models';
 import {
+  AccessTokenRepository,
   AdministratorRepository,
   ConfigurationRepository,
   UserCredentialsRepository,
@@ -46,6 +48,8 @@ export class NewUserRequest extends Administrator {
 export declare type Credentials = {
   email: string;
   password: string;
+  tokenName?: string;
+  ttl?: number;
 };
 
 const CredentialsSchema: SchemaObject = {
@@ -59,6 +63,12 @@ const CredentialsSchema: SchemaObject = {
     password: {
       type: 'string',
     },
+    tokenName: {
+      type: 'string',
+    },
+    ttl: {
+      type: 'number',
+    },
   },
 };
 
@@ -71,7 +81,7 @@ export const CredentialsRequestBody = {
 };
 
 @oas.tags('administrator')
-@authenticate('ipWhitelist')
+@authenticate('ipWhitelist', 'accessToken')
 export class AdministratorController extends BaseController {
   constructor(
     @inject('repositories.AdministratorRepository', {
@@ -80,11 +90,13 @@ export class AdministratorController extends BaseController {
     public administratorRepository: AdministratorRepository,
     @repository(UserCredentialsRepository)
     public userCredentialsRepository: UserCredentialsRepository,
+    @repository(AccessTokenRepository)
+    public accessTokenRepository: AccessTokenRepository,
     @service(AccessTokenService)
-    public accessTokenService: TokenService,
+    public accessTokenService: AccessTokenService,
     @service(AdminUserService)
     public userService: AdminUserService,
-    @inject(SecurityBindings.USER, {optional: true})
+    @inject(SecurityBindings.USER)
     public user: UserProfile,
     @inject('repositories.ConfigurationRepository', {
       asProxyWithInterceptors: true,
@@ -96,6 +108,7 @@ export class AdministratorController extends BaseController {
     super(appConfig, configurationRepository);
   }
 
+  @authenticate('ipWhitelist')
   @post('/administrators', {
     responses: {
       '200': {
@@ -108,16 +121,16 @@ export class AdministratorController extends BaseController {
           },
         },
       },
+      '400': {
+        description: 'Bad Request',
+      },
     },
   })
   async signUp(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(NewUserRequest, {
-            title: 'NewUser',
-            exclude: ['id', 'created', 'updated'],
-          }),
+          schema: getModelSchemaRef(NewUserRequest),
         },
       },
     })
@@ -142,6 +155,7 @@ export class AdministratorController extends BaseController {
     }
   }
 
+  @authenticate('anonymous')
   @post('/administrators/login', {
     responses: {
       '200': {
@@ -170,7 +184,10 @@ export class AdministratorController extends BaseController {
     const userProfile = this.userService.convertToUserProfile(user);
 
     // create a JSON Web Token based on the user profile
-    const token = await this.accessTokenService.generateToken(userProfile);
+    const token = await this.accessTokenService.generateToken(userProfile, {
+      name: credentials.tokenName,
+      ttl: credentials.ttl,
+    });
     return {token};
   }
 
@@ -185,6 +202,9 @@ export class AdministratorController extends BaseController {
   async count(
     @param.where(Administrator) where?: Where<Administrator>,
   ): Promise<Count> {
+    if (this.user.authnStrategy === 'accessToken') {
+      where = {and: [where ?? {}, {id: this.user[securityId]}]};
+    }
     return this.administratorRepository.count(where, undefined);
   }
 
@@ -206,6 +226,11 @@ export class AdministratorController extends BaseController {
   async find(
     @param.filter(Administrator) filter?: Filter<Administrator>,
   ): Promise<Administrator[]> {
+    if (this.user.authnStrategy === 'accessToken') {
+      filter = filter ?? {};
+      filter.where = {and: [filter.where ?? {}, {id: this.user[securityId]}]};
+    }
+
     return this.administratorRepository.find(filter, undefined);
   }
 
@@ -225,9 +250,12 @@ export class AdministratorController extends BaseController {
         },
       },
     })
-    administrator: Administrator,
+    administrator: Partial<Administrator>,
     @param.where(Administrator) where?: Where<Administrator>,
   ): Promise<Count> {
+    if (this.user.authnStrategy === 'accessToken') {
+      where = {and: [where ?? {}, {id: this.user[securityId]}]};
+    }
     return this.administratorRepository.updateAll(
       administrator,
       where,
@@ -252,6 +280,12 @@ export class AdministratorController extends BaseController {
     @param.filter(Administrator, {exclude: 'where'})
     filter?: FilterExcludingWhere<Administrator>,
   ): Promise<Administrator | null> {
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
     return this.administratorRepository.findOne(
       Object.assign({}, {where: {id: id}}, filter),
       undefined,
@@ -274,8 +308,14 @@ export class AdministratorController extends BaseController {
         },
       },
     })
-    administrator: Administrator,
+    administrator: Partial<Administrator>,
   ): Promise<void> {
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
     await this.administratorRepository.updateById(id, administrator, undefined);
   }
 
@@ -290,6 +330,12 @@ export class AdministratorController extends BaseController {
     @param.path.string('id') id: string,
     @requestBody() administrator: Administrator,
   ): Promise<void> {
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
     await this.administratorRepository.replaceById(
       id,
       administrator,
@@ -305,6 +351,14 @@ export class AdministratorController extends BaseController {
     },
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
+    await this.accessTokenRepository.deleteAll({userId: id}, undefined);
+    await this.userCredentialsRepository.deleteAll({userId: id}, undefined);
     await this.administratorRepository.deleteById(id, undefined);
   }
 }

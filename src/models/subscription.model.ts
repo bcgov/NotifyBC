@@ -19,15 +19,6 @@ import {Base} from '.';
 export class Subscription extends Base {
   @property({
     type: 'string',
-    mongodb: {dataType: 'ObjectID'},
-    id: true,
-    generated: true,
-    updateOnly: true,
-  })
-  id?: string;
-
-  @property({
-    type: 'string',
     required: true,
   })
   serviceName: string;

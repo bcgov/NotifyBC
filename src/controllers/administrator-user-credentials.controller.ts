@@ -1,4 +1,5 @@
 import {authenticate} from '@loopback/authentication';
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -11,21 +12,33 @@ import {
   get,
   getModelSchemaRef,
   getWhereSchemaFor,
+  HttpErrors,
   oas,
   param,
   patch,
   post,
   requestBody,
 } from '@loopback/rest';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {genSalt, hash} from 'bcryptjs';
 import {Administrator, UserCredentials} from '../models';
-import {AdministratorRepository} from '../repositories';
+import {
+  AdministratorRepository,
+  UserCredentialsRepository,
+} from '../repositories';
 
 @authenticate('ipWhitelist', 'accessToken')
 @oas.tags('administrator')
 export class AdministratorUserCredentialsController {
   constructor(
+    @inject(SecurityBindings.USER)
+    protected user: UserProfile,
     @repository(AdministratorRepository)
     protected administratorRepository: AdministratorRepository,
+    @inject('repositories.UserCredentialsRepository', {
+      asProxyWithInterceptors: true,
+    })
+    protected userCredentialsRepository: UserCredentialsRepository,
   ) {}
 
   @get('/administrators/{id}/user-credentials', {
@@ -44,6 +57,12 @@ export class AdministratorUserCredentialsController {
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<UserCredentials>,
   ): Promise<UserCredentials> {
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
     return this.administratorRepository.userCredentials(id).get(filter);
   }
 
@@ -64,7 +83,6 @@ export class AdministratorUserCredentialsController {
         'application/json': {
           schema: getModelSchemaRef(UserCredentials, {
             title: 'NewUserCredentialsInAdministrator',
-            exclude: ['id'],
             optional: ['userId'],
           }),
         },
@@ -72,9 +90,21 @@ export class AdministratorUserCredentialsController {
     })
     userCredentials: Omit<UserCredentials, 'id'>,
   ): Promise<UserCredentials> {
-    return this.administratorRepository
-      .userCredentials(id)
-      .create(userCredentials);
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
+    userCredentials.password = await hash(
+      userCredentials.password,
+      await genSalt(),
+    );
+    await this.administratorRepository.userCredentials(id).delete();
+    return this.userCredentialsRepository.create(
+      Object.assign({}, userCredentials, {userId: id}),
+      undefined,
+    );
   }
 
   @patch('/administrators/{id}/user-credentials', {
@@ -90,7 +120,10 @@ export class AdministratorUserCredentialsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(UserCredentials, {partial: true}),
+          schema: getModelSchemaRef(UserCredentials, {
+            partial: true,
+            exclude: ['userId'],
+          }),
         },
       },
     })
@@ -98,9 +131,23 @@ export class AdministratorUserCredentialsController {
     @param.query.object('where', getWhereSchemaFor(UserCredentials))
     where?: Where<UserCredentials>,
   ): Promise<Count> {
-    return this.administratorRepository
-      .userCredentials(id)
-      .patch(userCredentials, where);
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
+    if (userCredentials.password) {
+      userCredentials.password = await hash(
+        userCredentials.password,
+        await genSalt(),
+      );
+    }
+    return this.userCredentialsRepository.updateAll(
+      userCredentials,
+      {and: [{userId: id}, where]},
+      undefined,
+    );
   }
 
   @del('/administrators/{id}/user-credentials', {
@@ -116,6 +163,12 @@ export class AdministratorUserCredentialsController {
     @param.query.object('where', getWhereSchemaFor(UserCredentials))
     where?: Where<UserCredentials>,
   ): Promise<Count> {
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
     return this.administratorRepository.userCredentials(id).delete(where);
   }
 }

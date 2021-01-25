@@ -53,7 +53,6 @@ export class BounceController extends BaseController {
         'application/json': {
           schema: getModelSchemaRef(Bounce, {
             title: 'NewBounce',
-            exclude: ['id'],
           }),
         },
       },

@@ -1,20 +1,12 @@
-import {Entity, model, property} from '@loopback/repository';
+import {model, property} from '@loopback/repository';
+import {Base} from '.';
 import {RssItem} from './rss-item.model';
 
 @model({
   name: 'rss',
   settings: {strict: false, validateUpsert: true, idInjection: true},
 })
-export class Rss extends Entity {
-  @property({
-    type: 'string',
-    mongodb: {dataType: 'ObjectID'},
-    id: true,
-    generated: true,
-    updateOnly: true,
-  })
-  id?: string;
-
+export class Rss extends Base {
   @property({
     type: 'string',
     required: true,

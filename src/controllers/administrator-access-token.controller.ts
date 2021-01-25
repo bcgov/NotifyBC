@@ -1,3 +1,5 @@
+import {authenticate} from '@loopback/authentication';
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -10,20 +12,29 @@ import {
   get,
   getModelSchemaRef,
   getWhereSchemaFor,
+  HttpErrors,
   oas,
   param,
   patch,
   post,
   requestBody,
 } from '@loopback/rest';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {AccessToken, Administrator} from '../models';
-import {AdministratorRepository} from '../repositories';
+import {AccessTokenRepository, AdministratorRepository} from '../repositories';
 
+@authenticate('ipWhitelist', 'accessToken')
 @oas.tags('administrator')
 export class AdministratorAccessTokenController {
   constructor(
+    @inject(SecurityBindings.USER)
+    protected user: UserProfile,
     @repository(AdministratorRepository)
     protected administratorRepository: AdministratorRepository,
+    @inject('repositories.AccessTokenRepository', {
+      asProxyWithInterceptors: true,
+    })
+    protected accessTokenRepository: AccessTokenRepository,
   ) {}
 
   @get('/administrators/{id}/access-tokens', {
@@ -42,6 +53,12 @@ export class AdministratorAccessTokenController {
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<AccessToken>,
   ): Promise<AccessToken[]> {
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
     return this.administratorRepository.accessTokens(id).find(filter);
   }
 
@@ -60,7 +77,6 @@ export class AdministratorAccessTokenController {
         'application/json': {
           schema: getModelSchemaRef(AccessToken, {
             title: 'NewAccessTokenInAdministrator',
-            exclude: ['id'],
             optional: ['userId'],
           }),
         },
@@ -68,7 +84,16 @@ export class AdministratorAccessTokenController {
     })
     accessToken: Omit<AccessToken, 'id'>,
   ): Promise<AccessToken> {
-    return this.administratorRepository.accessTokens(id).create(accessToken);
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
+    return this.accessTokenRepository.create(
+      Object.assign({userId: id}, accessToken),
+      undefined,
+    );
   }
 
   @patch('/administrators/{id}/access-tokens', {
@@ -92,9 +117,17 @@ export class AdministratorAccessTokenController {
     @param.query.object('where', getWhereSchemaFor(AccessToken))
     where?: Where<AccessToken>,
   ): Promise<Count> {
-    return this.administratorRepository
-      .accessTokens(id)
-      .patch(accessToken, where);
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
+    return this.accessTokenRepository.updateAll(
+      accessToken,
+      {and: [where, {userId: id}]},
+      undefined,
+    );
   }
 
   @del('/administrators/{id}/access-tokens', {
@@ -110,6 +143,12 @@ export class AdministratorAccessTokenController {
     @param.query.object('where', getWhereSchemaFor(AccessToken))
     where?: Where<AccessToken>,
   ): Promise<Count> {
+    if (
+      this.user.authnStrategy === 'accessToken' &&
+      this.user[securityId] !== id
+    ) {
+      throw new HttpErrors.Forbidden();
+    }
     return this.administratorRepository.accessTokens(id).delete(where);
   }
 }

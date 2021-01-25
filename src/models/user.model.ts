@@ -6,20 +6,9 @@ import {Base} from './base.model';
   settings: {
     strict: false,
     caseSensitiveEmail: true,
-    maxTTL: 31556926,
-    ttl: 1209600,
   },
 })
 export class User extends Base {
-  @property({
-    type: 'string',
-    mongodb: {dataType: 'ObjectID'},
-    id: 1,
-    generated: true,
-    updateOnly: true,
-  })
-  id?: string;
-
   @property({
     type: 'string',
   })

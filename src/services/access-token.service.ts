@@ -1,5 +1,5 @@
 import {TokenService} from '@loopback/authentication';
-import {injectable, service} from '@loopback/core';
+import {inject, injectable, service} from '@loopback/core';
 import {AnyObject, repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
@@ -11,7 +11,9 @@ import {AdminUserService} from './admin-user.service';
 @injectable()
 export class AccessTokenService implements TokenService {
   constructor(
-    @repository(AccessTokenRepository)
+    @inject('repositories.AccessTokenRepository', {
+      asProxyWithInterceptors: true,
+    })
     public accessTokenRepository: AccessTokenRepository,
     @repository(AdministratorRepository)
     public userRepository: AdministratorRepository,
@@ -29,11 +31,15 @@ export class AccessTokenService implements TokenService {
     let userProfile: UserProfile;
 
     try {
-      const accessToken = await this.accessTokenRepository.findById(token);
+      const accessToken = await this.accessTokenRepository.findById(
+        token,
+        undefined,
+        undefined,
+      );
       if (
-        Date.parse(accessToken.created as string) +
-          1000 * <number>accessToken.ttl <
-        Date.now()
+        accessToken.ttl !== undefined &&
+        Date.parse(accessToken.created as string) + 1000 * accessToken.ttl <
+          Date.now()
       ) {
         throw new Error();
       }
@@ -66,7 +72,7 @@ export class AccessTokenService implements TokenService {
           userId: userProfile[securityId],
         }),
       );
-      await this.accessTokenRepository.create(accessToken);
+      await this.accessTokenRepository.create(accessToken, undefined);
     } catch (error) {
       throw new HttpErrors.Unauthorized(`Error encoding token : ${error}`);
     }

@@ -79,16 +79,10 @@ export class NotificationController extends BaseController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Notification, {
-            title: 'NewNotification',
-            exclude: ['id'],
-          }),
+          schema: getModelSchemaRef(Notification),
         },
         'application/x-www-form-urlencoded': {
-          schema: getModelSchemaRef(Notification, {
-            title: 'NewNotification',
-            exclude: ['id'],
-          }),
+          schema: getModelSchemaRef(Notification),
         },
       },
     })
