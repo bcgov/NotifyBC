@@ -1,47 +1,23 @@
 <template>
   <div>
-    <iframe
-      id="nb-api-explorer"
-      :src="ApiExplorerUrlPrefix"
-      ref="iframe"
-      @load="iframeResizer()"
-      scrolling="no"
-    />
+    <iframe id="nb-api-explorer" :src="ApiExplorerUrlPrefix" />
   </div>
 </template>
 <script>
+import iFrameResize from 'iframe-resizer';
 export default {
   data: function() {
     return {
       ApiExplorerUrlPrefix: window.ApiExplorerUrlPrefix || '/explorer',
-      observer: undefined,
+      iFrameResizer: undefined,
     };
   },
-  methods: {
-    iframeResizer: function() {
-      // Select the node that will be observed for mutations
-      const iframeNode = this.$refs.iframe;
-      const targetNode = iframeNode.contentWindow.document.documentElement;
-
-      // Options for the observer (which mutations to observe)
-      const config = {
-        attributes: true,
-        childList: true,
-        subtree: true,
-        characterData: true,
-      };
-
-      // Create an observer instance linked to the callback function
-      this.observer = new MutationObserver(() => {
-        iframeNode.style.height = targetNode.scrollHeight + 'px';
-      });
-
-      // Start observing the target node for configured mutations
-      this.observer.observe(targetNode, config);
-    },
+  mounted: async function() {
+    $('#nb-api-explorer').iFrameResize();
+    this.iFrameResizer = $('#nb-api-explorer')[0].iFrameResizer;
   },
   beforeDestroy: function() {
-    this.observer.disconnect();
+    this.iFrameResizer && this.iFrameResizer.close();
   },
 };
 </script>

@@ -67,10 +67,15 @@ export class NotifyBcApplication extends BootMixin(
     // this.static('/', path.join(__dirname, staticHomeRelPath));
 
     // Customize @loopback/rest-explorer configuration here
+    const explorerPath = '/explorer';
     this.configure(RestExplorerBindings.COMPONENT).to({
-      path: '/explorer',
+      path: explorerPath,
     });
     this.component(RestExplorerComponent);
+    this.static(
+      explorerPath,
+      path.join(__dirname, '../client/node_modules/iframe-resizer/js'),
+    );
 
     let dsFiles = ['db.datasource.local.json', 'db.datasource.local.js'];
     if (process.env.NODE_ENV) {
