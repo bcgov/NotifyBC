@@ -24,14 +24,14 @@ export class AdminUserService
 
     const foundUser = await this.userRepository.findOne({
       where: {email: credentials.email},
+      include: ['userCredentials'],
     });
     if (!foundUser) {
       throw new HttpErrors.Unauthorized(invalidCredentialsError);
     }
-
     const passwordMatched = await compare(
       credentials.password,
-      foundUser.password,
+      foundUser.userCredentials.password,
     );
 
     if (!passwordMatched) {

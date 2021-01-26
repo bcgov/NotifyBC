@@ -7,6 +7,7 @@ import {
   FilterExcludingWhere,
   model,
   property,
+  repository,
   Where,
 } from '@loopback/repository';
 import {
@@ -23,10 +24,12 @@ import {
 } from '@loopback/rest';
 import {SecurityBindings, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
+import _ from 'lodash';
 import {Administrator} from '../models';
 import {
   AdministratorRepository,
   ConfigurationRepository,
+  UserCredentialsRepository,
 } from '../repositories';
 import {AccessTokenService, AdminUserService} from '../services';
 import {BaseController} from './base.controller';
@@ -75,6 +78,8 @@ export class AdministratorController extends BaseController {
       asProxyWithInterceptors: true,
     })
     public administratorRepository: AdministratorRepository,
+    @repository(UserCredentialsRepository)
+    public userCredentialsRepository: UserCredentialsRepository,
     @service(AccessTokenService)
     public accessTokenService: TokenService,
     @service(AdminUserService)
@@ -111,6 +116,7 @@ export class AdministratorController extends BaseController {
         'application/json': {
           schema: getModelSchemaRef(NewUserRequest, {
             title: 'NewUser',
+            exclude: ['id', 'created', 'updated'],
           }),
         },
       },
@@ -118,12 +124,22 @@ export class AdministratorController extends BaseController {
     newUserRequest: NewUserRequest,
   ): Promise<Administrator> {
     const password = await hash(newUserRequest.password, await genSalt());
-    newUserRequest.password = password;
-    const savedUser = await this.administratorRepository.create(
-      newUserRequest,
-      undefined,
-    );
-    return savedUser;
+    try {
+      const savedUser = await this.administratorRepository.create(
+        _.omit(newUserRequest, 'password'),
+        undefined,
+      );
+      await this.userCredentialsRepository.create(
+        {userId: savedUser.id, password},
+        undefined,
+      );
+      return savedUser;
+    } catch (ex) {
+      if (ex.code === 11000 && ex.name === 'MongoError') {
+        throw new HttpErrors.BadRequest('duplicated email address');
+      }
+      throw ex;
+    }
   }
 
   @post('/administrators/login', {

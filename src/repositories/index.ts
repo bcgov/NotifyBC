@@ -5,3 +5,4 @@ export * from './bounce.repository';
 export * from './notification.repository';
 export * from './rss.repository';
 export * from './access-token.repository';
+export * from './user-credentials.repository';

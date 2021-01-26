@@ -7,3 +7,4 @@ export * from './notification.model';
 export * from './rss.model';
 export * from './rss-item.model';
 export * from './access-token.model';
+export * from './user-credentials.model';
