@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {model, property} from '@loopback/repository';
+import {Base} from './base.model';
 
 @model({
   name: 'user',
@@ -9,7 +10,7 @@ import {Entity, model, property} from '@loopback/repository';
     ttl: 1209600,
   },
 })
-export class User extends Entity {
+export class User extends Base {
   @property({
     type: 'string',
     mongodb: {dataType: 'ObjectID'},
@@ -29,16 +30,6 @@ export class User extends Entity {
     required: true,
   })
   email: string;
-
-  @property({
-    type: 'boolean',
-  })
-  emailVerified?: boolean;
-
-  @property({
-    type: 'string',
-  })
-  verificationToken?: string;
 
   // Define well-known properties here
 

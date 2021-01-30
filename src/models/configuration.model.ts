@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {model, property} from '@loopback/repository';
+import {Base} from './base.model';
 
 @model({
   name: 'configuration',
@@ -17,7 +18,7 @@ import {Entity, model, property} from '@loopback/repository';
     },
   },
 })
-export class Configuration extends Entity {
+export class Configuration extends Base {
   @property({
     type: 'string',
     mongodb: {dataType: 'ObjectID'},
@@ -42,18 +43,6 @@ export class Configuration extends Entity {
     type: 'string',
   })
   serviceName?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  created?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  updated?: string;
 
   // Define well-known properties here
 

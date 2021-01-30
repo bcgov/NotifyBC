@@ -1,9 +1,11 @@
-import {Entity, model, property} from '@loopback/repository';
+import {model, property} from '@loopback/repository';
+import {Base} from './base.model';
 
 @model({settings: {strict: false, forceId: false}})
-export class AccessToken extends Entity {
+export class AccessToken extends Base {
   @property({
     type: 'string',
+    mongodb: {dataType: 'string'},
     id: true,
     generated: false,
   })
@@ -18,10 +20,11 @@ export class AccessToken extends Entity {
   ttl?: number;
 
   @property({
-    type: 'date',
-    defaultFn: 'now',
+    type: 'string',
+    description:
+      'name of the token, for example app name where the token is used',
   })
-  created?: string;
+  name?: string;
 
   @property({
     type: 'string',

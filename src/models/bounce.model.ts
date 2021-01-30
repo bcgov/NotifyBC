@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {model, property} from '@loopback/repository';
+import {Base} from './base.model';
 import {BounceMessageItem} from './bounce-message-item.model';
 
 @model({
@@ -17,7 +18,7 @@ import {BounceMessageItem} from './bounce-message-item.model';
     },
   },
 })
-export class Bounce extends Entity {
+export class Bounce extends Base {
   @property({
     type: 'string',
     mongodb: {dataType: 'ObjectID'},
@@ -64,18 +65,6 @@ export class Bounce extends Entity {
     type: 'date',
   })
   latestNotificationEnded?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  created?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  updated?: string;
 
   // Define well-known properties here
 

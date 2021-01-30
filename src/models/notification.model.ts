@@ -1,4 +1,5 @@
-import {AnyObject, Entity, model, property} from '@loopback/repository';
+import {AnyObject, model, property} from '@loopback/repository';
+import {Base} from '.';
 
 @model({
   name: 'notification',
@@ -11,7 +12,7 @@ import {AnyObject, Entity, model, property} from '@loopback/repository';
     hidden: [],
   },
 })
-export class Notification extends Entity {
+export class Notification extends Base {
   @property({
     type: 'string',
     mongodb: {dataType: 'ObjectID'},
@@ -44,18 +45,6 @@ export class Notification extends Entity {
     default: {},
   })
   message: AnyObject;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  created?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  updated?: string;
 
   @property({
     type: 'string',

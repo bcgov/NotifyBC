@@ -1,4 +1,5 @@
-import {AnyObject, Entity, model, property} from '@loopback/repository';
+import {AnyObject, model, property} from '@loopback/repository';
+import {Base} from '.';
 
 @model({
   name: 'subscription',
@@ -15,7 +16,7 @@ import {AnyObject, Entity, model, property} from '@loopback/repository';
     },
   },
 })
-export class Subscription extends Entity {
+export class Subscription extends Base {
   @property({
     type: 'string',
     mongodb: {dataType: 'ObjectID'},
@@ -66,18 +67,6 @@ export class Subscription extends Entity {
     type: 'string',
   })
   broadcastPushNotificationFilter?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  created?: string;
-
-  @property({
-    type: 'date',
-    default: '$now',
-  })
-  updated?: string;
 
   // Define well-known properties here
 
