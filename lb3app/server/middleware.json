@@ -1,7 +1,0 @@
-{
-  "routes": {
-    "loopback#rest": {
-      "paths": ["${restApiRoot}"]
-    }
-  }
-}

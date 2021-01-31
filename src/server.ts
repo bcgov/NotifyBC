@@ -6,9 +6,10 @@
 import {once} from 'events';
 import express from 'express';
 import http from 'http';
+import path from 'path';
 import {ApplicationConfig, NotifyBcApplication} from './application';
 import webAdminConsole from './web-admin-console';
-const loopback = require('loopback');
+const favicon = require('serve-favicon');
 const compression = require('compression');
 const helmet = require('helmet');
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -26,7 +27,7 @@ export class ExpressServer {
     this.app = express();
 
     // Middleware migrated from LoopBack 3
-    this.app.use(loopback.favicon('favicon.ico'));
+    this.app.use(favicon(path.join(__dirname, '..', 'favicon.ico')));
     this.app.use(compression());
     this.app.use(
       helmet({

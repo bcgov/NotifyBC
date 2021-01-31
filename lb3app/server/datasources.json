@@ -1,8 +1,0 @@
-{
-  "db": {
-    "name": "db",
-    "localStorage": "",
-    "file": "lb3app/server/database/data.json",
-    "connector": "memory"
-  }
-}

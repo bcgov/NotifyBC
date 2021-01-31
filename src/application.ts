@@ -3,7 +3,6 @@ import {
   registerAuthenticationStrategy,
 } from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
-import {Lb3AppBooterComponent} from '@loopback/booter-lb3app';
 import {ApplicationConfig, createBindingFromClass} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
@@ -93,19 +92,11 @@ export class NotifyBcApplication extends BootMixin(
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {};
-    this.component(Lb3AppBooterComponent);
     this.component(AuthenticationComponent);
     registerAuthenticationStrategy(this, AccessTokenAuthenticationStrategy);
     registerAuthenticationStrategy(this, IpWhitelistAuthenticationStrategy);
     registerAuthenticationStrategy(this, AnonymousAuthenticationStrategy);
     registerAuthenticationStrategy(this, SiteMinderAuthenticationStrategy);
     this.add(createBindingFromClass(SecuritySpecEnhancer));
-    if (process.env.NODE_ENV === 'test') {
-      return;
-    }
-    this.bootOptions.lb3app = {
-      mode: 'fullApp',
-      restApiRoot: options.restApiRoot,
-    };
   }
 }
