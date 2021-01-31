@@ -46,7 +46,10 @@ export class ExpressServer {
 
     // Mount the LB4 REST API
     this.lbApp = new NotifyBcApplication(options);
-    this.app.use(options.restApiRoot, this.lbApp.requestHandler);
+    this.app.use(this.lbApp.options.restApiRoot, this.lbApp.requestHandler);
+
+    this.lbApp.options.trustedReverseProxyIps &&
+      this.app.set('trust proxy', this.lbApp.options.trustedReverseProxyIps);
 
     // Custom Express routes
     webAdminConsole(this);
@@ -59,7 +62,7 @@ export class ExpressServer {
   public async start() {
     await this.lbApp.start();
     const port = this.lbApp.restServer.config.port ?? 3000;
-    const host = this.lbApp.restServer.config.host ?? '127.0.0.1';
+    const host = this.lbApp.restServer.config.host ?? '0.0.0.0';
     this.server = this.app.listen(port, host);
     await once(this.server, 'listening');
     this.url = `http://${host}:${port}`;

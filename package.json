@@ -13,11 +13,13 @@
     "node": ">=10.16"
   },
   "scripts": {
-    "build": "yarn build:serverOnly",
-    "postbuild": "yarn --cwd client install && yarn --cwd client run build",
-    "postinstall": "yarn postbuild",
-    "build:serverOnly": "lb-tsc && cp src/__tests__/acceptance/rss.xml dist/__tests__/acceptance && cp src/templates/* node_modules/@loopback/rest-explorer/templates/",
+    "build": "yarn build:server",
+    "build:server": "lb-tsc && cp src/__tests__/acceptance/rss.xml dist/__tests__/acceptance && cp src/templates/* node_modules/@loopback/rest-explorer/templates/",
+    "build:client": "yarn --cwd client install && yarn --cwd client run build",
+    "build:docs": "yarn --cwd docs install && yarn --cwd docs run build",
     "build:watch": "lb-tsc --watch",
+    "postbuild": "yarn build:client",
+    "postinstall": "yarn build",
     "lint": "yarn prettier:check && yarn eslint",
     "lint:fix": "yarn eslint:fix && yarn prettier:fix",
     "prettier:cli": "lb-prettier \"**/*.ts\" \"**/*.js\"",
@@ -28,14 +30,14 @@
     "pretest": "yarn clean && yarn build",
     "test": "lb-nyc lb-mocha --allow-console-logs --timeout 19999 dist/__tests__",
     "posttest": "yarn lint",
-    "test:dev": "yarn clean && yarn build:serverOnly && lb-nyc lb-mocha --timeout 19999 --allow-console-logs dist/__tests__",
+    "test:dev": "yarn clean && yarn build:server && lb-nyc lb-mocha --timeout 19999 --allow-console-logs dist/__tests__",
     "docker:build": "docker build -t notify-bc .",
     "docker:run": "docker run -p 3000:3000 -d notify-bc",
     "migrate": "node ./dist/migrate",
     "openapi-spec": "node ./dist/openapi-spec",
-    "prestart": "yarn build",
     "start": "node .",
-    "clean": "lb-clean dist *.tsbuildinfo .eslintcache"
+    "clean": "lb-clean dist/ */dist/ *.tsbuildinfo .eslintcache .nyc_output/ coverage/",
+    "clean:all": "yarn clean && lb-clean */node_modules && rm -rf node_modules"
   },
   "repository": {
     "type": "git"

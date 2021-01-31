@@ -17,7 +17,7 @@
     {
       "label": "Clean and Compile Project",
       "type": "shell",
-      "command": "yarn --silent clean && yarn --silent build:serverOnly",
+      "command": "yarn --silent clean && yarn --silent build:server",
       "group": {
         "kind": "build",
         "isDefault": true
