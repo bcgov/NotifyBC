@@ -1,4 +1,4 @@
-const _ = require('lodash');
+import _ from 'lodash';
 module.exports = {
   rest: {
     basePath: '/api',
@@ -22,7 +22,7 @@ module.exports = {
     broadcastCustomFilterFunctions: {
       // eslint-disable-next-line  @typescript-eslint/naming-convention
       contains_ci: {
-        _func: async function (resolvedArgs) {
+        _func: async function (resolvedArgs: (string | undefined)[]) {
           if (!resolvedArgs[0] || !resolvedArgs[1]) {
             return false;
           }

@@ -1,15 +1,17 @@
-let server;
+import {AnyObject, Filter} from '@loopback/repository';
+
+let server: any;
 module.exports.request = require('axios');
 module.exports.mailParser = require('mailparser');
-module.exports.app = function () {
+module.exports.app = function (...argsArr: any[]) {
   return new Promise((resolve, reject) => {
-    let app, cb;
-    if (arguments.length > 0) {
-      if (arguments[0] instanceof Object) {
-        app = arguments[0];
+    let app, cb: Function | undefined;
+    if (argsArr.length > 0) {
+      if (argsArr[0] instanceof Object) {
+        app = argsArr[0];
       }
-      if (arguments[arguments.length - 1] instanceof Function) {
-        cb = arguments[arguments.length - 1];
+      if (argsArr[argsArr.length - 1] instanceof Function) {
+        cb = argsArr[argsArr.length - 1];
       }
     }
 
@@ -18,25 +20,23 @@ module.exports.app = function () {
       return cb && process.nextTick(cb.bind(null, null, server));
     }
 
-    let urlPrefix = process.env.API_URL_PREFIX || 'http://localhost:3000/api';
-    let port = process.env.LISTENING_SMTP_PORT || 0;
-    let allowedSmtpDomains =
-      process.env.ALLOWED_SMTP_DOMAINS &&
-      process.env.ALLOWED_SMTP_DOMAINS.split(',').map(e =>
-        e.trim().toLowerCase(),
-      );
+    let urlPrefix = process.env.API_URL_PREFIX ?? 'http://localhost:3000/api';
+    let port = process.env.LISTENING_SMTP_PORT ?? '0';
+    let allowedSmtpDomains = process.env.ALLOWED_SMTP_DOMAINS?.split(
+      ',',
+    ).map(e => e.trim().toLowerCase());
     let bounceUnsubThreshold = parseInt(
-      process.env.BOUNCE_UNSUBSCRIBE_THRESHOLD || 5,
+      process.env.BOUNCE_UNSUBSCRIBE_THRESHOLD ?? '5',
     );
     const smtpOptsString = process.env.SMTP_SERVER_OPTIONS;
     let smtpOpts = (smtpOptsString && JSON.parse(smtpOptsString)) || {};
-    let handleBounce = process.env.SMTP_HANDLE_BOUNCE;
+    let handleBounce: any = process.env.SMTP_HANDLE_BOUNCE;
     let bounceSubjectRegex =
       process.env.BOUNCE_SUBJECT_REGEX &&
       new RegExp(process.env.BOUNCE_SUBJECT_REGEX);
     let bounceSmtpStatusCodeRegex =
       process.env.BOUNCE_SMTP_STATUS_CODE_REGEX &&
-      new RegExp(process.env.BOUNCE_SMTP_ERROR_CODE_REGEX);
+      new RegExp(process.env.BOUNCE_SMTP_ERROR_CODE_REGEX as string);
     let bounceFailedRecipientRegex =
       process.env.BOUNCE_FAILED_RECIPIENT_REGEX &&
       new RegExp(process.env.BOUNCE_FAILED_RECIPIENT_REGEX);
@@ -52,7 +52,7 @@ module.exports.app = function () {
       smtpSvr.domain &&
         (allowedSmtpDomains = smtpSvr.domain
           .split(',')
-          .map(e => e.trim().toLowerCase()));
+          .map((e: string) => e.trim().toLowerCase()));
       smtpSvr.options && (smtpOpts = smtpSvr.options);
       if (notificationCfg.handleBounce !== undefined) {
         handleBounce = notificationCfg.handleBounce;
@@ -129,9 +129,9 @@ module.exports.app = function () {
       args.options['listening-smtp-port'] &&
         (port = args.options['listening-smtp-port']);
       args.options['allowed-smtp-domains'] &&
-        (allowedSmtpDomains = args.options['allowed-smtp-domains'].map(e =>
-          e.toLowerCase(),
-        ));
+        (allowedSmtpDomains = args.options[
+          'allowed-smtp-domains'
+        ].map((e: string) => e.toLowerCase()));
       args.options['bounce-unsubscribe-threshold'] &&
         (bounceUnsubThreshold = parseInt(
           args.options['bounce-unsubscribe-threshold'],
@@ -159,7 +159,7 @@ module.exports.app = function () {
       authOptional: true,
       disabledCommands: ['AUTH'],
       size: MaxMsgSize,
-      onRcptTo(address, session, callback) {
+      onRcptTo(address: {address: string}, session: any, callback: Function) {
         try {
           const match = address.address.match(validEmailRegEx);
           if (match) {
@@ -173,10 +173,10 @@ module.exports.app = function () {
         } catch (ex) {}
         return callback(new Error('invalid recipient'));
       },
-      onData(stream, session, callback) {
+      onData(stream: any, session: any, callback: Function) {
         stream.setEncoding('utf8');
         let msg = '';
-        stream.on('data', chunk => {
+        stream.on('data', (chunk: any) => {
           if (msg.length < MaxMsgSize) {
             msg += chunk;
           }
@@ -209,12 +209,12 @@ module.exports.app = function () {
                 if (!handleBounce) {
                   break;
                 }
-                let parsed = {};
+                let parsed: AnyObject = {};
                 try {
                   parsed = await exports.mailParser.simpleParser(msg);
                 } catch (err) {
                   console.error(err);
-                  const error = new Error('parsing error');
+                  const error: any = new Error('parsing error');
                   error.responseCode = 451;
                   return callback(error);
                 }
@@ -230,7 +230,7 @@ module.exports.app = function () {
                 let smtpBody = parsed.html || parsed.text;
                 if (parsed.attachments && parsed.attachments.length > 0) {
                   const deliveryStatusAttachment = parsed.attachments.find(
-                    ele => {
+                    (ele: {contentType: string}) => {
                       return (
                         ele.contentType &&
                         ele.contentType.toLowerCase() ===
@@ -238,10 +238,7 @@ module.exports.app = function () {
                       );
                     },
                   );
-                  if (
-                    deliveryStatusAttachment &&
-                    deliveryStatusAttachment.content
-                  ) {
+                  if (deliveryStatusAttachment?.content) {
                     smtpBody = deliveryStatusAttachment.content.toString(
                       'utf8',
                     );
@@ -263,12 +260,11 @@ module.exports.app = function () {
                     bouncedUserChannelId = bouncedUserChannelIdMatch[0];
                   }
                 }
-                const xfr =
-                  parsed.headers && parsed.headers.get('x-failed-recipients');
+                const xfr = parsed.headers?.get('x-failed-recipients');
                 if (xfr) {
                   bouncedUserChannelId = xfr;
                 }
-                let filter = {
+                let filter: Filter = {
                   where: {
                     id: id,
                     channel: 'email',
@@ -286,14 +282,14 @@ module.exports.app = function () {
                   body = res.data;
                 } catch (err) {
                   console.error(err);
-                  const error = new Error('processing error');
+                  const error: any = new Error('processing error');
                   error.responseCode = 451;
                   return callback(error);
                 }
                 if (!(body instanceof Array) || body.length !== 1) {
                   return callback(null);
                 }
-                const userChannelId = body[0] && body[0].userChannelId;
+                const userChannelId = body[0]?.userChannelId;
                 if (
                   incrementBounceCnt &&
                   bouncedUserChannelId &&
@@ -320,14 +316,13 @@ module.exports.app = function () {
                   body = res.data;
                 } catch (err) {
                   console.error(err);
-                  const error = new Error('processing error');
+                  const error: any = new Error('processing error');
                   error.responseCode = 451;
                   return callback(error);
                 }
-                let bncCnt = (body && body[0] && body[0].hardBounceCount) || 0,
-                  bncId = body && body[0] && body[0].id;
-                const bounceMessages =
-                  (body && body[0] && body[0].bounceMessages) || [];
+                let bncCnt = body?.[0]?.hardBounceCount || 0,
+                  bncId = body?.[0]?.id;
+                const bounceMessages = body?.[0]?.bounceMessages || [];
                 if (incrementBounceCnt) {
                   bncCnt += 1;
                 }
@@ -370,7 +365,7 @@ module.exports.app = function () {
                         is_anonymous: true,
                       },
                       maxRedirects: 0,
-                      validateStatus: function (status) {
+                      validateStatus: function (status: number) {
                         return status >= 200 && status < 400;
                       },
                     },
@@ -388,16 +383,15 @@ module.exports.app = function () {
       },
     });
     server = new SMTPServer(smtpOpts);
-    server.listen(parseInt(port), function () {
+    server.listen(parseInt(port), function (this: any) {
       console.info(
         `smtp server started listening on port ${
-          // eslint-disable-next-line @typescript-eslint/no-invalid-this
           this.address().port
         }  with:\napi-url-prefix=${urlPrefix}`,
       );
       allowedSmtpDomains &&
         console.info(`allowed-smtp-domains=${allowedSmtpDomains}`);
-      cb && cb(null, server);
+      cb?.(null, server);
       resolve(server);
     });
   });
