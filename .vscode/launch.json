@@ -11,6 +11,7 @@
       "program": "${workspaceFolder}\\dist\\index.js",
       "autoAttachChildProcesses": true,
       "console": "internalConsole",
+      "outputCapture": "std",
       "preLaunchTask": "Clean and Compile Project",
       "env": {
         "NODE_ENV": "dev",

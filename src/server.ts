@@ -1,19 +1,8 @@
-// Copyright IBM Corp. 2019,2020. All Rights Reserved.
-// Node module: @loopback/example-express-composition
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
 import {once} from 'events';
 import express from 'express';
 import http from 'http';
-import path from 'path';
 import {ApplicationConfig, NotifyBcApplication} from './application';
 import webAdminConsole from './web-admin-console';
-const favicon = require('serve-favicon');
-const compression = require('compression');
-const helmet = require('helmet');
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const morgan = require('morgan');
 
 export {ApplicationConfig};
 
@@ -25,27 +14,22 @@ export class ExpressServer {
 
   constructor(options: ApplicationConfig = {}) {
     this.app = express();
+    this.lbApp = new NotifyBcApplication(options);
 
     // Middleware migrated from LoopBack 3
-    this.app.use(favicon(path.join(__dirname, '..', 'favicon.ico')));
-    this.app.use(compression());
-    this.app.use(
-      helmet({
-        hsts: {
-          maxAge: 0,
-          includeSubDomains: true,
-        },
-      }),
-    );
-
-    // this.app.use(
-    //   morgan(
-    //     ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status ":req[X-Forwarded-For]"',
-    //   ),
-    // );
+    const allMiddlewareConfigs = this.lbApp.middlewareConfigs.all;
+    for (const middlewareFactoryNm in allMiddlewareConfigs) {
+      if (allMiddlewareConfigs[middlewareFactoryNm].enabled === false) continue;
+      const middlewareFactory: Function = require(middlewareFactoryNm);
+      this.app.use(
+        middlewareFactory.apply(
+          this,
+          allMiddlewareConfigs[middlewareFactoryNm].params,
+        ),
+      );
+    }
 
     // Mount the LB4 REST API
-    this.lbApp = new NotifyBcApplication(options);
     this.app.use(this.lbApp.options.restApiRoot, this.lbApp.requestHandler);
 
     this.lbApp.options.trustedReverseProxyIps &&

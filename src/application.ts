@@ -4,13 +4,14 @@ import {
 } from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig, createBindingFromClass} from '@loopback/core';
-import {RepositoryMixin} from '@loopback/repository';
+import {AnyObject, RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
+import fs from 'fs';
 import * as _ from 'lodash';
 import path from 'path';
 import {
@@ -21,13 +22,13 @@ import {
 } from './authn-strategies';
 import {MySequence} from './sequence';
 import {SecuritySpecEnhancer} from './services';
-import fs = require('fs');
 
 export {ApplicationConfig};
 
 export class NotifyBcApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
+  middlewareConfigs: AnyObject;
   constructor(options: ApplicationConfig = {}) {
     let configFiles = [
       'config.json',
@@ -35,27 +36,45 @@ export class NotifyBcApplication extends BootMixin(
       'config.local.json',
       'config.local.js',
     ];
+    let middlewareFiles = [
+      'middleware.js',
+      'middleware.json',
+      'middleware.local.js',
+      'middleware.local.json',
+    ];
     if (process.env.NODE_ENV) {
       configFiles = configFiles.concat([
         `config.${process.env.NODE_ENV}.json`,
         `config.${process.env.NODE_ENV}.js`,
       ]);
+      middlewareFiles = middlewareFiles.concat([
+        `middleware.${process.env.NODE_ENV}.json`,
+        `middleware.${process.env.NODE_ENV}.js`,
+      ]);
     }
-    for (const configFile of configFiles) {
-      const f = path.join(__dirname, configFile);
-      if (fs.existsSync(f)) {
-        _.mergeWith(options, require(f), (t, s) => {
-          if (_.isArray(t)) {
-            return s;
-          }
-        });
+    const middlewareConfigs: AnyObject = {};
+    for (const e of [
+      {files: middlewareFiles, configs: middlewareConfigs},
+      {files: configFiles, configs: options},
+    ]) {
+      for (const configFile of e.files) {
+        const f = path.join(__dirname, configFile);
+        if (fs.existsSync(f)) {
+          _.mergeWith(e.configs, require(f), (t, s) => {
+            if (_.isArray(t)) {
+              return s;
+            }
+          });
+        }
       }
     }
+
     options.rest = options.rest ?? {};
     if (options.rest.host === undefined) options.rest.host = options.host;
     if (options.rest.port === undefined) options.rest.port = options.port;
     //    options.rest.basePath = options.restApiRoot;
     super(options);
+    this.middlewareConfigs = middlewareConfigs;
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -98,5 +117,18 @@ export class NotifyBcApplication extends BootMixin(
     registerAuthenticationStrategy(this, AnonymousAuthenticationStrategy);
     registerAuthenticationStrategy(this, SiteMinderAuthenticationStrategy);
     this.add(createBindingFromClass(SecuritySpecEnhancer));
+
+    const apiOnlyMiddlewareConfigs = middlewareConfigs.apiOnly;
+    for (const middlewareFactoryNm in apiOnlyMiddlewareConfigs) {
+      if (apiOnlyMiddlewareConfigs[middlewareFactoryNm].enabled === false)
+        continue;
+      this.expressMiddleware(
+        `middleware.${middlewareFactoryNm}`,
+        require(middlewareFactoryNm).apply(
+          this,
+          apiOnlyMiddlewareConfigs[middlewareFactoryNm].params,
+        ),
+      );
+    }
   }
 }

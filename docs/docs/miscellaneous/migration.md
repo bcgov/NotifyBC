@@ -2,8 +2,37 @@
 
 To migrate from v1 to v2
 
-- move _server/config.local.(js|json)_ to _src/config.local.(js|json)_
+- move _server/config.local.(js|json)_ to _src/_
 - move _server/datasources.local.(js|json)_ to _src/datasources/db.datasource.local.(js|json)_
+- move _server/middleware.\*.(js|json) to \_src/_ if exists. Reorganize top level properties to _all_ or _apiOnly_, where _all_ applies to all requests including web admin console and _apiOnly_ applies to API requests only. For example, given
+
+  ```js
+  module.exports = {
+    initial: {
+      compression: {},
+    },
+    'routes:before': {
+      morgan: {
+        enabled: false,
+      },
+    },
+  };
+  ```
+
+  if _compression_ middleware will be applied to all requests and _morgan_ will be applied to API requests only, then change the file to
+
+  ```js
+  module.exports = {
+    all: {
+      compression: {},
+    },
+    apiOnly: {
+      morgan: {
+        enabled: false,
+      },
+    },
+  };
+  ```
 
 ## Incompatible API Changes
 
