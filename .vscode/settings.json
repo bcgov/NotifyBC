@@ -33,6 +33,7 @@
     "Ntfctn",
     "addmeta",
     "addt",
+    "apitoken",
     "automigrate",
     "createsend",
     "feedparser",
