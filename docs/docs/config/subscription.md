@@ -4,9 +4,9 @@ permalink: /docs/config-subscription/
 
 # Subscription
 
-Configs in this section customize behavior of subscription and unsubscription workflow. They are all sub-properties of config object _subscription_. This object can be defined as service-agnostic static config as well as service-specific dynamic config, which overrides the static one on a service-by-service basis. Default static config is defined in file _/server/config.json_. There is no default dynamic config.
+Configs in this section customize behavior of subscription and unsubscription workflow. They are all sub-properties of config object _subscription_. This object can be defined as service-agnostic static config as well as service-specific dynamic config, which overrides the static one on a service-by-service basis. Default static config is defined in file _/src/config.ts_. There is no default dynamic config.
 
-To customize static config, create the config object _subscription_ in file _/server/config.local.js_
+To customize static config, create the config object _subscription_ in file _/src/config.local.js_
 
 ```js
 module.exports = {
@@ -19,7 +19,7 @@ module.exports = {
 to create a service-specific dynamic config, use REST [config api](../api-config/)
 
 ```sh
-~ $ curl -X POST http://localhost:3000/api/configurations \
+curl -X POST http://localhost:3000/api/configurations \
 -H 'Content-Type: application/json' \
 -H 'Accept: application/json' -d @- << EOF
 {
@@ -82,7 +82,7 @@ You can customize _NotifyBC_'s on-screen response message to confirmation code v
 In addition to customizing the message, you can define a redirect URL instead of displaying _successMessage_ or _failureMessage_. For example, to redirect on-screen acknowledgement to a page in your app for service _myService_, create a dynamic config by calling REST config api
 
 ```sh
-~ $ curl -X POST 'http://localhost:3000/api/configurations' \
+curl -X POST 'http://localhost:3000/api/configurations' \
 -H 'Content-Type: application/json' \
 -H 'Accept: application/json' -d @- << EOF
 {
@@ -151,36 +151,38 @@ For anonymous subscription, _NotifyBC_ supports one-click opt-out by allowing un
 - Anonymous unsubscription request requires unsubscription code, which is a random string generated at subscription time. Unsubscription code reduces brute force attack risk by increasing size of key space. Without it, an attacker only needs to successfully guess subscription id. Be aware, however, the unsubscription code has to be embedded in unsubscription link. If the user forwarded a notification to other people, he/she is still vulnerable to unauthorized unsubscription.
 - Acknowledgement notification - a (final) notification is sent to user acknowledging unsubscription, and offers a link to revert had the change been made unauthorized. A deleted subscription (unsubscription) may have a limited lifetime (30 days by default) according to retention policy defined in [cron jobs](../config-cronJobs/) so the reversion can only be performed within the lifetime.
 
-You can customize anonymous unsubscription settings by changing the _anonymousUnsubscription_ configuration. Following is the default settings defined in [config.json](https://github.com/bcgov/NotifyBC/blob/main/server/config.json)
+You can customize anonymous unsubscription settings by changing the _anonymousUnsubscription_ configuration. Following is the default settings defined in [config.json](https://github.com/bcgov/NotifyBC/blob/main/src/config.ts)
 
-```json
-{
-  "subscription": {
-    ...
-    "anonymousUnsubscription": {
-      "code": {
-        "required": true,
-        "regex": "\\d{5}"
+```ts
+module.exports = {
+  subscription: {
+    anonymousUnsubscription: {
+      code: {
+        required: true,
+        regex: '\\d{5}',
       },
-      "acknowledgements":{
-        "onScreen": {
-          "successMessage": "You have been un-subscribed.",
-          "failureMessage": "Error happened while un-subscribing."
+      acknowledgements: {
+        onScreen: {
+          successMessage: 'You have been un-subscribed.',
+          failureMessage: 'Error happened while un-subscribing.',
         },
-        "notification":{
-          "email": {
-            "from": "no_reply@invlid.local",
-            "subject": "Un-subscription acknowledgement",
-            "textBody": "This is to acknowledge you have been un-subscribed from receiving notification for {unsubscription_service_names}. If you did not authorize this change or if you changed your mind, click {unsubscription_reversion_url} to revert."
-          }
-        }
-      }
-    }
-  }
-}
+        notification: {
+          email: {
+            from: 'no_reply@invalid.local',
+            subject: 'Un-subscription acknowledgement',
+            textBody:
+              'This is to acknowledge you have been un-subscribed from receiving notification for {unsubscription_service_names}. If you did not authorize this change or if you changed your mind, open {unsubscription_reversion_url} to revert.',
+            htmlBody:
+              'This is to acknowledge you have been un-subscribed from receiving notification for {unsubscription_service_names}. If you did not authorize this change or if you changed your mind, click <a href="{unsubscription_reversion_url}">here</a> to revert.',
+          },
+        },
+      },
+    },
+  },
+};
 ```
 
-The settings control whether or not unsubscription code is required, its RegEx pattern, and acknowledgement message templates for both on-screen and push notifications. Customization should be made to file _/server/config.local.js_ for static config or using configuration api for service-specific dynamic config.
+The settings control whether or not unsubscription code is required, its RegEx pattern, and acknowledgement message templates for both on-screen and push notifications. Customization should be made to file _/src/config.local.js_ for static config or using configuration api for service-specific dynamic config.
 
 To disable acknowledgement notification, set _subscription.anonymousUnsubscription.acknowledgements.notification_ or a specific channel underneath to _null_
 
@@ -189,14 +191,14 @@ module.exports = {
   subscription: {
     anonymousUnsubscription: {
       acknowledgements: {
-        notification: null
-      }
-    }
-  }
+        notification: null,
+      },
+    },
+  },
 };
 ```
 
-For on-screen acknowledgement, you can define a redirect URL instead of displaying _successMessage_ or _failureMessage_. For example, to redirect on-screen acknowledgement to a page in your app for all services, create following config in file _/server/config.local.js_
+For on-screen acknowledgement, you can define a redirect URL instead of displaying _successMessage_ or _failureMessage_. For example, to redirect on-screen acknowledgement to a page in your app for all services, create following config in file _/src/config.local.js_
 
 ```js
 module.exports = {
@@ -204,11 +206,11 @@ module.exports = {
     anonymousUnsubscription: {
       acknowledgements: {
         onScreen: {
-          redirectUrl: 'https://myapp/unsubscription/acknowledgement'
-        }
-      }
-    }
-  }
+          redirectUrl: 'https://myapp/unsubscription/acknowledgement',
+        },
+      },
+    },
+  },
 };
 ```
 

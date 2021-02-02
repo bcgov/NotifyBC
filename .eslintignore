@@ -2,7 +2,8 @@
 /node_modules/
 /docs/
 /coverage/
-/public/
 /dist/
 ecosystem.config.js
-.eslintrc.js
+/utils/
+# js in root
+/*.js

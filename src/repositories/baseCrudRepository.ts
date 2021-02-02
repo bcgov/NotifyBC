@@ -77,9 +77,7 @@ export class BaseCrudRepository<
     if (await this.isAdminReq(httpCtx, undefined, true)) {
       return currUser;
     }
-    const siteMinderReverseProxyIps =
-      this.appConfig.siteMinderReverseProxyIps ||
-      this.appConfig.defaultSiteMinderReverseProxyIps;
+    const siteMinderReverseProxyIps = this.appConfig.siteMinderReverseProxyIps;
     if (!siteMinderReverseProxyIps || siteMinderReverseProxyIps.length <= 0) {
       return null;
     }

@@ -16,7 +16,7 @@ open to internet
 1. _NotifyBC_, if it can be installed on such internet-facing host directly; otherwise,
 2. a tcp proxy server, such as nginx with stream proxy module that can proxy tcp port 25 traffic to backend _NotifyBC_ instances.
 
-Regardless which above option is chosen, you need to config _NotifyBC_ inbound SMTP server by adding following static config _inboundSmtpServer_ to file _/server/config.local.js_
+Regardless which above option is chosen, you need to config _NotifyBC_ inbound SMTP server by adding following static config _inboundSmtpServer_ to file _/src/config.local.js_
 
 ```js
 module.exports = {

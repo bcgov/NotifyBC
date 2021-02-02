@@ -15,7 +15,7 @@ Furthermore, to get results of an authenticated user, do one of the following
 - use a tool such as _curl_ that allows to specify custom headers, and supply SiteMinder header _SM_USER_:
 
 ```sh
- $ curl -X GET --header "Accept: application/json" \
+curl -X GET --header "Accept: application/json" \
     --header "SM_USER: foo" \
     "http://localhost:3000/api/notifications"
 ```

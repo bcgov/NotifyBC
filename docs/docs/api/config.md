@@ -75,8 +75,11 @@ The API operates on following configuration data model fields:
 GET /configurations
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
 - inputs
-  - a [filter](https://loopback.io/doc/en/lb3/Querying-data.html#filters) defining fields, where, include, order, offset, and limit
+  - a [filter](https://loopback.io/doc/en/lb4/Querying-data.html#filters) defining fields, where, include, order, offset, and limit
     - parameter name: filter
     - required: false
     - parameter type: query
@@ -89,15 +92,14 @@ GET /configurations
 
   to retrieve config items with name _rsa_, run
 
-  ```bash
-  ~ $ curl -X GET --header 'Accept: application/json' \
-  'http://localhost:3000/api/configurations?filter=%7B%22where%22%3A%20%7B%22name%22%3A%22rsa%22%7D%7D'
+  ```sh
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/configurations?filter=%7B%22where%22%3A%20%7B%22name%22%3A%22rsa%22%7D%7D'
   ```
 
-  the value of filter query parameter is the [stringified JSON](https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries)
+  the value of filter query parameter is the [stringified JSON](https://loopback.io/doc/en/lb4/Querying-data.html#using-stringified-json-in-rest-queries)
 
   ```json
-  { "where": { "name": "rsa" } }
+  {"where": {"name": "rsa"}}
   ```
 
 ## Create a Configuration
@@ -106,6 +108,9 @@ GET /configurations
 POST /configurations
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
 - inputs
   - an object containing configuration data model fields. At a minimum all required fields that don't have a default value must be supplied. Id field should be omitted since it's auto-generated. The API explorer only created an empty object for field _value_ but you should populate the child fields.
     - parameter name: data
@@ -131,6 +136,9 @@ POST /configurations
 PATCH /configurations/{id}
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
 - inputs
 
   - configuration id
@@ -154,6 +162,9 @@ PATCH /configurations/{id}
 DELETE /configurations/{id}
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
 - inputs
 
   - configuration id
@@ -174,6 +185,9 @@ PUT /configurations/{id}
 
 This API is intended to be only used by admin web console to modify a configuration.
 
+- permissions required, one of
+  - super admin
+  - admin
 - inputs
   - configuration id
     - parameter name: id

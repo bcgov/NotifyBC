@@ -4,7 +4,7 @@ permalink: /docs/benchmarks/
 
 # Benchmarks
 
-::: warning tl;dr
+::: tip tl;dr
 A <i>NotifyBC</i> server node can deliver 1 million emails in as little as 1 hour to a SMTP server node. SMTP server node's disk I/O is the bottleneck in such case. Throughput can be improved through horizontal scaling.
 :::
 
@@ -38,7 +38,7 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
   - OpenShift 1.5.1+7b451fc with metrics
   - default _NotifyBC_ OpenShift installation, which contains following relevant pods
     - 1 mongodb pod with 1 core, 1GiB RAM limit
-    - a variable number of Nodejs app pods each with 1 core, 1GiB RAM limit. The number varies by test runs as indicated in result.
+    - a variable number of Node.js app pods each with 1 core, 1GiB RAM limit. The number varies by test runs as indicated in result.
 
 - SMTP and mail delivery
   - Windows 7 host
@@ -52,12 +52,11 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
 
 ## Procedure
 
-1. update or create file _/server/config.local.js_ through [configMap](../installation/#update-configuration-files). Add sections for SMTP server and a custom filter function
+1. update or create file _/src/config.local.js_ through [configMap](../installation/#update-configuration-files). Add sections for SMTP server and a custom filter function
 
-   ```
-   var _ = require('lodash')
+   ```js
+   var _ = require('lodash');
    module.exports = {
-     ...
      smtp: {
        host: '<smtp-vm-ip-or-hostname>',
        secure: false,
@@ -65,40 +64,39 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
        pool: true,
        direct: false,
        maxMessages: Infinity,
-       maxConnections: 50
+       maxConnections: 50,
      },
-     ...
      notification: {
        broadcastCustomFilterFunctions: {
          /*jshint camelcase: false */
          contains_ci: {
            _func: function(resolvedArgs) {
              if (!resolvedArgs[0] || !resolvedArgs[1]) {
-               return false
+               return false;
              }
              return (
-               _.toLower(resolvedArgs[0]).indexOf(
-                _.toLower(resolvedArgs[1])) >= 0
-             )
+               _.toLower(resolvedArgs[0]).indexOf(_.toLower(resolvedArgs[1])) >=
+               0
+             );
            },
            _signature: [
              {
-               types: [2]
+               types: [2],
              },
              {
-               types: [2]
-             }
-           ]
-         }
-       }
-     }
-   }
+               types: [2],
+             },
+           ],
+         },
+       },
+     },
+   };
    ```
 
-2. create a number of subscriptions in bulk using script [bulk-post-subs.js](https://github.com/bcgov/NotifyBC/blob/main/utils/load-testing/bulk-post-subs.js). To load test different email volumes, you can create bulk subscriptions in different services. For example, generate 10 subscriptions under service named _load10_; 1,000,000 subscriptions under service _load1000000_ etc. _bulk-post-subs.js_ takes _userChannelId_ and other optional parameters
+2. create a number of subscriptions in bulk using script [bulk-post-subs.js](https://github.com/bcgov/NotifyBC/blob/main/src/utils/load-testing/bulk-post-subs.ts). To load test different email volumes, you can create bulk subscriptions in different services. For example, generate 10 subscriptions under service named _load10_; 1,000,000 subscriptions under service _load1000000_ etc. _bulk-post-subs.js_ takes _userChannelId_ and other optional parameters
 
-   ```
-   $ node utils/load-testing/bulk-post-subs.js -h
+   ```sh
+   $ node dist/utils/load-testing/bulk-post-subs.js -h
    Usage: node bulk-post-subs.js [Options] <userChannelId>
    [Options]:
    -a, --api-url-prefix=<string>                      api url prefix. default to http://localhost:3000/api
@@ -111,10 +109,10 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
 
    The generated subscriptions contain a filter, hence all load testing results below included time spent on filtering.
 
-3. launch load testing using script [curl-ntf.sh](https://github.com/bcgov/NotifyBC/blob/main/utils/load-testing/curl-ntf.sh), which takes following optional parameters
+3. launch load testing using script [curl-ntf.sh](https://github.com/bcgov/NotifyBC/blob/main/src/utils/load-testing/curl-ntf.sh), which takes following optional parameters
 
    ```
-   utils/load-testing/curl-ntf.sh <apiUrlPrefix> <serviceName> <senderEmail>
+   dist/utils/load-testing/curl-ntf.sh <apiUrlPrefix> <serviceName> <senderEmail>
    ```
 
    The script will print start time and the time taken to dispatch the notification.

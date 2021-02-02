@@ -14,7 +14,7 @@ Although _NotifyBC_ records all bounce emails, not all of them should count towa
 
 To mitigate, _NotifyBC_ defines several customizable string pattern filters in terms of regular expression. Only bounce emails matched the filters count towards unsubscription threshold. It's a matter of trial-and-error to get the correct filter suitable to your smtp server.
 
-::: tip ProTips™ to improve hard bounce recognition
+::: tip to improve hard bounce recognition
 Send non-existing emails to several external email systems. Inspect the bounce messages for common string patterns. After gone live, review bounce records in web console from time to time to identify new bounce types and decide whether the bounce types qualify as hard bounce. To avoid false positives resulting in premature unsubscription, it is advisable to start with a high unsubscription threshold.
 :::
 
@@ -28,20 +28,23 @@ Bounce handling involves four actions
 To setup bounce handling
 
 - set up [inbound smtp server](../config-inboundSmtpServer/)
-- verify config _notification.handleBounce_ is set to true or absent in _/server/config.local.js_
+- verify config _notification.handleBounce_ is set to true or absent in _/src/config.local.js_
 - verify and adjust unsubscription threshold and bounce filter criteria if needed.
-  Following is the default config in file _/server/config.json_ compatible with [rfc 3464](https://tools.ietf.org/html/rfc3464)
+  Following is the default config in file _/src/config.ts_ compatible with [rfc 3464](https://tools.ietf.org/html/rfc3464)
 
-  ```
-    "inboundSmtpServer": {
-      ...
-      "bounce": {
-        "unsubThreshold": 5,
-        "subjectRegex": "",
-        "smtpStatusCodeRegex": "5\\.\\d{1,3}\\.\\d{1,3}",
-        "failedRecipientRegex": "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
-      }
-    }
+  ```ts
+  module.exports = {
+    inboundSmtpServer: {
+      enabled: true,
+      bounce: {
+        unsubThreshold: 5,
+        subjectRegex: '',
+        smtpStatusCodeRegex: '5\\.\\d{1,3}\\.\\d{1,3}',
+        failedRecipientRegex:
+          '(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])',
+      },
+    },
+  };
   ```
 
   where

@@ -9,7 +9,7 @@ _NotifyBC_ depends on underlying SMS service providers to deliver SMS messages. 
 - [Twilio](https://twilio.com/) (default)
 - [Swift](https://www.swiftsmsgateway.com)
 
-Only one service provider can be chosen per installation. To change service provider, add following _smsServiceProvider_ config object to file _/server/config.local.js_
+Only one service provider can be chosen per installation. To change service provider, add following _smsServiceProvider_ config object to file _/src/config.local.js_
 
 ```js
 module.exports = {
@@ -22,7 +22,7 @@ The rest configs are service provider specific. You should have an account with 
 
 ## Twilio
 
-Add _sms.twilio_ config object to file _/server/config.local.js_
+Add _sms.twilio_ config object to file _/src/config.local.js_
 
 ```js
 module.exports = {
@@ -30,9 +30,9 @@ module.exports = {
     twilio: {
       accountSid: '<AccountSid>',
       authToken: '<AuthToken>',
-      fromNumber: '<FromNumber>'
-    }
-  }
+      fromNumber: '<FromNumber>',
+    },
+  },
 };
 ```
 
@@ -40,15 +40,15 @@ Obtain _\<AccountSid\>_, _\<AuthToken\>_ and _\<FromNumber\>_ from your Twilio a
 
 ## Swift
 
-Add _sms.swift_ config object to file _/server/config.local.js_
+Add _sms.swift_ config object to file _/src/config.local.js_
 
 ```js
 module.exports = {
   sms: {
     swift: {
-      accountKey: '<accountKey>'
-    }
-  }
+      accountKey: '<accountKey>',
+    },
+  },
 };
 ```
 
@@ -61,7 +61,7 @@ With Swift short code, sms user can unsubscribe by replying to a sms message wit
 To enable this feature,
 
 1. Generate a random string, hereafter referred to as _\<randomly-generated-string\>_
-2. Add it to _sms.swift.notifyBCSwiftKey_ in file _/server/config.local.js_
+2. Add it to _sms.swift.notifyBCSwiftKey_ in file _/src/config.local.js_
 
    ```js
     module.exports = {

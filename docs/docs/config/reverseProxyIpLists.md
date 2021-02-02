@@ -9,20 +9,20 @@ SiteMinder, being a gateway approached SSO solution, expects the backend HTTP ac
 - _siteMinderReverseProxyIps_ contains a list of ips or ranges of SiteMinder Web Agents. If set, then the SiteMinder HTTP headers are trusted only if the request is routed from the listed nodes.
 - _trustedReverseProxyIps_ contains a list of ips or ranges of trusted reverse proxies between the SiteMinder Web Agents and _NotifyBC_ application. When running on OpenShift, this is usually the OpenShift router. Express.js [trust proxy](https://expressjs.com/en/guide/behind-proxies.html) is set to this config object.
 
-By default _trustedReverseProxyIps_ is empty and _siteMinderReverseProxyIps_ contains only localhost as defined by _defaultSiteMinderReverseProxyIps_ in _/server/config.json_
+By default _trustedReverseProxyIps_ is empty and _siteMinderReverseProxyIps_ contains only localhost as defined in _/src/config.ts_
 
-```json
-{
-  "defaultSiteMinderReverseProxyIps": ["127.0.0.1"]
-}
+```ts
+module.exports = {
+  siteMinderReverseProxyIps: ['127.0.0.1'],
+};
 ```
 
-To modify, add following objects to file /server/config.local.js
+To modify, add following objects to file /src/config.local.js
 
 ```js
 module.exports = {
   siteMinderReverseProxyIps: ['130.32.12.0'],
-  trustedReverseProxyIps: ['172.17.0.0/16']
+  trustedReverseProxyIps: ['172.17.0.0/16'],
 };
 ```
 

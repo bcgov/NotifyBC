@@ -77,7 +77,7 @@ export class AdministratorAccessTokenController {
         'application/json': {
           schema: getModelSchemaRef(AccessToken, {
             title: 'NewAccessTokenInAdministrator',
-            optional: ['userId'],
+            exclude: ['userId'],
           }),
         },
       },

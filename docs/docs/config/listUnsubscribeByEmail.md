@@ -13,9 +13,9 @@ To support this unsubscription method, _NotifyBC_ implements a custom inbound SM
 To enable list-unsubscribe by email
 
 - set up [inbound smtp server](../config-inboundSmtpServer/)
-- verify config _notification.handleListUnsubscribeByEmail_ is set to true or absent in _/server/config.local.js_
+- verify config _notification.handleListUnsubscribeByEmail_ is set to true or absent in _/src/config.local.js_
 
-To disable list-unsubscribe by email, set _notification.handleListUnsubscribeByEmail_ to false in _/server/config.local.js_
+To disable list-unsubscribe by email, set _notification.handleListUnsubscribeByEmail_ to false in _/src/config.local.js_
 
 ```
 module.exports = {

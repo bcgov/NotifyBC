@@ -22,7 +22,7 @@ import {Configuration} from '../models';
 import {ConfigurationRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
-@authenticate('ipWhitelist', 'accessToken')
+@authenticate('ipWhitelist')
 @oas.tags('configuration')
 export class ConfigurationController extends BaseController {
   constructor(

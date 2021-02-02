@@ -62,22 +62,22 @@ The original request submits sub-requests back to (preferably load-balanced) _No
 
 As an example, assuming the total number of subscribers for a notification is 1,000,000, _broadcastSubscriberChunkSize_ is 1,000 and _broadcastSubRequestBatchSize_ is 10, _NotifyBC_ will divide the 1M subscribers into 1,000 chunks and generates 1,000 sub-requests, one for each chunk. The 1,000 sub-requests will be submitted back to _NotifyBC_ cluster to be processed. The original request will ensure at most 10 sub-requests are submitted and being processed at any given time. In fact, the only time concurrency is less than 10 is near the end of the task when remaining sub-requests is less than 10. When a sub-request is received by _NotifyBC_ cluster, all 1,000 subscribers are processed concurrently. Suppose each sub-request (i.e. 1,000 subscribers) takes 1 minute to process on average, then the total time to dispatch notifications to 1M subscribers takes 1,000/10 = 100min, or 1hr40min.
 
-The default value for _broadcastSubscriberChunkSize_ and _broadcastSubRequestBatchSize_ are defined in _/server/config.json_
+The default value for _broadcastSubscriberChunkSize_ and _broadcastSubRequestBatchSize_ are defined in _/src/config.ts_
 
-```json
-{
-  "notification": {
-    "broadcastSubscriberChunkSize": 1000,
-    "broadcastSubRequestBatchSize": 10
-  }
-}
+```ts
+module.exports = {
+  notification: {
+    broadcastSubscriberChunkSize: 1000,
+    broadcastSubRequestBatchSize: 10,
+  },
+};
 ```
 
-To customize, create the config with updated value in file _/server/config.local.js_.
+To customize, create the config with updated value in file _/src/config.local.js_.
 
 If total number of subscribers is less than _broadcastSubscriberChunkSize_, then no sub-requests are spawned. Instead, the main request dispatches all notifications.
 
-::: tip ProTips™ How to determine the optimal value for <i>broadcastSubscriberChunkSize</i> and <i>broadcastSubRequestBatchSize</i>?
+::: tip How to determine the optimal value for <i>broadcastSubscriberChunkSize</i> and <i>broadcastSubRequestBatchSize</i>?
 <i>broadcastSubscriberChunkSize</i> is determined by the concurrency capability of the downstream message handlers such as SMTP server or SMS service provider. <i>broadcastSubRequestBatchSize</i> is determined by the size of <i>NotifyBC</i> cluster. As a rule of thumb, set <i>broadcastSubRequestBatchSize</i> equal to the number of non-master nodes in <i>NotifyBC</i> cluster.
 :::
 
@@ -85,11 +85,11 @@ If total number of subscribers is less than _broadcastSubscriberChunkSize_, then
 
 ::: warning Advanced Topic
 
-Defining custom function requires knowledge of JavaScript and understanding how external libraries are added and referenced in NodeJS. Setting a development environment to test the custom function is also recommended.
+Defining custom function requires knowledge of JavaScript and understanding how external libraries are added and referenced in Node.js. Setting a development environment to test the custom function is also recommended.
 
 :::
 
-To support rule-based notification event filtering, _NotifyBC_ uses a [modified version](https://github.com/f-w/jmespath.js) of [jmespath](http://jmespath.org/) to implement json query. The modified version allows defining custom functions that can be used in [broadcastPushNotificationFilter](../api-subscription#broadcastPushNotificationFilter) field of subscription API. The functions must be implemented using JavaScript in config _notification.broadcastCustomFilterFunctions_. The functions can even be _async_. For example, the case-insensitive string matching function _contains_ci_ shown in the example of that field can be created in file _/server/config.local.js_
+To support rule-based notification event filtering, _NotifyBC_ uses a [modified version](https://github.com/f-w/jmespath.js) of [jmespath](http://jmespath.org/) to implement json query. The modified version allows defining custom functions that can be used in [broadcastPushNotificationFilter](../api-subscription#broadcastPushNotificationFilter) field of subscription API. The functions must be implemented using JavaScript in config _notification.broadcastCustomFilterFunctions_. The functions can even be _async_. For example, the case-insensitive string matching function _contains_ci_ shown in the example of that field can be created in file _/src/config.local.js_
 
 ```js
 const _ = require('lodash')
@@ -118,10 +118,10 @@ module.exports = {
 }
 ```
 
-Consult jmespath.js source code on the [functionTable syntax](https://github.com/f-w/jmespath.js/blob/master/jmespath.js#L1127) and [type constants](https://github.com/f-w/jmespath.js/blob/master/jmespath.js#L132) used by above code. Note the function can use any NodeJS modules (_[lodash](https://lodash.com/)_ in this case).
+Consult jmespath.js source code on the [functionTable syntax](https://github.com/f-w/jmespath.js/blob/master/jmespath.js#L1127) and [type constants](https://github.com/f-w/jmespath.js/blob/master/jmespath.js#L132) used by above code. Note the function can use any Node.js modules (_[lodash](https://lodash.com/)_ in this case).
 
-::: tip ProTips™ install additional NodeJS modules
-The recommended way to install additional NodeJS modules is by running command <i><a href="https://docs.npmjs.com/cli/install">npm install &lt;your_module&gt;</a></i> from the directory one level above <i>NotifyBC</i> root. For example, if
+::: tip install additional Node.js modules
+The recommended way to install additional Node.js modules is by running command <i><a href="https://docs.npmjs.com/cli/install">npm install &lt;your_module&gt;</a></i> from the directory one level above <i>NotifyBC</i> root. For example, if
 <i>NotifyBC</i> is installed on <i>/data/notifyBC</i>, then run the command from directory <i>/data</i>. The command will then install the module to <i>/data/node_modules/&lt;your_module&gt;</i>.
 
 :::
@@ -129,7 +129,7 @@ The recommended way to install additional NodeJS modules is by running command <
 ## Log Successful Broadcast Dispatches
 
 To optimize performance, by default only failed broadcast notification dispatches
-are logged in the notification record. If you want to log successful dispatches too, set config _logSuccessfulBroadcastDispatches_ to _true_ in file _/server/config.local.js_
+are logged in the notification record. If you want to log successful dispatches too, set config _logSuccessfulBroadcastDispatches_ to _true_ in file _/src/config.local.js_
 
 ```js
 module.exports = {

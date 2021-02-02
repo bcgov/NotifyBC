@@ -249,8 +249,12 @@ The API operates on following subscription data model fields:
 GET /subscriptions
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
+  - authenticated user
 - inputs
-  - a filter defining fields, where, include, order, offset, and limit. See [Loopback Querying Data](https://loopback.io/doc/en/lb3/Querying-data.html) for valid syntax and examples
+  - a filter defining fields, where, include, order, offset, and limit. See [Loopback Querying Data](https://loopback.io/doc/en/lb4/Querying-data.html) for valid syntax and examples
     - parameter name: filter
     - required: false
     - parameter type: query
@@ -269,8 +273,12 @@ GET /subscriptions
 GET /subscriptions/count?where[property]=value
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
+  - authenticated user
 - inputs
-  - a [where filter](https://loopback.io/doc/en/lb3/Where-filter.html)
+  - a [where filter](https://loopback.io/doc/en/lb4/Where-filter.html)
     - parameter name: where
     - required: false
     - parameter type: query
@@ -431,6 +439,10 @@ PATCH /subscriptions/{id}
 
 This API is used by authenticated user to change user channel id (such as email address) and resend confirmation code.
 
+- permissions required, one of
+  - super admin
+  - admin
+  - authenticated user
 - inputs
 
   - subscription id
@@ -552,6 +564,9 @@ GET /subscriptions/services
 
 This API is designed to facilitate implementing autocomplete for admin web console.
 
+- permissions required, one of
+  - super admin
+  - admin
 - inputs - none
 - outcome
   - for admin requests, returns an array of unique service names with confirmed subscribers
@@ -565,6 +580,13 @@ PUT /subscriptions/{id}
 
 This API is intended to be only used by admin web console to modify a subscription without triggering any confirmation or acknowledgement notification.
 
+- permissions required, one of
+  - super admin
+  - admin
+- permissions required, one of
+  - super admin
+  - admin
+  - authenticated user
 - inputs
   - subscription id
     - parameter name: id

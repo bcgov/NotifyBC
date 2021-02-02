@@ -210,6 +210,9 @@ export class SubscriptionController extends BaseController {
       '200': {
         description: 'Request was successful',
       },
+      '302': {
+        description: 'Request was successful. Redirect.',
+      },
     },
   })
   async deleteById(
@@ -452,6 +455,7 @@ export class SubscriptionController extends BaseController {
       }
     }
   }
+
   @get('/subscriptions/{id}/unsubscribe', {
     summary: 'unsubscribe by id',
     responses: {
@@ -715,6 +719,7 @@ export class SubscriptionController extends BaseController {
     }
   }
 
+  @authenticate('ipWhitelist', 'accessToken')
   @get('/subscriptions/services', {
     summary: 'unique list of subscribed service names',
     responses: {
@@ -735,15 +740,6 @@ export class SubscriptionController extends BaseController {
     },
   })
   async getSubscribedServiceNames(): Promise<string[]> {
-    if (
-      !(await this.subscriptionRepository.isAdminReq(
-        this.httpContext,
-        undefined,
-        undefined,
-      ))
-    ) {
-      throw new HttpErrors[403]();
-    }
     const subscriptionCollection = this.subscriptionRepository.dataSource.connector?.collection(
       Subscription.modelName,
     );

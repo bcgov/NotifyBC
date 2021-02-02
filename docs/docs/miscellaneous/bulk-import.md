@@ -7,20 +7,18 @@ permalink: /docs/bulk-import/
 To facilitate migrating subscriptions from other notification systems, _NotifyBC_ provides a utility script to bulk import subscription data from a .csv file. To use the utility, you need
 
 - Software installed
-  - NodeJS@>=14.5.0
+  - Node.js
   - Git
 - Admin Access to a _NotifyBC_ instance by adding your client ip to the [Admin IP List](../config-adminIpList/)
-- a csv file with header row matching [subscription model schema](../api-subscription/#model-schema). A sample csv file is [provided](https://github.com/bcgov/NotifyBC/tree/main/utils/bulk-import/sample-subscription.csv). Compound fields (of object type) should be dot-flattened as shown in the sample for field _confirmationRequest.sendRequest_
+- a csv file with header row matching [subscription model schema](../api-subscription/#model-schema). A sample csv file is [provided](https://github.com/bcgov/NotifyBC/tree/main/src/utils/bulk-import/sample-subscription.csv). Compound fields (of object type) should be dot-flattened as shown in the sample for field _confirmationRequest.sendRequest_
 
 To run the utility
 
-```bash
-~ $ git clone \
-https://github.com/bcgov/NotifyBC.git
-~ $ cd NotifyBC
-~/NotifyBC $ npm i -g yarn && yarn install && yarn build
-~/NotifyBC $ node utils/bulk-import/subscription.js \
--a <api-url-prefix> -c <concurrency> <csv-file-path>
+```sh
+git clone https://github.com/bcgov/NotifyBC.git
+cd NotifyBC
+npm i -g yarn && yarn install && yarn build
+node dist/utils/bulk-import/subscription.js -a <api-url-prefix> -c <concurrency> <csv-file-path>
 ```
 
 Here \<csv-file-path\> is the path to csv file and \<api-url-prefix\> is the _NotifyBC_ api url prefix , default to _http://localhost:3000/api_.
@@ -33,7 +31,7 @@ success row count = ***
 
 ### Field Parsers
 
-The utility script takes care of type conversion for built-in fields. If you need to import proprietary fields, by default the fields are imported as strings. To import non-string fields or manipulating json output, you need to define [custom parsers](https://github.com/Keyang/node-csvtojson#custom-parsers) in file [_utils/bulk-import/subscription.js_](https://github.com/bcgov/NotifyBC/blob/main/utils/bulk-import/subscription.js). For example, to parse _myCustomIntegerField_ to integer, add in the _colParser_ object
+The utility script takes care of type conversion for built-in fields. If you need to import proprietary fields, by default the fields are imported as strings. To import non-string fields or manipulating json output, you need to define [custom parsers](https://github.com/Keyang/node-csvtojson#custom-parsers) in file [_src/utils/bulk-import/subscription.ts_](https://github.com/bcgov/NotifyBC/tree/main/src/utils/bulk-import/subscription.ts). For example, to parse _myCustomIntegerField_ to integer, add in the _colParser_ object
 
 ```js
   colParser: {

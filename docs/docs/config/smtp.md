@@ -4,7 +4,7 @@ permalink: /docs/config-smtp/
 
 # SMTP
 
-By default _NotifyBC_ acts as the SMTP server itself and connects directly to recipient's SMTP server. To setup SMTP relay to a host, say _smtp.foo.com_, add following _smtp_ config object to _/server/config.local.js_
+By default _NotifyBC_ acts as the SMTP server itself and connects directly to recipient's SMTP server. To setup SMTP relay to a host, say _smtp.foo.com_, add following _smtp_ config object to _/src/config.local.js_
 
 ```js
 module.exports = {

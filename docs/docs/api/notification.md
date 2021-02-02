@@ -12,7 +12,7 @@ When a notification is created by the event source server application, the messa
 ::: warning <i>Deleted</i> message is still kept in database.
 <i>NotifyBC</i> provides API for deleting a notification. For the purpose of auditing and recovery, this API only marks the <i>state</i> field as deleted rather than deleting the record from database.
 :::
-::: tip ProTips™ undo in-app notification deletion within a session
+::: tip undo in-app notification deletion within a session
 Because "deleted" message is still kept in database, you can implement undo feature for in-app notification as long as the message id is retained prior to deletion within the current session. To undo, call <a href="#update-a-notification">update</a> API to set desired state.
 :::
 
@@ -333,8 +333,12 @@ The API operates on following notification data model fields:
 GET /notifications
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
+  - authenticated user
 - inputs
-  - a filter defining fields, where, include, order, offset, and limit. See [Loopback Querying Data](https://loopback.io/doc/en/lb3/Querying-data.html) for valid syntax and examples
+  - a filter defining fields, where, include, order, offset, and limit. See [Loopback Querying Data](https://loopback.io/doc/en/lb4/Querying-data.html#filters) for valid syntax and examples
     - parameter name: filter
     - required: false
     - parameter type: query
@@ -356,8 +360,12 @@ GET /notifications
 GET /notifications/count
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
+  - authenticated user
 - inputs
-  - a [where filter](https://loopback.io/doc/en/lb3/Where-filter.html)
+  - a [where filter](https://loopback.io/doc/en/lb4/Where-filter.html)
     - parameter name: filter
     - required: false
     - parameter type: query
@@ -378,6 +386,9 @@ GET /notifications/count
 POST /notifications
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
 - inputs
   - an object containing notification data model fields. At a minimum all required fields that don't have a default value must be supplied. Id field should be omitted since it's auto-generated. The API explorer only created an empty object for field _message_ but you should populate the child fields according to [model schema](#model-schema)
     - parameter name: data
@@ -456,6 +467,10 @@ PATCH /notifications/{id}
 
 This API is mainly used for updating an inApp notification.
 
+- permissions required, one of
+  - super admin
+  - admin
+  - authenticated user
 - inputs
 
   - notification id
@@ -475,7 +490,7 @@ This API is mainly used for updating an inApp notification.
     2. all fields except for _state_ are discarded from the input
     3. for broadcast notification, current user id in appended to array _readBy_ or _deletedBy_, depending on whether _state_ is _read_ or _deleted_, unless the user id is already in the array. The _state_ field itself is then discarded
     4. the notification identified by _id_ is merged with the updates and saved to database
-    5. HTTP response code 200 is returned, unless there is error.
+    5. HTTP response code 204 is returned, unless there is error.
   - admin requests are allowed to update any field
 
 ## Delete a Notification
@@ -486,6 +501,10 @@ This API is mainly used for marking an inApp notification deleted. It has the sa
 DELETE /notifications/{id}
 ```
 
+- permissions required, one of
+  - super admin
+  - admin
+  - authenticated user
 - inputs
   - notification id
     - parameter name: id
@@ -502,6 +521,9 @@ PUT /notifications/{id}
 
 This API is intended to be only used by admin web console to modify a notification in _new_ state. Notifications in such state are typically future-dated or of channel _in-app_.
 
+- permissions required, one of
+  - super admin
+  - admin
 - inputs
   - notification id
     - parameter name: id

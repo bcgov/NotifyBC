@@ -1147,7 +1147,7 @@ describe('GET /subscriptions/services', function () {
     const res = await client
       .get('/api/subscriptions/services')
       .set('Accept', 'application/json');
-    expect(res.status).equal(403);
+    expect(res.status).equal(401);
   });
 });
 

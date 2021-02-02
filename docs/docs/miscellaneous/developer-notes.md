@@ -6,13 +6,13 @@ permalink: /docs/developer-notes/
 
 ## Automated Testing
 
-Test framework is created with and follows [Jasmine 2.6](https://jasmine.github.io/2.6/node.html) convention. To launch test, run `npm test`. To debug test scripts in IDE such as WebStorm, create a Node.js run/debug config, set _cwd_ to project root and script to _/node_modules/jasmine/bin/jasmine.js_.
+Test framework is created by LoopBack lb4 CLI, using LoopBack provided tool set and following LoopBack [best practices](https://loopback.io/doc/en/lb4/Testing-your-application.html). To launch test, run `yarn test`. A _Test_ launch config is provided to debug in VS Code.
 
-Jenkins CI runs tests as part of the build, therefore all test scripts should be able to run unattended, headless, quickly and depend only on local resources.
+Github Actions runs tests as part of the build. All test scripts should be able to run unattended, headless, quickly and depend only on local resources.
 
 ### Writing Test Specs
 
-Thanks to [supertest](https://github.com/visionmedia/supertest) and LoopBack's [memory database connector](https://loopback.io/doc/en/lb3/Memory-connector.html), test specs can be written to cover nearly end-to-end request processing workflow (only _sendMail_ and _sendSMS_ need to be mocked). This allows test specs to anchor onto business requirements rather than program units such as functions or files, resulting in regression tests that are more resilient to code refactoring.
+Thanks to [supertest](https://github.com/visionmedia/supertest) and LoopBack's [memory database connector](https://loopback.io/doc/en/lb4/Memory-connector.html), test specs can be written to cover nearly end-to-end request processing workflow (only _sendMail_ and _sendSMS_ need to be mocked). This allows test specs to anchor onto business requirements rather than program units such as functions or files, resulting in regression tests that are more resilient to code refactoring.
 Whenever possible, a test spec should be written to
 
 - start at a processing phase as early as possible. For example, to test a REST end point, start with the HTTP user request.
@@ -22,4 +22,4 @@ Whenever possible, a test spec should be written to
 
 ## Code Coverage
 
-After running `npm test`, Istanbul code coverage report is generated in git ignored folder _/coverage_. _/coverage/lcov-report/index.html_ is the report entry point.
+After running `yarn test`, nyc code coverage report is generated in git ignored folder _/coverage_.

@@ -7,10 +7,10 @@ permalink: /docs/quickstart/
 For the impatient, here's how to get a boilerplate _NotifyBC_ instance up and running if you have git and node.js installed:
 
 ```sh
-~ $ git clone https://github.com/bcgov/NotifyBC.git
-~ $ cd NotifyBC
-~/NotifyBC $ npm i -g yarn && yarn install && yarn build
-~/NotifyBC $ yarn start
+git clone https://github.com/bcgov/NotifyBC.git
+cd NotifyBC
+npm i -g yarn && yarn install && yarn build
+yarn start
 # => Now browse to http://localhost:3000
 ```
 
