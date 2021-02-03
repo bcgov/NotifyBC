@@ -8,7 +8,7 @@ on:
     types:
       - published
 env:
-  notifyBCDocVersion_PATH: /version/2-alpha/
+  notifyBCDocVersion_PATH: /version/2-beta/
   ALGOLIA_API_Key: ${{ secrets.ALGOLIA_API_Key }}
 jobs:
   build-and-deploy:
