@@ -1,6 +1,6 @@
 import {hasMany, hasOne, model} from '@loopback/repository';
 import {AccessToken} from './access-token.model';
-import {UserCredentials} from './user-credentials.model';
+import {UserCredential} from './user-credential.model';
 import {User} from './user.model';
 
 @model({
@@ -21,8 +21,8 @@ export class Administrator extends User {
   @hasMany(() => AccessToken, {keyTo: 'userId'})
   accessTokens: AccessToken[];
 
-  @hasOne(() => UserCredentials, {keyTo: 'userId'})
-  userCredentials: UserCredentials;
+  @hasOne(() => UserCredential, {keyTo: 'userId'})
+  userCredential: UserCredential;
   // Define well-known properties here
 
   // Indexer property to allow additional data

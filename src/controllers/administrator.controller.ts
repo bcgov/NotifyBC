@@ -31,7 +31,7 @@ import {
   AccessTokenRepository,
   AdministratorRepository,
   ConfigurationRepository,
-  UserCredentialsRepository,
+  UserCredentialRepository,
 } from '../repositories';
 import {AccessTokenService, AdminUserService} from '../services';
 import {BaseController} from './base.controller';
@@ -88,8 +88,8 @@ export class AdministratorController extends BaseController {
       asProxyWithInterceptors: true,
     })
     public administratorRepository: AdministratorRepository,
-    @repository(UserCredentialsRepository)
-    public userCredentialsRepository: UserCredentialsRepository,
+    @repository(UserCredentialRepository)
+    public userCredentialRepository: UserCredentialRepository,
     @repository(AccessTokenRepository)
     public accessTokenRepository: AccessTokenRepository,
     @service(AccessTokenService)
@@ -142,7 +142,7 @@ export class AdministratorController extends BaseController {
         _.omit(newUserRequest, 'password'),
         undefined,
       );
-      await this.userCredentialsRepository.create(
+      await this.userCredentialRepository.create(
         {userId: savedUser.id, password},
         undefined,
       );
@@ -358,7 +358,7 @@ export class AdministratorController extends BaseController {
       throw new HttpErrors.Forbidden();
     }
     await this.accessTokenRepository.deleteAll({userId: id}, undefined);
-    await this.userCredentialsRepository.deleteAll({userId: id}, undefined);
+    await this.userCredentialRepository.deleteAll({userId: id}, undefined);
     await this.administratorRepository.deleteById(id, undefined);
   }
 }

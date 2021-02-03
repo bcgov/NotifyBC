@@ -8,4 +8,4 @@ export * from './notification.model';
 export * from './rss-item.model';
 export * from './rss.model';
 export * from './subscription.model';
-export * from './user-credentials.model';
+export * from './user-credential.model';

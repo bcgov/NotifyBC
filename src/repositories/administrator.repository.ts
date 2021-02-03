@@ -17,11 +17,11 @@ import {
   AccessToken,
   Administrator,
   AdministratorRelations,
-  UserCredentials,
+  UserCredential,
 } from '../models';
 import {AccessTokenRepository} from './access-token.repository';
 import {BaseCrudRepository} from './baseCrudRepository';
-import {UserCredentialsRepository} from './user-credentials.repository';
+import {UserCredentialRepository} from './user-credential.repository';
 
 @intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
 export class AdministratorRepository extends BaseCrudRepository<
@@ -34,8 +34,8 @@ export class AdministratorRepository extends BaseCrudRepository<
     typeof Administrator.prototype.id
   >;
 
-  public readonly userCredentials: HasOneRepositoryFactory<
-    UserCredentials,
+  public readonly userCredential: HasOneRepositoryFactory<
+    UserCredential,
     typeof Administrator.prototype.id
   >;
 
@@ -47,17 +47,17 @@ export class AdministratorRepository extends BaseCrudRepository<
     protected appConfig: ApplicationConfig,
     @repository.getter('AccessTokenRepository')
     protected accessTokenRepositoryGetter: Getter<AccessTokenRepository>,
-    @repository.getter('UserCredentialsRepository')
-    protected userCredentialsRepositoryGetter: Getter<UserCredentialsRepository>,
+    @repository.getter('UserCredentialRepository')
+    protected userCredentialRepositoryGetter: Getter<UserCredentialRepository>,
   ) {
     super(Administrator, dataSource, getHttpContext, appConfig);
-    this.userCredentials = this.createHasOneRepositoryFactoryFor(
-      'userCredentials',
-      userCredentialsRepositoryGetter,
+    this.userCredential = this.createHasOneRepositoryFactoryFor(
+      'userCredential',
+      userCredentialRepositoryGetter,
     );
     this.registerInclusionResolver(
-      'userCredentials',
-      this.userCredentials.inclusionResolver,
+      'userCredential',
+      this.userCredential.inclusionResolver,
     );
     this.accessTokens = this.createHasManyRepositoryFactoryFor(
       'accessTokens',

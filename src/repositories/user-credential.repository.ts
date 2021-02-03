@@ -8,14 +8,14 @@ import {
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
 import {RepositoryBeforeSaveInterceptor} from '../interceptors';
-import {UserCredentials, UserCredentialsRelations} from '../models';
+import {UserCredential, UserCredentialRelations} from '../models';
 import {BaseCrudRepository} from './baseCrudRepository';
 
 @intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
-export class UserCredentialsRepository extends BaseCrudRepository<
-  UserCredentials,
-  typeof UserCredentials.prototype.id,
-  UserCredentialsRelations
+export class UserCredentialRepository extends BaseCrudRepository<
+  UserCredential,
+  typeof UserCredential.prototype.id,
+  UserCredentialRelations
 > {
   constructor(
     @inject('datasources.db') dataSource: DbDataSource,
@@ -24,6 +24,6 @@ export class UserCredentialsRepository extends BaseCrudRepository<
     @inject(CoreBindings.APPLICATION_CONFIG)
     protected appConfig: ApplicationConfig,
   ) {
-    super(UserCredentials, dataSource, getHttpContext, appConfig);
+    super(UserCredential, dataSource, getHttpContext, appConfig);
   }
 }
