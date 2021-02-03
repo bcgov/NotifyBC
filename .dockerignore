@@ -1,5 +1,8 @@
-node_modules
+**/node_modules
 npm-debug.log
-/dist
+**/dist
 # Cache used by TypeScript's incremental build
 *.tsbuildinfo
+**/*.local.*
+/docs/
+/server/database/data.json
