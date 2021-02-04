@@ -16,7 +16,7 @@ fi
 echo node version $(node -v)
 echo "---> Building your Node application from source"
 npm i -g yarn
-yarn install
+yarn install && yarn build
 if [ -n "${RUN_TEST+x}" ]; then
   echo "---> Run automated tests"
   yarn test

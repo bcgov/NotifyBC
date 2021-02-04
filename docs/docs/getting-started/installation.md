@@ -71,12 +71,10 @@ If you want to install on a server behind firewall which restricts internet conn
 run following commands
 
 ```sh
-~ $ git clone \
-https://github.com/bcgov/NotifyBC.git \
-notifyBC
-~ $ cd notifyBC
-~/notifyBC $ npm i -g yarn && yarn install
-~/notifyBC $ npm start
+~ $ git clone https://github.com/bcgov/NotifyBC.git
+~ $ cd NotifyBC
+~/NotifyBC $ npm i -g yarn && yarn install && yarn build
+~/NotifyBC $ yarn start
 ```
 
 If successful, you will see following output

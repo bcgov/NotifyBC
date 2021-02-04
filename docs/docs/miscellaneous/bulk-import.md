@@ -16,11 +16,10 @@ To run the utility
 
 ```bash
 ~ $ git clone \
-https://github.com/bcgov/NotifyBC.git \
-notifyBC
-~ $ cd notifyBC
-~/notifyBC $ npm i -g yarn && yarn install
-~/notifyBC $ node utils/bulk-import/subscription.js \
+https://github.com/bcgov/NotifyBC.git
+~ $ cd NotifyBC
+~/NotifyBC $ npm i -g yarn && yarn install && yarn build
+~/NotifyBC $ node utils/bulk-import/subscription.js \
 -a <api-url-prefix> -c <concurrency> <csv-file-path>
 ```
 
