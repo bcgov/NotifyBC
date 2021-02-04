@@ -26,7 +26,7 @@ import {
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import _ from 'lodash';
-import {Administrator} from '../models';
+import {Administrator, PASSWORD_COMPLEXITY_REGEX} from '../models';
 import {
   AccessTokenRepository,
   AdministratorRepository,
@@ -41,6 +41,9 @@ export class NewUserRequest extends Administrator {
   @property({
     type: 'string',
     required: true,
+    jsonSchema: {
+      pattern: PASSWORD_COMPLEXITY_REGEX,
+    },
   })
   password: string;
 }

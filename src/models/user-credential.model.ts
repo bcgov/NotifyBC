@@ -1,6 +1,9 @@
 import {model, property} from '@loopback/repository';
 import {Base} from './base.model';
 
+export const PASSWORD_COMPLEXITY_REGEX =
+  '^(?=.*[A-Z])(?=.*[!_@#$&*])(?=.*[0-9])(?=.*[a-z]).{10,}$';
+
 @model({
   settings: {
     strict: false,
@@ -14,6 +17,9 @@ export class UserCredential extends Base {
   @property({
     type: 'string',
     required: true,
+    jsonSchema: {
+      pattern: PASSWORD_COMPLEXITY_REGEX,
+    },
   })
   password: string;
 
