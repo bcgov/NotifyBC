@@ -8,10 +8,12 @@ import {
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
 import {RepositoryBeforeSaveInterceptor} from '../interceptors';
+import {ConfigurationBeforeSaveInterceptor} from '../interceptors/configuration-before-save.interceptor';
 import {Configuration, ConfigurationRelations} from '../models';
 import {BaseCrudRepository} from './baseCrudRepository';
 
 @intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
+@intercept(ConfigurationBeforeSaveInterceptor.BINDING_KEY)
 export class ConfigurationRepository extends BaseCrudRepository<
   Configuration,
   typeof Configuration.prototype.id,
