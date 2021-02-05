@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "yarn build:server",
-    "build:server": "lb-tsc && cp src/__tests__/acceptance/rss.xml dist/__tests__/acceptance && cp src/templates/* node_modules/@loopback/rest-explorer/templates/",
+    "build:server": "lb-tsc && copyfiles -su 1 -e **/*.ts src/**/* dist",
     "build:client": "yarn --cwd client run build",
     "build:docs": "yarn --cwd docs install && yarn --cwd docs run build",
     "build:watch": "lb-tsc --watch",
@@ -100,6 +100,7 @@
     "@types/morgan": "^1.9.2",
     "@types/node": "^10.17.48",
     "connect-history-api-fallback": "^1.4.0",
+    "copyfiles": "^2.4.1",
     "eslint": "^7.15.0",
     "smtp-connection": "^4.0.2",
     "source-map-support": "^0.5.19",

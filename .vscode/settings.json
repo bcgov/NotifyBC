@@ -35,6 +35,7 @@
     "addt",
     "apitoken",
     "automigrate",
+    "copyfiles",
     "createsend",
     "feedparser",
     "getopt",
