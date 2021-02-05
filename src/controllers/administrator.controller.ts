@@ -124,8 +124,8 @@ export class AdministratorController extends BaseController {
           },
         },
       },
-      '400': {
-        description: 'Bad Request',
+      '409': {
+        description: 'conflict',
       },
     },
   })
@@ -139,23 +139,16 @@ export class AdministratorController extends BaseController {
     })
     newUserRequest: NewUserRequest,
   ): Promise<Administrator> {
+    const savedUser = await this.administratorRepository.create(
+      _.omit(newUserRequest, 'password'),
+      undefined,
+    );
     const password = await hash(newUserRequest.password, await genSalt());
-    try {
-      const savedUser = await this.administratorRepository.create(
-        _.omit(newUserRequest, 'password'),
-        undefined,
-      );
-      await this.userCredentialRepository.create(
-        {userId: savedUser.id, password},
-        undefined,
-      );
-      return savedUser;
-    } catch (ex) {
-      if (ex.code === 11000 && ex.name === 'MongoError') {
-        throw new HttpErrors.BadRequest('duplicated email address');
-      }
-      throw ex;
-    }
+    await this.userCredentialRepository.create(
+      {userId: savedUser.id, password},
+      undefined,
+    );
+    return savedUser;
   }
 
   @authenticate('anonymous')
@@ -235,35 +228,6 @@ export class AdministratorController extends BaseController {
     }
 
     return this.administratorRepository.find(filter, undefined);
-  }
-
-  @patch('/administrators', {
-    responses: {
-      '200': {
-        description: 'Administrator PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Administrator, {partial: true}),
-        },
-      },
-    })
-    administrator: Partial<Administrator>,
-    @param.where(Administrator) where?: Where<Administrator>,
-  ): Promise<Count> {
-    if (this.user.authnStrategy === 'accessToken') {
-      where = {and: [where ?? {}, {id: this.user[securityId]}]};
-    }
-    return this.administratorRepository.updateAll(
-      administrator,
-      where,
-      undefined,
-    );
   }
 
   @get('/administrators/{id}', {
@@ -350,6 +314,12 @@ export class AdministratorController extends BaseController {
     responses: {
       '204': {
         description: 'Administrator DELETE success',
+      },
+      '401': {
+        description: 'Unauthorized',
+      },
+      '403': {
+        description: 'Forbidden',
       },
     },
   })

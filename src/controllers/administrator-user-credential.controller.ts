@@ -69,7 +69,7 @@ export class AdministratorUserCredentialController {
   @post('/administrators/{id}/user-credential', {
     responses: {
       '200': {
-        description: 'Administrator model instance',
+        description: 'UserCredential model instance',
         content: {
           'application/json': {schema: getModelSchemaRef(UserCredential)},
         },

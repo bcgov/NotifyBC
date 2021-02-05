@@ -7,11 +7,15 @@ import {
 } from '@loopback/core';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
-import {RepositoryBeforeSaveInterceptor} from '../interceptors';
+import {
+  AccessTokenBeforeCreateInterceptor,
+  RepositoryBeforeSaveInterceptor,
+} from '../interceptors';
 import {AccessToken, AccessTokenRelations} from '../models';
 import {BaseCrudRepository} from './baseCrudRepository';
 
 @intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
+@intercept(AccessTokenBeforeCreateInterceptor.BINDING_KEY)
 export class AccessTokenRepository extends BaseCrudRepository<
   AccessToken,
   typeof AccessToken.prototype.id,

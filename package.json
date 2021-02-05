@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "yarn build:server",
-    "build:server": "lb-tsc && copyfiles -su 1 -e **/*.ts src/**/* dist",
+    "build:server": "lb-tsc && copyfiles -su 1 -e \"**/*.ts\" \"src/**/*\" dist",
     "build:client": "yarn --cwd client run build",
     "build:docs": "yarn --cwd docs install && yarn --cwd docs run build",
     "build:watch": "lb-tsc --watch",

@@ -15,7 +15,7 @@ jobs:
           persist-credentials: false
       - name: Install and Test 🔧
         run: |
-          yarn install && yarn build
+          yarn install
           yarn test
       - name: Clean 🧹
         run: |

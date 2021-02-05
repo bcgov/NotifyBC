@@ -3,7 +3,6 @@ import {inject, injectable, service} from '@loopback/core';
 import {AnyObject, repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
-import cryptoRandomString from 'crypto-random-string';
 import {AccessToken} from '../models';
 import {AccessTokenRepository, AdministratorRepository} from '../repositories';
 import {AdminUserService} from './admin-user.service';
@@ -64,15 +63,17 @@ export class AccessTokenService implements TokenService {
     }
     let id: string;
     try {
-      id = cryptoRandomString({length: 64, type: 'alphanumeric'});
       const opts = options ?? {};
       const accessToken = new AccessToken(
         Object.assign({}, opts, {
-          id,
           userId: userProfile[securityId],
         }),
       );
-      await this.accessTokenRepository.create(accessToken, undefined);
+      const res = await this.accessTokenRepository.create(
+        accessToken,
+        undefined,
+      );
+      id = res.id;
     } catch (error) {
       throw new HttpErrors.Unauthorized(`Error encoding token : ${error}`);
     }

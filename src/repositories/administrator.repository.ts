@@ -12,7 +12,10 @@ import {
 } from '@loopback/repository';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
 import {DbDataSource} from '../datasources';
-import {RepositoryBeforeSaveInterceptor} from '../interceptors';
+import {
+  AdministratorBeforeSaveInterceptor,
+  RepositoryBeforeSaveInterceptor,
+} from '../interceptors';
 import {
   AccessToken,
   Administrator,
@@ -24,6 +27,7 @@ import {BaseCrudRepository} from './baseCrudRepository';
 import {UserCredentialRepository} from './user-credential.repository';
 
 @intercept(RepositoryBeforeSaveInterceptor.BINDING_KEY)
+@intercept(AdministratorBeforeSaveInterceptor.BINDING_KEY)
 export class AdministratorRepository extends BaseCrudRepository<
   Administrator,
   typeof Administrator.prototype.id,
