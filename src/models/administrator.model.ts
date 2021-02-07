@@ -11,6 +11,8 @@ import {User} from './user.model';
     idInjection: true,
     indexes: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
+      unique_email: {keys: {email: 1}, options: {unique: true}},
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       '$**_text': {keys: {'$**': 'text'}},
     },
   },

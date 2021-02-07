@@ -388,6 +388,17 @@ describe('Administrator API', function () {
       expect(res.status).equal(200);
       expect(res.body.count).equal(1);
     });
+    it('should forbid patching userId', async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      const res = await client
+        .patch('/api/administrators/1/access-tokens')
+        .send({
+          userId: '2',
+        });
+      expect(res.status).equal(403);
+    });
     it('should allow own record only for admin user', async function () {
       let res = await client
         .patch('/api/administrators/2/access-tokens')

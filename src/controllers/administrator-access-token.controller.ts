@@ -109,7 +109,10 @@ export class AdministratorAccessTokenController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(AccessToken, {partial: true}),
+          schema: getModelSchemaRef(AccessToken, {
+            partial: true,
+            exclude: ['userId'],
+          }),
         },
       },
     })
@@ -122,6 +125,10 @@ export class AdministratorAccessTokenController {
       this.user[securityId] !== id
     ) {
       throw new HttpErrors.Forbidden();
+    }
+    // updating userId is not allowed.
+    if (accessToken.userId) {
+      throw new HttpErrors.Forbidden('Updating userId is not allowed.');
     }
     return this.accessTokenRepository.updateAll(
       accessToken,
