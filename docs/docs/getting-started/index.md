@@ -20,7 +20,7 @@ These are tips and tricks that will help you become a NotifyBC wizard!
 These are tidbits you might want to keep in mind.
 :::
 
-::: danger Warnings help you not blow things up
+::: danger Warnings
 Be aware of these messages if you wish to avoid disaster.
 :::
 
