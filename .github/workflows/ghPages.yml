@@ -1,14 +1,10 @@
 name: Publish to GH Pages
 on:
-  push:
-    branches:
-      - main
-      - v2
   release:
     types:
       - published
 env:
-  notifyBCDocVersion_PATH: /
+  notifyBCDocVersion_PATH: /version/v1/
   ALGOLIA_API_Key: ${{ secrets.ALGOLIA_API_Key }}
 jobs:
   build-and-deploy:
