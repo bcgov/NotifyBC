@@ -12,17 +12,16 @@ development of _NotifyBC_ itself.
 
 Throughout this guide there are a number of small-but-handy pieces of information that can make using _NotifyBC_ easier, more interesting, and less hazardous. Here’s what to look out for.
 
-::: tip help you get more from NotifyBC
-These are tips and tricks that will help you be a NotifyBC wizard!
+::: tip General information
+These are tips and tricks that will help you become a NotifyBC wizard!
 :::
 
-::: warning Notes are handy pieces of information
-These are for the extra tidbits sometimes necessary to understand
-NotifyBC.
+::: warning Important information
+These are tidbits you might want to keep in mind.
 :::
 
 ::: danger Warnings help you not blow things up
-Be aware of these messages if you wish to avoid certain death.
+Be aware of these messages if you wish to avoid disaster.
 :::
 
 If you come across anything along the way that we haven’t covered, or if you
