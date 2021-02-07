@@ -37,6 +37,14 @@
       "args": ["dev"],
       "console": "internalConsole",
       "envFile": "${workspaceFolder}/docs/.env"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Client-new",
+      "cwd": "${workspaceFolder}/client-new",
+      "program": "${workspaceFolder}/client-new/node_modules/@vue/cli-service/bin/vue-cli-service.js",
+      "args": ["serve"]
     }
   ],
   "compounds": [
