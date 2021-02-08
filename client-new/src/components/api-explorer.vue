@@ -4,6 +4,7 @@
   </div>
 </template>
 <script>
+/*eslint no-unused-vars: "off" */
 import iFrameResize from 'iframe-resizer';
 export default {
   data: function() {

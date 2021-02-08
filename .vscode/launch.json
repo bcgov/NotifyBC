@@ -51,6 +51,10 @@
     {
       "name": "App&Doc",
       "configurations": ["App", "Doc"]
+    },
+    {
+      "name": "App&ClientNew",
+      "configurations": ["App", "Client-new"]
     }
   ]
 }
