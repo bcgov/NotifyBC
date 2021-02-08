@@ -12,12 +12,12 @@
       :headers="headers"
       :items="$store.state[this.model].items"
       class="elevation-1"
-      :pagination.sync="pagination"
-      :total-items="$store.state[this.model].totalCount"
+      :options.sync="options"
+      :server-items-length="$store.state[this.model].totalCount"
       :loading="loading"
       :no-data-text="noDataText"
     >
-      <template slot="items" slot-scope="props">
+      <template slot="item" slot-scope="props">
         <slot
           :props="props"
           :viewItem="viewItem"
@@ -38,28 +38,33 @@
       </template>
       <template slot="footer">
         <td colspan="100%" class="pa-0">
-          <v-expansion-panel>
-            <v-expansion-panel-content hide-actions v-model="newPanelExpanded">
-              <div slot="header" class="text-xs-center" color="indigo">
-                <v-btn flat icon>
-                  <v-icon large color="indigo">{{
-                    this.newPanelExpanded ? 'keyboard_arrow_up' : 'add'
-                  }}</v-icon>
-                </v-btn>
-              </div>
-              <v-card>
-                <v-card-text class="grey lighten-3">
-                  <model-editor
-                    class="ma-2"
-                    @submit="submitNewPanel"
-                    @cancel="cancelNewPanel"
-                    :schema="schema"
-                    :model="model"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-content
+                hide-actions
+                v-model="newPanelExpanded"
+              >
+                <div slot="header" class="text-xs-center" color="indigo">
+                  <v-btn text icon>
+                    <v-icon large color="indigo">{{
+                      this.newPanelExpanded ? 'keyboard_arrow_up' : 'add'
+                    }}</v-icon>
+                  </v-btn>
+                </div>
+                <v-card>
+                  <v-card-text class="grey lighten-3">
+                    <model-editor
+                      class="ma-2"
+                      @submit="submitNewPanel"
+                      @cancel="cancelNewPanel"
+                      :schema="schema"
+                      :model="model"
+                    />
+                  </v-card-text>
+                </v-card>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </td>
       </template>
     </v-data-table>
@@ -108,7 +113,7 @@ export default {
             /*eslint no-empty: "off" */
           } catch (ex) {}
           filter.skip = 0;
-          this.pagination.page = 1;
+          this.options.page = 1;
         }
         this.fetchItems(filter);
       },
@@ -171,26 +176,24 @@ export default {
     },
   },
   watch: {
-    pagination: {
-      async handler() {
+    options: {
+      handler: async function() {
         let filter;
-        if (this.pagination.rowsPerPage >= -1) {
+        if (this.options.itemsPerPage >= -1) {
           filter = filter || {};
-          if (this.pagination.rowsPerPage > 0) {
-            filter.limit = this.pagination.rowsPerPage;
-            filter.skip =
-              this.pagination.rowsPerPage * (this.pagination.page - 1);
+          if (this.options.itemsPerPage > 0) {
+            filter.limit = this.options.itemsPerPage;
+            filter.skip = this.options.itemsPerPage * (this.options.page - 1);
           } else {
             filter.limit = undefined;
             filter.skip = 0;
           }
         }
-        if (this.pagination.sortBy) {
+        if (this.options.sortBy.length > 0) {
           filter = filter || {};
-          filter.order =
-            this.pagination.sortBy +
-            ' ' +
-            (this.pagination.descending ? 'DESC' : 'ASC');
+          filter.order = this.options.sortBy.map((e, i) => {
+            return `${e}  ${this.options.sortDesc[i] ? 'DESC' : 'ASC'}`;
+          });
         }
         await this.fetchItems(filter);
         return;
@@ -208,7 +211,7 @@ export default {
     return {
       newPanelExpanded: false,
       currentExpanderView: 'modelEditor',
-      pagination: {},
+      options: {},
       loading: true,
       noDataText: NoDataText,
     };
