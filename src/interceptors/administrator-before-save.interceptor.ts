@@ -6,7 +6,6 @@ import {
   Provider,
   ValueOrPromise,
 } from '@loopback/core';
-import {Where} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {Administrator} from '../models';
 import {AdministratorRepository} from '../repositories';
@@ -70,18 +69,29 @@ export class AdministratorBeforeSaveInterceptor
         return;
       }
       const administratorRepository = invocationCtx.target as AdministratorRepository;
-      let where: Where<Administrator> = {email: administratorData.email};
-      const dataId = id ?? administratorData.id;
-      if (dataId) {
-        where = {and: [{id: {neq: dataId}}, where]};
-      }
-      if (
-        await administratorRepository.findOne({
-          where,
-        })
-      ) {
+      // neq filter not working see https://github.com/strongloop/loopback-next/issues/6518
+      // let where: Where<Administrator> = {email: administratorData.email};
+      // const dataId = id ?? administratorData.id;
+      // if (dataId) {
+      //   where = {and: [{id: {neq: dataId}}, where]};
+      // }
+      // const x = await administratorRepository.findOne({
+      //   where,
+      // });
+      const admins = await administratorRepository.find({
+        where: {email: administratorData.email},
+      });
+      if (admins.length > 1) {
         throw new HttpErrors.Conflict();
       }
+      if (admins.length === 0) {
+        return;
+      }
+      const dataId = id ?? administratorData.id;
+      if (dataId && admins[0].id === dataId) {
+        return;
+      }
+      throw new HttpErrors.Conflict();
     };
     if (data instanceof Object) {
       await process(data);
