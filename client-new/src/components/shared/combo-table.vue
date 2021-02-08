@@ -11,6 +11,8 @@
     <v-data-table
       :headers="headers"
       :items="$store.state[this.model].items"
+      :single-expand="true"
+      :expanded="expanded"
       class="elevation-1"
       :options.sync="options"
       :server-items-length="$store.state[this.model].totalCount"
@@ -25,16 +27,20 @@
           :deleteItem="deleteItem"
         />
       </template>
-      <template slot="expand" slot-scope="props">
-        <component
-          :is="currentExpanderView"
-          class="ma-2"
-          @submit="submitEditPanel(props)"
-          @cancel="cancelEditPanel(props)"
-          :item="props.item"
-          :schema="schema"
-          :model="model"
-        />
+      <template slot="expanded-item" slot-scope="props">
+        <tr>
+          <td :colspan="props.headers.length">
+            <component
+              :is="currentExpanderView"
+              class="ma-2"
+              @submit="submitEditPanel(props)"
+              @cancel="cancelEditPanel(props)"
+              :item="props.item"
+              :schema="schema"
+              :model="model"
+            />
+          </td>
+        </tr>
       </template>
       <template slot="footer">
         <td colspan="100%" class="pa-0">
@@ -134,25 +140,31 @@ export default {
       this.loading = false;
     },
     editItem: function(props) {
-      props.expanded =
-        this.currentExpanderView === 'modelEditor' ? !props.expanded : true;
+      let isExpanded = !props.isExpanded;
+      if (this.currentExpanderView !== 'modelEditor' && !isExpanded) {
+        isExpanded = !isExpanded;
+      }
       this.currentExpanderView = 'modelEditor';
+      props.expand(isExpanded);
       this.$emit('inputFormExpanded');
     },
     viewItem: function(props) {
-      props.expanded =
-        this.currentExpanderView === 'modelViewer' ? !props.expanded : true;
+      let isExpanded = !props.isExpanded;
+      if (this.currentExpanderView !== 'modelViewer' && !isExpanded) {
+        isExpanded = !isExpanded;
+      }
       this.currentExpanderView = 'modelViewer';
+      props.expand(isExpanded);
     },
-    submitEditPanel: function(props) {
-      props.expanded = false;
+    submitEditPanel: function() {
+      this.expanded.pop();
       this.$store.dispatch('fetchItems', {
         model: this.model,
         filter: {},
       });
     },
-    cancelEditPanel: function(props) {
-      props.expanded = false;
+    cancelEditPanel: function() {
+      this.expanded.pop();
     },
     submitNewPanel: function() {
       this.newPanelExpanded = false;
@@ -211,8 +223,9 @@ export default {
     return {
       newPanelExpanded: false,
       currentExpanderView: 'modelEditor',
-      options: {},
+      options: {itemsPerPage: 5},
       loading: true,
+      expanded: [],
       noDataText: NoDataText,
     };
   },
