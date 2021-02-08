@@ -2,66 +2,66 @@
   <v-app id="inspire">
     <v-navigation-drawer persistent v-model="drawer" enable-resize-watcher app>
       <v-list dense>
-        <v-list-tile to="/home">
-          <v-list-tile-action>
+        <v-list-item to="/home">
+          <v-list-item-action>
             <v-icon>home</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Home</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile to="/subscriptions/">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item to="/subscriptions/">
+          <v-list-item-action>
             <v-icon>list</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Subscriptions</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile to="/notifications/">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Subscriptions</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item to="/notifications/">
+          <v-list-item-action>
             <v-icon>email</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Notifications</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile to="/configurations/">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Notifications</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item to="/configurations/">
+          <v-list-item-action>
             <v-icon>settings_applications</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Configurations</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile to="/administrators/">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Configurations</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item to="/administrators/">
+          <v-list-item-action>
             <v-icon>security</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Administrators</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile to="/bounces/">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Administrators</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item to="/bounces/">
+          <v-list-item-action>
             <v-icon>report</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Bounces</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile to="/api-explorer/">
-          <v-list-tile-action>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Bounces</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item to="/api-explorer/">
+          <v-list-item-action>
             <v-icon>code</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>API Explorer</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>API Explorer</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar color="indigo" dark app>
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+    <v-app-bar color="indigo" dark app>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title
         >NotifyBC Web Console -
         {{ this.$router.currentRoute.name }}</v-toolbar-title
@@ -76,13 +76,13 @@
           v-model="accessToken"
         ></v-text-field>
       </v-toolbar-items>
-    </v-toolbar>
+    </v-app-bar>
     <main>
-      <v-content>
+      <v-main>
         <v-container fluid>
           <router-view></router-view>
         </v-container>
-      </v-content>
+      </v-main>
     </main>
     <v-footer color="indigo" app>
       <span class="white--text">
