@@ -15,8 +15,8 @@
   "scripts": {
     "build": "yarn build:server",
     "build:server": "lb-tsc && copyfiles -su 1 -e \"**/*.ts\" \"src/**/*\"  dist && copyfiles -u 2 \"src/templates/**/*\" \"node_modules/@loopback/rest-explorer/templates\"",
-    "build:client": "yarn --cwd client run build",
-    "build:docs": "yarn --cwd docs install && yarn --cwd docs run build",
+    "build:client": "yarn --cwd client build",
+    "build:docs": "yarn --cwd docs install && yarn --cwd docs build",
     "build:watch": "lb-tsc --watch",
     "postbuild": "yarn build:client",
     "install:client": "yarn --cwd client install",
