@@ -5,7 +5,7 @@ import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
-const ApiUrlPrefix = window.ApiUrlPrefix || '/api';
+const apiUrlPrefix = window.apiUrlPrefix || '/api';
 let accessToken;
 try {
   accessToken = JSON.parse(localStorage.getItem('authorized')).accessToken
@@ -97,7 +97,7 @@ export default new Vuex.Store({
       }
       let req = {
         method: method,
-        url: ApiUrlPrefix + '/' + payload.model + (id ? '/' + id : ''),
+        url: apiUrlPrefix + '/' + payload.model + (id ? '/' + id : ''),
         data: item,
       };
       let accessToken = state['accessToken'];
@@ -111,7 +111,7 @@ export default new Vuex.Store({
     async deleteItem({state}, payload) {
       let req = {
         method: 'delete',
-        url: ApiUrlPrefix + '/' + payload.model + '/' + payload.item.id,
+        url: apiUrlPrefix + '/' + payload.model + '/' + payload.item.id,
       };
       let accessToken = state['accessToken'];
       if (accessToken) {
@@ -132,7 +132,7 @@ export default new Vuex.Store({
         model: payload.model,
         filter: filter,
       });
-      let url = ApiUrlPrefix + '/' + payload.model;
+      let url = apiUrlPrefix + '/' + payload.model;
       if (filter) {
         url += '?filter=' + encodeURIComponent(JSON.stringify(filter));
       }
@@ -154,7 +154,7 @@ export default new Vuex.Store({
         throw ex;
       }
       commit('setLocalItems', {model: payload.model, items: items.data});
-      url = ApiUrlPrefix + '/' + payload.model + '/count';
+      url = apiUrlPrefix + '/' + payload.model + '/count';
       if (filter && filter.where) {
         url += '?where=' + encodeURIComponent(JSON.stringify(filter.where));
       }
@@ -173,7 +173,7 @@ export default new Vuex.Store({
       });
     },
     async getSubscribedServiceNames() {
-      let url = ApiUrlPrefix + '/subscriptions/services';
+      let url = apiUrlPrefix + '/subscriptions/services';
       let req = {
         url: url,
       };

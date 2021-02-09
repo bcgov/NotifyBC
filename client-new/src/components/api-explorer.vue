@@ -9,7 +9,7 @@ import iFrameResize from 'iframe-resizer';
 export default {
   data: function() {
     return {
-      ApiExplorerUrlPrefix: window.ApiExplorerUrlPrefix || '/explorer',
+      ApiExplorerUrlPrefix: `${window.apiUrlPrefix || '/api'}/explorer`,
       iFrameResizer: undefined,
     };
   },
