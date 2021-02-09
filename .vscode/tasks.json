@@ -15,9 +15,9 @@
       "problemMatcher": "$tsc-watch"
     },
     {
-      "label": "Clean and Compile Project",
+      "label": "Compile Project",
       "type": "shell",
-      "command": "yarn --silent clean && yarn --silent build:server",
+      "command": "yarn --silent build:server",
       "group": {
         "kind": "build",
         "isDefault": true

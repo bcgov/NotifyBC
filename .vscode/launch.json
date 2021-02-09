@@ -19,7 +19,7 @@
       "autoAttachChildProcesses": true,
       "console": "internalConsole",
       "outputCapture": "std",
-      "preLaunchTask": "Clean and Compile Project",
+      "preLaunchTask": "Compile Project",
       "env": {
         "NODE_ENV": "dev",
         "NOTIFYBC_WORKER_PROCESS_COUNT": "1"
@@ -33,7 +33,7 @@
       "args": ["--timeout", "999999", "dist/__tests__/"],
       "autoAttachChildProcesses": true,
       "console": "internalConsole",
-      "preLaunchTask": "Clean and Compile Project"
+      "preLaunchTask": "Compile Project"
     },
     {
       "type": "node",
