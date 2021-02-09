@@ -48,9 +48,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Client-new",
-      "cwd": "${workspaceFolder}/client-new",
-      "program": "${workspaceFolder}/client-new/node_modules/@vue/cli-service/bin/vue-cli-service.js",
+      "name": "Client",
+      "cwd": "${workspaceFolder}/client",
+      "program": "${workspaceFolder}/client/node_modules/@vue/cli-service/bin/vue-cli-service.js",
       "args": ["serve"]
     }
   ],
@@ -60,8 +60,8 @@
       "configurations": ["App", "Doc"]
     },
     {
-      "name": "App&ClientNew",
-      "configurations": ["App", "Client-new", "Launch Chrome"]
+      "name": "App&Client",
+      "configurations": ["App", "Client", "Launch Chrome"]
     }
   ]
 }
