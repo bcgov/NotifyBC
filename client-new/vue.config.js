@@ -1,6 +1,12 @@
 const webpack = require('webpack');
 module.exports = {
   transpileDependencies: ['vuetify'],
+  pages: {
+    index: {
+      entry: 'src/main.js',
+      title: 'NotifyBC Web Console',
+    },
+  },
   configureWebpack: {
     plugins: [
       new webpack.ProvidePlugin({
