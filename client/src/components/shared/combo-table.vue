@@ -19,7 +19,7 @@
       :loading="loading"
       :no-data-text="noDataText"
     >
-      <template slot="item" slot-scope="props">
+      <template #item="props">
         <slot
           :props="props"
           :viewItem="viewItem"
@@ -27,7 +27,7 @@
           :deleteItem="deleteItem"
         />
       </template>
-      <template slot="expanded-item" slot-scope="props">
+      <template #expanded-item="props">
         <tr>
           <td :colspan="props.headers.length">
             <component
