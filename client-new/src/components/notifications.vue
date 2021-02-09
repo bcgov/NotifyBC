@@ -131,19 +131,16 @@ export default {
             propertyOrder: 300,
           },
           isBroadcast: {
-            type: 'string',
-            enum: [true, false],
+            type: 'boolean',
             propertyOrder: 400,
           },
           skipSubscriptionConfirmationCheck: {
-            type: 'string',
-            enum: [true, false],
+            type: 'boolean',
             default: 'false',
             propertyOrder: 500,
           },
           asyncBroadcastPushNotification: {
-            type: 'string',
-            enum: [true, false],
+            type: 'boolean',
             propertyOrder: 550,
             description:
               'set to true to avoid long processing time when sending broadcast notification to many subscribers',
@@ -152,14 +149,14 @@ export default {
             type: 'string',
             format: 'datetime',
             description:
-              'use format yyyy-mm-ddThh:mm:ss.fffZ, ok to truncate minor parts. Examples 2017-10-23T17:53:44.502Z or 2017-10-23',
+              'use format yyyy-mm-ddThh:mm:ss.fffZ. Examples 2017-10-23T17:53:44.502Z',
             propertyOrder: 600,
           },
           invalidBefore: {
             type: 'string',
             format: 'datetime',
             description:
-              'use format yyyy-mm-ddThh:mm:ss.fffZ, ok to truncate minor parts. Examples 2017-10-23T17:53:44.502Z or 2017-10-23',
+              'use format yyyy-mm-ddThh:mm:ss.fffZ. Examples 2017-10-23T17:53:44.502Z',
             propertyOrder: 700,
           },
           state: {
