@@ -6,7 +6,7 @@
     model="notifications"
     @inputFormExpanded="createAutoCompleteServiceNameWidget"
   >
-    <template slot-scope="props">
+    <template #default="props">
       <tr>
         <td>{{ props.props.item.serviceName }}</td>
         <td>{{ props.props.item.channel }}</td>

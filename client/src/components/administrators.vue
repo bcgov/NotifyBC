@@ -1,6 +1,6 @@
 <template>
   <combo-table :headers="headers" :schema="schema" model="administrators">
-    <template slot-scope="props">
+    <template #default="props">
       <tr>
         <td>{{ props.props.item.email }}</td>
         <td class="text-right">{{ props.props.item.updated }}</td>

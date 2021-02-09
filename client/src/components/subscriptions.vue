@@ -1,6 +1,6 @@
 <template>
   <combo-table :headers="headers" :schema="schema" model="subscriptions">
-    <template slot-scope="props">
+    <template #default="props">
       <tr>
         <td>{{ props.props.item.serviceName }}</td>
         <td>{{ props.props.item.channel }}</td>

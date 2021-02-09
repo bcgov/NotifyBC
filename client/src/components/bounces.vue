@@ -1,6 +1,6 @@
 <template>
   <combo-table :headers="headers" :schema="schema" model="bounces">
-    <template slot-scope="props">
+    <template #default="props">
       <tr>
         <td>{{ props.props.item.userChannelId }}</td>
         <td class="text-right">{{ props.props.item.hardBounceCount }}</td>
