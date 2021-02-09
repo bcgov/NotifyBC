@@ -1,4 +1,3 @@
-// migration: done
 import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
@@ -10,6 +9,7 @@ let accessToken;
 try {
   accessToken = JSON.parse(localStorage.getItem('authorized')).accessToken
     .value;
+  // eslint-disable-next-line no-empty
 } catch (ex) {}
 export default new Vuex.Store({
   state: {
@@ -172,7 +172,7 @@ export default new Vuex.Store({
         cnt: response.data.count,
       });
     },
-    async getSubscribedServiceNames() {
+    async getSubscribedServiceNames({state}) {
       let url = apiUrlPrefix + '/subscriptions/services';
       let req = {
         url: url,

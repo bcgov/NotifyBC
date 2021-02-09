@@ -1,12 +1,12 @@
+import Administrators from '@/components/administrators';
+import ApiExplorer from '@/components/api-explorer';
+import Bounces from '@/components/bounces';
+import Configurations from '@/components/configurations';
+import Home from '@/components/home';
+import Notifications from '@/components/notifications';
+import Subscriptions from '@/components/subscriptions';
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from '@/components/home';
-import Subscriptions from '@/components/subscriptions';
-import Notifications from '@/components/notifications';
-import Configurations from '@/components/configurations';
-import Administrators from '@/components/administrators';
-import Bounces from '@/components/bounces';
-import ApiExplorer from '@/components/api-explorer';
 
 Vue.use(Router);
 
