@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}/client/src"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "App",
@@ -54,7 +61,7 @@
     },
     {
       "name": "App&ClientNew",
-      "configurations": ["App", "Client-new"]
+      "configurations": ["App", "Client-new", "Launch Chrome"]
     }
   ]
 }

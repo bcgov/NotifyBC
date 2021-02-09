@@ -43,35 +43,32 @@
         </tr>
       </template>
       <template slot="footer">
-        <td colspan="100%" class="pa-0">
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-content
-                hide-actions
-                v-model="newPanelExpanded"
-              >
-                <div slot="header" class="text-xs-center" color="indigo">
-                  <v-btn text icon>
-                    <v-icon large color="indigo">{{
-                      this.newPanelExpanded ? 'keyboard_arrow_up' : 'add'
-                    }}</v-icon>
-                  </v-btn>
-                </div>
-                <v-card>
-                  <v-card-text class="grey lighten-3">
-                    <model-editor
-                      class="ma-2"
-                      @submit="submitNewPanel"
-                      @cancel="cancelNewPanel"
-                      :schema="schema"
-                      :model="model"
-                    />
-                  </v-card-text>
-                </v-card>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </td>
+        <v-expansion-panels v-model="newPanelExpanded">
+          <v-expansion-panel>
+            <v-expansion-panel-header :hide-actions="true">
+              <div class="text-center" color="indigo">
+                <v-btn text icon>
+                  <v-icon large color="indigo">{{
+                    this.newPanelExpanded === 0 ? 'keyboard_arrow_up' : 'add'
+                  }}</v-icon>
+                </v-btn>
+              </div>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-card>
+                <v-card-text class="grey lighten-3">
+                  <model-editor
+                    class="ma-2"
+                    @submit="submitNewPanel"
+                    @cancel="cancelNewPanel"
+                    :schema="schema"
+                    :model="model"
+                  />
+                </v-card-text>
+              </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </template>
     </v-data-table>
   </div>
@@ -167,14 +164,14 @@ export default {
       this.expanded.pop();
     },
     submitNewPanel: function() {
-      this.newPanelExpanded = false;
+      this.newPanelExpanded = undefined;
       this.$store.dispatch('fetchItems', {
         model: this.model,
         filter: {},
       });
     },
     cancelNewPanel: function() {
-      this.newPanelExpanded = false;
+      this.newPanelExpanded = undefined;
     },
     deleteItem: async function(props) {
       await this.$store.dispatch('deleteItem', {
@@ -213,7 +210,7 @@ export default {
       deep: true,
     },
     newPanelExpanded: function(newVal) {
-      newVal && this.$emit('inputFormExpanded');
+      if (newVal === 0) this.$emit('inputFormExpanded');
     },
     accessToken: async function() {
       await this.fetchItems(this.$store.state[this.model].filter);
@@ -221,7 +218,7 @@ export default {
   },
   data: function() {
     return {
-      newPanelExpanded: false,
+      newPanelExpanded: undefined,
       currentExpanderView: 'modelEditor',
       options: {itemsPerPage: 5},
       loading: true,
