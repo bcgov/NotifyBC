@@ -20,7 +20,8 @@ jobs:
       - name: Clean 🧹
         run: |
           yarn clean:all
-      - name: S2I Build 🚀
+      - name: OpenShift S2I Build 🚀
+        if: ${{ github.repository == 'bcgov/NotifyBC' }}
         uses: redhat-developer/openshift-actions@v1.1
         with:
           version: 'latest'
