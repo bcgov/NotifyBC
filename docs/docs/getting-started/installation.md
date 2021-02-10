@@ -64,13 +64,13 @@ Server is running at http://0.0.0.0:3000
 
 Now browse to <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> the page displays NotifyBC Web Console.
 
-The above commands installs the _main_ version, i.e. main branch of _NotifyBC_ GitHub repository. To install a specific version, say _v2.1.0_, run
+The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v2.1.0_, run
 
 ```sh
  git checkout tags/v2.1.0 -b v2.1.0
 ```
 
-after `cd NotifyBC`.
+after `cd NotifyBC`. A list of versions can be found [here](https://github.com/bcgov/NotifyBC/tags).
 
 ::: tip install from behind firewall
 If you want to install on a server behind firewall which restricts internet connection, you can work around the firewall as long as you have access to a http(s) forward proxy server. Assuming the proxy server is http://my_proxy:8080 which proxies both http and https requests, to use it:
@@ -155,7 +155,7 @@ If using Jenkins, all the software are pre-installed on OpenShift provided Jenki
 2) create OpenShift apps by clicking _Add to Project_ in web console of respective projects, select JavaScript in languages catalog, and click either _notify-bc-build_ or _notify-bc_ template. Adjust parameters as you see fit.
 3) (optional) update instance-specific [configuration](../config-overview/) files by modifying configMap _notify-bc_. To do so, in web console of a runtime environment project, click _Resources > Config Maps > notify-bc > Actions > Edit_. Each config file corresponds to an item in configMap with key being the file name.
 
-::: tip backup config files
+::: warning backup config files
 Backup config files to a private secured SCM outside of OpenShift is highly recommended, especially for production environment.
 :::
 
