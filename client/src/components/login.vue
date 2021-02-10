@@ -6,10 +6,56 @@
         dark
         single-line
         hide-details
-        v-model="accessToken"
+        :value="accessToken"
+        @change="v => (accessToken = v)"
       ></v-text-field>
     </template>
-    <template v-if="showLoginWidget">Login<v-icon>login</v-icon></template>
+
+    <v-dialog v-model="dialog" max-width="500px" v-if="showLoginWidget">
+      <template v-slot:activator="{on, attrs}">
+        <v-btn plain v-bind="attrs" v-on="on">
+          Login<v-icon>login</v-icon>
+        </v-btn>
+      </template>
+      <v-card>
+        <v-card-title>
+          <span class="headline">Login</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="email"
+                  label="email"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="password"
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append="showPassword = !showPassword"
+                  :type="showPassword ? 'text' : 'password'"
+                  label="password"
+                  counter
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="login">
+            Submit
+          </v-btn>
+          <v-btn color="error" text @click="dialog = false">
+            Cancel
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-toolbar-items>
 </template>
 
@@ -20,6 +66,10 @@ export default {
       showWidget: false,
       showAccessTokenWidget: false,
       showLoginWidget: false,
+      dialog: false,
+      showPassword: false,
+      email: undefined,
+      password: undefined,
     };
   },
   computed: {
@@ -31,13 +81,34 @@ export default {
         this.$store.commit('setAccessToken', value);
       },
     },
+    authnStrategy: {
+      get() {
+        return this.$store.state.authnStrategy;
+      },
+    },
+  },
+  watch: {
+    authnStrategy: function() {
+      this.updateModels();
+    },
   },
   beforeMount: async function() {
     await this.$store.dispatch('getAuthenticationStrategy');
-    this.showWidget = this.$store.state.authnStrategy !== 'ipWhitelist';
-    this.showAccessTokenWidget =
-      this.$store.state.authnStrategy !== 'anonymous';
-    this.showLoginWidget = this.$store.state.authnStrategy === 'anonymous';
+  },
+  methods: {
+    updateModels: function() {
+      this.showWidget = this.$store.state.authnStrategy !== 'ipWhitelist';
+      this.showAccessTokenWidget =
+        this.$store.state.authnStrategy !== 'anonymous';
+      this.showLoginWidget = this.$store.state.authnStrategy === 'anonymous';
+    },
+    login: async function() {
+      await this.$store.dispatch('login', {
+        email: this.email,
+        password: this.password,
+      });
+      this.dialog = false;
+    },
   },
 };
 </script>
