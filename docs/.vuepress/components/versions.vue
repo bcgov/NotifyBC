@@ -36,10 +36,10 @@ export default {
         for (let i = 0; i < e1Arr.length && i < e2Arr.length; i++) {
           const e1V = parseInt(e1Arr[i]);
           const e2V = parseInt(e2Arr[i]);
-          if (e1V !== e2V) return e1V > e2V;
-          if (e1Arr[i] !== e2Arr[i]) return e1Arr[i] > e2Arr[i];
+          if (e1V !== e2V) return e2V - e1V;
+          if (e1Arr[i] !== e2Arr[i]) return e2Arr[i] - e1Arr[i];
         }
-        return e1.text > e2.text;
+        return e1.text === e2.text ? 0 : e2.text < e1.text ? -1 : 1;
       });
       this.options.unshift({ value: 'main', text: 'main' });
       const path = window.location.pathname.toLowerCase();
