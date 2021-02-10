@@ -225,6 +225,18 @@ export default {
               },
             ],
           },
+          createdBy: {
+            type: 'string',
+            options: {
+              hidden: true,
+            },
+          },
+          updatedBy: {
+            type: 'string',
+            options: {
+              hidden: true,
+            },
+          },
         },
       },
     };

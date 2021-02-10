@@ -95,6 +95,18 @@ export default {
               hidden: true,
             },
           },
+          createdBy: {
+            type: 'string',
+            options: {
+              hidden: true,
+            },
+          },
+          updatedBy: {
+            type: 'string',
+            options: {
+              hidden: true,
+            },
+          },
         },
       },
     };
