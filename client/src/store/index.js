@@ -44,6 +44,7 @@ export default new Vuex.Store({
       search: undefined,
     },
     accessToken,
+    authnStrategy: undefined,
   },
   mutations: {
     setLocalItems(state, payload) {
@@ -57,6 +58,9 @@ export default new Vuex.Store({
     },
     setItemSearch(state, payload) {
       state[payload.model].search = payload.value;
+    },
+    setAuthnStrategy(state, payload) {
+      state.authnStrategy = payload;
     },
     setAccessToken(state, payload) {
       let auth = JSON.parse(localStorage.getItem('authorized')) || {};
@@ -185,6 +189,20 @@ export default new Vuex.Store({
       }
       let res = await axios(req);
       return res.data;
+    },
+    async getAuthenticationStrategy({state, commit}) {
+      let url = apiUrlPrefix + '/administrators/whoami';
+      let req = {
+        url: url,
+      };
+      let accessToken = state['accessToken'];
+      if (accessToken) {
+        req.headers = {
+          Authorization: accessToken,
+        };
+      }
+      let res = await axios(req);
+      commit('setAuthnStrategy', res.data.authnStrategy);
     },
   },
   strict: process.env.NODE_ENV !== 'production',
