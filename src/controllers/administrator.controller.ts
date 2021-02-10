@@ -26,6 +26,7 @@ import {
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
 import _ from 'lodash';
+import {AdministratorUserCredentialController} from '.';
 import {Administrator, PASSWORD_COMPLEXITY_REGEX} from '../models';
 import {
   AccessTokenRepository,
@@ -101,6 +102,10 @@ export class AdministratorController extends BaseController {
       asProxyWithInterceptors: true,
     })
     public administratorRepository: AdministratorRepository,
+    @inject('controllers.AdministratorUserCredentialController', {
+      asProxyWithInterceptors: true,
+    })
+    public administratorUserCredentialController: AdministratorUserCredentialController,
     @repository(UserCredentialRepository)
     public userCredentialRepository: UserCredentialRepository,
     @repository(AccessTokenRepository)
@@ -329,6 +334,12 @@ export class AdministratorController extends BaseController {
       this.user[securityId] !== id
     ) {
       throw new HttpErrors.Forbidden();
+    }
+    if (administrator.password) {
+      await this.administratorUserCredentialController.create(id, {
+        password: administrator.password,
+      });
+      delete administrator.password;
     }
     await this.administratorRepository.replaceById(
       id,

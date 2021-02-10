@@ -8,7 +8,13 @@
           <v-btn @click="props.viewItem(props.props)" text icon>
             <v-icon>info</v-icon>
           </v-btn>
-          <v-btn @click="props.editItem(props.props)" text icon>
+          <v-btn
+            @click="
+              (props.props.item.password = ''), props.editItem(props.props)
+            "
+            text
+            icon
+          >
             <v-icon>create</v-icon>
           </v-btn>
           <v-btn @click="props.deleteItem(props.props)" text icon>
@@ -60,6 +66,7 @@ export default {
           },
           password: {
             type: 'string',
+            format: 'password',
             propertyOrder: 200,
           },
           created: {
