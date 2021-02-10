@@ -1,6 +1,14 @@
 <template>
-  <v-toolbar-items class="center-text" v-if="showWidget">
-    <template v-if="showAccessTokenWidget">
+  <v-toolbar-items class="center-text">
+    <div v-if="$store.state.authnStrategy === 'ipWhitelist'">
+      <v-tooltip bottom>
+        <template v-slot:activator="{on, attrs}">
+          <v-icon v-on="on" v-bind="attrs">verified_user</v-icon>
+        </template>
+        <span>You are super-admin</span>
+      </v-tooltip>
+    </div>
+    <template v-if="$store.state.authnStrategy === 'accessToken'">
       <div class="mr-1">Access Token</div>
       <v-text-field
         dark
@@ -10,8 +18,11 @@
         @change="v => (accessToken = v)"
       ></v-text-field>
     </template>
-
-    <v-dialog v-model="dialog" max-width="500px" v-if="showLoginWidget">
+    <v-dialog
+      v-model="dialog"
+      max-width="500px"
+      v-if="$store.state.authnStrategy === 'anonymous'"
+    >
       <template v-slot:activator="{on, attrs}">
         <v-btn plain v-bind="attrs" v-on="on">
           Login<v-icon>login</v-icon>
@@ -68,9 +79,6 @@
 export default {
   data: function() {
     return {
-      showWidget: false,
-      showAccessTokenWidget: false,
-      showLoginWidget: false,
       dialog: false,
       showPassword: false,
       email: undefined,
@@ -93,21 +101,10 @@ export default {
       },
     },
   },
-  watch: {
-    authnStrategy: function() {
-      this.updateModels();
-    },
-  },
   beforeMount: async function() {
     await this.$store.dispatch('getAuthenticationStrategy');
   },
   methods: {
-    updateModels: function() {
-      this.showWidget = this.$store.state.authnStrategy !== 'ipWhitelist';
-      this.showAccessTokenWidget =
-        this.$store.state.authnStrategy !== 'anonymous';
-      this.showLoginWidget = this.$store.state.authnStrategy === 'anonymous';
-    },
     login: async function() {
       try {
         this.loginError = undefined;
