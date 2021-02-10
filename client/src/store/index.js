@@ -207,6 +207,9 @@ export default new Vuex.Store({
     },
     async login({state, commit}, payload) {
       let url = apiUrlPrefix + '/administrators/login';
+      payload.tokenName = 'webConsole';
+      //12 hr
+      payload.ttl = 43200;
       let req = {
         url: url,
         method: 'post',
