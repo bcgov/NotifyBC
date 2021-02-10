@@ -85,6 +85,7 @@ export default new Vuex.Store({
         payload = undefined;
       }
       state['accessToken'] = payload;
+      this.dispatch('getAuthenticationStrategy');
     },
   },
   actions: {
@@ -203,6 +204,22 @@ export default new Vuex.Store({
       }
       let res = await axios(req);
       commit('setAuthnStrategy', res.data.authnStrategy);
+    },
+    async login({state, commit}, payload) {
+      let url = apiUrlPrefix + '/administrators/login';
+      let req = {
+        url: url,
+        method: 'post',
+        data: payload,
+      };
+      let accessToken = state['accessToken'];
+      if (accessToken) {
+        req.headers = {
+          Authorization: accessToken,
+        };
+      }
+      let res = await axios(req);
+      commit('setAccessToken', res.data.token);
     },
   },
   strict: process.env.NODE_ENV !== 'production',
