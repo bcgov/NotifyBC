@@ -68,6 +68,7 @@ export default {
             type: 'string',
             format: 'password',
             propertyOrder: 200,
+            description: 'leave blank to unchange',
           },
           created: {
             type: 'string',

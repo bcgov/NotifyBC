@@ -11,7 +11,11 @@ import {
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {genSalt, hash} from 'bcryptjs';
-import {Administrator, UserCredential} from '../models';
+import {
+  Administrator,
+  PASSWORD_COMPLEXITY_REGEX,
+  UserCredential,
+} from '../models';
 import {
   AdministratorRepository,
   UserCredentialRepository,
@@ -60,6 +64,10 @@ export class AdministratorUserCredentialController {
       this.user[securityId] !== id
     ) {
       throw new HttpErrors.Forbidden();
+    }
+    const pwdRegEx = new RegExp(PASSWORD_COMPLEXITY_REGEX);
+    if (!pwdRegEx.test(userCredential.password)) {
+      throw new HttpErrors.BadRequest();
     }
     userCredential.password = await hash(
       userCredential.password,
