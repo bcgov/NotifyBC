@@ -24,7 +24,6 @@ import {
   SchemaObject,
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
-import {genSalt, hash} from 'bcryptjs';
 import _ from 'lodash';
 import {AdministratorUserCredentialController} from '.';
 import {Administrator, PASSWORD_COMPLEXITY_REGEX} from '../models';
@@ -158,11 +157,9 @@ export class AdministratorController extends BaseController {
       _.omit(newUserRequest, 'password'),
       undefined,
     );
-    const password = await hash(newUserRequest.password, await genSalt());
-    await this.userCredentialRepository.create(
-      {userId: savedUser.id, password},
-      undefined,
-    );
+    await this.administratorUserCredentialController.create(savedUser.id, {
+      password: newUserRequest.password,
+    });
     return savedUser;
   }
 
