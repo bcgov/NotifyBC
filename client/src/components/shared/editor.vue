@@ -1,44 +1,51 @@
 <template>
   <div>
-    <div id='nb-item-editor'></div>
+    <div id="nb-item-editor"></div>
+    <v-alert color="red" dense type="error" v-if="errorMessage">
+      {{ errorMessage }}
+    </v-alert>
     <v-btn color="primary" @click="setCurrentlyEditedItem">save</v-btn>
     <v-btn color="error" @click="resetEditor">cancel</v-btn>
   </div>
 </template>
 
 <script>
-import 'json-editor'
-import 'summernote'
+import 'json-editor';
+import 'summernote';
 export default {
   data: function() {
     return {
       jsonEditor: null,
-      currentlyEditedItem: undefined
-    }
+      currentlyEditedItem: undefined,
+      errorMessage: undefined,
+    };
   },
   props: ['item', 'schema', 'model'],
   methods: {
     setCurrentlyEditedItem: async function() {
       try {
-        let item = this.jsonEditor.getValue()
+        this.errorMessage = undefined;
+        let item = this.jsonEditor.getValue();
         await this.$store.dispatch('setItem', {
           model: this.model,
-          item: item
-        })
-        this.currentlyEditedItem = item
-        this.$emit('submit')
+          item: item,
+        });
+        this.currentlyEditedItem = item;
+        this.$emit('submit');
       } catch (ex) {
-        this.createJsonEditor()
+        this.errorMessage = ex;
+        this.createJsonEditor();
       }
     },
     resetEditor: function() {
-      this.createJsonEditor()
-      this.$emit('cancel')
+      this.errorMessage = undefined;
+      this.createJsonEditor();
+      this.$emit('cancel');
     },
     createJsonEditor: function() {
-      let element = $('#nb-item-editor', this.$el).get(0)
+      let element = $('#nb-item-editor', this.$el).get(0);
       if (this.jsonEditor) {
-        this.jsonEditor.destroy()
+        this.jsonEditor.destroy();
       }
       this.jsonEditor = new window.JSONEditor(element, {
         theme: 'bootstrap3',
@@ -49,22 +56,22 @@ export default {
         remove_empty_properties: true,
         disable_collapse: true,
         startval: this.item,
-        schema: this.schema
-      })
-    }
+        schema: this.schema,
+      });
+    },
   },
   mounted: function() {
-    this.createJsonEditor()
+    this.createJsonEditor();
   },
   beforeDestroy: function() {
-    this.jsonEditor && this.jsonEditor.destroy()
-  }
-}
+    this.jsonEditor && this.jsonEditor.destroy();
+  },
+};
 </script>
 
-<style lang='less'>
+<style lang="less">
 .datatable__expand-content:not(.v-leave-active) {
-  height: auto!important;
+  height: auto !important;
 }
 
 #nb-item-editor {
