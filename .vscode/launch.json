@@ -5,11 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Chrome",
+      "name": "Launch Client",
       "request": "launch",
       "type": "pwa-chrome",
       "url": "http://localhost:8000",
       "webRoot": "${workspaceFolder}/client/src"
+    },
+    {
+      "name": "Launch Docs",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:8080/NotifyBC",
+      "webRoot": "${workspaceFolder}/docs"
     },
     {
       "type": "node",
@@ -38,7 +45,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Doc",
+      "name": "Docs",
       "cwd": "${workspaceFolder}/docs",
       "program": "node_modules/vuepress/cli.js",
       "args": ["dev"],
@@ -56,12 +63,12 @@
   ],
   "compounds": [
     {
-      "name": "App&Doc",
-      "configurations": ["App", "Doc"]
+      "name": "App&Docs",
+      "configurations": ["App", "Docs", "Launch Docs"]
     },
     {
       "name": "App&Client",
-      "configurations": ["App", "Client", "Launch Chrome"]
+      "configurations": ["App", "Client", "Launch Client"]
     }
   ]
 }

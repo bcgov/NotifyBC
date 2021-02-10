@@ -20,6 +20,7 @@
     "build:watch": "lb-tsc --watch",
     "postbuild": "yarn build:client",
     "install:client": "yarn --cwd client install",
+    "install:docs": "yarn --cwd docs install",
     "postinstall": "yarn install:client",
     "lint": "yarn prettier:check && yarn eslint",
     "lint:fix": "yarn eslint:fix && yarn prettier:fix",
