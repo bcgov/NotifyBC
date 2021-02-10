@@ -75,6 +75,16 @@ const CredentialsSchema: SchemaObject = {
   },
 };
 
+const UserProfileSchema: SchemaObject = {
+  type: 'object',
+  required: ['authnStrategy'],
+  properties: {
+    authnStrategy: {
+      type: 'string',
+    },
+  },
+};
+
 export const CredentialsRequestBody = {
   description: 'The input of login function',
   required: true,
@@ -185,6 +195,23 @@ export class AdministratorController extends BaseController {
       ttl: credentials.ttl,
     });
     return {token};
+  }
+
+  @authenticate('ipWhitelist', 'accessToken', 'anonymous')
+  @get('/administrators/whoami', {
+    responses: {
+      '200': {
+        description: 'User Profile',
+        content: {
+          'application/json': {
+            schema: UserProfileSchema,
+          },
+        },
+      },
+    },
+  })
+  async whoAmI(): Promise<UserProfile> {
+    return this.user;
   }
 
   @get('/administrators/count', {
