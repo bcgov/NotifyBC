@@ -33,7 +33,7 @@ export default {
       this.options.sort((e1, e2) => {
         const e1Arr = e1.text.split('.');
         const e2Arr = e2.text.split('.');
-        for (const i = 0; i < e1Arr.length && i < e2Arr.length; i++) {
+        for (let i = 0; i < e1Arr.length && i < e2Arr.length; i++) {
           const e1V = parseInt(e1Arr[i]);
           const e2V = parseInt(e2Arr[i]);
           if (e1V !== e2V) return e1V > e2V;
