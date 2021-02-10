@@ -42,6 +42,11 @@
                   required
                 ></v-text-field>
               </v-col>
+              <v-col cols="12" v-if="loginError">
+                <v-alert color="red" dense type="error">
+                  {{ loginError }}
+                </v-alert>
+              </v-col>
             </v-row>
           </v-container>
         </v-card-text>
@@ -70,6 +75,7 @@ export default {
       showPassword: false,
       email: undefined,
       password: undefined,
+      loginError: undefined,
     };
   },
   computed: {
@@ -103,11 +109,16 @@ export default {
       this.showLoginWidget = this.$store.state.authnStrategy === 'anonymous';
     },
     login: async function() {
-      await this.$store.dispatch('login', {
-        email: this.email,
-        password: this.password,
-      });
-      this.dialog = false;
+      try {
+        this.loginError = undefined;
+        await this.$store.dispatch('login', {
+          email: this.email,
+          password: this.password,
+        });
+        this.dialog = false;
+      } catch (ex) {
+        this.loginError = 'Login failed.';
+      }
     },
   },
 };
