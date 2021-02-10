@@ -46,6 +46,32 @@ installing from source code is preferred.
 
 ### Installation
 
+Run following commands
+
+```sh
+git clone https://github.com/bcgov/NotifyBC.git
+cd NotifyBC
+npm i -g yarn && yarn install && yarn build
+yarn start
+```
+
+If successful, you will see following output
+
+```
+...
+Server is running at http://0.0.0.0:3000
+```
+
+Now browse to <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> the page displays NotifyBC Web Console.
+
+The above commands installs the _main_ version, i.e. main branch of _NotifyBC_ GitHub repository. To install a specific version, say _v2.1.0_, run
+
+```sh
+ git checkout tags/v2.1.0 -b v2.1.0
+```
+
+after `cd NotifyBC`.
+
 ::: tip install from behind firewall
 If you want to install on a server behind firewall which restricts internet connection, you can work around the firewall as long as you have access to a http(s) forward proxy server. Assuming the proxy server is http://my_proxy:8080 which proxies both http and https requests, to use it:
 
@@ -67,25 +93,7 @@ If you want to install on a server behind firewall which restricts internet conn
   yarn config set proxy http://my_proxy:8080
   ```
 
-  :::
-
-run following commands
-
-```sh
-git clone https://github.com/bcgov/NotifyBC.git
-cd NotifyBC
-npm i -g yarn && yarn install && yarn build
-yarn start
-```
-
-If successful, you will see following output
-
-```
-...
-Server is running at http://0.0.0.0:3000
-```
-
-Now browse to <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> the page displays NotifyBC Web Console.
+:::
 
 #### Install Windows Service
 
