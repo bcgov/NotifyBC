@@ -21,6 +21,7 @@ module.exports = {
       expiredInAppNotificationRetentionDays: 30,
       nonConfirmedSubscriptionRetentionDays: 30,
       deletedBounceRetentionDays: 30,
+      expiredAccessTokenRetentionDays: 30,
       defaultRetentionDays: 30,
     },
   },
@@ -34,6 +35,7 @@ The config items are
 - _expiredInAppNotificationRetentionDays_: the retention days of expired inApp notifications
 - _nonConfirmedSubscriptionRetentionDays_: the retention days of non-confirmed subscriptions, i.e. all unconfirmed and deleted subscriptions
 - _deletedBounceRetentionDays_: the retention days of deleted notification bounces
+- expiredAccessTokenRetentionDays: the retention days of expired access tokens
 - _defaultRetentionDays_: if any of the above retention day config item is omitted, default retention days is used as fall back.
 
 To change a config item, set the config item in file _/src/config.local.js_. For example, to run cron jobs at 2am daily, add following object to _/src/config.local.js_
