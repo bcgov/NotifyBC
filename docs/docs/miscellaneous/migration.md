@@ -61,7 +61,7 @@ The procedure to migrate from v1 to v2 depends on how v1 was installed.
 7. Add back extra packages noted in step 4
 8. Move _server/config.(local|dev|production).(js|json)_ to _src/_ if exists
 9. Move _server/datasources.(local|dev|production).(js|json)_ to _src/datasources/db.datasource.(local|dev|production).(js|json)_ if exists. Notice the file name has changed.
-10. Move _server/middleware.\*.(js|json)_ to _src/_ if exists. Reorganize top level properties to _all_ or _apiOnly_, where _all_ applies to all requests including web admin console and _apiOnly_ applies to API requests only. For example, given
+10. Move _server/middleware.\*.(js|json)_ to _src/_ if exists. Reorganize top level properties to _all_ or _apiOnly_, where _all_ applies to all requests including web console and _apiOnly_ applies to API requests only. For example, given
 
 ```js
 module.exports = {

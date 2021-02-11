@@ -77,7 +77,7 @@ _NotifyBC_, designed to be a microservice, doesn't use full-blown ACL to secure 
   - smgov_userdisplayname
   - is_anonymous
 - admin, if the request is not super-admin but has valid access token that maps to an admin user created and logged in using the _administrator_ api, and the request doesn't contain any HTTP headers listed above
-- authenticated user, if the request
+- SiteMinder authenticated user, if the request
   - is neither super-admin nor admin, and
   - contains any of the 3 SiteMinder headers listed above, and
   - comes from either trusted SiteMinder proxy or admin ip list
