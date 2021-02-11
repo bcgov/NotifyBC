@@ -5,7 +5,6 @@
       hint='Enter free style text for full text search or LoopBack <i>where filter</i> compatible JSON string for parametrized search, for example {"channel": "email"}.'
       label="Search"
       single-line
-      hide-details
       v-model="search"
     ></v-text-field>
     <v-data-table
@@ -46,13 +45,18 @@
         <v-expansion-panels v-model="newPanelExpanded">
           <v-expansion-panel>
             <v-expansion-panel-header :hide-actions="true">
-              <div class="text-center" color="indigo">
-                <v-btn text icon>
-                  <v-icon large color="indigo">{{
-                    this.newPanelExpanded === 0 ? 'keyboard_arrow_up' : 'add'
-                  }}</v-icon>
-                </v-btn>
-              </div>
+              <v-tooltip bottom>
+                <template v-slot:activator="{on}">
+                  <div class="text-center" color="indigo">
+                    <v-btn v-on="on" text icon>
+                      <v-icon large color="indigo">{{
+                        newPanelExpanded === 0 ? 'keyboard_arrow_up' : 'add'
+                      }}</v-icon>
+                    </v-btn>
+                  </div>
+                </template>
+                new
+              </v-tooltip>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-card>

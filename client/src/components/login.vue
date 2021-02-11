@@ -2,8 +2,8 @@
   <v-toolbar-items class="center-text">
     <div v-if="$store.state.authnStrategy === 'ipWhitelist'">
       <v-tooltip bottom>
-        <template v-slot:activator="{on, attrs}">
-          <v-icon v-on="on" v-bind="attrs">verified_user</v-icon>
+        <template v-slot:activator="{on}">
+          <v-icon v-on="on">verified_user</v-icon>
         </template>
         <span>You are super-admin</span>
       </v-tooltip>
@@ -23,10 +23,8 @@
       max-width="500px"
       v-if="$store.state.authnStrategy === 'anonymous'"
     >
-      <template v-slot:activator="{on, attrs}">
-        <v-btn plain v-bind="attrs" v-on="on">
-          Login<v-icon>login</v-icon>
-        </v-btn>
+      <template v-slot:activator="{on}">
+        <v-btn plain v-on="on"> Login<v-icon>login</v-icon> </v-btn>
       </template>
       <v-card>
         <v-card-title>
