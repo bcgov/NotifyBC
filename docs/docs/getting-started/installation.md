@@ -205,20 +205,3 @@ oc tag <yourprojectname-tools>/notify-bc:latest <yourprojectname-test>/notify-bc
 ```
 
 The above command will deploy the latest (which should also be dev) runtime image to _test_ env. The purpose of tagging runtime image of _test_ env in both \<yourprojectname-test\>/notify-bc:latest and \<yourprojectname-tools\>/notify-bc:test is to use \<yourprojectname-tools\>/notify-bc:test as backup such that in case the image stream \<yourprojectname-test\>/notify-bc, which is used by _test_ runtime pods, is deleted inadvertently, it can be recovered from \<yourprojectname-tools\>/notify-bc:test.
-
-## Install Docs Website (Optional)
-
-If you want to contribute to _NotifyBC_ docs beyond simple fix ups, run
-
-```sh
-yarn --cwd docs install
-yarn --cwd docs dev
-```
-
-If everything goes well, the last line of the output will be
-
-```
-> VuePress dev server listening at http://localhost:8080/NotifyBC/
-```
-
-You can now browse to the local docs site [http://localhost:8080/NotifyBC](http://localhost:8080/NotifyBC/)

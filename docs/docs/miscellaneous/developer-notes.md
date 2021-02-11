@@ -23,3 +23,20 @@ Whenever possible, a test spec should be written to
 ## Code Coverage
 
 After running `yarn test`, nyc code coverage report is generated in git ignored folder _/coverage_.
+
+## Install Docs Website
+
+If you want to contribute to _NotifyBC_ docs beyond simple fix ups, run
+
+```sh
+yarn --cwd docs install
+yarn --cwd docs dev
+```
+
+If everything goes well, the last line of the output will be
+
+```
+> VuePress dev server listening at http://localhost:8080/NotifyBC/
+```
+
+You can now browse to the local docs site [http://localhost:8080/NotifyBC](http://localhost:8080/NotifyBC/)
