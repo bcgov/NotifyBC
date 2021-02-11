@@ -25,7 +25,7 @@ module.exports = {
     scaffolding: false,
     type: false,
     code: false,
-    grid: true,
+    grid: false,
     tables: false,
     forms: false,
     buttons: false,
