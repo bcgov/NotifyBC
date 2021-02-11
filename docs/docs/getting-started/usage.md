@@ -17,8 +17,8 @@ icon on top right corner of web console.
 
 To see the result of non super-admin requests, you can choose one of the following methods
 
-- [define admin ip list](../config-adminIpList/) and avoid putting localhost (127.0.0.1) in the list
-- access the API explorer from another ip not in the admin ip list
+- customize [admin ip list](../config-adminIpList/) to omit localhost (127.0.0.1)
+- access web console from another ip not in the admin ip list
 
 ## Anonymous user
 
@@ -27,7 +27,9 @@ Anonymous authentication status is indicated by the LOGIN<span class="material-i
 
 ## Admin user
 
-If you are an authorized _NotifyBC_ administrator and it's not always feasible for you to access _NotifyBC_ from a client in admin ip list, you can authenticate using an access token. The procedure to obtain and apply access token is documented in [Administrator API](../api/administrator.md). Access token authentication status is indicated by the _Access Token_ text field on top right corner of web console. You can edit the text field. If the new access token you entered is invalid, you are essentially logging yourself out. In such case _Access Token_ text field is replaced by the LOGIN<span class="material-icons">login</span> button.
+If you are an authorized _NotifyBC_ administrator and it's not always feasible to access _NotifyBC_ from a client in admin ip list, you can authenticate using an access token. The procedure to obtain and apply access token is documented in [Administrator API](../api/administrator.md). Access token authentication status is indicated by the _Access Token_ text field on top right corner of web console. You can edit the text field. If the new access token you entered is invalid, you are essentially logging yourself out. In such case _Access Token_ text field is replaced by the LOGIN<span class="material-icons">login</span> button.
+
+The access token in API Explorer is integrated with web console. Therefore if you change access token in API Explorer GUI, it will be reflected in web console upon page refresh, and vice versa.
 
 ## SiteMinder authenticated user
 
