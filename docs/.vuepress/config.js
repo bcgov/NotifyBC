@@ -21,6 +21,13 @@ module.exports = {
     ['meta', {name: 'apple-mobile-web-app-capable', content: 'yes'}],
     ['meta', {name: 'apple-mobile-web-app-status-bar-style', content: 'black'}],
     ['link', {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}],
+    [
+      'link',
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/icon?family=Material+Icons',
+      },
+    ],
   ],
 
   /**

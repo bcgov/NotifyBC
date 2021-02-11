@@ -53,7 +53,7 @@ module.exports = {
 };
 ```
 
-Middleware defined under _all_ applies to both API and web admin console requests, as opposed to _apiOnly_, which applies to API requests only. _params_ are passed to middleware function as arguments. _enabled_ toggles the middleware on or off.
+Middleware defined under _all_ applies to both API and web console requests, as opposed to _apiOnly_, which applies to API requests only. _params_ are passed to middleware function as arguments. _enabled_ toggles the middleware on or off.
 
 To change default settings defined in _/src/middleware.ts_, create file _/src/middleware.local.ts_ or _/src/middleware.\<env\>.ts_ to override. For example, to enable access log,
 
