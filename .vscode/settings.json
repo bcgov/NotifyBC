@@ -38,6 +38,7 @@
     "automigrate",
     "copyfiles",
     "createsend",
+    "dovyp",
     "feedparser",
     "getopt",
     "gsmtp",
