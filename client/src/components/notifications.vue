@@ -22,20 +22,16 @@
             </template>
             details
           </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{on}">
-              <v-btn
-                v-on="on"
-                @click="props.editItem(props.props)"
-                text
-                icon
-                v-if="props.props.item.state === 'new'"
-              >
-                <v-icon>create</v-icon>
-              </v-btn>
-            </template>
-            edit
-          </v-tooltip>
+          <template v-if="props.props.item.state === 'new'">
+            <v-tooltip bottom>
+              <template v-slot:activator="{on}">
+                <v-btn v-on="on" @click="props.editItem(props.props)" text icon>
+                  <v-icon>create</v-icon>
+                </v-btn>
+              </template>
+              edit
+            </v-tooltip>
+          </template>
         </td>
       </tr>
     </template>
