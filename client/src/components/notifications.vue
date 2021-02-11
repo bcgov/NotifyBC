@@ -14,17 +14,28 @@
         <td>{{ props.props.item.isBroadcast }}</td>
         <td class="text-right">{{ props.props.item.updated }}</td>
         <td>
-          <v-btn @click="props.viewItem(props.props)" text icon>
-            <v-icon>info</v-icon>
-          </v-btn>
-          <v-btn
-            @click="props.editItem(props.props)"
-            text
-            icon
-            v-if="props.props.item.state === 'new'"
-          >
-            <v-icon>create</v-icon>
-          </v-btn>
+          <v-tooltip bottom>
+            <template v-slot:activator="{on}">
+              <v-btn v-on="on" @click="props.viewItem(props.props)" text icon>
+                <v-icon>info</v-icon>
+              </v-btn>
+            </template>
+            details
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{on}">
+              <v-btn
+                v-on="on"
+                @click="props.editItem(props.props)"
+                text
+                icon
+                v-if="props.props.item.state === 'new'"
+              >
+                <v-icon>create</v-icon>
+              </v-btn>
+            </template>
+            edit
+          </v-tooltip>
         </td>
       </tr>
     </template>

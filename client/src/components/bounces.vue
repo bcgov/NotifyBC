@@ -7,15 +7,30 @@
         <td>{{ props.props.item.state }}</td>
         <td class="text-right">{{ props.props.item.updated }}</td>
         <td>
-          <v-btn @click="props.viewItem(props.props)" text icon>
-            <v-icon>info</v-icon>
-          </v-btn>
-          <v-btn @click="props.editItem(props.props)" text icon>
-            <v-icon>create</v-icon>
-          </v-btn>
-          <v-btn @click="props.deleteItem(props.props)" text icon>
-            <v-icon color="red darken-2">delete_forever</v-icon>
-          </v-btn>
+          <v-tooltip bottom>
+            <template v-slot:activator="{on}">
+              <v-btn v-on="on" @click="props.viewItem(props.props)" text icon>
+                <v-icon>info</v-icon>
+              </v-btn>
+              details
+            </template></v-tooltip
+          >
+          <v-tooltip bottom>
+            <template v-slot:activator="{on}">
+              <v-btn v-on="on" @click="props.editItem(props.props)" text icon>
+                <v-icon>create</v-icon>
+              </v-btn>
+            </template>
+            edit
+          </v-tooltip>
+          <v-tooltip bottom color="red">
+            <template v-slot:activator="{on}">
+              <v-btn v-on="on" @click="props.deleteItem(props.props)" text icon>
+                <v-icon color="red darken-2">delete_forever</v-icon>
+              </v-btn>
+            </template>
+            Caution: delete immediately without confirmation
+          </v-tooltip>
         </td>
       </tr>
     </template>
