@@ -2,11 +2,16 @@
   <div>
     <v-text-field
       append-icon="search"
-      hint='Enter free style text for full text search or LoopBack <i>where filter</i> compatible JSON string for parametrized search, for example {"channel": "email"}.'
+      hint='Enter free style text for full text search or LoopBack <a href="https://loopback.io/doc/en/lb4/Where-filter.html" target="_blank">where filter</a> compatible JSON string for parametrized search, for example {"channel": "email"}.'
       label="Search"
       single-line
+      persistent-hint
       v-model="search"
-    ></v-text-field>
+    >
+      <template v-slot:message="{message}">
+        <span v-html="message"></span>
+      </template>
+    </v-text-field>
     <v-data-table
       :headers="headers"
       :items="$store.state[this.model].items"
