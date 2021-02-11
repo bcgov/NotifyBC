@@ -39,16 +39,79 @@
         </td>
       </tr>
     </template>
+    <template #newItem="props">
+      <model-editor
+        class="ma-2"
+        @submit="props.submitNewPanel"
+        @cancel="props.cancelNewPanel"
+        :schema="newItemSchema"
+        :model="props.model"
+      />
+    </template>
   </combo-table>
 </template>
 
 <script>
 import ComboTable from './shared/combo-table';
+import ModelEditor from './shared/editor';
+import {merge} from 'lodash';
 export default {
   components: {
     ComboTable,
+    ModelEditor,
   },
   data: function() {
+    const schema = {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          options: {
+            hidden: true,
+          },
+        },
+        email: {
+          type: 'string',
+          required: true,
+          propertyOrder: 100,
+        },
+        password: {
+          type: 'string',
+          format: 'password',
+          propertyOrder: 200,
+          description:
+            'leave blank to unchange; otherwise must meet documented complexity rules',
+        },
+        username: {
+          type: 'string',
+          propertyOrder: 300,
+        },
+        created: {
+          type: 'string',
+          options: {
+            hidden: true,
+          },
+        },
+        updated: {
+          type: 'string',
+          options: {
+            hidden: true,
+          },
+        },
+        createdBy: {
+          type: 'string',
+          options: {
+            hidden: true,
+          },
+        },
+        updatedBy: {
+          type: 'string',
+          options: {
+            hidden: true,
+          },
+        },
+      },
+    };
     return {
       headers: [
         {
@@ -67,51 +130,15 @@ export default {
           sortable: false,
         },
       ],
-      schema: {
-        type: 'object',
+      schema,
+      newItemSchema: merge({}, schema, {
         properties: {
-          id: {
-            type: 'string',
-            options: {
-              hidden: true,
-            },
-          },
-          email: {
-            type: 'string',
-            propertyOrder: 100,
-          },
           password: {
-            type: 'string',
-            format: 'password',
-            propertyOrder: 200,
-            description: 'leave blank to unchange',
-          },
-          created: {
-            type: 'string',
-            options: {
-              hidden: true,
-            },
-          },
-          updated: {
-            type: 'string',
-            options: {
-              hidden: true,
-            },
-          },
-          createdBy: {
-            type: 'string',
-            options: {
-              hidden: true,
-            },
-          },
-          updatedBy: {
-            type: 'string',
-            options: {
-              hidden: true,
-            },
+            description: 'must meet documented complexity rules',
+            required: true,
           },
         },
-      },
+      }),
     };
   },
 };

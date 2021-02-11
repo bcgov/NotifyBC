@@ -66,13 +66,21 @@
             <v-expansion-panel-content>
               <v-card>
                 <v-card-text class="grey lighten-3">
-                  <model-editor
-                    class="ma-2"
-                    @submit="submitNewPanel"
-                    @cancel="cancelNewPanel"
+                  <slot
+                    name="newItem"
+                    :submitNewPanel="submitNewPanel"
+                    :cancelNewPanel="cancelNewPanel"
                     :schema="schema"
                     :model="model"
-                  />
+                  >
+                    <model-editor
+                      class="ma-2"
+                      @submit="submitNewPanel"
+                      @cancel="cancelNewPanel"
+                      :schema="schema"
+                      :model="model"
+                    />
+                  </slot>
                 </v-card-text>
               </v-card>
             </v-expansion-panel-content>
