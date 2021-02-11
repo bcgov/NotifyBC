@@ -279,6 +279,44 @@ This API allows an admin to login and create an access token
       ```
   - forbidden otherwise
 
+## Set Password
+
+```
+POST /administrators/{id}/user-credential
+```
+
+This API allows a super-admin or admin to create or update password by id. An admin can only create/update own record.
+
+- permissions required, one of
+  - super admin
+  - admin
+- inputs
+
+  - _Administrator_ id
+    - required: true
+    - parameter type: path
+    - data type: string
+  - password
+
+    ```json
+    {
+      "password": "string"
+    }
+    ```
+
+    The password must meet complexity rules specified in [Sign Up](#sign-up).
+
+    - required: true
+    - parameter type: request body
+    - data type: object
+
+* outcome
+  - for super-admins or admin,
+    1. hash the input password
+    2. remove any existing _UserCredential.password_ for the _Administrator_
+    3. create a new _UserCredential.password_
+  - forbidden otherwise
+
 ## Get Administrators
 
 ```
@@ -471,45 +509,7 @@ This API allows a super-admin or admin to replace administrator records by id. A
     - data type: object
 
 * outcome
-  - for super-admins or admin, updates the _Administrator_
-  - forbidden otherwise
-
-## Create/Update an Administrator's UserCredential
-
-```
-POST /administrators/{id}/user-credential
-```
-
-This API allows a super-admin or admin to create or update password by id. An admin can only create/update own record.
-
-- permissions required, one of
-  - super admin
-  - admin
-- inputs
-
-  - _Administrator_ id
-    - required: true
-    - parameter type: path
-    - data type: string
-  - password
-
-    ```json
-    {
-      "password": "string"
-    }
-    ```
-
-    The password must meet complexity rules specified in [Sign Up](#sign-up).
-
-    - required: true
-    - parameter type: request body
-    - data type: object
-
-* outcome
-  - for super-admins or admin,
-    1. hash the input password
-    2. remove any existing _UserCredential.password_ for the _Administrator_
-    3. create a new _UserCredential.password_
+  - for super-admins or admin, updates the _Administrator_. If _password_ is also supplied, the password is handled same way as [Set Password](#set-password) API
   - forbidden otherwise
 
 ## Get an Administrator's AccessTokens
