@@ -4,6 +4,7 @@ import {RestBindings} from '@loopback/rest';
 import {NotificationController} from '../controllers';
 import {Rss, RssItem, RssRelations} from '../models';
 import {
+  AccessTokenRepository,
   BounceRepository,
   ConfigurationRepository,
   NotificationRepository,
@@ -32,7 +33,7 @@ module.exports.purgeData = async (app: Application) => {
         (async () => {
           // delete all non-inApp old notifications
           const retentionDays =
-            cronConfig.pushNotificationRetentionDays ||
+            cronConfig.pushNotificationRetentionDays ??
             cronConfig.defaultRetentionDays;
           const data = await notificationRepository.deleteAll({
             channel: {
@@ -55,7 +56,7 @@ module.exports.purgeData = async (app: Application) => {
         (async () => {
           // delete all expired inApp notifications
           const retentionDays =
-            cronConfig.expiredInAppNotificationRetentionDays ||
+            cronConfig.expiredInAppNotificationRetentionDays ??
             cronConfig.defaultRetentionDays;
           const data = await notificationRepository.deleteAll({
             channel: 'inApp',
@@ -92,7 +93,7 @@ module.exports.purgeData = async (app: Application) => {
         (async () => {
           // delete all old non-confirmed subscriptions
           const retentionDays =
-            cronConfig.nonConfirmedSubscriptionRetentionDays ||
+            cronConfig.nonConfirmedSubscriptionRetentionDays ??
             cronConfig.defaultRetentionDays;
           const subscriptionRepository: SubscriptionRepository = await app.get(
             'repositories.SubscriptionRepository',
@@ -118,7 +119,7 @@ module.exports.purgeData = async (app: Application) => {
         (async () => {
           // purge deleted bounces
           const retentionDays =
-            cronConfig.deletedBounceRetentionDays ||
+            cronConfig.deletedBounceRetentionDays ??
             cronConfig.defaultRetentionDays;
           const bounceRepository: BounceRepository = await app.get(
             'repositories.BounceRepository',
@@ -138,6 +139,42 @@ module.exports.purgeData = async (app: Application) => {
             );
           }
           return data;
+        })(),
+        (async () => {
+          // delete all expired access Tokens
+          const retentionDays =
+            cronConfig.expiredAccessTokenRetentionDays ??
+            cronConfig.defaultRetentionDays;
+          const accessTokenRepository: AccessTokenRepository = await app.get(
+            'repositories.AccessTokenRepository',
+          );
+
+          const data = await accessTokenRepository.find({
+            where: {
+              ttl: {gte: 0},
+              created: {
+                lt: Date.now() - retentionDays * 86400000,
+              },
+            },
+          });
+          if (data.length === 0) {
+            return;
+          }
+          let count = 0;
+          for (const e of data) {
+            if (
+              Date.parse(e.created as string) <
+              Date.now() - retentionDays * 86400000 - (e.ttl as number) * 1000
+            ) {
+              await accessTokenRepository.deleteById(e.id);
+              count++;
+            }
+          }
+          if (count > 0) {
+            console.info(
+              new Date().toLocaleString() + ': Deleted ' + count + ' items.',
+            );
+          }
         })(),
       ]);
       return res;
@@ -329,7 +366,7 @@ module.exports.checkRssConfigUpdates = async (
                   );
                   const outdatedItemRetentionGenerations =
                     rssNtfctnConfigItem.value.rss
-                      .outdatedItemRetentionGenerations || 1;
+                      .outdatedItemRetentionGenerations ?? 1;
                   let lastPollInterval = ts.getTime();
                   try {
                     lastPollInterval =
@@ -397,11 +434,15 @@ module.exports.checkRssConfigUpdates = async (
                           'Content-Type': 'application/json',
                         },
                       };
-                      module.exports.request.post(
-                        url,
-                        notificationObject,
-                        options,
-                      );
+                      try {
+                        await module.exports.request.post(
+                          url,
+                          notificationObject,
+                          options,
+                        );
+                      } catch (ex) {
+                        console.error(new Error(ex.message));
+                      }
                     }
                   });
                   if (!lastSavedRssData) {

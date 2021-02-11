@@ -106,6 +106,7 @@ module.exports = {
       expiredInAppNotificationRetentionDays: 30,
       nonConfirmedSubscriptionRetentionDays: 30,
       deletedBounceRetentionDays: 30,
+      expiredAccessTokenRetentionDays: 30,
       defaultRetentionDays: 30,
     },
     dispatchLiveNotifications: {

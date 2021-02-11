@@ -5,6 +5,7 @@ import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {NotificationController} from '../../controllers';
 import {
+  AccessTokenRepository,
   BounceRepository,
   ConfigurationRepository,
   NotificationRepository,
@@ -24,6 +25,7 @@ let subscriptionRepository: SubscriptionRepository;
 let configurationRepository: ConfigurationRepository;
 let bounceRepository: BounceRepository;
 let notificationController: NotificationController;
+let accessTokenRepository: AccessTokenRepository;
 before('setupApplication', async function () {
   ({app} = await setupApplication());
   rssRepository = await app.get('repositories.RssRepository');
@@ -34,6 +36,7 @@ before('setupApplication', async function () {
   notificationController = await app.get('controllers.NotificationController');
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
   bounceRepository = await app.get('repositories.BounceRepository');
+  accessTokenRepository = await app.get('repositories.AccessTokenRepository');
 });
 
 describe('CRON purgeData', function () {
@@ -226,7 +229,37 @@ describe('CRON purgeData', function () {
     data = await bounceRepository.findById('1');
     expect(data).not.equal(null);
   });
+
+  it('should delete all expired access tokens', async function () {
+    await accessTokenRepository.create({
+      ttl: 0,
+      created: '2020-02-10T20:22:05.045Z',
+      userId: '1',
+    });
+    await accessTokenRepository.create({
+      created: '2020-02-10T20:22:05.045Z',
+      userId: '2',
+    });
+    try {
+      await (await cronTasks.purgeData(app))();
+    } catch (err) {
+      fail(err);
+    }
+    let data = await accessTokenRepository.find({
+      where: {
+        userId: '1',
+      },
+    });
+    expect(data.length).equal(0);
+    data = await accessTokenRepository.find({
+      where: {
+        userId: '2',
+      },
+    });
+    expect(data.length).equal(1);
+  });
 });
+
 describe('CRON dispatchLiveNotifications', function () {
   beforeEach(async function () {
     await Promise.all([
