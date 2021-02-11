@@ -39,7 +39,7 @@ HTTP response code of success calls to following APIs are changed from 200 to 20
 
 - Password is saved to _Administrator_ in v1 and _UserCredential_ in v2. Password is not migrated. New password has to be created by following [Create/Update an Administrator's UserCredential
   ](../api-administrator/#create-update-an-administrator-s-usercredential).
-- [Complexity rules](../api-administrator.md#sign-up) have been applied to passwords.
+- [Complexity rules](../api/administrator.md#sign-up) have been applied to passwords.
 - [login](../api-administrator/#login) API is open to non-admin
 
 ## Migrate _NotifyBC_ server
