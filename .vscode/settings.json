@@ -29,6 +29,7 @@
     "IDAQAB",
     "NDRs",
     "createsend",
+    "dovyp",
     "jmespath",
     "jmespath's",
     "lcov",
@@ -38,7 +39,6 @@
     "universalid",
     "unsub",
     "userdisplayname",
-    "yourprojectname",
-    "serviceaccount"
+    "yourprojectname"
   ]
 }
