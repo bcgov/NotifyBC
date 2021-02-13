@@ -33,4 +33,7 @@ export default (server: ExpressServer) => {
   });
   // Serve static files in the client folder
   app.use(express.static(path.join(__dirname, viewRelDir)));
+  app.use(
+    express.static(path.join(__dirname, '../node_modules/swagger-ui-dist')),
+  );
 };
