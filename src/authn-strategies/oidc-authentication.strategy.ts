@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './access-token-authentication.strategy';
-export * from './anonymous-authentication.strategy';
-export * from './ip-whitelist-authentication.strategy';
-export * from './oidc-authentication.strategy';
-export * from './siteminder-authentication.strategy';
+import {AuthenticationStrategy} from '@loopback/authentication';
+import {Request} from '@loopback/rest';
+import {securityId, UserProfile} from '@loopback/security';
+
+export class OidcAuthenticationStrategy implements AuthenticationStrategy {
+  name = 'oidc';
+  constructor() {}
+
+  async authenticate(request: Request): Promise<UserProfile | undefined> {
+    return {
+      [securityId]: 'oidc',
+      authnStrategy: this.name,
+    };
+  }
+}

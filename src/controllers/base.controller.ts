@@ -29,7 +29,7 @@ interface SMSBody {
   [key: string]: string;
 }
 
-@authenticate('ipWhitelist', 'accessToken', 'siteMinder', 'anonymous')
+@authenticate('ipWhitelist', 'accessToken', 'oidc', 'siteMinder', 'anonymous')
 export class BaseController {
   constructor(
     @inject(CoreBindings.APPLICATION_CONFIG)
