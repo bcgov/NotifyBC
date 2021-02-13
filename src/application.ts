@@ -32,6 +32,7 @@ import {
   AccessTokenAuthenticationStrategy,
   AnonymousAuthenticationStrategy,
   IpWhitelistAuthenticationStrategy,
+  OidcAuthenticationStrategy,
   SiteMinderAuthenticationStrategy,
 } from './authn-strategies';
 import {MySequence} from './sequence';
@@ -130,6 +131,7 @@ export class NotifyBcApplication extends BootMixin(
     registerAuthenticationStrategy(this, IpWhitelistAuthenticationStrategy);
     registerAuthenticationStrategy(this, AnonymousAuthenticationStrategy);
     registerAuthenticationStrategy(this, SiteMinderAuthenticationStrategy);
+    registerAuthenticationStrategy(this, OidcAuthenticationStrategy);
     this.add(createBindingFromClass(SecuritySpecEnhancer));
 
     const apiOnlyMiddlewareConfigs = middlewareConfigs.apiOnly;
