@@ -16,3 +16,4 @@ export * from './auto-update.observer';
 export * from './cron.observer';
 export * from './rsa.observer';
 export * from './smtp-server.observer';
+export * from './oidc-discovery.observer';
