@@ -20,6 +20,7 @@ import {
   intercept,
 } from '@loopback/core';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 import {DbDataSource} from '../datasources';
 import {RepositoryBeforeSaveInterceptor} from '../interceptors';
 import {Rss, RssRelations} from '../models';
@@ -37,7 +38,9 @@ export class RssRepository extends BaseCrudRepository<
     protected getHttpContext: Getter<MiddlewareContext>,
     @inject(CoreBindings.APPLICATION_CONFIG)
     protected appConfig: ApplicationConfig,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user?: UserProfile,
   ) {
-    super(Rss, dataSource, getHttpContext, appConfig);
+    super(Rss, dataSource, getHttpContext, appConfig, user);
   }
 }

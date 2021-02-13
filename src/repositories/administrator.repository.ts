@@ -25,6 +25,7 @@ import {
   repository,
 } from '@loopback/repository';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 import {DbDataSource} from '../datasources';
 import {
   AdministratorBeforeSaveInterceptor,
@@ -67,8 +68,10 @@ export class AdministratorRepository extends BaseCrudRepository<
     protected accessTokenRepositoryGetter: Getter<AccessTokenRepository>,
     @repository.getter('UserCredentialRepository')
     protected userCredentialRepositoryGetter: Getter<UserCredentialRepository>,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user?: UserProfile,
   ) {
-    super(Administrator, dataSource, getHttpContext, appConfig);
+    super(Administrator, dataSource, getHttpContext, appConfig, user);
     this.userCredential = this.createHasOneRepositoryFactoryFor(
       'userCredential',
       userCredentialRepositoryGetter,

@@ -20,6 +20,7 @@ import {
   intercept,
 } from '@loopback/core';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 import {DbDataSource} from '../datasources';
 import {RepositoryBeforeSaveInterceptor} from '../interceptors';
 import {Bounce, BounceRelations} from '../models';
@@ -37,7 +38,9 @@ export class BounceRepository extends BaseCrudRepository<
     protected getHttpContext: Getter<MiddlewareContext>,
     @inject(CoreBindings.APPLICATION_CONFIG)
     protected appConfig: ApplicationConfig,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user?: UserProfile,
   ) {
-    super(Bounce, dataSource, getHttpContext, appConfig);
+    super(Bounce, dataSource, getHttpContext, appConfig, user);
   }
 }

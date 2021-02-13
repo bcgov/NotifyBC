@@ -20,6 +20,7 @@ import {
   intercept,
 } from '@loopback/core';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 import {DbDataSource} from '../datasources';
 import {RepositoryBeforeSaveInterceptor} from '../interceptors';
 import {ConfigurationBeforeSaveInterceptor} from '../interceptors/configuration-before-save.interceptor';
@@ -39,7 +40,9 @@ export class ConfigurationRepository extends BaseCrudRepository<
     protected getHttpContext: Getter<MiddlewareContext>,
     @inject(CoreBindings.APPLICATION_CONFIG)
     protected appConfig: ApplicationConfig,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user?: UserProfile,
   ) {
-    super(Configuration, dataSource, getHttpContext, appConfig);
+    super(Configuration, dataSource, getHttpContext, appConfig, user);
   }
 }
