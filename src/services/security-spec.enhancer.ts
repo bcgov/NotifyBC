@@ -32,6 +32,7 @@ export type SecuritySchemeObjects = {
 export const OPERATION_SECURITY_SPEC = [
   {
     accessToken: [],
+    oidc: [],
   },
 ];
 
@@ -40,6 +41,18 @@ export const SECURITY_SCHEME_SPEC: SecuritySchemeObjects = {
     type: 'apiKey',
     in: 'header',
     name: 'Authorization',
+  },
+  oidc: {
+    type: 'oauth2',
+    flows: {
+      implicit: {
+        authorizationUrl:
+          'https://dev.oidc.gov.bc.ca/auth/realms/gde0rjxl/protocol/openid-connect/auth',
+        scopes: {oidc: 'oidc'},
+      },
+    },
+    // openIdConnectUrl:
+    //   'https://dev.oidc.gov.bc.ca/auth/realms/gde0rjxl/.well-known/openid-configuration',
   },
 };
 
