@@ -20,6 +20,7 @@ import {
   intercept,
 } from '@loopback/core';
 import {MiddlewareContext, RestBindings} from '@loopback/rest';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 import {DbDataSource} from '../datasources';
 import {
   RepositoryBeforeSaveInterceptor,
@@ -42,7 +43,9 @@ export class SubscriptionRepository extends BaseCrudRepository<
     protected getHttpContext: Getter<MiddlewareContext>,
     @inject(CoreBindings.APPLICATION_CONFIG)
     protected appConfig: ApplicationConfig,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user?: UserProfile,
   ) {
-    super(Subscription, dataSource, getHttpContext, appConfig);
+    super(Subscription, dataSource, getHttpContext, appConfig, user);
   }
 }

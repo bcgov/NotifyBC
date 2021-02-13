@@ -15,6 +15,7 @@
 import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
 import {DefaultCrudRepository, Entity, juggler} from '@loopback/repository';
 import {MiddlewareBindings, MiddlewareContext} from '@loopback/rest';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 const ipRangeCheck = require('ip-range-check');
 
 export class BaseCrudRepository<
@@ -31,6 +32,8 @@ export class BaseCrudRepository<
     protected getHttpContext: Getter<MiddlewareContext>,
     @inject(CoreBindings.APPLICATION_CONFIG)
     protected appConfig: ApplicationConfig,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user?: UserProfile,
   ) {
     super(entityClass, dataSource);
   }
@@ -65,6 +68,14 @@ export class BaseCrudRepository<
           return true;
         }
       } catch (ex) {}
+      if (
+        this.user &&
+        this.user.authnStrategy === 'oidc' &&
+        this.appConfig.oidc?.isAdmin &&
+        this.appConfig.oidc.isAdmin instanceof Function
+      ) {
+        return this.appConfig.oidc.isAdmin(this.user);
+      }
     }
 
     const adminIps = this.appConfig.adminIps || this.appConfig.defaultAdminIps;
