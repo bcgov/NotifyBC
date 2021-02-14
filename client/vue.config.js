@@ -8,6 +8,8 @@ module.exports = {
     index: {
       entry: 'src/main.js',
       apiUrlPrefix: app.options.restApiRoot,
+      oidcAuthority: app.options.oidc && app.options.oidc.discoveryUrl,
+      oidcClientId: app.options.oidc && app.options.oidc.clientId,
     },
   },
   configureWebpack: {
