@@ -61,7 +61,8 @@ export class OidcAuthenticationStrategy implements AuthenticationStrategy {
       jwt.verify(token, pem, (err: any, decodedPayload: any) => {
         err && reject(err);
         const userProfile: UserProfile = {
-          [securityId]: decodedPayload.jti ?? decodedPayload.email,
+          [securityId]:
+            decodedPayload.email || decodedPayload.preferred_username,
           authnStrategy: this.name,
           ...decodedPayload,
         };
