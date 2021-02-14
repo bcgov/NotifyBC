@@ -23,37 +23,11 @@ import {
 } from '@loopback/rest';
 import debugModule from 'debug';
 import {inspect} from 'util';
+import {OidcDiscoveryObserver} from '../observers';
 const debug = debugModule('notifyBC:security-spec-enhancer');
 
 export type SecuritySchemeObjects = {
   [securityScheme: string]: SecuritySchemeObject | ReferenceObject;
-};
-
-export const OPERATION_SECURITY_SPEC = [
-  {
-    accessToken: [],
-    oidc: [],
-  },
-];
-
-export const SECURITY_SCHEME_SPEC: SecuritySchemeObjects = {
-  accessToken: {
-    type: 'apiKey',
-    in: 'header',
-    name: 'Authorization',
-  },
-  oidc: {
-    type: 'oauth2',
-    flows: {
-      implicit: {
-        authorizationUrl:
-          'https://dev.oidc.gov.bc.ca/auth/realms/gde0rjxl/protocol/openid-connect/auth',
-        scopes: {oidc: 'oidc'},
-      },
-    },
-    // openIdConnectUrl:
-    //   'https://dev.oidc.gov.bc.ca/auth/realms/gde0rjxl/.well-known/openid-configuration',
-  },
 };
 
 /**
@@ -62,14 +36,40 @@ export const SECURITY_SCHEME_SPEC: SecuritySchemeObjects = {
  */
 @injectable(asSpecEnhancer)
 export class SecuritySpecEnhancer implements OASEnhancer {
-  name = 'apiKeyAuth';
+  name = 'authn';
 
   modifySpec(spec: OpenApiSpec): OpenApiSpec {
+    const securitySchemeSpec: SecuritySchemeObjects = {
+      accessToken: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
+      },
+    };
+    const operationSecuritySpec: any[] = [
+      {
+        accessToken: [],
+      },
+    ];
+
+    if (OidcDiscoveryObserver.authorizationUrl) {
+      securitySchemeSpec.oidc = {
+        type: 'oauth2',
+        flows: {
+          implicit: {
+            authorizationUrl: OidcDiscoveryObserver.authorizationUrl,
+            scopes: {},
+          },
+        },
+      };
+      operationSecuritySpec[0].oidc = [];
+    }
+
     const patchSpec = {
       components: {
-        securitySchemes: SECURITY_SCHEME_SPEC,
+        securitySchemes: securitySchemeSpec,
       },
-      security: OPERATION_SECURITY_SPEC,
+      security: operationSecuritySpec,
     };
     const mergedSpec = mergeOpenAPISpec(spec, patchSpec);
     debug(`security spec extension, merged spec: ${inspect(mergedSpec)}`);
