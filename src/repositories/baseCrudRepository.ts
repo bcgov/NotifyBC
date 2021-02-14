@@ -15,7 +15,7 @@
 import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
 import {DefaultCrudRepository, Entity, juggler} from '@loopback/repository';
 import {MiddlewareBindings, MiddlewareContext} from '@loopback/rest';
-import {SecurityBindings, UserProfile} from '@loopback/security';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 const ipRangeCheck = require('ip-range-check');
 
 export class BaseCrudRepository<
@@ -88,6 +88,18 @@ export class BaseCrudRepository<
   }
 
   async getCurrentUser(httpCtx: any) {
+    if (this.user && this.user.authnStrategy === 'oidc') {
+      if (this.appConfig.oidc.isAuthorizedUser) {
+        if (
+          this.appConfig.oidc.isAuthorizedUser instanceof Function &&
+          this.appConfig.oidc.isAuthorizedUser(this.user)
+        ) {
+          return this.user[securityId];
+        }
+      } else {
+        return this.user[securityId];
+      }
+    }
     // internal requests
     if (!httpCtx) return null;
     const request = httpCtx.req || httpCtx.request;
