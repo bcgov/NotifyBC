@@ -26,7 +26,13 @@ export default (server: ExpressServer) => {
   app.use(/^\/(index\.html)?$/, (request: Request, response: Response) => {
     const appConfig = server.lbApp.getSync(CoreBindings.APPLICATION_CONFIG);
     response.render('index.html', {
-      htmlWebpackPlugin: {options: {apiUrlPrefix: appConfig.restApiRoot}},
+      htmlWebpackPlugin: {
+        options: {
+          apiUrlPrefix: appConfig.restApiRoot,
+          oidcAuthority: appConfig.oidc.discoveryUrl,
+          oidcClientId: appConfig.oidc.clientId,
+        },
+      },
       ApiUrlPrefix: appConfig.restApiRoot,
       ApiExplorerUrlPrefix: `${appConfig.restApiRoot}/explorer`,
     });

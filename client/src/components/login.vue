@@ -85,10 +85,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-btn @click="signin" v-if="showOidcLogin">sign in</v-btn>
   </v-toolbar-items>
 </template>
 
 <script>
+import {UserManager} from 'oidc-client';
 export default {
   data: function() {
     return {
@@ -100,6 +102,11 @@ export default {
     };
   },
   computed: {
+    showOidcLogin: {
+      get() {
+        return window.oidcAuthority ? true : false;
+      },
+    },
     accessToken: {
       get() {
         return this.$store.state.accessToken;
@@ -117,7 +124,29 @@ export default {
   beforeMount: async function() {
     await this.$store.dispatch('getAuthenticationStrategy');
   },
+  mounted: async function() {
+    if (!window.oidcAuthority) {
+      return;
+    }
+    let user;
+    try {
+      user = await new UserManager().signinRedirectCallback();
+      console.log(user);
+    } catch (ex) {
+      user = undefined;
+    }
+  },
   methods: {
+    signin: async function() {
+      const config = {
+        authority: window.oidcAuthority,
+        client_id: window.oidcClientId,
+        redirect_uri: window.location.href,
+        response_type: 'token id_token',
+      };
+      await new UserManager(config).signinRedirect();
+    },
+
     login: async function() {
       try {
         this.loginError = undefined;
