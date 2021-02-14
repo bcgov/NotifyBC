@@ -25,6 +25,9 @@ module.exports = {
       '^/api/': {
         target: 'http://localhost:3000',
       },
+      '^/oauth2-redirect.html': {
+        target: 'http://localhost:3000',
+      },
     },
   },
   chainWebpack: config => {

@@ -92,7 +92,7 @@ export class BaseCrudRepository<
       if (this.appConfig.oidc.isAuthorizedUser) {
         if (
           this.appConfig.oidc.isAuthorizedUser instanceof Function &&
-          this.appConfig.oidc.isAuthorizedUser(this.user)
+          (await this.appConfig.oidc.isAuthorizedUser(this.user))
         ) {
           return this.user[securityId];
         }
