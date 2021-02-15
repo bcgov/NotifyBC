@@ -92,6 +92,7 @@ module.exports = {
             'config/notificationBounce',
             'config/workerProcessCount',
             'config/middleware',
+            'config/oidc',
           ],
         },
         {
