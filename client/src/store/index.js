@@ -206,7 +206,7 @@ export default new Vuex.Store({
 async function setAuthorizationHeader(req, state) {
   let accessToken = state['accessToken'];
   if (accessToken) {
-    req.headers = req.headers ?? {};
+    req.headers = req.headers || {};
     req.headers.Authorization = accessToken;
     return;
   }
