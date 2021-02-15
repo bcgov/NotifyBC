@@ -50,7 +50,9 @@ export default new Vuex.Store({
       authority: window.oidcAuthority,
       client_id: window.oidcClientId,
       redirect_uri: window.location.href,
+      silent_redirect_uri: window.location.origin + '/oidc/callback',
       response_type: 'token id_token',
+      automaticSilentRenew: true,
     },
   },
   mutations: {
@@ -213,7 +215,7 @@ async function setAuthorizationHeader(req, state) {
   try {
     const user = await oidcUserManager.getUser();
     if (user.access_token) {
-      req.headers = req.headers ?? {};
+      req.headers = req.headers || {};
       req.headers.Authorization = 'Bearer ' + user.access_token;
     }
   } catch (ex) {

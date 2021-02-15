@@ -4,6 +4,7 @@ import Bounces from '@/components/bounces';
 import Configurations from '@/components/configurations';
 import Home from '@/components/home';
 import Notifications from '@/components/notifications';
+import OidcCallback from '@/components/oidc-callback';
 import Subscriptions from '@/components/subscriptions';
 import Vue from 'vue';
 import Router from 'vue-router';
@@ -51,6 +52,11 @@ export default new Router({
       path: '/api-explorer',
       name: 'API Explorer',
       component: ApiExplorer,
+    },
+    {
+      path: '/oidc/callback',
+      name: 'oidcCallback',
+      component: OidcCallback,
     },
   ],
 });
