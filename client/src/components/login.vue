@@ -88,12 +88,12 @@
       </v-dialog>
     </template>
     <template v-else>
-      <v-btn plain @click="signin" v-if="showOidcLogin">
+      <v-btn plain @click="oidclogin" v-if="showOidcLogin">
         Login<v-icon>login</v-icon>
       </v-btn>
       <template v-else>
         <div>{{ oidcUser.profile.name }}</div>
-        <v-btn plain> Logout<v-icon>logout</v-icon> </v-btn>
+        <v-btn plain @click="oidcLogout"> Logout<v-icon>logout</v-icon> </v-btn>
       </template>
     </template>
   </v-toolbar-items>
@@ -156,10 +156,22 @@ export default {
     }
   },
   methods: {
-    signin: async function() {
-      await this.oidcUserManager.signinRedirect();
+    oidclogin: async function() {
+      let config = this.$store.state.oidcConfig;
+      config = Object.assign({}, config, {
+        redirect_uri: window.location.href,
+      });
+      let um = new UserManager(config);
+      await um.signinRedirect();
     },
-
+    oidcLogout: async function() {
+      let config = this.$store.state.oidcConfig;
+      config = Object.assign({}, config, {
+        post_logout_redirect_uri: window.location.href,
+      });
+      let um = new UserManager(config);
+      await um.signoutRedirect();
+    },
     login: async function() {
       try {
         this.loginError = undefined;

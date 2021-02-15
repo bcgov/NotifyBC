@@ -49,7 +49,6 @@ export default new Vuex.Store({
     oidcConfig: {
       authority: window.oidcAuthority,
       client_id: window.oidcClientId,
-      redirect_uri: window.location.href,
       silent_redirect_uri: window.location.origin + '/oidc/callback',
       response_type: 'token id_token',
       automaticSilentRenew: true,
