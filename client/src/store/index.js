@@ -45,6 +45,12 @@ export default new Vuex.Store({
     },
     accessToken,
     authnStrategy: undefined,
+    oidcConfig: {
+      authority: window.oidcAuthority,
+      client_id: window.oidcClientId,
+      redirect_uri: window.location.href,
+      response_type: 'token id_token',
+    },
   },
   mutations: {
     setLocalItems(state, payload) {
