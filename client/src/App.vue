@@ -15,7 +15,13 @@
  -->
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer persistent v-model="drawer" enable-resize-watcher app>
+    <v-navigation-drawer
+      persistent
+      v-model="drawer"
+      enable-resize-watcher
+      app
+      v-if="this.$route.name !== 'oidcCallback'"
+    >
       <v-list dense>
         <v-list-item to="/home">
           <v-list-item-action>
@@ -75,7 +81,12 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar color="indigo" dark app>
+    <v-app-bar
+      color="indigo"
+      dark
+      app
+      v-if="this.$route.name !== 'oidcCallback'"
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title
         >NotifyBC Web Console -
@@ -91,7 +102,7 @@
         </v-container>
       </v-main>
     </main>
-    <v-footer color="indigo" app>
+    <v-footer color="indigo" app v-if="this.$route.name !== 'oidcCallback'">
       <span class="white--text">
         &copy; 2016-present under the terms of
         <a
