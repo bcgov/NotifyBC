@@ -32,6 +32,7 @@ export class SiteMinderAuthenticationStrategy
     let userProfile: UserProfile | undefined;
     const currUser = await this.configurationRepository.getCurrentUser(
       this.httpContext,
+      true,
     );
     if (currUser) {
       userProfile = {
