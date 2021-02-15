@@ -87,8 +87,8 @@ export class BaseCrudRepository<
     return false;
   }
 
-  async getCurrentUser(httpCtx: any) {
-    if (this.user && this.user.authnStrategy === 'oidc') {
+  async getCurrentUser(httpCtx: any, siteMinderOnly = false) {
+    if (this.user && this.user.authnStrategy === 'oidc' && !siteMinderOnly) {
       if (this.appConfig.oidc.isAuthorizedUser) {
         if (
           this.appConfig.oidc.isAuthorizedUser instanceof Function &&

@@ -57,59 +57,62 @@ export class NotificationAccessInterceptor implements Provider<Interceptor> {
     // Add pre-invocation logic here
     const notificationRepository = invocationCtx.target as NotificationRepository;
     const httpCtx = invocationCtx.parent;
-    const currUser = await notificationRepository.getCurrentUser(httpCtx);
-    if (currUser) {
-      if (
-        ['find', 'findOne', 'count', 'updateAll', 'deleteAll'].indexOf(
-          invocationCtx.methodName,
-        ) < 0
-      ) {
-        return next();
-      }
-      let argIdx = 0;
-      enum ArgType {
-        Filter,
-        Where,
-      }
-      let argType: ArgType = ArgType.Filter;
-      switch (invocationCtx.methodName) {
-        case 'count':
-          argType = ArgType.Where;
-          break;
-        case 'updateAll':
-          argIdx = 1;
-          argType = ArgType.Where;
-          break;
-        case 'deleteAll':
-          argType = ArgType.Where;
-          break;
-        default:
-      }
-      invocationCtx.args[argIdx] = invocationCtx.args[argIdx] || {};
-      if (argType === ArgType.Filter) {
-        invocationCtx.args[argIdx].where =
-          invocationCtx.args[argIdx].where || {};
-      }
-      let whereClause =
-        argType === ArgType.Filter
-          ? invocationCtx.args[argIdx].where
-          : invocationCtx.args[argIdx];
-      whereClause = {
-        and: [
-          whereClause,
-          {channel: 'inApp'},
-          {or: [{isBroadcast: true}, {userChannelId: currUser}]},
-        ],
-      };
-      if (argType === ArgType.Filter) {
-        invocationCtx.args[argIdx].where = whereClause;
-      } else {
-        invocationCtx.args[argIdx] = whereClause;
-      }
-    } else if (
-      !(await notificationRepository.isAdminReq(httpCtx, undefined, undefined))
+    if (
+      await notificationRepository.isAdminReq(httpCtx, undefined, undefined)
     ) {
+      const result = await next();
+      // Add post-invocation logic here
+      return result;
+    }
+    const currUser = await notificationRepository.getCurrentUser(httpCtx);
+    if (!currUser) {
       throw new HttpErrors[403]();
+    }
+    if (
+      ['find', 'findOne', 'count', 'updateAll', 'deleteAll'].indexOf(
+        invocationCtx.methodName,
+      ) < 0
+    ) {
+      return next();
+    }
+    let argIdx = 0;
+    enum ArgType {
+      Filter,
+      Where,
+    }
+    let argType: ArgType = ArgType.Filter;
+    switch (invocationCtx.methodName) {
+      case 'count':
+        argType = ArgType.Where;
+        break;
+      case 'updateAll':
+        argIdx = 1;
+        argType = ArgType.Where;
+        break;
+      case 'deleteAll':
+        argType = ArgType.Where;
+        break;
+      default:
+    }
+    invocationCtx.args[argIdx] = invocationCtx.args[argIdx] || {};
+    if (argType === ArgType.Filter) {
+      invocationCtx.args[argIdx].where = invocationCtx.args[argIdx].where || {};
+    }
+    let whereClause =
+      argType === ArgType.Filter
+        ? invocationCtx.args[argIdx].where
+        : invocationCtx.args[argIdx];
+    whereClause = {
+      and: [
+        whereClause,
+        {channel: 'inApp'},
+        {or: [{isBroadcast: true}, {userChannelId: currUser}]},
+      ],
+    };
+    if (argType === ArgType.Filter) {
+      invocationCtx.args[argIdx].where = whereClause;
+    } else {
+      invocationCtx.args[argIdx] = whereClause;
     }
     const result = await next();
     // Add post-invocation logic here

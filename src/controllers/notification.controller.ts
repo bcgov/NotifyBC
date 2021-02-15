@@ -147,6 +147,8 @@ export class NotificationController extends BaseController {
     if (res.length === 0) {
       return res;
     }
+    if (await this.configurationRepository.isAdminReq(this.httpContext))
+      return res;
     const currUser = await this.configurationRepository.getCurrentUser(
       this.httpContext,
     );
