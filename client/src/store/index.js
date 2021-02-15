@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {UserManager} from 'oidc-client';
 import Vue from 'vue';
 import Vuex from 'vuex';
 
@@ -111,12 +112,7 @@ export default new Vuex.Store({
         url: apiUrlPrefix + '/' + payload.model + (id ? '/' + id : ''),
         data: item,
       };
-      let accessToken = state['accessToken'];
-      if (accessToken) {
-        req.headers = {
-          Authorization: accessToken,
-        };
-      }
+      await setAuthorizationHeader(req, state);
       await axios(req);
     },
     async deleteItem({state}, payload) {
@@ -124,12 +120,7 @@ export default new Vuex.Store({
         method: 'delete',
         url: apiUrlPrefix + '/' + payload.model + '/' + payload.item.id,
       };
-      let accessToken = state['accessToken'];
-      if (accessToken) {
-        req.headers = {
-          Authorization: accessToken,
-        };
-      }
+      await setAuthorizationHeader(req, state);
       await axios(req);
     },
     async fetchItems({commit, state}, payload) {
@@ -150,12 +141,7 @@ export default new Vuex.Store({
       let req = {
         url: url,
       };
-      let accessToken = state['accessToken'];
-      if (accessToken) {
-        req.headers = {
-          Authorization: accessToken,
-        };
-      }
+      await setAuthorizationHeader(req, state);
       let items;
       try {
         items = await axios(req);
@@ -172,11 +158,7 @@ export default new Vuex.Store({
       req = {
         url: url,
       };
-      if (accessToken) {
-        req.headers = {
-          Authorization: accessToken,
-        };
-      }
+      await setAuthorizationHeader(req, state);
       let response = await axios(req);
       commit('setTotalItemCount', {
         model: payload.model,
@@ -188,12 +170,7 @@ export default new Vuex.Store({
       let req = {
         url: url,
       };
-      let accessToken = state['accessToken'];
-      if (accessToken) {
-        req.headers = {
-          Authorization: accessToken,
-        };
-      }
+      await setAuthorizationHeader(req, state);
       let res = await axios(req);
       return res.data;
     },
@@ -202,12 +179,7 @@ export default new Vuex.Store({
       let req = {
         url: url,
       };
-      let accessToken = state['accessToken'];
-      if (accessToken) {
-        req.headers = {
-          Authorization: accessToken,
-        };
-      }
+      await setAuthorizationHeader(req, state);
       let res = await axios(req);
       commit('setAuthnStrategy', res.data.authnStrategy);
     },
@@ -221,15 +193,30 @@ export default new Vuex.Store({
         method: 'post',
         data: payload,
       };
-      let accessToken = state['accessToken'];
-      if (accessToken) {
-        req.headers = {
-          Authorization: accessToken,
-        };
-      }
+      await setAuthorizationHeader(req, state);
       let res = await axios(req);
       commit('setAccessToken', res.data.token);
     },
   },
   strict: process.env.NODE_ENV !== 'production',
 });
+
+async function setAuthorizationHeader(req, state) {
+  let accessToken = state['accessToken'];
+  if (accessToken) {
+    req.headers = req.headers ?? {};
+    req.headers.Authorization = accessToken;
+    return;
+  }
+  if (!window.oidcAuthority) return;
+  const oidcUserManager = new UserManager(state.oidcConfig);
+  try {
+    const user = await oidcUserManager.getUser();
+    if (user.access_token) {
+      req.headers = req.headers ?? {};
+      req.headers.Authorization = 'Bearer ' + user.access_token;
+    }
+  } catch (ex) {
+    return;
+  }
+}
