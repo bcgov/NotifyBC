@@ -8,7 +8,7 @@ Vue.use(Vuex);
 const apiUrlPrefix = window.apiUrlPrefix || '/api';
 let accessToken;
 try {
-  accessToken = JSON.parse(localStorage.getItem('authorized')).accessToken
+  accessToken = JSON.parse(sessionStorage.getItem('authorized')).accessToken
     .value;
   // eslint-disable-next-line no-empty
 } catch (ex) {}
@@ -71,7 +71,7 @@ export default new Vuex.Store({
       state.authnStrategy = payload;
     },
     setAccessToken(state, payload) {
-      let auth = JSON.parse(localStorage.getItem('authorized')) || {};
+      let auth = JSON.parse(sessionStorage.getItem('authorized')) || {};
       if (payload && payload.length > 0) {
         auth.accessToken = {
           name: 'accessToken',
@@ -82,13 +82,13 @@ export default new Vuex.Store({
           },
           value: payload,
         };
-        localStorage.setItem('authorized', JSON.stringify(auth));
+        sessionStorage.setItem('authorized', JSON.stringify(auth));
       } else {
         delete auth.accessToken;
         if (Object.keys(auth).length > 0) {
-          localStorage.setItem('authorized', JSON.stringify(auth));
+          sessionStorage.setItem('authorized', JSON.stringify(auth));
         } else {
-          localStorage.removeItem('authorized');
+          sessionStorage.removeItem('authorized');
         }
         payload = undefined;
       }
