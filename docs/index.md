@@ -8,7 +8,8 @@ features:
   - title: Versatile
     details: >
       <ul>
-        <li>Anonymous or CA SiteMinder authenticated subscriptions</li>
+        <li>Anonymous or authenticated subscriptions</li>
+        <li>Multiple authentication strategies</li>
         <li>Push and in-app pull notifications</li>
         <li>Email and SMS push notification channels</li>
         <li>Unicast and broadcast message types</li>

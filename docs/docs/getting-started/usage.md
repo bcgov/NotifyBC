@@ -27,9 +27,15 @@ Anonymous authentication status is indicated by the LOGIN<span class="material-i
 
 ## Admin user
 
-If you are an authorized _NotifyBC_ administrator and it's not always feasible to access _NotifyBC_ from a client in admin ip list, you can authenticate using an access token. The procedure to obtain and apply access token is documented in [Administrator API](../api/administrator.md). Access token authentication status is indicated by the _Access Token_ text field on top right corner of web console. You can edit the text field. If the new access token you entered is invalid, you are essentially logging yourself out. In such case _Access Token_ text field is replaced by the LOGIN<span class="material-icons">login</span> button.
+If you are an authorized _NotifyBC_ administrator and it's not always feasible to access _NotifyBC_ from a client in admin ip list, you can authenticate using an access token or, if configured, OIDC.
 
-The access token in API Explorer is integrated with web console. Therefore if you change access token in API Explorer GUI, it will be reflected in web console upon page refresh, and vice versa.
+The procedure to obtain and apply access token is documented in [Administrator API](../api/administrator.md). Access token authentication status is indicated by the _Access Token_ text field on top right corner of web console. You can edit the text field. If the new access token you entered is invalid, you are essentially logging yourself out. In such case _Access Token_ text field is replaced by the LOGIN<span class="material-icons">login</span> button.
+
+If you have configured [OIDC](../config/oidc.md), the login button will direct you to OIDC provider's login page. Once login successfully, you will be redirected back to _NoitfyBC_ admin console.
+
+::: warning Tokens are not shared between API Explorer and admin console
+Despite API Explorer appears to be part of admin console, it is a separate application. At this point the login tokens are not shared between the two applications. You have to use API Explorer's _Authorize_ button to authenticate even if you have logged into admin console.
+:::
 
 ## SiteMinder authenticated user
 
