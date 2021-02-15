@@ -91,6 +91,7 @@
 
 <script>
 import {UserManager} from 'oidc-client';
+
 export default {
   data: function() {
     return {
@@ -99,12 +100,15 @@ export default {
       email: undefined,
       password: undefined,
       loginError: undefined,
+      oidcUserManager:
+        window.oidcAuthority && new UserManager(this.$store.state.oidcConfig),
+      oidcUser: undefined,
     };
   },
   computed: {
     showOidcLogin: {
       get() {
-        return window.oidcAuthority ? true : false;
+        return window.oidcAuthority && !this.oidcUser ? true : false;
       },
     },
     accessToken: {
@@ -128,23 +132,22 @@ export default {
     if (!window.oidcAuthority) {
       return;
     }
-    let user;
     try {
-      user = await new UserManager().signinRedirectCallback();
-      console.log(user);
+      this.oidcUser = await this.oidcUserManager.getUser();
+      if (!this.oidcUser) {
+        throw new Error();
+      }
     } catch (ex) {
-      user = undefined;
+      try {
+        this.oidcUser = await this.oidcUserManager.signinRedirectCallback();
+      } catch (ex) {
+        console.log(ex);
+      }
     }
   },
   methods: {
     signin: async function() {
-      const config = {
-        authority: window.oidcAuthority,
-        client_id: window.oidcClientId,
-        redirect_uri: window.location.href,
-        response_type: 'token id_token',
-      };
-      await new UserManager(config).signinRedirect();
+      await this.oidcUserManager.signinRedirect();
     },
 
     login: async function() {
