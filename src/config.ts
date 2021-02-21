@@ -155,4 +155,10 @@ for (const e of ['key', 'cert', 'ca']) {
     config.tls[e] = fs.readFileSync(filePath);
   }
 }
+if (config.tls.key && config.tls.cert) {
+  config.tls.enabled = true;
+  if (config.tls.ca) {
+    config.tls.clientCertificateEnabled = true;
+  }
+}
 module.exports = config;

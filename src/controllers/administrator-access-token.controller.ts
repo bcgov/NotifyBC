@@ -37,7 +37,7 @@ import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {AccessToken, Administrator} from '../models';
 import {AccessTokenRepository, AdministratorRepository} from '../repositories';
 
-@authenticate('ipWhitelist', 'accessToken')
+@authenticate('ipWhitelist', 'clientCertificate', 'accessToken')
 @oas.tags('administrator')
 export class AdministratorAccessTokenController {
   constructor(

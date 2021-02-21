@@ -31,6 +31,7 @@ import path from 'path';
 import {
   AccessTokenAuthenticationStrategy,
   AnonymousAuthenticationStrategy,
+  ClientCertificateAuthenticationStrategy,
   IpWhitelistAuthenticationStrategy,
   OidcAuthenticationStrategy,
   SiteMinderAuthenticationStrategy,
@@ -132,6 +133,10 @@ export class NotifyBcApplication extends BootMixin(
     registerAuthenticationStrategy(this, AnonymousAuthenticationStrategy);
     registerAuthenticationStrategy(this, SiteMinderAuthenticationStrategy);
     registerAuthenticationStrategy(this, OidcAuthenticationStrategy);
+    registerAuthenticationStrategy(
+      this,
+      ClientCertificateAuthenticationStrategy,
+    );
     this.add(createBindingFromClass(SecuritySpecEnhancer));
 
     const apiOnlyMiddlewareConfigs = middlewareConfigs.apiOnly;

@@ -108,7 +108,7 @@ export const CredentialsRequestBody = {
 };
 
 @oas.tags('administrator')
-@authenticate('ipWhitelist', 'accessToken')
+@authenticate('ipWhitelist', 'clientCertificate', 'accessToken')
 export class AdministratorController extends BaseController {
   constructor(
     @inject('repositories.AdministratorRepository', {
@@ -139,7 +139,7 @@ export class AdministratorController extends BaseController {
     super(appConfig, configurationRepository);
   }
 
-  @authenticate('ipWhitelist')
+  @authenticate('ipWhitelist', 'clientCertificate')
   @post('/administrators', {
     responses: {
       '200': {
@@ -213,7 +213,14 @@ export class AdministratorController extends BaseController {
     return {token};
   }
 
-  @authenticate('ipWhitelist', 'accessToken', 'oidc', 'siteMinder', 'anonymous')
+  @authenticate(
+    'ipWhitelist',
+    'clientCertificate',
+    'accessToken',
+    'oidc',
+    'siteMinder',
+    'anonymous',
+  )
   @get('/administrators/whoami', {
     responses: {
       '200': {

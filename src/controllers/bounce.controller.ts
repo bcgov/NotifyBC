@@ -37,7 +37,7 @@ import {Bounce} from '../models';
 import {BounceRepository, ConfigurationRepository} from '../repositories';
 import {BaseController} from './base.controller';
 
-@authenticate('ipWhitelist')
+@authenticate('ipWhitelist', 'clientCertificate')
 @oas.tags('bounce')
 export class BounceController extends BaseController {
   constructor(

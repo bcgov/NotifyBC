@@ -53,7 +53,13 @@ export {request};
 const jmespath = require('jmespath');
 const queue = require('async/queue');
 
-@authenticate('ipWhitelist', 'accessToken', 'oidc', 'siteMinder')
+@authenticate(
+  'ipWhitelist',
+  'clientCertificate',
+  'accessToken',
+  'oidc',
+  'siteMinder',
+)
 @oas.tags('notification')
 export class NotificationController extends BaseController {
   constructor(

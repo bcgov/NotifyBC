@@ -14,6 +14,7 @@
 
 export * from './access-token-authentication.strategy';
 export * from './anonymous-authentication.strategy';
+export * from './client-certificate-authentication.strategy';
 export * from './ip-whitelist-authentication.strategy';
 export * from './oidc-authentication.strategy';
 export * from './siteminder-authentication.strategy';
