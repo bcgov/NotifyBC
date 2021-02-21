@@ -104,7 +104,13 @@ export class SubscriptionController extends BaseController {
     return result;
   }
 
-  @authenticate('ipWhitelist', 'accessToken', 'oidc', 'siteMinder')
+  @authenticate(
+    'ipWhitelist',
+    'clientCertificate',
+    'accessToken',
+    'oidc',
+    'siteMinder',
+  )
   @get('/subscriptions/count', {
     summary: 'count subscriptions',
     responses: {
@@ -120,7 +126,13 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.count(where, undefined);
   }
 
-  @authenticate('ipWhitelist', 'accessToken', 'oidc', 'siteMinder')
+  @authenticate(
+    'ipWhitelist',
+    'clientCertificate',
+    'accessToken',
+    'oidc',
+    'siteMinder',
+  )
   @get('/subscriptions', {
     summary: 'get subscriptions',
     responses: {
@@ -141,7 +153,13 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.find(filter, undefined);
   }
 
-  @authenticate('ipWhitelist', 'accessToken', 'oidc', 'siteMinder')
+  @authenticate(
+    'ipWhitelist',
+    'clientCertificate',
+    'accessToken',
+    'oidc',
+    'siteMinder',
+  )
   @patch('/subscriptions/{id}', {
     summary: 'update a subscription',
     responses: {
@@ -179,7 +197,7 @@ export class SubscriptionController extends BaseController {
     return filteredData;
   }
 
-  @authenticate('ipWhitelist', 'accessToken', 'oidc')
+  @authenticate('ipWhitelist', 'clientCertificate', 'accessToken', 'oidc')
   @put('/subscriptions/{id}', {
     summary: 'replace a subscription',
     responses: {
@@ -733,7 +751,7 @@ export class SubscriptionController extends BaseController {
     }
   }
 
-  @authenticate('ipWhitelist', 'accessToken', 'oidc')
+  @authenticate('ipWhitelist', 'clientCertificate', 'accessToken', 'oidc')
   @get('/subscriptions/services', {
     summary: 'unique list of subscribed service names',
     responses: {

@@ -65,7 +65,7 @@ export class ExpressServer {
     if (this.lbApp.options.tls?.enabled) {
       const https = require('https');
       let opts = Object.assign({}, this.lbApp.options.tls);
-      if (this.lbApp.options.tls?.ca) {
+      if (this.lbApp.options.tls?.clientCertificateEnabled) {
         opts = Object.assign(opts, {
           requestCert: true,
           rejectUnauthorized: false,

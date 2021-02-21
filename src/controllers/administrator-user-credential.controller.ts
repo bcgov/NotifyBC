@@ -35,7 +35,7 @@ import {
   UserCredentialRepository,
 } from '../repositories';
 
-@authenticate('ipWhitelist', 'accessToken')
+@authenticate('ipWhitelist', 'clientCertificate', 'accessToken')
 @oas.tags('administrator')
 export class AdministratorUserCredentialController {
   constructor(

@@ -78,6 +78,10 @@ export class BaseCrudRepository<
       }
     }
 
+    if (this.user && this.user.authnStrategy === 'clientCertificate') {
+      return true;
+    }
+
     const adminIps = this.appConfig.adminIps || this.appConfig.defaultAdminIps;
     if (adminIps && adminIps.length > 0) {
       return adminIps.some(function (e: string) {
