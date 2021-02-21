@@ -2,6 +2,7 @@ const NotifyBcApplication = require('../dist/application').NotifyBcApplication;
 const webpack = require('webpack');
 const app = new NotifyBcApplication();
 
+const proxyProto = app.options.tls.enabled ? 'https' : 'http';
 module.exports = {
   transpileDependencies: ['vuetify'],
   pages: {
@@ -25,10 +26,10 @@ module.exports = {
     port: 8000,
     proxy: {
       '^/api/': {
-        target: 'http://localhost:3000',
+        target: proxyProto + '://localhost:3000',
       },
       '^/oauth2-redirect.html': {
-        target: 'http://localhost:3000',
+        target: proxyProto + '://localhost:3000',
       },
     },
   },
