@@ -66,7 +66,7 @@ module.exports = {
             'getting-started/overview',
             'getting-started/quickstart',
             'getting-started/installation',
-            'getting-started/usage',
+            'getting-started/web-console',
             "getting-started/what's-new",
           ],
         },
@@ -117,7 +117,11 @@ module.exports = {
             'miscellaneous/migration',
           ],
         },
-        {title: 'Meta', collapsable: false, children: ['meta/conduct']},
+        {
+          title: 'Meta',
+          collapsable: false,
+          children: ['meta/conduct', 'meta/acknowledgments'],
+        },
       ],
     },
     algolia: {

@@ -213,7 +213,7 @@ export class AdministratorController extends BaseController {
     return {token};
   }
 
-  @authenticate('ipWhitelist', 'accessToken', 'anonymous')
+  @authenticate('ipWhitelist', 'accessToken', 'oidc', 'siteMinder', 'anonymous')
   @get('/administrators/whoami', {
     responses: {
       '200': {

@@ -65,7 +65,9 @@ export class SecuritySpecEnhancer implements OASEnhancer {
       operationSecuritySpec[0].oidc = [];
     }
 
+    const info = Object.assign({}, spec.info, {title: 'NotifyBC'});
     const patchSpec = {
+      info,
       components: {
         securitySchemes: securitySchemeSpec,
       },

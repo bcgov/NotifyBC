@@ -71,7 +71,9 @@ A notification created by RSS feeds relies on dynamic token to supply the contex
 
 ### Request Types
 
-_NotifyBC_, designed to be a microservice, doesn't use full-blown ACL to secure API calls. Instead, it classifies incoming requests into admin and user types. Each type has two subtypes based on following criteria
+_NotifyBC_, designed to be a microservice, doesn't use full-blown ACL to secure API calls. Instead, it classifies incoming requests into admin and user types. The key difference is while both admin and user can subscribe to notifications, only admin can post notifications.
+
+Each type has two subtypes based on following criteria
 
 - super-admin, if the source ip of the request is in the admin ip list and the request doesn't contain any of following case insensitive HTTP headers, with the first three being SiteMinder headers
 
@@ -105,7 +107,7 @@ An admin request carries full authorization whereas user request has limited acc
 
 - send notification
 - bypass the delivery channel confirmation process when subscribing to a service
-- retrieve push notifications
+- retrieve push notifications through API (can only receive notification from push notification channel such as email)
 - retrieve in-app notifications that is not targeted to the current user
 
 The result of an API call to the same end point may differ depending on the request type. For example, the call _GET /notifications_ without a filter will return all notifications to all users for an admin request, but only non-deleted, non-expired in-app notifications for authenticated user request, and forbidden for anonymous user request. Sometimes it is desirable for a request from admin ip list, which would normally be admin request, to be voluntarily downgraded to user request in order to take advantage of predefined filters such as the ones described above. This can be achieved by adding one of the HTTP headers listed above to the request. This is also why admin request is not determined by ip or token alone.
@@ -126,12 +128,60 @@ Authentication is performed in above order. Once a request passed an authenticat
 
 The mapping between authentication strategy and request type is
 
-|                 | Super-admin | admin | authenticated | anonymous |
-| --------------- | ----------- | ----- | ------------- | --------- |
-| ip whitelisting | ✔           |       |               |           |
-| Access token    |             | ✔     |               |           |
-| OIDC            |             | ✔     | ✔             |           |
-| SiteMinder      |             |       | ✔             |           |
+<style type="text/css">
+.tg  {border-collapse:collapse;border-color:#ccc;border-spacing:0;margin:0px auto;}
+.tg td{background-color:#fff;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
+  font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{background-color:#f0f0f0;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
+  font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-btxf{background-color:#f9f9f9;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-abip{background-color:#f9f9f9;border-color:inherit;text-align:center;vertical-align:top}
+</style>
+<table class="tg">
+<tbody>
+  <tr>
+    <td class="tg-0pky" rowspan="2"></td>
+    <td class="tg-c3ow" colspan="2">Admin</td>
+    <td class="tg-c3ow" colspan="2">User</td>
+  </tr>
+  <tr>
+    <td class="tg-btxf">Super-admin</td>
+    <td class="tg-btxf">admin</td>
+    <td class="tg-btxf">authenticated</td>
+    <td class="tg-btxf">anonymous</td>
+  </tr>
+  <tr>
+    <td class="tg-c3ow">ip whitelisting</td>
+    <td class="tg-c3ow">✔</td>
+    <td class="tg-c3ow"></td>
+    <td class="tg-c3ow"></td>
+    <td class="tg-c3ow"></td>
+  </tr>
+  <tr>
+    <td class="tg-btxf">access token</td>
+    <td class="tg-abip"></td>
+    <td class="tg-abip">✔</td>
+    <td class="tg-abip"></td>
+    <td class="tg-abip"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">OIDC</td>
+    <td class="tg-c3ow"></td>
+    <td class="tg-c3ow">✔</td>
+    <td class="tg-c3ow">✔</td>
+    <td class="tg-c3ow"></td>
+  </tr>
+  <tr>
+    <td class="tg-btxf">SiteMinder</td>
+    <td class="tg-abip"></td>
+    <td class="tg-abip"></td>
+    <td class="tg-abip">✔</td>
+    <td class="tg-abip"></td>
+  </tr>
+</tbody>
+</table>
 
 ## Application Framework
 
