@@ -15,88 +15,98 @@
  -->
 <template>
   <v-toolbar-items class="center-text">
-    <div v-if="$store.state.authnStrategy === 'ipWhitelist'">
+    <div v-if="$store.state.authnStrategy === 'clientCertificate'">
       <v-tooltip bottom>
         <template v-slot:activator="{on}">
-          <v-icon v-on="on">verified_user</v-icon>
+          <v-icon v-on="on">verified</v-icon>
         </template>
         <span>You are super-admin</span>
       </v-tooltip>
     </div>
     <template v-else>
-      <template v-if="!oidcUserManager">
-        <template v-if="$store.state.authnStrategy === 'accessToken'">
-          <div class="mr-1">Access Token</div>
-          <v-text-field
-            dark
-            single-line
-            hide-details
-            :value="accessToken"
-            @change="v => (accessToken = v)"
-          ></v-text-field>
-        </template>
-        <v-dialog
-          v-model="dialog"
-          max-width="500px"
-          v-if="$store.state.authnStrategy === 'anonymous'"
-        >
+      <div v-if="$store.state.authnStrategy === 'ipWhitelist'">
+        <v-tooltip bottom>
           <template v-slot:activator="{on}">
-            <v-btn plain v-on="on"> Login<v-icon>login</v-icon> </v-btn>
+            <v-icon v-on="on">verified_user</v-icon>
           </template>
-          <v-card>
-            <v-card-title>
-              <span class="headline">Login</span>
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="email"
-                      label="email"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="password"
-                      :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                      @click:append="showPassword = !showPassword"
-                      :type="showPassword ? 'text' : 'password'"
-                      label="password"
-                      counter
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" v-if="loginError">
-                    <v-alert color="red" dense type="error">
-                      {{ loginError }}
-                    </v-alert>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" text @click="login">
-                Submit
-              </v-btn>
-              <v-btn color="error" text @click="dialog = false">
-                Cancel
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </template>
+          <span>You are super-admin</span>
+        </v-tooltip>
+      </div>
       <template v-else>
-        <v-btn plain @click="oidclogin" v-if="!oidcUser">
-          Login<v-icon>login</v-icon>
-        </v-btn>
+        <template v-if="!oidcUserManager">
+          <template v-if="$store.state.authnStrategy === 'accessToken'">
+            <div class="mr-1">Access Token</div>
+            <v-text-field
+              dark
+              single-line
+              hide-details
+              :value="accessToken"
+              @change="v => (accessToken = v)"
+            ></v-text-field>
+          </template>
+          <v-dialog
+            v-model="dialog"
+            max-width="500px"
+            v-if="$store.state.authnStrategy === 'anonymous'"
+          >
+            <template v-slot:activator="{on}">
+              <v-btn plain v-on="on"> Login<v-icon>login</v-icon> </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                <span class="headline">Login</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="email"
+                        label="email"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="password"
+                        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                        @click:append="showPassword = !showPassword"
+                        :type="showPassword ? 'text' : 'password'"
+                        label="password"
+                        counter
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" v-if="loginError">
+                      <v-alert color="red" dense type="error">
+                        {{ loginError }}
+                      </v-alert>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" text @click="login">
+                  Submit
+                </v-btn>
+                <v-btn color="error" text @click="dialog = false">
+                  Cancel
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </template>
         <template v-else>
-          <div>{{ oidcUser.profile.name }}</div>
-          <v-btn plain @click="oidcLogout">
-            Logout<v-icon>logout</v-icon>
+          <v-btn plain @click="oidclogin" v-if="!oidcUser">
+            Login<v-icon>login</v-icon>
           </v-btn>
+          <template v-else>
+            <div>{{ oidcUser.profile.name }}</div>
+            <v-btn plain @click="oidcLogout">
+              Logout<v-icon>logout</v-icon>
+            </v-btn>
+          </template>
         </template>
       </template>
     </template>
