@@ -61,6 +61,20 @@ export class ExpressServer {
     await this.lbApp.start();
     const port = this.lbApp.restServer.config.port ?? 3000;
     const host = this.lbApp.restServer.config.host ?? '0.0.0.0';
+    if (this.lbApp.options.tls?.key && this.lbApp.options.tls?.cert) {
+      const https = require('https');
+      let opts = Object.assign({}, this.lbApp.options.tls);
+      if (this.lbApp.options.tls?.ca) {
+        opts = Object.assign(opts, {
+          requestCert: true,
+          rejectUnauthorized: false,
+        });
+      }
+      this.app.listen = function (...args: []) {
+        const server = https.createServer(opts, this);
+        return server.listen(...args);
+      };
+    }
     this.server = this.app.listen(port, host);
     await once(this.server, 'listening');
     this.url = `http://${host}:${port}`;
