@@ -93,6 +93,7 @@ module.exports = {
             'config/workerProcessCount',
             'config/middleware',
             'config/oidc',
+            'config/certificates',
           ],
         },
         {

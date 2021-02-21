@@ -21,7 +21,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "App",
+      "name": "Server",
       "program": "${workspaceFolder}\\dist\\index.js",
       "autoAttachChildProcesses": true,
       "console": "internalConsole",
@@ -63,12 +63,12 @@
   ],
   "compounds": [
     {
-      "name": "App&Docs",
-      "configurations": ["App", "Docs", "Launch Docs"]
+      "name": "Server&Docs",
+      "configurations": ["Server", "Docs", "Launch Docs"]
     },
     {
-      "name": "App&Client",
-      "configurations": ["App", "Client", "Launch Client"]
+      "name": "Server&Client",
+      "configurations": ["Server", "Client", "Launch Client"]
     }
   ]
 }

@@ -12,7 +12,7 @@ What you see in web console and what you get from API calls depend on how your r
 
 ## Ip whitelisting authentication
 
-The API calls you made with API explorer as well as API calls made by web console from localhost are by default authenticated as [super-admin requests](../overview/#architecture) because localhost is in [admin ip list](../config-adminIpList/) by default. Super-admin authentication status is indicated by the <span class="material-icons">verified_user</span>
+The API calls you made with API explorer as well as API calls made by web console from localhost are by default authenticated as [super-admin requests](../overview/#architecture) because localhost is in [admin ip list](../config-adminIpList/) by default. Ip whitelisting authentication status is indicated by the <span class="material-icons">verified_user</span>
 icon on top right corner of web console.
 
 To see the result of non super-admin requests, you can choose one of the following methods
@@ -20,10 +20,14 @@ To see the result of non super-admin requests, you can choose one of the followi
 - customize admin ip list to omit localhost (127.0.0.1)
 - access web console from another ip not in the admin ip list
 
+## Client certificate authentication
+
+If your ip is not in the admin ip list but you have setup a client certificate issued by _NotifyBC_ server in browser, the API calls you made with API explorer as well as API calls made by web console are also authenticated as [super-admin requests](../overview/#architecture). Client certificate authentication status is indicated by the <span class="material-icons">verified</span>
+icon on top right corner of web console.
+
 ## Anonymous
 
-If you access web console from a client that is not in the admin ip list, you are by default anonymous user.
-Anonymous authentication status is indicated by the LOGIN<span class="material-icons">login</span> button on top right corner of web console. Click the button to login.
+If you access web console from a client that is not in the admin ip list, you are by default anonymous user. Anonymous authentication status is indicated by the LOGIN<span class="material-icons">login</span> button on top right corner of web console. Click the button to login.
 
 ## Access token authentication
 
