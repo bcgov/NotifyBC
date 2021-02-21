@@ -75,12 +75,19 @@ _NotifyBC_, designed to be a microservice, doesn't use full-blown ACL to secure 
 
 Each type has two subtypes based on following criteria
 
-- super-admin, if the source ip of the request is in the admin ip list and the request doesn't contain any of following case insensitive HTTP headers, with the first three being SiteMinder headers
+- super-admin, if the request meets both of the following two requirements
 
-  - sm_universalid
-  - sm_user
-  - smgov_userdisplayname
-  - is_anonymous
+  1. The request carries one of the following two attributes
+
+     - the source ip is in the admin ip list
+     - has a client certificate that is signed using _NotifyBC_ server certificate. See [Client certificate authentication](../config/certificates.md#client-certificate-authentication) on how to sign.
+
+  2. The request doesn't contain any of following case insensitive HTTP headers, with the first three being SiteMinder headers
+
+     - sm_universalid
+     - sm_user
+     - smgov_userdisplayname
+     - is_anonymous
 
 - admin, if the request is not super-admin and meets one of the following criteria
 
@@ -120,9 +127,10 @@ The way _NotifyBC_ interacts with other components is diagrammed below.
 API requests to _NotifyBC_ can be either anonymous or authenticated. As alluded in [Request Types](#request-types) above, _NotifyBC_ supports following authentication strategies
 
 1. ip whitelisting
-2. Access token associated with an builtin admin user
-3. OpenID Connect (OIDC)
-4. CA SiteMinder
+2. client certificate
+3. access token associated with an builtin admin user
+4. OpenID Connect (OIDC)
+5. CA SiteMinder
 
 Authentication is performed in above order. Once a request passed an authentication strategy, the rest strategies are skipped. A request that failed all authentication strategies is anonymous.
 
@@ -153,35 +161,68 @@ The mapping between authentication strategy and request type is
     <td class="tg-btxf">anonymous</td>
   </tr>
   <tr>
-    <td class="tg-c3ow">ip whitelisting</td>
+    <td class="tg-0pky">ip whitelisting</td>
     <td class="tg-c3ow">✔</td>
     <td class="tg-c3ow"></td>
     <td class="tg-c3ow"></td>
     <td class="tg-c3ow"></td>
   </tr>
   <tr>
-    <td class="tg-btxf">access token</td>
-    <td class="tg-abip"></td>
+    <td class="tg-btxf">client certifcate</td>
     <td class="tg-abip">✔</td>
     <td class="tg-abip"></td>
     <td class="tg-abip"></td>
-  </tr>
-  <tr>
-    <td class="tg-0pky">OIDC</td>
-    <td class="tg-c3ow"></td>
-    <td class="tg-c3ow">✔</td>
-    <td class="tg-c3ow">✔</td>
-    <td class="tg-c3ow"></td>
-  </tr>
-  <tr>
-    <td class="tg-btxf">SiteMinder</td>
     <td class="tg-abip"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">access token</td>
+    <td class="tg-c3ow"></td>
+    <td class="tg-c3ow">✔</td>
+    <td class="tg-c3ow"></td>
+    <td class="tg-c3ow"></td>
+  </tr>
+  <tr>
+    <td class="tg-btxf">OIDC</td>
     <td class="tg-abip"></td>
     <td class="tg-abip">✔</td>
+    <td class="tg-abip">✔</td>
     <td class="tg-abip"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">SiteMinder</td>
+    <td class="tg-c3ow"></td>
+    <td class="tg-c3ow"></td>
+    <td class="tg-c3ow">✔</td>
+    <td class="tg-c3ow"></td>
   </tr>
 </tbody>
 </table>
+
+::: tip Which authentication strategy to use?
+
+Because ip whitelist doesn't expire and client certificates usually has a relatively long expiration period (say one year), they are suitable for long-running unattended server processes such as server-side code of web apps, cron jobs, IOT sensors etc. The server processes have to be trusted because once authenticated, they have full privilege to _NotifyBC_. Usually the server processes and _NotifyBC_ instance are in the same administration domain, i.e. managed by the same admin group of an organization.
+
+By contrast, OIDC and SiteMinder use short-lived tokens or session cookies. Therefore they are only suitable for interactive user sessions.
+
+Access token associated with an builtin admin user should be avoided whenever possible.
+
+Here are some common scenarios and recommendations
+
+- For server-side code of web apps
+
+  - use OIDC if the web app is OIDC enabled and user requests can be proxied to _NotifyBC_ by web app; otherwise
+  - use ip whitelisting if obtaining ip is feasible; otherwise
+  - use client certificate (requires a little more config than ip whitelisting)
+
+- For front-end browser-based web apps such as SPAs
+  - use OIDC
+- For server apps that send requests spontaneously such as IOT sensors, cron jobs
+  - use ip whitelisting if obtaining ip is feasible; otherwise
+  - client certificate
+- If _NotifyBC_ is ued by a _SiteMinder_ protected web apps and _NotifyBC_ is also protected by _SiteMinder_
+  - use SiteMinder
+
+:::
 
 ## Application Framework
 

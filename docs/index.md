@@ -9,7 +9,6 @@ features:
     details: >
       <ul>
         <li>Anonymous or authenticated subscriptions</li>
-        <li>Multiple authentication strategies</li>
         <li>Push and in-app pull notifications</li>
         <li>Email and SMS push notification channels</li>
         <li>Unicast and broadcast message types</li>
@@ -24,11 +23,15 @@ features:
         <li>Loose coupling - interacts with user browser or other server components through RESTful API.
         </li>
       </ul>
-  - title: Microservice
+  - title: Secure
     details: >
-      Containerized deployment to PAAS such as OpenShift.
-      No need for complex enterprise-wide shared service. Better
-      meet privacy mandates.
+      <ul>
+        <li>Support end-to-end encryption
+        </li>
+        <li>Multiple authentication strategies including client certificate for server-server and OIDC for user-server</li>
+        <li>Containerized deployment as a microservice. No need for complex enterprise-wide shared service. Better meet privacy mandates.
+        </li>
+      </ul>
 footer: >
   The contents of this website are <br />&copy;&nbsp;2016-present under the terms of the <a href="https://github.com/bcgov/NotifyBC/blob/main/LICENSE">Apache&nbsp;License, Version 2.0</a>.
 ---
