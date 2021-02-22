@@ -105,8 +105,12 @@ objects:
                   cpu: 100m
                   memory: 512Mi
               volumeMounts:
-                - mountPath: /mnt
+                - mountPath: /opt/app-root/src/dist/config.local.js
                   name: config-volume
+                  subPath: config.local.js
+                - mountPath: /opt/app-root/src/dist/middleware.local.js
+                  name: config-volume
+                  subPath: middleware.local.js
           volumes:
             - configMap:
                 name: notify-bc
@@ -188,8 +192,12 @@ objects:
                   cpu: 200m
                   memory: 1Gi
               volumeMounts:
-                - mountPath: /mnt
+                - mountPath: /opt/app-root/src/dist/config.local.js
                   name: config-volume
+                  subPath: config.local.js
+                - mountPath: /opt/app-root/src/dist/middleware.local.js
+                  name: config-volume
+                  subPath: middleware.local.js
           volumes:
             - configMap:
                 name: notify-bc
@@ -359,12 +367,24 @@ objects:
         subresource: scale
   - apiVersion: v1
     data:
-      config.local.js: "module.exports = {\n  inboundSmtpServer: {\n \
-        \   listeningSmtpPort: 2525,\n \
-        \   options: {\n      secure: true\n    }\n  }\n}\n"
-      middleware.local.json:
-        "{\n  \"routes:before\":{\n    \"morgan\":{\n      \"enabled\"\
-        : false\n    }\n  }\n}\n"
+      config.local.js: |
+        module.exports = {
+          internalHttpHost: 'http://notify-bc:3000',
+          inboundSmtpServer: {
+            listeningSmtpPort: 2525,
+            options: {
+              secure: true
+            }
+          }
+        }
+      middleware.local.js: |
+        module.exports = {
+          apiOnly: {
+            morgan: {
+              enabled: false,
+            },
+          },
+        };
     kind: ConfigMap
     metadata:
       name: notify-bc
