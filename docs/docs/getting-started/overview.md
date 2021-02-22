@@ -200,7 +200,7 @@ The mapping between authentication strategy and request type is
 
 ::: tip Which authentication strategy to use?
 
-Because ip whitelist doesn't expire and client certificates usually has a relatively long expiration period (say one year), they are suitable for long-running unattended server processes such as server-side code of web apps, cron jobs, IOT sensors etc. The server processes have to be trusted because once authenticated, they have full privilege to _NotifyBC_. Usually the server processes and _NotifyBC_ instance are in the same administration domain, i.e. managed by the same admin group of an organization.
+Because ip whitelist doesn't expire and client certificate usually has a relatively long expiration period (say one year), they are suitable for long-running unattended server processes such as server-side code of web apps, cron jobs, IOT sensors etc. The server processes have to be trusted because once authenticated, they have full privilege to _NotifyBC_. Usually the server processes and _NotifyBC_ instance are in the same administration domain, i.e. managed by the same admin group of an organization.
 
 By contrast, OIDC and SiteMinder use short-lived tokens or session cookies. Therefore they are only suitable for interactive user sessions.
 
