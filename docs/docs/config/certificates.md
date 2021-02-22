@@ -102,3 +102,7 @@ module.exports = {
 ::: warning TLS termination has to be passthrough
 For client certification authentication to work, TLS termination of all reverse proxies has to be set to passthrough rather than offload and reload. This means, for example, when _NotifyBC_ is hosted on OpenShift, router [tls termination](https://github.com/bcgov/NotifyBC/blob/d389d260ce29beb9631dd73867870fa842fb6181/.openshift-templates/notify-bc.yml#L319) has to be changed from _edge_ to _passthrough_.
 :::
+
+::: tip <i>NotifyBC</i> internal request does not use client certificate
+Requests sent by a _NotifyBC_ node back to the app cluster use admin ip list authentication.
+:::
