@@ -23,6 +23,11 @@ openssl req -x509 -newkey rsa:4096 -keyout server/certs/key.pem -out server/cert
 
 to generate both files in one shot.
 
+::: warning set env NODE_TLS_REJECT_UNAUTHORIZED when using self-signed cert
+
+Self-signed cert is intended to be used in non-production environments only to authenticate server. In such environments to allow _NotifyBC_ connecting to itself, environment variable NODE_TLS_REJECT_UNAUTHORIZED must be set to 0.
+:::
+
 To create a CSR from the private key generated above, run
 
 ```sh
