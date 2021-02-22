@@ -7,7 +7,6 @@ echo "---> Installing application source"
 pushd /tmp/src
 rm -rf node_modules docs utils client/node_modules client/dist
 mv .s2i/configs/db.datasource.production.js src/datasources/
-mv .s2i/configs/config.production.json src/
 # restore build artifacts
 if [ "$(ls /tmp/artifacts/ 2>/dev/null)" ]; then
     echo "---> restore build artifacts"
