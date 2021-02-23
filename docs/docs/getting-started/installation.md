@@ -25,9 +25,10 @@ installing from source code is preferred.
 - Software
   - Git
   - [Node.js](https://nodejs.org)@>=14.5.0
+  - openssl (if enable HTTPS)
 - Services
   - MongoDB, optional but recommended for production
-  - A standard SMTP server to deliver outgoing email, optional but recommended for production. You can use an existing organizational shared service, cloud-based service such as Amazon SES, or setting up your own SMTP server
+  - A standard SMTP server to deliver outgoing email, optional but recommended for production.
   - A tcp proxy server such as [nginx stream proxy](http://nginx.org/en/docs/stream/ngx_stream_proxy_module.html) if list-unsubscribe by email is needed and _NotifyBC_ server cannot expose port 25 to internet
   - A SMS service provider account if needs to enable SMS channel. The supported service providers are
     - Twilio (default)
