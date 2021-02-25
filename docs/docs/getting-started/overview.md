@@ -8,7 +8,7 @@ _NotifyBC_ is a general purpose API Server to manage subscriptions and dispatch 
 
 ## Features
 
-_NotifyBC_ facilitates both anonymous and SiteMinder authentication-enabled secure webapps implementing notification feature. A _NotifyBC_ server instance supports multiple notification services. A service is a topic of interest that user wants to receive updates. It is used as the partition of notification messages and user subscriptions. A user may subscribe to a service in multiple push delivery channels allowed. A user may subscribe to multiple services. In-app pull notification doesn't require subscription as it's not intrusive to user.
+_NotifyBC_ facilitates both anonymous and authentication-enabled secure webapps implementing notification feature. A _NotifyBC_ server instance supports multiple notification services. A service is a topic of interest that user wants to receive updates. It is used as the partition of notification messages and user subscriptions. A user may subscribe to a service in multiple push delivery channels allowed. A user may subscribe to multiple services. In-app pull notification doesn't require subscription as it's not intrusive to user.
 
 ### notification
 

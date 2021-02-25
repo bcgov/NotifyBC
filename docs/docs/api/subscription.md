@@ -95,7 +95,7 @@ The API operates on following subscription data model fields:
   <tr>
     <td>
       <p class="name">userId</p>
-      <p class="description">user id. Auto-populated from SiteMinder header for SiteMinder authenticated user requests.</p>
+      <p class="description">user id. Auto-populated for authenticated user requests.</p>
     </td>
     <td>
       <table>
@@ -363,7 +363,7 @@ POST /subscriptions
   }
   ```
 
-  For non-admin request, the field _confirmationRequest_ is removed from response, and field _userId_ is populated from SiteMinder header if request is authenticated:
+  For non-admin request, the field _confirmationRequest_ is removed from response, and field _userId_ is populated if request is authenticated:
 
   ```json
   {
