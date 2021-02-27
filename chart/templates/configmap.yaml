@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notify-bc
+data:
+  config.local.js: |
+    module.exports = {
+      internalHttpHost: 'http://notify-bc:3000',
+      inboundSmtpServer: {
+        listeningSmtpPort: 2525,
+        options: {
+          secure: true
+        }
+      }
+    }
+  middleware.local.js: |
+    module.exports = {
+      apiOnly: {
+        morgan: {
+          enabled: false,
+        },
+      },
+    };
