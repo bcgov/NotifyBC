@@ -6,3 +6,5 @@ npm-debug.log
 **/*.local.*
 /docs/
 /server/database/data.json
+/server/certs
+/chart

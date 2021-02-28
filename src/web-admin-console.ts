@@ -29,8 +29,8 @@ export default (server: ExpressServer) => {
       htmlWebpackPlugin: {
         options: {
           apiUrlPrefix: appConfig.restApiRoot,
-          oidcAuthority: appConfig.oidc.discoveryUrl,
-          oidcClientId: appConfig.oidc.clientId,
+          oidcAuthority: appConfig.oidc?.discoveryUrl,
+          oidcClientId: appConfig.oidc?.clientId,
         },
       },
       ApiUrlPrefix: appConfig.restApiRoot,
