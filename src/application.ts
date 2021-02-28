@@ -46,19 +46,19 @@ export class NotifyBcApplication extends BootMixin(
 ) {
   middlewareConfigs: AnyObject;
   constructor(options: ApplicationConfig = {}) {
-    let configFiles = [
-      'config.json',
-      'config.js',
-      'config.local.json',
-      'config.local.js',
-    ];
-    let middlewareFiles = [
-      'middleware.js',
-      'middleware.json',
-      'middleware.local.js',
-      'middleware.local.json',
-    ];
+    let configFiles = ['config.json', 'config.js'];
+    let middlewareFiles = ['middleware.js', 'middleware.json'];
     if (process.env.NODE_ENV) {
+      if (process.env.NODE_ENV !== 'test') {
+        configFiles = configFiles.concat([
+          `config.local.json`,
+          `config.local.js`,
+        ]);
+        middlewareFiles = middlewareFiles.concat([
+          `middleware.local.json`,
+          `middleware.local.js`,
+        ]);
+      }
       configFiles = configFiles.concat([
         `config.${process.env.NODE_ENV}.json`,
         `config.${process.env.NODE_ENV}.js`,
