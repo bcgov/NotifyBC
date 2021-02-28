@@ -1,6 +1,7 @@
 apiVersion: v2
 name: NotifyBC
 description: NotifyBC Helm chart for Kubernetes
+icon: https://raw.githubusercontent.com/bcgov/NotifyBC/main/favicon.ico
 
 # A chart can be either an 'application' or a 'library' chart.
 #
