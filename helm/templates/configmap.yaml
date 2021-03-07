@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: notify-bc
+  name: {{include "NotifyBC.fullname" .}}
 data:
   config.local.js: |
     module.exports = {
@@ -20,4 +20,14 @@ data:
           enabled: false,
         },
       },
+    };
+  db.datasource.local.js: |
+    module.exports = {
+      name: 'db',
+      connector: 'mongodb',
+      hostname: process.env.DATABASE_SERVICE_NAME,
+      port: process.env.DB_PORT || 27017,
+      user: process.env.MONGODB_USER,
+      password: process.env.MONGODB_PASSWORD,
+      database: process.env.MONGODB_DATABASE,
     };

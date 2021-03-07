@@ -47,6 +47,9 @@ Selector labels
 */}}
 {{- define "NotifyBC.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "NotifyBC.name" . }}
+{{- if .notifyBCInstanceType -}}
+  -{{ .notifyBCInstanceType }}
+{{- end }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
