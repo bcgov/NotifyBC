@@ -1,0 +1,21 @@
+{{- if .Capabilities.APIVersions.Has "route.openshift.io/v1/Route" }}
+{{- $fullName := include "NotifyBC.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    {{- include "NotifyBC.labels" . | nindent 4 }}
+  annotations:
+    haproxy.router.openshift.io/timeout: 24d
+  name: {{ $fullName }}
+spec:
+  host: ''
+  port:
+    targetPort: web
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: {{ $fullName }}
+{{- end }}

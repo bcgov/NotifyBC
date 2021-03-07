@@ -1,3 +1,4 @@
+{{- $_ := set . "notifyBCInstanceType" "app" -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -8,8 +9,8 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: web
       protocol: TCP
-      name: http
+      name: web
   selector:
     {{- include "NotifyBC.selectorLabels" . | nindent 4 }}

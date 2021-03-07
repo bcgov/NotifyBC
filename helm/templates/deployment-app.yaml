@@ -1,0 +1,112 @@
+{{- $_ := set . "notifyBCInstanceType" "app" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "NotifyBC.fullname" . }}-{{ .notifyBCInstanceType }}
+  labels:
+    {{- include "NotifyBC.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "NotifyBC.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "NotifyBC.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "NotifyBC.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: DATABASE_SERVICE_NAME
+              value: {{ .Release.Name }}-mongodb-headless
+            - name: MONGODB_USER
+              value: {{ .Values.mongodb.auth.username }}
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mongodb
+                  key: mongodb-password
+            - name: MONGODB_DATABASE
+              value: {{ .Values.mongodb.auth.database }}
+            - name: MONGODB_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mongodb
+                  key: mongodb-root-password
+            - name: NOTIFYBC_NODE_ROLE
+              value: slave
+            - name: NOTIFYBC_WORKER_PROCESS_COUNT
+              value: '1'
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: web
+              containerPort: 3000
+              protocol: TCP
+            - name: smtp
+              containerPort: 2525
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 60
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 60
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /home/node/app/dist/config.local.js
+              name: config-volume
+              subPath: config.local.js
+            - mountPath: /home/node/app/dist/middleware.local.js
+              name: config-volume
+              subPath: middleware.local.js
+            - mountPath: /home/node/app/dist/datasources/db.datasource.local.js
+              name: config-volume
+              subPath: db.datasource.local.js
+      volumes:
+        - configMap:
+            name: {{include "NotifyBC.fullname" .}}
+          name: config-volume
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -15,7 +15,7 @@ COPY --chown=node . .
 RUN yarn install && yarn build
 
 # Bind to all network interfaces so that it can be mapped to the host OS
-ENV HOST=0.0.0.0 PORT=3000
+ENV HOST=0.0.0.0 PORT=3000 SMTP_PORT=2525
 
-EXPOSE ${PORT}
+EXPOSE ${PORT} ${SMTP_PORT}
 CMD [ "node", "." ]

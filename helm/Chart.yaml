@@ -1,5 +1,5 @@
 apiVersion: v2
-name: NotifyBC
+name: notify-bc
 description: NotifyBC Helm chart for Kubernetes
 icon: https://raw.githubusercontent.com/bcgov/NotifyBC/main/favicon.ico
 
@@ -22,7 +22,7 @@ version: 0.1.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: '2.5.0'
+appVersion: 2.5.0
 
 dependencies:
   - name: mongodb
