@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "NotifyBC.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "NotifyBC.fullname" . }}:{{ .Values.service.web.port }}']
   restartPolicy: Never

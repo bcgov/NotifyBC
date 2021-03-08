@@ -1,3 +1,10 @@
 service:
   smtp:
     enabled: false
+mongodb:
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1004010000
+    runAsNonRoot: true
