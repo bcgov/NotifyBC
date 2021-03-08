@@ -40,8 +40,13 @@ securityContext:
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  port: 80
+  web:
+    type: ClusterIP
+    port: 80
+  smtp:
+    enabled: true
+    type: LoadBalancer
+    port: 25
 
 ingress:
   enabled: true
@@ -91,7 +96,8 @@ mongodb:
   arbiter:
     enabled: false
   podSecurityContext:
-    enabled: false
+    enabled: true
+    fsGroup: 1004010000
   containerSecurityContext:
     enabled: true
     runAsUser: 1004010000
