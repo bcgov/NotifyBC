@@ -397,6 +397,7 @@ module.exports.app = function (...argsArr: any[]) {
       },
     });
     server = new SMTPServer(smtpOpts);
+    server.on('error', () => {});
     server.listen(parseInt(port), function (this: any) {
       console.info(
         `smtp server started listening on port ${
