@@ -5,7 +5,7 @@ metadata:
 data:
   config.local.js: |
     module.exports = {
-      internalHttpHost: 'http://notify-bc:3000',
+      internalHttpHost: 'http://{{include "NotifyBC.fullname" .}}:{{ .Values.service.port }}',
       inboundSmtpServer: {
         listeningSmtpPort: 2525,
         options: {

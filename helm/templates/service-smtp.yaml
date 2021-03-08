@@ -1,16 +1,18 @@
+{{- if .Values.service.smtp.enabled -}}
 {{- $_ := set . "notifyBCInstanceType" "app" -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "NotifyBC.fullname" . }}
+  name: {{ include "NotifyBC.fullname" . }}-smtp
   labels:
     {{- include "NotifyBC.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.smtp.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: web
+    - port: {{ .Values.service.smtp.port }}
+      targetPort: smtp
       protocol: TCP
-      name: web
+      name: smtp
   selector:
     {{- include "NotifyBC.selectorLabels" . | nindent 4 }}
+{{ end }}
