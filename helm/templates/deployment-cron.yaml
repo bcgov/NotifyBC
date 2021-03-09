@@ -36,7 +36,10 @@ spec:
             - name: NODE_ENV
               value: production
             - name: DATABASE_SERVICE_NAME
-              value: {{ .Release.Name }}-mongodb-headless
+              value: {{ .Release.Name }}-mongodb
+              {{- if eq .Values.mongodb.architecture "replicaset" -}}
+                -headless
+              {{- end }}
             - name: MONGODB_USER
               value: {{ .Values.mongodb.auth.username }}
             - name: MONGODB_PASSWORD
