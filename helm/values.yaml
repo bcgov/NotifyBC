@@ -87,12 +87,9 @@ affinity: {}
 
 mongodb:
   architecture: replicaset
-  replicaCount: 3
   auth:
     username: notify-bc
     database: notify-bc
     password: ''
   persistence:
     size: 1Gi
-  arbiter:
-    enabled: false

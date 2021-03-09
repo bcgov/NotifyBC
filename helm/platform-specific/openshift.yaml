@@ -8,3 +8,10 @@ mongodb:
     enabled: true
     runAsUser: 1004010000
     runAsNonRoot: true
+  arbiter:
+    podSecurityContext:
+      enabled: false
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1004010000
+      runAsNonRoot: true
