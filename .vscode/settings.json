@@ -47,6 +47,7 @@
     "jmespath's",
     "jwks",
     "lcov",
+    "letsencrypt",
     "mailparser",
     "materialdesignicons",
     "nonexpired",

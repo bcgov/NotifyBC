@@ -8,8 +8,7 @@ image:
   repository: ghcr.io/bcgov/notify-bc
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  # todo: fix hard-coded default
-  tag: 'chart'
+  tag: ''
 
 imagePullSecrets: []
 nameOverride: ''
