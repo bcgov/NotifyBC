@@ -18,3 +18,4 @@ few services. Credit goes to their contributors. Notably
 - [VuePress](https://vuepress.vuejs.org/)
 - [Twilio](https://www.twilio.com/)
 - [Swift SMS Gateway](https://www.swiftsmsgateway.com/)
+- [Bitnami](https://bitnami.com/)

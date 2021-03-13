@@ -56,13 +56,13 @@ ingress:
     # cert-manager.io/cluster-issuer: letsencrypt
   hosts:
     []
-    # - host: 20.48.142.98.nip.io
+    # - host: notify-bc.local
     #   paths:
     #     - path: /
   tls: []
-  #  - secretName: chart-example-tls
+  #  - secretName: notify-bc-tls
   #    hosts:
-  #      - chart-example.local
+  #      - notify-bc.local
 resources:
   limits:
     cpu: '1'

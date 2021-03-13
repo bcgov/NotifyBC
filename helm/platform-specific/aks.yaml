@@ -4,11 +4,10 @@ ingress:
     nginx.ingress.kubernetes.io/use-regex: 'true'
     cert-manager.io/cluster-issuer: letsencrypt
   hosts:
-    # todo: avoid hard-coding
-    - host: 20.48.142.98.nip.io
+    - host: notify-bc.local
       paths:
         - path: /
-  tls:
-    - secretName: tls-secret
-      hosts:
-        - 20.48.142.98.nip.io
+  # tls:
+  #   - secretName: tls-secret
+  #     hosts:
+  #       - notify-bc.local
