@@ -29,7 +29,7 @@ features:
         <li>Support end-to-end encryption
         </li>
         <li>Multiple authentication strategies including client certificate for server-server and OIDC for user-server</li>
-        <li>Containerized deployment as a microservice. No need for complex enterprise-wide shared service. Better meet privacy mandates.
+        <li>Containerized deployment as a microservice to Kubernetes. No need for complex enterprise-wide shared service. Better meet privacy mandates.
         </li>
       </ul>
 footer: >

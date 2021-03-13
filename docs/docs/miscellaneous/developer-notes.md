@@ -56,3 +56,10 @@ If everything goes well, the last line of the output will be
 ```
 
 You can now browse to the local docs site [http://localhost:8080/NotifyBC](http://localhost:8080/NotifyBC/)
+
+## Publish Version Checklist
+
+Before adding a release,
+
+1. update _version_ in _package.json_
+2. update _appVersion_ in _helm/Chart.yaml_ (major/minor only)

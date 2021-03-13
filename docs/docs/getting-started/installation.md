@@ -8,12 +8,12 @@ _NotifyBC_ can be installed in 3 ways:
 
 1. deploying locally from source code
 2. deploying a Docker container
-3. deploying to OpenShift
+3. deploying to Kubernetes
 
 For small-scale production deployment or for evaluation, both source code and docker container will do. For large-scale production deployment that requires horizontal scalability, the recommendation is one of
 
-- deploying to OpenShift
-- setting up a load balanced app cluster from source code build, backed by mongodb.
+- deploying to Kubernetes
+- setting up a load balanced app cluster from source code build, backed by MongoDB.
 
 To setup a development environment in order to contribute to _NotifyBC_,
 installing from source code is preferred.
@@ -122,7 +122,91 @@ docker run -p 3000:3000 notify-bc
 
 If successful, similar output is displayed as in source code installation.
 
-## Deploy to OpenShift
+## Deploy to Kubernetes
+
+_NotifyBC_ provides a [container package](https://github.com/orgs/bcgov/packages/container/package/notify-bc) in GitHub Container Registry and a [Helm](https://helm.sh/) chart to facilitate Deploying to Kubernetes. Azure AKS and OpenShift are the two tested platforms. Other Kubernetes platforms are likely to work subject to customizations. Before deploying to AKS, [create an ingress controller
+](https://docs.microsoft.com/en-us/azure/aks/ingress-basic#create-an-ingress-controller).
+
+The deployment can be initiated from localhost or automated by CI service such as Jenkins. Regardless, at the initiator's side following software needs to be installed:
+
+- git
+- Platform-specific CLI such as [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/) or [OpenShift CLI](https://docs.openshift.org/latest/cli_reference/index.html)
+- [Helm CLI](https://helm.sh/docs/intro/install/)
+
+To install,
+
+1. Follow your platform's instruction to login to the platform. For AKS, run `az login` and `az aks get-credentials`; for OpenShift, run `oc login`
+2. Run
+
+   ```sh
+   git clone https://github.com/bcgov/NotifyBC.git
+   cd NotifyBC
+   helm install -gf helm/platform-specific/<platform>.yaml helm
+   ```
+
+   replace \<platform\> with _openshift_ or _aks_ depending on your platform.
+
+   The above commands create following main artifacts:
+
+   - A MongoDB cluster with 2 nodes and 1 arbiter, each implemented as a stateful set
+   - Two deployments - _notify-bc-app_ and _notify-bc-cron_
+   - Three services - _notify-bc_, _mongodb-headless_ and _mongodb-arbiter-headless_
+   - Two PVCs each for one MongoDB node
+   - Two config maps - _notify-bc_ and _mongodb-scripts_
+   - Two service accounts - _notify-bc_ and _mongodb_
+   - One more more secrets, with the most important one being _mongodb_, containing MongoDB connection credentials
+   - On AKS,
+     - a _notify-bc-smtp_ service of type _LoadBalancer_ for [inbound smtp server](../config/inboundSmtpServer.md)
+     - a _notify-bc_ ingress
+   - On OpenShift,
+     - 2 routes - _notify-bc-web_ and _notify-bc-smtp_
+
+To upgrade,
+
+```sh
+helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml --set mongodb.auth.rootPassword=<mongodb-root-password> --set mongodb.auth.replicaSetKey=<mongodb-replica-set-key> --set mongodb.auth.password=<mongodb-password> helm
+```
+
+replace \<release-name\> with installed helm release name and \<platform\> with _openshift_ or _aks_ depending on your platform. \<mongodb-root-password\>, \<mongodb-replica-set-key\> and \<mongodb-password\> can be found in _mongodb_ secret.
+
+To uninstall,
+
+```sh
+helm uninstall <release-name>
+```
+
+replace \<release-name\> with installed helm release name.
+
+### Customizations
+
+Various customizations can be made to chart. Some are platform dependent. Following are examples.
+
+- To set hostname on AKS, set parameter `ingress.hosts[0].host`
+  ```sh
+  helm install -gf helm/platform-specific/aks.yaml --set ingress.hosts[0].host=myNotifyBC.myOrg.com helm
+  ```
+- Use [Let's Encrypt on AKS](https://docs.microsoft.com/en-us/azure/aks/ingress-tls). After following the instructions in the link, uncomment and adjust _tls_ block in file _helm/platform-specific/aks.yaml_. Alternatively, supply the parameter in CLI argument
+  ```sh
+  helm install -gf helm/platform-specific/aks.yaml --set ingress.tls[0].secretName=tls-secret,ingress.tls[0].hosts[0]=myNotifyBC.myOrg.com helm
+  ```
+- MongoDb
+
+  _NotifyBC_ chart depends on [Bitnami MongoDB chart](https://github.com/bitnami/charts/tree/master/bitnami/mongodb) for MongoDB database provisioning. All documented parameters are customizable by adding _mongodb._ prefix. For example, to change _architecture_ to _standalone_
+
+  ```sh
+  helm install -gf helm/platform-specific/<platform>.yaml --set mongodb.architecture=standalone helm
+  ```
+
+- _NotifyBC_ image tag defaults to latest published version. To change to _latest_, i.e. tip of the _main branch_,
+  ```sh
+  helm install -gf helm/platform-specific/<platform>.yaml --set image.tag=latest helm
+  ```
+
+## Deploy to OpenShift (deprecated)
+
+::: warning Use Helm for OpenShift
+The OpenShift template documented in the rest of this section is deprecated and will be removed in next major release. Please follow [Deploy to Kubernetes](#deploy-to-kubernetes) using Helm.
+:::
 
 _NotifyBC_ supports deployment to OpenShift Origin of minimum version 1.5, or other compatible platforms such as OpenShift Container Platform of matching version. [OpenShift instant app templates](https://github.com/bcgov/NotifyBC/blob/main/.opensift-templates) have been created to facilitate build and deployment. This template adopts [source-to-image strategy](https://docs.openshift.org/latest/dev_guide/builds.html#using-secrets-s2i-strategy) with [binary source](https://docs.openshift.org/latest/dev_guide/builds.html#binary-source) input and supports [incremental builds](https://docs.openshift.org/latest/dev_guide/builds.html#incremental-builds).
 
