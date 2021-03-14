@@ -6,3 +6,5 @@
 *.woff binary
 *.ttf binary
 *.vsdx binary
+*.tgz binary
+*.gpg binary
