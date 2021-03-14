@@ -88,15 +88,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - mountPath: /home/node/app/dist/config.local.js
-              name: config-volume
-              subPath: config.local.js
-            - mountPath: /home/node/app/dist/middleware.local.js
-              name: config-volume
-              subPath: middleware.local.js
-            - mountPath: /home/node/app/dist/datasources/db.datasource.local.js
-              name: config-volume
-              subPath: db.datasource.local.js
+            {{- range .Values.configMapVolumeMounts }}
+            - name: config-volume
+              mountPath: {{ .mountPath }}
+              subPath: {{ .subPath }}
+            {{- end }}
       volumes:
         - configMap:
             name: {{include "NotifyBC.fullname" .}}

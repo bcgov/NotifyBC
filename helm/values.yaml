@@ -124,3 +124,11 @@ configMap:
       password: process.env.MONGODB_PASSWORD,
       database: process.env.MONGODB_DATABASE,
     };
+
+configMapVolumeMounts:
+  - mountPath: /home/node/app/dist/config.local.js
+    subPath: config.local.js
+  - mountPath: /home/node/app/dist/middleware.local.js
+    subPath: middleware.local.js
+  - mountPath: /home/node/app/dist/datasources/db.datasource.local.js
+    subPath: db.datasource.local.js
