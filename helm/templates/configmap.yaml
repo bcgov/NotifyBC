@@ -3,33 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{include "NotifyBC.fullname" .}}
 data:
-  config.local.js: |
-    module.exports = {
-      internalHttpHost: 'http://{{include "NotifyBC.fullname" .}}:{{ .Values.service.web.port }}',
-      inboundSmtpServer: {
-        listeningSmtpPort: 2525,
-        options: {
-          {{- if not (.Values.service.smtp.enabled) }}
-          secure: true
-          {{- end }}
-        }
-      }
-    }
-  middleware.local.js: |
-    module.exports = {
-      apiOnly: {
-        morgan: {
-          enabled: false,
-        },
-      },
-    };
-  db.datasource.local.js: |
-    module.exports = {
-      name: 'db',
-      connector: 'mongodb',
-      hostname: process.env.DATABASE_SERVICE_NAME,
-      port: process.env.DB_PORT || 27017,
-      user: process.env.MONGODB_USER,
-      password: process.env.MONGODB_PASSWORD,
-      database: process.env.MONGODB_DATABASE,
-    };
+  {{- range $key, $val := .Values.configMap }}
+  {{- $key | nindent 2 }}: |
+    {{- tpl $val $ | nindent 4 }}
+  {{- end }}
