@@ -9,7 +9,7 @@ metadata:
     haproxy.router.openshift.io/timeout: 24d
   name: {{ $fullName }}-web
 spec:
-  host: ''
+  host: {{ .Values.route.web.host }}
   port:
     targetPort: web
   tls:

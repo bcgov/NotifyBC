@@ -132,3 +132,9 @@ configMapVolumeMounts:
     subPath: middleware.local.js
   - mountPath: /home/node/app/dist/datasources/db.datasource.local.js
     subPath: db.datasource.local.js
+
+route:
+  web:
+    host: ''
+  smtp:
+    host: ''
