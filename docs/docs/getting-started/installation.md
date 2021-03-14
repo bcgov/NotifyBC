@@ -146,7 +146,7 @@ To install,
 
    replace \<platform\> with _openshift_ or _aks_ depending on your platform.
 
-   The above commands create following main artifacts:
+   The above commands create following artifacts:
 
    - A MongoDB cluster with 2 nodes and 1 arbiter, each implemented as a stateful set
    - Two deployments - _notify-bc-app_ and _notify-bc-cron_
@@ -179,27 +179,87 @@ replace \<release-name\> with installed helm release name.
 
 ### Customizations
 
-Various customizations can be made to chart. Some are platform dependent. Following are examples.
+Various customizations can be made to chart. Some are platform dependent. To customize, create file _helm/values.local.yaml_, then add customized values to it. To apply customization, add `-f helm/values.local.yaml` to the helm command after `-f helm/platform-specific/<platform>.yaml`. For example, to run `helm install` with customization,
 
-- To set hostname on AKS, set parameter `ingress.hosts[0].host`
-  ```sh
-  helm install -gf helm/platform-specific/aks.yaml --set ingress.hosts[0].host=myNotifyBC.myOrg.com helm
+```sh
+helm install -gf helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+```
+
+::: tip Backup <i>helm/values.local.yaml</i>
+Backup _helm/values.local.yaml_ to a private secured SCM is highly recommended, especially for production environment.
+:::
+
+Following are some example customizations.
+
+- To set hostname on AKS,
+  ```yaml
+  # in file helm/values.local.yaml
+  ingress:
+    hosts:
+      - host: myNotifyBC.myOrg.com
+        paths:
+          - path: /
   ```
-- Use [Let's Encrypt on AKS](https://docs.microsoft.com/en-us/azure/aks/ingress-tls). After following the instructions in the link, uncomment and adjust _tls_ block in file _helm/platform-specific/aks.yaml_. Alternatively, supply the parameter in CLI argument
-  ```sh
-  helm install -gf helm/platform-specific/aks.yaml --set ingress.tls[0].secretName=tls-secret,ingress.tls[0].hosts[0]=myNotifyBC.myOrg.com helm
+- Use [Let's Encrypt on AKS](https://docs.microsoft.com/en-us/azure/aks/ingress-tls). After following the instructions in the link, add following ingress customizations to file _helm/values.local.yaml_
+
+  ```yaml
+  # in file helm/values.local.yaml
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    tls:
+      - secretName: tls-secret
+        hosts:
+          - notify-bc.local
   ```
+
+- Route host names on Openshift are by default auto-generated. To set to fix values
+
+  ```yaml
+  # in file helm/values.local.yaml
+  route:
+    web:
+      host: 'myNotifyBC.myOrg.com'
+    smtp:
+      host: 'smtp.myNotifyBC.myOrg.com'
+  ```
+
+- To update _config.local.js_ in config map,
+
+  ```yaml
+  # in file helm/values.local.yaml
+  configMap:
+    config.local.js: |-
+      module.exports = {
+        httpHost: 'https://myNotifyBC.myOrg.com',
+        internalHttpHost: 'http://{{include "NotifyBC.fullname" .}}:{{ .Values.service.web.port }}',
+        inboundSmtpServer: {
+          listeningSmtpPort: 2525,
+          options: {
+            {{- if not (.Values.service.smtp.enabled) }}
+            secure: true
+            {{- end }}
+          }
+        }
+      }
+  ```
+
 - MongoDb
 
   _NotifyBC_ chart depends on [Bitnami MongoDB chart](https://github.com/bitnami/charts/tree/master/bitnami/mongodb) for MongoDB database provisioning. All documented parameters are customizable by adding _mongodb._ prefix. For example, to change _architecture_ to _standalone_
 
-  ```sh
-  helm install -gf helm/platform-specific/<platform>.yaml --set mongodb.architecture=standalone helm
+  ```yaml
+  # in file helm/values.local.yaml
+  mongodb:
+    architecture: standalone
   ```
 
-- _NotifyBC_ image tag defaults to latest published version. To change to _latest_, i.e. tip of the _main branch_,
-  ```sh
-  helm install -gf helm/platform-specific/<platform>.yaml --set image.tag=latest helm
+* _NotifyBC_ image tag defaults to latest published version. To change to _latest_, i.e. tip of the _main branch_,
+
+  ```yaml
+  # in file helm/values.local.yaml
+  image:
+    tag: latest
   ```
 
 ## Deploy to OpenShift (deprecated)
@@ -241,7 +301,7 @@ If using Jenkins, all the software are pre-installed on OpenShift provided Jenki
 2) create OpenShift apps by clicking _Add to Project_ in web console of respective projects, select JavaScript in languages catalog, and click either _notify-bc-build_ or _notify-bc_ template. Adjust parameters as you see fit.
 3) (optional) update instance-specific [configuration](../config-overview/) files by modifying configMap _notify-bc_. To do so, in web console of a runtime environment project, click _Resources > Config Maps > notify-bc > Actions > Edit_. Each config file corresponds to an item in configMap with key being the file name.
 
-::: warning backup config files
+::: tip backup config files
 Backup config files to a private secured SCM outside of OpenShift is highly recommended, especially for production environment.
 :::
 
