@@ -291,6 +291,7 @@ export class NotificationController extends BaseController {
     @requestBody() notification: Notification,
   ): Promise<void> {
     await this.preCreationValidation(notification);
+    notification.id = id;
     await this.notificationRepository.replaceById(id, notification, undefined);
     this.httpContext.bind('args').to({data: notification});
     await this.dispatchNotification(notification);
