@@ -85,4 +85,6 @@ jobs:
         run: |
           export notifyBCContainerTag=`cat notifyBCContainerTag.txt`
           helm upgrade -f helm/platform-specific/openshift.yaml \
-          -f .github/values.ocp4.dev.yaml --set image.tag="$notifyBCContainerTag" `helm ls -q` helm
+          -f .github/values.ocp4.dev.yaml --set \
+          image.tag="$notifyBCContainerTag" `helm ls -q` helm
+          oc get deployment -o name | xargs oc rollout restart
