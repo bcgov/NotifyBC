@@ -6,9 +6,9 @@ permalink: /docs/installation/
 
 _NotifyBC_ can be installed in 3 ways:
 
-1. deploying locally from source code
-2. deploying a Docker container
-3. deploying to Kubernetes
+1. [deploying locally from source code](#deploy-locally-from-source-code)
+2. [deploying a Docker container](#deploy-docker-container)
+3. [deploying to Kubernetes](#deploy-to-kubernetes)
 
 For small-scale production deployment or for evaluation, both source code and docker container will do. For large-scale production deployment that requires horizontal scalability, the recommendation is one of
 
@@ -222,6 +222,28 @@ Following are some example customizations.
       host: 'myNotifyBC.myOrg.com'
     smtp:
       host: 'smtp.myNotifyBC.myOrg.com'
+  ```
+
+- To add certificates to OpenShift web route
+
+  ```yaml
+  # in file helm/values.local.yaml
+  route:
+    web:
+      tls:
+        caCertificate: |-
+          -----BEGIN CERTIFICATE-----
+          ...
+          -----END CERTIFICATE-----
+        certificate: |-
+          -----BEGIN CERTIFICATE-----
+          ...
+          -----END CERTIFICATE-----
+        insecureEdgeTerminationPolicy: Redirect
+        key: |-
+          -----BEGIN PRIVATE KEY-----
+          ...
+          -----END PRIVATE KEY-----
   ```
 
 - To update _config.local.js_ in config map,

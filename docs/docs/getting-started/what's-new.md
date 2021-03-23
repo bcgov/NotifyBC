@@ -8,9 +8,14 @@ permalink: /docs/what's-new/
 _NotifyBC_ has been built on Node.js [LoopBack](https://loopback.io/) framework since 2017. LoopBack v4, which was released in 2019, is backward incompatible. To keep software stack up-to-date, unless rewriting from scratch, it is necessary to port _NotifyBC_ to LoopBack v4. Great care has been taken to minimize migration effort.
 :::
 
+## v2.6.0
+
+- Helm chart updates
+- docs updates
+
 ## v2.5.0
 
-- added [helm chart](https://github.com/bcgov/NotifyBC/tree/main/helm)
+- added [helm chart](https://github.com/bcgov/NotifyBC/tree/main/helm). See [OpenShift template to Helm migration guide](../miscellaneous/migration.md#openshift-template-to-helm)
 - docs updates
 
 ## v2.4.0
