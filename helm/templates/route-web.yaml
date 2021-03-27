@@ -13,7 +13,7 @@ spec:
   port:
     targetPort: web
   tls:
-    termination: edge
+    {{- toYaml .Values.route.web.tls | nindent 4 }}
   to:
     kind: Service
     name: {{ $fullName }}
