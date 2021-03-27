@@ -136,5 +136,7 @@ configMapVolumeMounts:
 route:
   web:
     host: ''
+    tls:
+      termination: edge
   smtp:
     host: ''
