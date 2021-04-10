@@ -25,3 +25,5 @@ id_rsa
 id_rsa.pub
 dist
 .nyc_output
+/dist
+/server/certs
