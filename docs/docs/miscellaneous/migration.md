@@ -108,9 +108,41 @@ yarn install && yarn build
    git clone https://github.com/bcgov/NotifyBC.git
    cd NotifyBC
    ```
-2. Follow OpenShift [Build](../installation/#build)
-3. Follow OpenShift [Deploy](../installation/#deploy)
-4. Follow OpenShift [Change Propagation](../installation/#change-propagation)
+2. Run
+
+   ```sh
+   oc delete bc/notify-bc
+   oc process -f .openshift-templates/notify-bc-build.yml | oc create -f-
+   ```
+
+   ignore _AlreadyExists_ errors
+
+3. Follow OpenShift [Build](../installation/#build)
+4. For each environment,
+
+   1. run
+
+      ```sh
+      oc project <yourprojectname-<env>>
+      oc delete dc/notify-bc-app dc/notify-bc-cron
+      oc process -f .openshift-templates/notify-bc.yml | oc create -f-
+      ```
+
+      ignore _AlreadyExists_ errors
+
+   2. copy value of environment variable _MONGODB_USER_ from _mongodb_ deployment config to the same environment variable of deployment config _notify-bc-app_ and _notify-bc-cron_, replacing existing value
+   3. remove _middleware.local.json_ from configMap _notify-bc_
+   4. add _middleware.local.js_ to configMap _notify-bc_ with following content
+      ```js
+      module.exports = {
+        apiOnly: {
+          morgan: {
+            enabled: false,
+          },
+        },
+      };
+      ```
+   5. Follow OpenShift [Deploy](../installation/#deploy) or [Change Propagation](../installation/#change-propagation) to tag image
 
 ## OpenShift template to Helm
 
