@@ -21,6 +21,10 @@ module.exports = {
   adminIps: [],
   httpHost: '',
   internalHttpHost: '',
+  smtp: {
+    host: 'invalid.local',
+    port: 465,
+  },
   smsServiceProvider: 'swift',
   sms: {
     swift: {

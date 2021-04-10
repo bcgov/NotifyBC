@@ -729,6 +729,48 @@ describe('POST /notifications', function () {
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
+  it('should perform client-retry', async function () {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
+    const mailer = require('nodemailer/lib/mailer');
+    sinon
+      .stub(mailer.prototype, 'sendMail')
+      .callsFake(async function (this: any) {
+        if (this.options.host !== '127.0.0.1') {
+          // eslint-disable-next-line no-throw-literal
+          throw {command: 'CONN', code: 'ETIMEDOUT'};
+        }
+        return 'ok';
+      });
+    const dns = require('dns');
+    sinon.stub(dns, 'lookup').callsFake((...args) => {
+      const cb = args[args.length - 1];
+      cb(null, [{address: '127.0.0.2'}, {address: '127.0.0.1'}]);
+    });
+    const res = await client
+      .post('/api/notifications')
+      .send({
+        serviceName: 'myService',
+        message: {
+          from: 'no_reply@bar.com',
+          subject: 'test',
+          textBody: 'test',
+        },
+        channel: 'email',
+        isBroadcast: true,
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).equal(200);
+    const data = await notificationRepository.find({
+      where: {
+        serviceName: 'myService',
+      },
+    });
+    expect(data[0].failedDispatches.length).equal(0);
+  });
+
   it('should send broadcast email notification with matching filter', async function () {
     sinon
       .stub(BaseCrudRepository.prototype, 'isAdminReq')
