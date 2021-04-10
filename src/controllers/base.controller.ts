@@ -96,35 +96,31 @@ export class BaseController {
   nodemailer = require('nodemailer');
   directTransport = require('nodemailer-direct-transport');
   transporter: any;
-  sendEmail(mailOptions: any, cb?: Function) {
-    return new Promise((resolve, reject) => {
-      if (!this.transporter) {
-        const smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
-        if (smtpCfg.direct) {
-          this.transporter = this.nodemailer.createTransport(
-            this.directTransport(smtpCfg),
-          );
-        } else {
-          this.transporter = this.nodemailer.createTransport(smtpCfg);
-        }
+  async sendEmail(mailOptions: any, cb?: Function) {
+    if (!this.transporter) {
+      const smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
+      if (smtpCfg.direct) {
+        this.transporter = this.nodemailer.createTransport(
+          this.directTransport(smtpCfg),
+        );
+      } else {
+        this.transporter = this.nodemailer.createTransport(smtpCfg);
       }
-      this.transporter.sendMail(mailOptions, function (error: any, info: any) {
-        try {
-          if (!error && info.accepted.length < 1) {
-            error = new Error('delivery failed');
-          }
-        } catch (ex) {}
-        if (cb) {
-          return cb(error, info);
-        } else {
-          if (error) {
-            return reject(error);
-          } else {
-            return resolve(info);
-          }
-        }
-      });
-    });
+    }
+    let info;
+    try {
+      info = await this.transporter.sendMail(mailOptions);
+      if (info?.accepted?.length < 1) {
+        throw new Error('delivery failed');
+      }
+    } catch (ex) {
+      if (cb) {
+        return cb(ex, info);
+      }
+      throw ex;
+    }
+    cb?.(null, info);
+    return info;
   }
 
   mailMerge(srcTxt: any, data: any, httpCtx: any) {
