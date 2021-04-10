@@ -17,10 +17,12 @@ import {inject} from '@loopback/context';
 import {ApplicationConfig, CoreBindings} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import axios from 'axios';
+import dns from 'dns';
 import _ from 'lodash';
+import net from 'net';
+import util from 'util';
 import {Configuration} from '../models';
 import {ConfigurationRepository} from '../repositories';
-
 const toSentence = require('underscore.string/toSentence');
 const pluralize = require('pluralize');
 
@@ -97,8 +99,8 @@ export class BaseController {
   directTransport = require('nodemailer-direct-transport');
   transporter: any;
   async sendEmail(mailOptions: any, cb?: Function) {
+    const smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
     if (!this.transporter) {
-      const smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
       if (smtpCfg.direct) {
         this.transporter = this.nodemailer.createTransport(
           this.directTransport(smtpCfg),
@@ -114,10 +116,48 @@ export class BaseController {
         throw new Error('delivery failed');
       }
     } catch (ex) {
-      if (cb) {
-        return cb(ex, info);
+      if (
+        smtpCfg.direct ||
+        net.isIP(smtpCfg.host) ||
+        ex.command !== 'CONN' ||
+        ['ECONNECTION', 'ETIMEDOUT'].indexOf(ex.code) === -1
+      ) {
+        if (cb) {
+          return cb(ex, info);
+        }
+        throw ex;
       }
-      throw ex;
+      const dnsLookupAsync = util.promisify(dns.lookup);
+      const addresses = await dnsLookupAsync(smtpCfg.host, {all: true});
+      if (!(addresses instanceof Array)) {
+        if (cb) {
+          return cb(ex, info);
+        }
+        throw ex;
+      }
+      // do client retry if there are multiple addresses
+      for (const address of addresses) {
+        const newSmtpCfg = Object.assign({}, smtpCfg, {host: address.address});
+        const newTransporter = this.nodemailer.createTransport(newSmtpCfg);
+        try {
+          info = await newTransporter.sendMail(mailOptions);
+          if (info?.accepted?.length < 1) {
+            throw new Error('delivery failed');
+          }
+        } catch (newEx) {
+          if (
+            newEx.command === 'CONN' &&
+            ['ECONNECTION', 'ETIMEDOUT'].indexOf(newEx.code) >= 0
+          ) {
+            continue;
+          }
+          if (cb) {
+            return cb(newEx, info);
+          }
+          throw newEx;
+        }
+        break;
+      }
     }
     cb?.(null, info);
     return info;
