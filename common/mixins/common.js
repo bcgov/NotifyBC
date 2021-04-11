@@ -163,7 +163,7 @@ module.exports = function (Model, options) {
         throw ex;
       }
       // do client retry if there are multiple addresses
-      for (const address of addresses) {
+      for (const [index, address] of addresses.entries()) {
         const newSmtpCfg = Object.assign({}, smtpCfg, {
           host: address.address,
         });
@@ -175,6 +175,7 @@ module.exports = function (Model, options) {
           }
         } catch (newEx) {
           if (
+            index < addresses.length - 1 &&
             newEx.command === 'CONN' &&
             ['ECONNECTION', 'ETIMEDOUT'].indexOf(newEx.code) >= 0
           ) {
