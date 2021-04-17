@@ -4,6 +4,6 @@
 /coverage/
 /dist/
 ecosystem.config.js
-/utils/
+/server/
 # js in root
 /*.js

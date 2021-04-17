@@ -48,31 +48,26 @@ export class BaseController {
   ) {}
 
   smsClient: any;
-  async sendSMS(to: string, textBody: string, data: any, cb?: Function) {
+  async sendSMS(to: string, textBody: string, data: any) {
     const smsServiceProvider = this.appConfig.smsServiceProvider;
     const smsConfig = this.appConfig.sms[smsServiceProvider];
     switch (smsServiceProvider) {
-      case 'swift':
-        try {
-          const url = `${smsConfig['apiUrlPrefix']}${
-            smsConfig['accountKey']
-          }/${encodeURIComponent(to)}`;
-          const body: SMSBody = {
-            MessageBody: textBody,
-          };
-          if (data?.id) {
-            body.Reference = data.id;
-          }
-          await axios.post(url, body, {
-            headers: {
-              'Content-Type': 'application/json;charset=UTF-8',
-            },
-          });
-        } catch (ex) {
-          return cb?.(ex);
+      case 'swift': {
+        const url = `${smsConfig['apiUrlPrefix']}${
+          smsConfig['accountKey']
+        }/${encodeURIComponent(to)}`;
+        const body: SMSBody = {
+          MessageBody: textBody,
+        };
+        if (data?.id) {
+          body.Reference = data.id;
         }
-        cb?.();
-        break;
+        return axios.post(url, body, {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+          },
+        });
+      }
       default: {
         // Twilio Credentials
         const accountSid = smsConfig.accountSid;
@@ -80,17 +75,11 @@ export class BaseController {
         //require the Twilio module and create a REST client
         this.smsClient =
           this.smsClient || require('twilio')(accountSid, authToken);
-
-        this.smsClient.messages.create(
-          {
-            to: to,
-            from: smsConfig.fromNumber,
-            body: textBody,
-          },
-          function (err: any, message: any) {
-            cb?.(err, message);
-          },
-        );
+        return this.smsClient.messages.create({
+          to: to,
+          from: smsConfig.fromNumber,
+          body: textBody,
+        });
       }
     }
   }
@@ -98,7 +87,7 @@ export class BaseController {
   nodemailer = require('nodemailer');
   directTransport = require('nodemailer-direct-transport');
   transporter: any;
-  async sendEmail(mailOptions: any, cb?: Function) {
+  async sendEmail(mailOptions: any) {
     const smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
     if (!this.transporter) {
       if (smtpCfg.direct) {
@@ -122,17 +111,11 @@ export class BaseController {
         ex.command !== 'CONN' ||
         ['ECONNECTION', 'ETIMEDOUT'].indexOf(ex.code) === -1
       ) {
-        if (cb) {
-          return cb(ex, info);
-        }
         throw ex;
       }
       const dnsLookupAsync = util.promisify(dns.lookup);
       const addresses = await dnsLookupAsync(smtpCfg.host, {all: true});
       if (!(addresses instanceof Array)) {
-        if (cb) {
-          return cb(ex, info);
-        }
         throw ex;
       }
       // do client retry if there are multiple addresses
@@ -152,15 +135,11 @@ export class BaseController {
           ) {
             continue;
           }
-          if (cb) {
-            return cb(newEx, info);
-          }
           throw newEx;
         }
         break;
       }
     }
-    cb?.(null, info);
     return info;
   }
 

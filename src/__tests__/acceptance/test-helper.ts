@@ -56,19 +56,12 @@ export interface AppWithClient {
 }
 
 beforeEach(function () {
-  async function fakeSendEmail(_mailOptions: any, cb?: Function) {
+  async function fakeSendEmail(_mailOptions: any) {
     console.log('faking sendEmail');
-    cb?.(null, null);
   }
 
-  async function fakeSendSMS(
-    _to: string,
-    _textBody: string,
-    _data: any,
-    cb?: Function,
-  ) {
+  async function fakeSendSMS(_to: string, _textBody: string, _data: any) {
     console.log('faking sendSMS');
-    cb?.(null, null);
   }
 
   sinon.stub(BaseController.prototype, 'sendEmail').callsFake(fakeSendEmail);

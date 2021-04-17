@@ -555,12 +555,8 @@ describe('POST /notifications', function () {
     sinon
       .stub(BaseController.prototype, 'sendEmail')
       .callsFake(async (...args) => {
-        const cb = args[args.length - 1];
         console.log('faking delayed sendEmail');
         await wait(1000);
-        if (args.length === 2 && cb instanceof Function) {
-          cb();
-        }
       });
     sinon.spy(request, 'post');
 
@@ -668,16 +664,12 @@ describe('POST /notifications', function () {
     sinon
       .stub(BaseController.prototype, 'sendEmail')
       .callsFake(async (...args) => {
-        const cb = args[args.length - 1];
         const to = args[0].to;
         let error: any = null;
         if (to.indexOf('invalid') >= 0) {
           error = to;
         }
         console.log('faking sendEmail with error for invalid recipient');
-        if (args.length === 2 && cb instanceof Function) {
-          cb(error, null);
-        }
         if (error) {
           throw error;
         }
