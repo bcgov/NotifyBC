@@ -90,6 +90,11 @@ export class Notification extends Base {
   })
   asyncBroadcastPushNotification?: any;
 
+  @property({
+    type: 'string',
+  })
+  broadcastPushNotificationSubscriptionFilter?: string;
+
   // Define well-known properties here
 
   // Indexer property to allow additional data

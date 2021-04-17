@@ -509,6 +509,21 @@ export class NotificationController extends BaseController {
                   return;
                 }
               }
+              if (e.data && data.broadcastPushNotificationSubscriptionFilter) {
+                let match;
+                try {
+                  match = await jmespath.search(
+                    [e.data],
+                    '[?' +
+                      data.broadcastPushNotificationSubscriptionFilter +
+                      ']',
+                    jmespathSearchOpts,
+                  );
+                } catch (ex) {}
+                if (!match || match.length === 0) {
+                  return;
+                }
+              }
               tasks.push(
                 (async () => {
                   const notificationMsgCB = function (err: any) {
@@ -864,6 +879,15 @@ export class NotificationController extends BaseController {
       !data.userChannelId
     ) {
       throw new HttpErrors[403]('invalid user');
+    }
+    let filter = data.broadcastPushNotificationSubscriptionFilter;
+    if (data.isBroadcast && data.channel !== 'inApp' && filter) {
+      filter = '[?' + filter + ']';
+      try {
+        jmespath.compile(filter);
+      } catch (ex) {
+        throw new HttpErrors[400]('invalid broadcastPushNotificationFilter');
+      }
     }
     if (
       data.channel === 'inApp' ||

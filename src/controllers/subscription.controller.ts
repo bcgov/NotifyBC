@@ -188,6 +188,9 @@ export class SubscriptionController extends BaseController {
       filteredData.state = 'unconfirmed';
       filteredData.userChannelId = subscription.userChannelId;
     }
+    if (subscription.data) {
+      filteredData.data = subscription.data;
+    }
     await this.beforeUpsert(this.httpContext, filteredData);
     await this.subscriptionRepository.updateById(id, filteredData, undefined);
     if (!filteredData.confirmationRequest) {
