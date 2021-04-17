@@ -73,6 +73,11 @@ export class Subscription extends Base {
   })
   broadcastPushNotificationFilter?: string;
 
+  @property({
+    type: 'object',
+  })
+  data?: object;
+
   // Define well-known properties here
 
   // Indexer property to allow additional data
