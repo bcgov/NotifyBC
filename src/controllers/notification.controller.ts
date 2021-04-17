@@ -510,7 +510,7 @@ export class NotificationController extends BaseController {
                 }
               }
               tasks.push(
-                new Promise(resolve => {
+                (async () => {
                   const notificationMsgCB = function (err: any) {
                     const res: AnyObject = {};
                     if (err) {
@@ -525,7 +525,7 @@ export class NotificationController extends BaseController {
                     ) {
                       res.success = e.id;
                     }
-                    return resolve(res);
+                    return res;
                   };
                   const tokenData = _.assignIn({}, e, {
                     data: data.data,
@@ -539,13 +539,16 @@ export class NotificationController extends BaseController {
                     );
                   switch (e.channel) {
                     case 'sms':
-                      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                      this.sendSMS(
-                        e.userChannelId,
-                        textBody,
-                        tokenData,
-                        notificationMsgCB,
-                      );
+                      try {
+                        await this.sendSMS(
+                          e.userChannelId,
+                          textBody,
+                          tokenData,
+                        );
+                        return notificationMsgCB(null);
+                      } catch (ex) {
+                        return notificationMsgCB(ex);
+                      }
                       break;
                     default: {
                       const subject =
@@ -605,11 +608,15 @@ export class NotificationController extends BaseController {
                           to: e.userChannelId,
                         };
                       }
-                      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                      this.sendEmail(mailOptions, notificationMsgCB);
+                      try {
+                        await this.sendEmail(mailOptions);
+                        return notificationMsgCB(null);
+                      } catch (ex) {
+                        return notificationMsgCB(ex);
+                      }
                     }
                   }
-                }),
+                })(),
               );
             }),
           );
