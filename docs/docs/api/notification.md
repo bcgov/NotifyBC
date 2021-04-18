@@ -275,6 +275,34 @@ The API operates on following notification data model fields:
   </tr>
   <tr>
     <td>
+      <p class="name"><a name="broadcastPushNotificationSubscriptionFilter"/>broadcastPushNotificationSubscriptionFilter</p>
+      <div class="description">a string conforming to jmespath <a href="http://jmespath.org/specification.html#filter-expressions">filter expressions syntax</a> after the question mark (?). The filter is matched against the <i><a href="../api-subscription#data">data</a></i> field of the subscription. Examples of filter
+        <ul>
+          <li>simple <br/>
+            <i>province == 'BC'</i>
+          </li>
+          <li>calling jmespath's <a href="http://jmespath.org/specification.html#built-in-functions">built-in functions</a> <br/>
+            <i>contains(province,'B')</i>
+          </li>
+          <li>calling <a href="../config-notification/#broadcast-push-notification-custom-filter-functions">custom filter functions</a><br/>
+            <i>contains_ci(province,'b')</i>
+          </li>
+          <li>compound <br/>
+            <i>(contains(province,'BC') || contains_ci(province,'b')) && city == 'Victoria' </i>
+          </li>
+        </ul>
+        All of above filters will match data object <i>{"province": "BC", "city": "Victoria"}</i>
+      </div>
+    </td>
+    <td>
+      <table>
+        <tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>false</td></tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td>
       <p class="name">readBy</p>
       <p class="description">this is an internal field to track the list of users who have read an inApp broadcast message. It's not visible to a user request.</p>
     </td>
@@ -409,7 +437,9 @@ POST /notifications
 
      1. number of confirmed subscriptions is retrieved
      2. the subscriptions are partitioned and processed concurrently as described in config section [Broadcast Push Notification Task Concurrency](../config-notification/#broadcast-push-notification-task-concurrency)
-     3. when processing an individual subscription, if the subscription has filter rule defined in field _broadcastPushNotificationFilter_ and notification contains field _data_, then the data is matched against the filter rule. Notification message is only sent if there is a match.
+     3. when processing an individual subscription,
+        1. if the subscription has filter rule defined in field _broadcastPushNotificationFilter_ and notification contains field _data_, then the data is matched against the filter rule. Notification message is only sent if there is a match.
+        2. if the notification has filter rule defined in field _broadcastPushNotificationSubscriptionFilter_ and subscription contains field _data_, then the data is matched against the filter rule. Notification message is only sent if there is a match.
 
      In both cases, mail merge is performed on messages.
 
