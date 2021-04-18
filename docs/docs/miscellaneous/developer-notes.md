@@ -63,4 +63,4 @@ Before adding a release,
 
 1. update _version_ in _package.json_
 2. update _appVersion_ in _helm/Chart.yaml_ (major/minor only)
-3. update [What's new](../getting-started/what's-new.md)
+3. update [What's new](../getting-started/what's-new.md) (major/minor only)

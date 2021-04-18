@@ -217,6 +217,18 @@ The API operates on following subscription data model fields:
   </tr>
   <tr>
     <td>
+      <p class="name"><a name="data"></a>data</p>
+      <p class="description">An object used by filter <a href="../api-notification#broadcastPushNotificationSubscriptionFilter">broadcastPushNotificationSubscriptionFilter</a> specified by the broadcast push notification sender to determine if the notification should be delivered to the subscriber.</p>
+    </td>
+    <td>
+      <table>
+        <tr><td>type</td><td>object</td></tr>
+        <tr><td>required</td><td>false</td></tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td>
       <p class="name">unsubscriptionCode</p>
       <p class="description">generated randomly according to RegEx config <i>anonymousUnsubscription.code.regex</i> during anonymous subscription if config <i>anonymousUnsubscription.code.required</i> is set to true</p>
     </td>

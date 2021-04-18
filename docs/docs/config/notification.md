@@ -89,7 +89,7 @@ Defining custom function requires knowledge of JavaScript and understanding how 
 
 :::
 
-To support rule-based notification event filtering, _NotifyBC_ uses a [modified version](https://github.com/f-w/jmespath.js) of [jmespath](http://jmespath.org/) to implement json query. The modified version allows defining custom functions that can be used in [broadcastPushNotificationFilter](../api-subscription#broadcastPushNotificationFilter) field of subscription API. The functions must be implemented using JavaScript in config _notification.broadcastCustomFilterFunctions_. The functions can even be _async_. For example, the case-insensitive string matching function _contains_ci_ shown in the example of that field can be created in file _/src/config.local.js_
+To support rule-based notification event filtering, _NotifyBC_ uses a [modified version](https://github.com/f-w/jmespath.js) of [jmespath](http://jmespath.org/) to implement json query. The modified version allows defining custom functions that can be used in [broadcastPushNotificationFilter](../api-subscription#broadcastPushNotificationFilter) field of subscription API and [broadcastPushNotificationSubscriptionFilter](../api-notification#broadcastPushNotificationSubscriptionFilter) field of subscription API. The functions must be implemented using JavaScript in config _notification.broadcastCustomFilterFunctions_. The functions can even be _async_. For example, the case-insensitive string matching function _contains_ci_ shown in the example of that field can be created in file _/src/config.local.js_
 
 ```js
 const _ = require('lodash')
