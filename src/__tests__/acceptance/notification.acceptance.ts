@@ -1105,6 +1105,65 @@ describe('POST /notifications', function () {
     });
     expect(data[0].state).equal('sent');
   });
+
+  it('should reject notification with invalid string broadcastPushNotificationSubscriptionFilter', async function () {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const res = await client
+      .post('/api/notifications')
+      .send({
+        serviceName: 'broadcastCustomFilterFunctionsTest',
+        channel: 'email',
+        isBroadcast: true,
+        message: {
+          from: 'no_reply@bar.com',
+          subject: 'test',
+          textBody: 'test',
+        },
+        broadcastPushNotificationSubscriptionFilter: "a === 'b'",
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).equal(400);
+  });
+
+  it('should handle broadcastPushNotificationSubscriptionFilter', async function () {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    await subscriptionRepository.create({
+      serviceName: 'broadcastCustomFilterFunctionsTest',
+      channel: 'email',
+      userChannelId: 'bar2@invalid',
+      state: 'confirmed',
+      data: {
+        name: 'foo',
+      },
+    });
+
+    const res = await client
+      .post('/api/notifications')
+      .send({
+        serviceName: 'broadcastCustomFilterFunctionsTest',
+        message: {
+          from: 'no_reply@bar.com',
+          subject: 'test',
+          textBody: 'test',
+        },
+        channel: 'email',
+        isBroadcast: true,
+        broadcastPushNotificationSubscriptionFilter: "contains_ci(name,'FOO')",
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).equal(200);
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledOnce);
+    const data = await notificationRepository.find({
+      where: {
+        serviceName: 'broadcastCustomFilterFunctionsTest',
+      },
+    });
+    expect(data[0].state).equal('sent');
+  });
 });
 
 describe('PATCH /notifications/{id}', function () {
