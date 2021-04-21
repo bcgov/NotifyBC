@@ -136,11 +136,6 @@ export class BaseCrudRepository<
       const httpCtx = await this.getHttpContext();
       req = httpCtx.request;
     } catch (ex) {}
-    let token;
-    try {
-      // todo: obtain access token
-      token = ctx.options.httpContext.args.options?.accessToken;
-    } catch (ex) {}
     try {
       if (ctx.data) {
         ctx.data.updated = new Date();
@@ -148,15 +143,21 @@ export class BaseCrudRepository<
           ip: req?.ip,
           eventSrc: ctx.options?.eventSrc,
         };
-        if (token?.userId) {
-          ctx.data.updatedBy.adminUser = token.userId;
+        if (this.user) {
+          ctx.data.updatedBy.user = {
+            securityId: this.user[securityId],
+            ...this.user,
+          };
         }
         if (ctx.isNewInstance) {
           ctx.data.createdBy = {
             ip: req?.ip,
           };
-          if (token?.userId) {
-            ctx.data.createdBy.adminUser = token.userId;
+          if (this.user) {
+            ctx.data.createdBy.user = {
+              securityId: this.user[securityId],
+              ...this.user,
+            };
           }
         }
       }
