@@ -22,10 +22,12 @@ _NotifyBC_ facilitates both anonymous and authentication-enabled secure webapps 
   - support read and deleted message states
   - message expiration
   - deleted messages are not deleted immediately for auditing and recovery purposes
-- both sync and async API call for broadcast push notifications. For async API call, an optional callback url is supported
-- broadcast push notifications can be auto-generated from RSS feeds
-- allow user to specify filter rules evaluated against broadcast push notification triggering event to improve relevance
-- allow application developer to create custom filter functions
+- for broadcast push notifications
+  - allow both sync and async _POST_ API calls. For async API call, an optional callback url is supported
+  - can be auto-generated from RSS feeds
+  - allow user to specify filter rules evaluated against data contained in the notification
+  - allow sender to specify filter rules evaluated against data contained in the subscription
+  - allow application developer to create custom filter functions used by the filter rules mentioned above
 
 ### subscription and un-subscription
 
