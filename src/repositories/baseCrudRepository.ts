@@ -141,7 +141,6 @@ export class BaseCrudRepository<
         ctx.data.updated = new Date();
         ctx.data.updatedBy = {
           ip: req?.ip,
-          eventSrc: ctx.options?.eventSrc,
         };
         if (this.user) {
           ctx.data.updatedBy.user = {
