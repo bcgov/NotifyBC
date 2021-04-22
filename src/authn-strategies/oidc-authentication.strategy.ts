@@ -16,6 +16,7 @@ import {AuthenticationStrategy} from '@loopback/authentication';
 import {Request} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {decode} from 'js-base64';
+import util from 'util';
 import {OidcDiscoveryObserver} from '../observers';
 const jwt = require('jsonwebtoken');
 
@@ -57,18 +58,12 @@ export class OidcAuthenticationStrategy implements AuthenticationStrategy {
     let pem = '-----BEGIN CERTIFICATE-----\n';
     pem += cert[0] + '\n';
     pem += '-----END CERTIFICATE-----\n';
-    return new Promise((resolve, reject) => {
-      jwt.verify(token, pem, (err: any, decodedPayload: any) => {
-        err && reject(err);
-        const userProfile: UserProfile = {
-          [securityId]:
-            decodedPayload.email || decodedPayload.preferred_username,
-          authnStrategy: this.name,
-          ...decodedPayload,
-        };
-        resolve(userProfile);
-      });
-    });
+    const decodedPayload = await util.promisify(jwt.verify)(token, pem);
+    return {
+      [securityId]: decodedPayload.email || decodedPayload.preferred_username,
+      authnStrategy: this.name,
+      ...decodedPayload,
+    };
   }
 
   extractToken(request: Request): string | undefined {
