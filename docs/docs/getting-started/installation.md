@@ -179,7 +179,7 @@ replace \<release-name\> with installed helm release name.
 
 ### Customizations
 
-Various customizations can be made to chart. Some are platform dependent. To customize, create file _helm/values.local.yaml_, then add customized values to it. To apply customization, add `-f helm/values.local.yaml` to the helm command after `-f helm/platform-specific/<platform>.yaml`. For example, to run `helm install` with customization,
+Various customizations can be made to chart. Some are platform dependent. To customize, first create a file with extension _.local.yaml_. The rest of the document assumes the file is _helm/values.local.yaml_. Then add customized values to the file. To apply customization, add `-f helm/values.local.yaml` to the helm command after `-f helm/platform-specific/<platform>.yaml`. For example, to run `helm install` with customization,
 
 ```sh
 helm install -gf helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
