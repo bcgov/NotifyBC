@@ -872,7 +872,7 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
         channel: 'email',
         message: {
-          from: 'no_reply@local.invalid',
+          from: 'no_reply@invalid.local',
           subject: 'test',
           textBody: 'test',
         },
@@ -905,7 +905,7 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
         channel: 'email',
         message: {
-          from: 'no_reply@local.invalid',
+          from: 'no_reply@invalid.local',
           subject: 'test',
           textBody: 'test',
         },
@@ -927,7 +927,7 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
         channel: 'email',
         message: {
-          from: 'no_reply@local.invalid',
+          from: 'no_reply@invalid.local',
           subject: 'test',
           textBody: 'test',
         },
@@ -948,7 +948,7 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
         channel: 'email',
         message: {
-          from: 'no_reply@local.invalid',
+          from: 'no_reply@invalid.local',
           subject: 'test',
           textBody: 'test',
         },
@@ -980,7 +980,7 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
         channel: 'email',
         message: {
-          from: 'no_reply@local.invalid',
+          from: 'no_reply@invalid.local',
           subject: 'test',
           textBody: 'test',
         },
@@ -1013,7 +1013,7 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
         channel: 'email',
         message: {
-          from: 'no_reply@local.invalid',
+          from: 'no_reply@invalid.local',
           subject: 'test',
           textBody: 'test',
         },

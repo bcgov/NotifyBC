@@ -352,11 +352,11 @@ describe('POST /subscriptions', function () {
       .send({
         serviceName: 'myService',
         channel: 'email',
-        userChannelId: 'nobody@local.invalid',
+        userChannelId: 'nobody@invalid.local',
         confirmationRequest: {
           confirmationCodeRegex: '\\d{5}',
           sendRequest: true,
-          from: 'nobody@local.invalid',
+          from: 'nobody@invalid.local',
           subject: 'spoofed subject',
           textBody: 'spoofed body',
           confirmationCode: '41488',
@@ -370,7 +370,7 @@ describe('POST /subscriptions', function () {
     const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
-        userChannelId: 'nobody@local.invalid',
+        userChannelId: 'nobody@invalid.local',
       },
     });
     expect(data[0].confirmationRequest?.textBody).not.match('spoofed');

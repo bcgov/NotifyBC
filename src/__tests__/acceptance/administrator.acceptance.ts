@@ -489,17 +489,17 @@ describe('Administrator API', function () {
     it('should handle oidc authn', async function () {
       sinon
         .stub(axios, 'get')
-        .withArgs('https://local.invalid/discoveryUrl')
+        .withArgs('https://invalid.local/discoveryUrl')
         .resolves({
           data: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             authorization_endpoint:
-              'https://local.invalid/authorization_endpoint',
+              'https://invalid.local/authorization_endpoint',
             // eslint-disable-next-line @typescript-eslint/naming-convention
-            jwks_uri: 'https://local.invalid/jwks_uri',
+            jwks_uri: 'https://invalid.local/jwks_uri',
           },
         })
-        .withArgs('https://local.invalid/jwks_uri')
+        .withArgs('https://invalid.local/jwks_uri')
         .resolves({
           data: {
             keys: [
@@ -547,10 +547,10 @@ gFP0pwOGzVZKj8+wUBuBDwNuQnlo+FThxA9kO7v5VnAbLHiOzR02E0TOoggXtQPs
         .get('/api/administrators/whoami')
         .set(
           'authorization',
-          'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InZCcHZqVG1oYVJya2NkUEZZSzFxd2hBaTdNdjZvczhtc0tJdXNxTzVEaFUifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImVtYWlsIjoiZm9vQGxvY2FsLmludmFsaWQiLCJpYXQiOjE1MTYyMzkwMjJ9.BenwDD1auGBY3o8KL7OIMc0tqna6YQwh2Et382uErrDEO0kD6mHMOf__eJulTJ77bg9QMg5pJaJT4ecYdZjO1qUBGm8J1HM-RATfqmW5ZEv5AA-bA-uL_xwKeA5SMd8iJMvleONF_suaRx3xgp0-YsVLtyMZDnajACcKFEPF81MghHjZeTVRXKSSgoOyqUBwoPw2elA-5byHU1CWQ0SVwdyuVFShmxyT9Dp5IlPDNd0jpEXtXf-jFLhVO-4o4jo359As6TTufIasaSJGMd3_Fkpp43EN5jzG8hy6IvvxacBO_OrsTngOC3cbiW1dNvYDpC6wWOyqVYCJG3mH2yuiuWv_aqg0DaeYgcYlLccgWHmaf80cNAxu-CY-TcWe26qZNWR0SV4kUMn1x-qeHGUsFM24Z_cWFYZ1eqpNnQ6msUFh52OYOA1sZoEs2fyKepOe9YLa3I7UkL6NWLroM7whNH2Z26SJ7f1-EBqbdSPXamE3If2N0pMG0kfLoBQvqRHavPpW6jfDkpoFHLpUNsYrR1ehO8LCNSU6PgmsrOPrncb7W_aYCJinsl9K5lkVLGV7roZCeKqwjdHAbiR0x8nz9oVulR-6AITvlm-RCckWq2F6FODJ6Rqi74fx7ocgAJbmuBvdcTCnnai_wrWuT7pFvG6MRHMqi3qluM6End7PV8E',
+          'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InZCcHZqVG1oYVJya2NkUEZZSzFxd2hBaTdNdjZvczhtc0tJdXNxTzVEaFUifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImVtYWlsIjoiZm9vQGludmFsaWQubG9jYWwiLCJpYXQiOjE1MTYyMzkwMjJ9.T20JiWFbKC5d2xzD91YSrDIZC13GPCzBj2dUABDlK4u47ShCyPdERUtyOtQ9vfCoAakV1jwu0c2xZ7-FIXiWLmSk1GQUT7kZhFJCeaJq2G299e2W7hN--T6a_9uwQkARHgD4WyZ7wV_nyP1MwQH_ydjxaNlhiomdnNqYAj6L-1b7T1Ytm_j67dX3nWbBJ5wECUTocp56lly68AxphLENhNAttSktMQn7A6Muwx-cQVyNF7ih3VWHB2ps7cC5ctDgTFcqwet7K6JUaX-qVSlIBBdfuu-9dOnK5HJ3ZeAMgTPGvzNUb8VmKjKG2ZiTi1VOrZbBiWixRDDdrpPNJVlRK3M58iE8lRqIQt7v_3QFFWGSEDM7x8U8ve6KymwhLhI6zUXo5_9Tx0GVNyUZDcQOcu4IEQ9riTZTBfYuY1m_vW8w8XsbjvZzOuNpvkwW4N0WuNhhbmvqRYVwosrca76ZoQZhs3q3_TAMVxIiZXXtsKZCmzDq_MrUYTSOCCHuuJQx93ppid4jsfgwlZulBTw4W32f1ygmtblTep9fYbJewEh7-oOkluPAyGLR_NpKaU4W8vKtFKHrzA-jADS9DQq9PFYoMHr73DpG3MxuJ48f7YHIn-4aQ-cacL8JBg83FtCyt9eMmcazkZLjWTV8Upc9amTmBJS5Htta2GbpNNbQAwA',
         );
       expect(res.status).equal(200);
-      expect(res.body.email).equal('foo@local.invalid');
+      expect(res.body.email).equal('foo@invalid.local');
       expect(res.body.authnStrategy).equal('oidc');
     });
   });
