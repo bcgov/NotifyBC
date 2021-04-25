@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyObject} from '@loopback/repository';
 import {
   Client,
   createRestAppClient,
@@ -23,7 +24,9 @@ import {BaseController} from '../../controllers/base.controller';
 
 process.env['NODE_ENV'] = 'test';
 
-export async function setupApplication(): Promise<AppWithClient> {
+export async function setupApplication(
+  options?: AnyObject,
+): Promise<AppWithClient> {
   const restConfig = givenHttpServerConfig({
     // Customize the server configuration here.
     // Empty values (undefined, '') will be ignored by the helper.
@@ -32,9 +35,14 @@ export async function setupApplication(): Promise<AppWithClient> {
     // port: +process.env.PORT,
   });
 
-  const app = new NotifyBcApplication({
-    rest: restConfig,
-  });
+  const app = new NotifyBcApplication(
+    Object.assign(
+      {
+        rest: restConfig,
+      },
+      options,
+    ),
+  );
 
   await app.boot();
   await app.start();
