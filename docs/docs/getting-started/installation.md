@@ -150,13 +150,12 @@ To install,
 
    - A MongoDB cluster with 2 nodes and 1 arbiter, each implemented as a stateful set
    - Two deployments - _notify-bc-app_ and _notify-bc-cron_
-   - Three services - _notify-bc_, _mongodb-headless_ and _mongodb-arbiter-headless_
+   - Four services - _notify-bc_, _notify-bc-smtp_, _mongodb-headless_ and _mongodb-arbiter-headless_
    - Two PVCs each for one MongoDB node
    - Two config maps - _notify-bc_ and _mongodb-scripts_
    - Two service accounts - _notify-bc_ and _mongodb_
    - One more more secrets, with the most important one being _mongodb_, containing MongoDB connection credentials
    - On AKS,
-     - a _notify-bc-smtp_ service of type _LoadBalancer_ for [inbound smtp server](../config/inboundSmtpServer.md)
      - a _notify-bc_ ingress
    - On OpenShift,
      - 2 routes - _notify-bc-web_ and _notify-bc-smtp_

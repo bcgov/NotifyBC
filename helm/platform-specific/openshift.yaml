@@ -1,6 +1,6 @@
 service:
   smtp:
-    enabled: false
+    type: ClusterIP
 mongodb:
   podSecurityContext:
     enabled: false
