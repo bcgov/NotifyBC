@@ -51,15 +51,16 @@ _NotifyBC_ recognizes following case-insensitive static tokens in push notificat
 - {subscription_confirmation_url}
 - {subscription_confirmation_code}
 - {service_name}
-- {http*host} - http host in the form \_http(s): //\<host_name\>:\<port\>*. The value is obtained from the http request that triggers the message
+- {http_host} - http host in the form <i>http(s): //<host_name\>:\<port\></i>. The value is obtained from the http request that triggers the message
 - {rest_api_root} - configured Loopback [REST API basePath](https://loopback.io/doc/en/lb4/Customizing-server-configuration.html#configure-the-base-path)
 - {subscription_id}
 - anonymous unsubscription related tokens
   - {unsubscription_url}
-  - {unsubscription*all_url} - url to unsubscribe all services the user has subscribed on this \_NotifyBC* instance
+  - {unsubscription_all_url} - url to unsubscribe all services the user has subscribed on
+    this <i>NotifyBC</i> instance
   - {unsubscription_code}
   - {unsubscription_reversion_url}
-  - {unsubscription*service_names} - includes {service_name} and additional services user has unsubscribed, prefixed with conditionally pluralized word \_service*.
+  - {unsubscription_service_names} - includes {service_name} and additional services user has unsubscribed, prefixed with conditionally pluralized word <i>service</i>.
 
 #### dynamic tokens
 
