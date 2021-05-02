@@ -42,11 +42,17 @@ import {
   requestBody,
   RestBindings,
 } from '@loopback/rest';
+import fs from 'fs';
 import _ from 'lodash';
 import {SubscriptionAfterRemoteInterceptor} from '../interceptors';
 import {Subscription} from '../models';
 import {ConfigurationRepository, SubscriptionRepository} from '../repositories';
 import {BaseController} from './base.controller';
+require.extensions['.html'] = function (module, filename) {
+  module.exports = fs.readFileSync(filename, 'utf8');
+};
+const subscriptionGetWriteGuardHtml = require('./subscription-get-write-guard.html');
+
 const RandExp = require('randexp');
 const path = require('path');
 
@@ -513,7 +519,27 @@ export class SubscriptionController extends BaseController {
     userChannelId?: string,
     @param(SubscriptionController.additionalServicesParamSpec)
     additionalServices?: string[],
+    @param.query.boolean('action', {
+      description: 'whether to perform the write action or not',
+    })
+    action?: boolean,
   ): Promise<void> {
+    if (this.appConfig.subscription.enableGetWriteGuard && !action) {
+      return this.httpContext.response
+        .contentType('html')
+        .end(
+          subscriptionGetWriteGuardHtml
+            .replace(
+              '{{token}}',
+              this.appConfig.subscription.getWriteGuardRedirectMessage,
+            )
+            .replace(
+              '{{',
+              '<span onclick="window.location.replace(redirectUrl)">',
+            )
+            .replace('}}', '</span>'),
+        );
+    }
     await this.deleteById(
       id,
       unsubscriptionCode,

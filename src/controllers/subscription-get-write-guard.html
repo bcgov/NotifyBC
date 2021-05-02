@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <title>Page Moved</title>
+  </head>
+  <body>
+    <style>
+      .centered {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      span {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    </style>
+    <script>
+      var redirectUrl = window.location.href;
+      redirectUrl = redirectUrl.replace(/(\?|&)action.*(?=(&|$))/, '');
+      redirectUrl += redirectUrl.indexOf('?') >= 0 ? '&' : '?';
+      redirectUrl += 'action=1';
+      document.addEventListener(
+        'pointermove',
+        function () {
+          window.location.replace(redirectUrl);
+        },
+        {once: true},
+      );
+    </script>
+    <div class="centered">{{token}}</div>
+  </body>
+</html>

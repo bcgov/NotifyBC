@@ -39,6 +39,7 @@
     "openapi-spec": "node ./dist/openapi-spec",
     "start": "node .",
     "clean": "lb-clean dist/ */dist/ *.tsbuildinfo .eslintcache .nyc_output/ coverage/",
+    "clean:server": "lb-clean dist/ *.tsbuildinfo",
     "clean:all": "yarn clean && lb-clean */node_modules && rm -rf node_modules"
   },
   "repository": {

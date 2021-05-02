@@ -51,6 +51,10 @@ const config: AnyObject = {
     },
   },
   subscription: {
+    enableGetWriteGuard: false,
+    getWriteGuardRedirectMessage:
+      "You are being redirected. If it doesn't " +
+      'happen automatically, click {{here}}.',
     detectDuplicatedSubscription: false,
     duplicatedSubscriptionNotification: {
       sms: {
