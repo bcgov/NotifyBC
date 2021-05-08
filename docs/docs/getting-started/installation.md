@@ -275,6 +275,19 @@ Following are some example customizations.
     architecture: standalone
   ```
 
+  Bitnami MongoDB uses Docker Hub for docker registry. Rate limit imposed by Docker Hub can cause runtime problems. If your organization has JFrog artifactory, you can change the registry
+
+  ```yaml
+  # in file helm/values.local.yaml
+  mongodb:
+    image:
+      registry: <artifactory.myOrg.com>
+      pullSecrets:
+        - <docker-pull-secret>
+  ```
+
+  The above settings assume you have setup secret \<docker-pull-secret\> to access \<artifactory.myOrg.com\>.
+
 * _NotifyBC_ image tag defaults to latest published version. To change to _latest_, i.e. tip of the _main branch_,
 
   ```yaml
