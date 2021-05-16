@@ -46,7 +46,7 @@ _NotifyBC_ facilitates both anonymous and authentication-enabled secure webapps 
 
 #### static tokens
 
-_NotifyBC_ recognizes following case-insensitive static tokens in push notification or subscription messages. They are replaced when sending the message
+_NotifyBC_ recognizes following case-insensitive static tokens in push notification or subscription message body or subject. They are replaced when sending the message
 
 - {subscription_confirmation_url}
 - {subscription_confirmation_code}
@@ -64,9 +64,16 @@ _NotifyBC_ recognizes following case-insensitive static tokens in push notificat
 
 #### dynamic tokens
 
-If a notification request contains field _data_ of type _object_, _NotifyBC_ also substitutes dynamic tokens, which are strings enclosed in {} but don't match static tokens above, with corresponding sub-field of _data_ if available. For example, if the string _{description}_ appears in email body, it is replaced with field _data.description_ of the notification request if populated.
+Strings in notification or subscription message that are enclosed between curly brackets _{_ _}_ and don't match static tokens above are called _dynamic tokens_. Dynamic tokens are replaced with corresponding sub-field of _data_ field in the notification or subscription if exist. Qualify token name with _notification::_ or _subscription::_ to indicate the source of substitution. If token name is not qualified, then both notification and subscription are checked with notification takes precedence.
 
-::: warning Notification by RSS feeds relies on dynamic token
+Examples
+
+- _{notification::description}_ is replaced with field _data.description_ of the notification request if exist
+- _{subscription::gender}_ is replaced with field _data.gender_ of the subscription if exist
+- _{city}_ is replaced with field _data.city_ of the notification if exist; otherwise is replaced with field _data.city_ of the subscription if exists
+- _{nonexistingDataField}_ is unreplaced if neither notification nor subscription contains _data.nonexistingDataField_
+
+::: tip Notification by RSS feeds relies on dynamic token
 A notification created by RSS feeds relies on dynamic token to supply the context to message template. In this case the <i>data</i> field contains the RSS item.
 :::
 
