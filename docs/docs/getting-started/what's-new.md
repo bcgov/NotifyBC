@@ -11,6 +11,7 @@ _NotifyBC_ has been built on Node.js [LoopBack](https://loopback.io/) framework 
 ## v2.8.0
 
 - Issue [#28](https://github.com/bcgov/NotifyBC/issues/28): Allow subscription data be used by mail merge dynamic tokens
+- Issue [#32](https://github.com/bcgov/NotifyBC/issues/32): Allow escape mail merge delimiter
 - docs updates
 
 ## v2.7.0
