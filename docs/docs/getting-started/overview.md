@@ -70,7 +70,7 @@ Examples
 
 - _{notification::description}_ is replaced with field _data.description_ of the notification request if exist
 - _{subscription::gender}_ is replaced with field _data.gender_ of the subscription if exist
-- _{addresses[0].city}_ is replaced with field _data.addresses[0].city_ of the notification if exist; otherwise is replaced with field _data.addresses[0].city_ of the subscription if exists
+- _{addresses[0].city}_ is replaced with field _data.addresses[0].city_ of the notification if exist; otherwise is replaced with field _data.addresses[0].city_ of the subscription if exist
 - _{nonexistingDataField}_ is unreplaced if neither notification nor subscription contains _data.nonexistingDataField_
 
 ::: tip Notification by RSS feeds relies on dynamic token
