@@ -64,13 +64,13 @@ _NotifyBC_ recognizes following case-insensitive static tokens in push notificat
 
 #### dynamic tokens
 
-Strings in notification or subscription message that are enclosed between curly brackets _{_ _}_ and don't match static tokens above are called _dynamic tokens_. Dynamic tokens are replaced with corresponding sub-field of _data_ field in the notification or subscription if exist. Qualify token name with _notification::_ or _subscription::_ to indicate the source of substitution. If token name is not qualified, then both notification and subscription are checked with notification takes precedence.
+Strings in notification or subscription message that are enclosed between curly brackets _{_ _}_ and don't match static tokens above are called _dynamic tokens_. Dynamic tokens are replaced with corresponding sub-field of _data_ field in the notification or subscription if exist. Qualify token name with _notification::_ or _subscription::_ to indicate the source of substitution. If token name is not qualified, then both notification and subscription are checked with notification takes precedence. Nested and indexed sub-fields are supported.
 
 Examples
 
 - _{notification::description}_ is replaced with field _data.description_ of the notification request if exist
 - _{subscription::gender}_ is replaced with field _data.gender_ of the subscription if exist
-- _{city}_ is replaced with field _data.city_ of the notification if exist; otherwise is replaced with field _data.city_ of the subscription if exists
+- _{addresses[0].city}_ is replaced with field _data.addresses[0].city_ of the notification if exist; otherwise is replaced with field _data.addresses[0].city_ of the subscription if exists
 - _{nonexistingDataField}_ is unreplaced if neither notification nor subscription contains _data.nonexistingDataField_
 
 ::: tip Notification by RSS feeds relies on dynamic token
