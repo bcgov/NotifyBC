@@ -68,7 +68,7 @@ _NotifyBC_ recognizes following case-insensitive static tokens. Most of the name
 
 #### dynamic tokens
 
-Dynamic tokens are replaced with correspondingly named sub-field of _data_ field in the notification or subscription if exist. Qualify token name with _notification::_ or _subscription::_ to indicate the source of substitution. If token name is not qualified, then both notification and subscription are checked with notification takes precedence. Nested and indexed sub-fields are supported.
+Dynamic tokens are replaced with correspondingly named sub-field of _data_ field in the notification or subscription if exist. Qualify token name with _notification::_ or _subscription::_ to indicate the source of substitution. If token name is not qualified, then both notification and subscription are checked, with notification taking precedence. Nested and indexed sub-fields are supported.
 
 Examples
 
