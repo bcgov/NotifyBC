@@ -21,7 +21,7 @@ import dns from 'dns';
 import _ from 'lodash';
 import net from 'net';
 import util from 'util';
-import {Configuration} from '../models';
+import {Configuration, Subscription} from '../models';
 import {ConfigurationRepository} from '../repositories';
 const toSentence = require('underscore.string/toSentence');
 const pluralize = require('pluralize');
@@ -48,7 +48,11 @@ export class BaseController {
   ) {}
 
   smsClient: any;
-  async sendSMS(to: string, textBody: string, data: any) {
+  async sendSMS(
+    to: string,
+    textBody: string,
+    subscription: Partial<Subscription>,
+  ) {
     const smsServiceProvider = this.appConfig.smsServiceProvider;
     const smsConfig = this.appConfig.sms[smsServiceProvider];
     switch (smsServiceProvider) {
@@ -59,8 +63,8 @@ export class BaseController {
         const body: SMSBody = {
           MessageBody: textBody,
         };
-        if (data?.id) {
-          body.Reference = data.id;
+        if (subscription?.id) {
+          body.Reference = subscription.id;
         }
         return axios.post(url, body, {
           headers: {
@@ -143,23 +147,28 @@ export class BaseController {
     return info;
   }
 
-  mailMerge(srcTxt: any, data: any, httpCtx: any) {
+  mailMerge(
+    srcTxt: any,
+    subscription: Partial<Subscription>,
+    notification: Partial<Notification>,
+    httpCtx: any,
+  ) {
     let output = srcTxt;
     try {
       output = output.replace(
         /\{subscription_confirmation_code\}/gi,
-        data.confirmationRequest.confirmationCode,
+        subscription.confirmationRequest?.confirmationCode,
       );
     } catch (ex) {}
     try {
-      output = output.replace(/\{service_name\}/gi, data.serviceName);
+      output = output.replace(/\{service_name\}/gi, subscription.serviceName);
     } catch (ex) {}
     try {
       if (output.match(/\{unsubscription_service_names\}/i)) {
         const serviceNames = _.union(
-          [data.serviceName],
-          data.unsubscribedAdditionalServices
-            ? data.unsubscribedAdditionalServices.names
+          [subscription.serviceName],
+          subscription.unsubscribedAdditionalServices
+            ? subscription.unsubscribedAdditionalServices.names
             : [],
         );
         output = output.replace(
@@ -187,8 +196,8 @@ export class BaseController {
         httpHost = args.data.httpHost;
       } else if (httpCtx.instance?.httpHost) {
         httpHost = httpCtx.instance.httpHost;
-      } else if (data?.httpHost) {
-        httpHost = data.httpHost;
+      } else if (subscription?.httpHost) {
+        httpHost = subscription.httpHost;
       }
       output = output.replace(/\{http_host\}/gi, httpHost);
     } catch (ex) {}
@@ -199,12 +208,12 @@ export class BaseController {
       );
     } catch (ex) {}
     try {
-      output = output.replace(/\{subscription_id\}/gi, data.id);
+      output = output.replace(/\{subscription_id\}/gi, subscription.id);
     } catch (ex) {}
     try {
       output = output.replace(
         /\{unsubscription_code\}/gi,
-        data.unsubscriptionCode,
+        subscription.unsubscriptionCode,
       );
     } catch (ex) {}
     try {
@@ -213,9 +222,9 @@ export class BaseController {
         httpHost +
           this.appConfig.restApiRoot +
           '/subscriptions/' +
-          data.id +
+          subscription.id +
           '/unsubscribe?unsubscriptionCode=' +
-          data.unsubscriptionCode,
+          subscription.unsubscriptionCode,
       );
     } catch (ex) {}
     try {
@@ -224,9 +233,9 @@ export class BaseController {
         httpHost +
           this.appConfig.restApiRoot +
           '/subscriptions/' +
-          data.id +
+          subscription.id +
           '/unsubscribe?unsubscriptionCode=' +
-          data.unsubscriptionCode +
+          subscription.unsubscriptionCode +
           '&additionalServices=_all',
       );
     } catch (ex) {}
@@ -236,9 +245,9 @@ export class BaseController {
         httpHost +
           this.appConfig.restApiRoot +
           '/subscriptions/' +
-          data.id +
+          subscription.id +
           '/verify?confirmationCode=' +
-          data.confirmationRequest.confirmationCode,
+          subscription.confirmationRequest?.confirmationCode,
       );
     } catch (ex) {}
     try {
@@ -247,9 +256,9 @@ export class BaseController {
         httpHost +
           this.appConfig.restApiRoot +
           '/subscriptions/' +
-          data.id +
+          subscription.id +
           '/unsubscribe/undo?unsubscriptionCode=' +
-          data.unsubscriptionCode,
+          subscription.unsubscriptionCode,
       );
     } catch (ex) {}
 
@@ -257,41 +266,48 @@ export class BaseController {
     try {
       output = output.replace(
         /\{confirmation_code\}/gi,
-        data.confirmationRequest.confirmationCode,
+        subscription.confirmationRequest?.confirmationCode,
       );
     } catch (ex) {}
     try {
-      output = output.replace(/\{serviceName\}/gi, data.serviceName);
+      output = output.replace(/\{serviceName\}/gi, subscription.serviceName);
     } catch (ex) {}
     try {
       output = output.replace(/\{restApiRoot\}/gi, this.appConfig.restApiRoot);
     } catch (ex) {}
     try {
-      output = output.replace(/\{subscriptionId\}/gi, data.id);
+      output = output.replace(/\{subscriptionId\}/gi, subscription.id);
     } catch (ex) {}
     try {
       output = output.replace(
         /\{unsubscriptionCode\}/gi,
-        data.unsubscriptionCode,
+        subscription.unsubscriptionCode,
       );
     } catch (ex) {}
-    try {
-      if (data.data) {
-        // substitute all other tokens with matching data.data properties
-        const matches = output.match(/{.+?}/g);
-        if (matches) {
-          matches.forEach(function (e: string) {
-            try {
-              const token = (e.match(/{(.+)}/) ?? [])[1];
-              const val = _.get(data.data, token);
-              if (val) {
-                output = output.replace(e, val);
-              }
-            } catch (ex) {}
-          });
-        }
-      }
-    } catch (ex) {}
+    // substitute all other tokens with matching data.data properties
+    const matches = output.match(/{.+?}/g);
+    if (matches) {
+      matches.forEach(function (e: string) {
+        try {
+          const token = (e.match(/{(.+)}/) ?? [])[1];
+          const tokenParts = token.split('::');
+          let val: string;
+          switch (tokenParts[0]) {
+            case 'subscription':
+              val = _.get(subscription.data ?? {}, tokenParts[1]);
+              break;
+            case 'notification':
+              val = _.get(notification.data ?? {}, tokenParts[1]);
+              break;
+            default:
+              val = _.get(notification.data ?? subscription.data ?? {}, token);
+          }
+          if (val) {
+            output = output.replace(e, val);
+          }
+        } catch (ex) {}
+      });
+    }
     return output;
   }
 

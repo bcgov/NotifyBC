@@ -41,7 +41,7 @@ import {
 import request from 'axios';
 import _ from 'lodash';
 import {ApplicationConfig} from '..';
-import {Notification} from '../models';
+import {Notification, Subscription} from '../models';
 import {
   BounceRepository,
   ConfigurationRepository,
@@ -390,38 +390,33 @@ export class NotificationController extends BaseController {
 
     switch (data.isBroadcast) {
       case false: {
-        let sub = {};
+        let sub: Partial<Subscription> = {};
         try {
           sub = await this.httpContext.get('NotifyBC.subscription');
         } catch (ex) {}
-        const tokenData = _.assignIn({}, sub, {
-          data: data.data,
-        });
         const textBody =
           data.message.textBody &&
-          this.mailMerge(data.message.textBody, tokenData, this.httpContext);
+          this.mailMerge(data.message.textBody, sub, data, this.httpContext);
         switch (data.channel) {
           case 'sms':
-            await this.sendSMS(
-              data.userChannelId as string,
-              textBody,
-              tokenData,
-            );
+            await this.sendSMS(data.userChannelId as string, textBody, sub);
             return;
           default: {
             const htmlBody =
               data.message.htmlBody &&
               this.mailMerge(
                 data.message.htmlBody,
-                tokenData,
+                sub,
+                data,
                 this.httpContext,
               );
             const subject =
               data.message.subject &&
-              this.mailMerge(data.message.subject, tokenData, this.httpContext);
+              this.mailMerge(data.message.subject, sub, data, this.httpContext);
             const unsubscriptUrl = this.mailMerge(
               '{unsubscription_url}',
-              tokenData,
+              sub,
+              data,
               this.httpContext,
             );
             let listUnsub = unsubscriptUrl;
@@ -429,7 +424,8 @@ export class NotificationController extends BaseController {
               const unsubEmail =
                 this.mailMerge(
                   'un-{subscription_id}-{unsubscription_code}@',
-                  tokenData,
+                  sub,
+                  data,
                   this.httpContext,
                 ) + inboundSmtpServerDomain;
               listUnsub = [[unsubEmail, unsubscriptUrl]];
@@ -448,7 +444,8 @@ export class NotificationController extends BaseController {
             if (handleBounce && inboundSmtpServerDomain) {
               const bounceEmail = this.mailMerge(
                 `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
-                tokenData,
+                sub,
+                data,
                 this.httpContext,
               );
               mailOptions.envelope = {
@@ -542,24 +539,18 @@ export class NotificationController extends BaseController {
                     }
                     return res;
                   };
-                  const tokenData = _.assignIn({}, e, {
-                    data: data.data,
-                  });
                   const textBody =
                     data.message.textBody &&
                     this.mailMerge(
                       data.message.textBody,
-                      tokenData,
+                      e,
+                      data,
                       this.httpContext,
                     );
                   switch (e.channel) {
                     case 'sms':
                       try {
-                        await this.sendSMS(
-                          e.userChannelId,
-                          textBody,
-                          tokenData,
-                        );
+                        await this.sendSMS(e.userChannelId, textBody, e);
                         return notificationMsgCB(null);
                       } catch (ex) {
                         return notificationMsgCB(ex);
@@ -570,19 +561,22 @@ export class NotificationController extends BaseController {
                         data.message.subject &&
                         this.mailMerge(
                           data.message.subject,
-                          tokenData,
+                          e,
+                          data,
                           this.httpContext,
                         );
                       const htmlBody =
                         data.message.htmlBody &&
                         this.mailMerge(
                           data.message.htmlBody,
-                          tokenData,
+                          e,
+                          data,
                           this.httpContext,
                         );
                       const unsubscriptUrl = this.mailMerge(
                         '{unsubscription_url}',
-                        tokenData,
+                        e,
+                        data,
                         this.httpContext,
                       );
                       let listUnsub = unsubscriptUrl;
@@ -593,7 +587,8 @@ export class NotificationController extends BaseController {
                         const unsubEmail =
                           this.mailMerge(
                             'un-{subscription_id}-{unsubscription_code}@',
-                            tokenData,
+                            e,
+                            data,
                             this.httpContext,
                           ) + inboundSmtpServerDomain;
                         listUnsub = [[unsubEmail, unsubscriptUrl]];
@@ -615,7 +610,8 @@ export class NotificationController extends BaseController {
                       if (handleBounce && inboundSmtpServerDomain) {
                         const bounceEmail = this.mailMerge(
                           `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
-                          tokenData,
+                          e,
+                          data,
                           this.httpContext,
                         );
                         mailOptions.envelope = {
