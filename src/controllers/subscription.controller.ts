@@ -334,6 +334,7 @@ export class SubscriptionController extends BaseController {
                 textBody = this.mailMerge(
                   msg.textBody,
                   instance,
+                  {},
                   this.httpContext,
                 );
                 await this.sendSMS(instance.userChannelId, textBody, instance);
@@ -342,16 +343,19 @@ export class SubscriptionController extends BaseController {
                 const subject = this.mailMerge(
                   msg.subject,
                   instance,
+                  {},
                   this.httpContext,
                 );
                 textBody = this.mailMerge(
                   msg.textBody,
                   instance,
+                  {},
                   this.httpContext,
                 );
                 const htmlBody = this.mailMerge(
                   msg.htmlBody,
                   instance,
+                  {},
                   this.httpContext,
                 );
                 const mailOptions = {
@@ -913,13 +917,13 @@ export class SubscriptionController extends BaseController {
     }
     let textBody =
       data.confirmationRequest.textBody &&
-      this.mailMerge(data.confirmationRequest.textBody, data, ctx);
+      this.mailMerge(data.confirmationRequest.textBody, data, {}, ctx);
     let mailSubject =
       data.confirmationRequest.subject &&
-      this.mailMerge(data.confirmationRequest.subject, data, ctx);
+      this.mailMerge(data.confirmationRequest.subject, data, {}, ctx);
     let mailHtmlBody =
       data.confirmationRequest.htmlBody &&
-      this.mailMerge(data.confirmationRequest.htmlBody, data, ctx);
+      this.mailMerge(data.confirmationRequest.htmlBody, data, {}, ctx);
     let mailFrom = data.confirmationRequest.from;
 
     // handle duplicated request
@@ -962,6 +966,7 @@ export class SubscriptionController extends BaseController {
               data.channel
             ].textBody,
             data,
+            {},
             ctx,
           );
         mailSubject =
@@ -971,6 +976,7 @@ export class SubscriptionController extends BaseController {
             mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
               .subject,
             data,
+            {},
             ctx,
           );
         mailHtmlBody =
@@ -980,6 +986,7 @@ export class SubscriptionController extends BaseController {
             mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
               .htmlBody,
             data,
+            {},
             ctx,
           );
       }
