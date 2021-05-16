@@ -151,6 +151,9 @@ describe('POST /notifications', function () {
             confirmationCode: '12345',
           },
           unsubscriptionCode: '54321',
+          data: {
+            gender: 'male',
+          },
         });
       })(),
       (async () => {
@@ -210,9 +213,9 @@ describe('POST /notifications', function () {
           from: 'no_reply@bar.com',
           subject: 'test',
           textBody:
-            '{1}, This is a broadcast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code} {2} {1}',
+            '{1}, This is a broadcast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code} {2} {notification::1} {subscription::gender}',
           htmlBody:
-            '{1}, This is a broadcast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code} {2} {1}',
+            '{1}, This is a broadcast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code} {2} {notification::1} {subscription::gender}',
         },
         data: {
           '1': 'foo',
@@ -276,7 +279,7 @@ describe('POST /notifications', function () {
     expect(
       (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
         .firstArg.text,
-    ).containEql('bar foo');
+    ).containEql('bar foo male');
 
     expect(
       (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
@@ -329,7 +332,7 @@ describe('POST /notifications', function () {
     expect(
       (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
         .firstArg.text,
-    ).containEql('bar foo');
+    ).containEql('bar foo male');
     // test list-unsubscribe header
     expect(
       (BaseController.prototype.sendEmail as sinon.SinonStub)
