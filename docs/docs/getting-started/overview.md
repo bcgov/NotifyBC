@@ -44,9 +44,13 @@ _NotifyBC_ facilitates both anonymous and authentication-enabled secure webapps 
 
 ### mail merge
 
+Strings in notification or subscription message that are enclosed between curly braces _{_ _}_ are called tokens, also known as placeholders. Tokens are replaced based on the context of notification or subscription when dispatching the message. To avoid treating a string between curly braces as a token, escape the curly braces with backslash _\\_. For example _\\{i_am_not_a_token\\}_ is not a token. It will be rendered as _{i_am_not_a_token}_.
+
+Tokens whose names are predetermined by _NotifyBC_ are called static tokens; otherwise they are called dynamic tokens.
+
 #### static tokens
 
-_NotifyBC_ recognizes following case-insensitive static tokens in push notification or subscription message body or subject. They are replaced when sending the message
+_NotifyBC_ recognizes following case-insensitive static tokens. Most of the names are self-explanatory.
 
 - {subscription_confirmation_url}
 - {subscription_confirmation_code}
@@ -64,7 +68,7 @@ _NotifyBC_ recognizes following case-insensitive static tokens in push notificat
 
 #### dynamic tokens
 
-Strings in notification or subscription message that are enclosed between curly brackets _{_ _}_ and don't match static tokens above are called _dynamic tokens_. Dynamic tokens are replaced with corresponding sub-field of _data_ field in the notification or subscription if exist. Qualify token name with _notification::_ or _subscription::_ to indicate the source of substitution. If token name is not qualified, then both notification and subscription are checked with notification takes precedence. Nested and indexed sub-fields are supported.
+Dynamic tokens are replaced with correspondingly named sub-field of _data_ field in the notification or subscription if exist. Qualify token name with _notification::_ or _subscription::_ to indicate the source of substitution. If token name is not qualified, then both notification and subscription are checked with notification takes precedence. Nested and indexed sub-fields are supported.
 
 Examples
 
