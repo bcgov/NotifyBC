@@ -156,15 +156,18 @@ export class BaseController {
     let output = srcTxt;
     try {
       output = output.replace(
-        /\{subscription_confirmation_code\}/gi,
+        /(?<!\\){subscription_confirmation_code(?<!\\)}/gi,
         subscription.confirmationRequest?.confirmationCode,
       );
     } catch (ex) {}
     try {
-      output = output.replace(/\{service_name\}/gi, subscription.serviceName);
+      output = output.replace(
+        /(?<!\\){service_name(?<!\\)}/gi,
+        subscription.serviceName,
+      );
     } catch (ex) {}
     try {
-      if (output.match(/\{unsubscription_service_names\}/i)) {
+      if (output.match(/(?<!\\){unsubscription_service_names(?<!\\)}/i)) {
         const serviceNames = _.union(
           [subscription.serviceName],
           subscription.unsubscribedAdditionalServices
@@ -172,7 +175,7 @@ export class BaseController {
             : [],
         );
         output = output.replace(
-          /\{unsubscription_service_names\}/gi,
+          /(?<!\\){unsubscription_service_names(?<!\\)}/gi,
           pluralize('service', serviceNames.length) +
             ' ' +
             toSentence(serviceNames),
@@ -199,26 +202,29 @@ export class BaseController {
       } else if (subscription?.httpHost) {
         httpHost = subscription.httpHost;
       }
-      output = output.replace(/\{http_host\}/gi, httpHost);
+      output = output.replace(/(?<!\\){http_host(?<!\\)}/gi, httpHost);
     } catch (ex) {}
     try {
       output = output.replace(
-        /\{rest_api_root\}/gi,
+        /(?<!\\){rest_api_root(?<!\\)}/gi,
         this.appConfig.restApiRoot,
       );
     } catch (ex) {}
     try {
-      output = output.replace(/\{subscription_id\}/gi, subscription.id);
+      output = output.replace(
+        /(?<!\\){subscription_id(?<!\\)}/gi,
+        subscription.id,
+      );
     } catch (ex) {}
     try {
       output = output.replace(
-        /\{unsubscription_code\}/gi,
+        /(?<!\\){unsubscription_code(?<!\\)}/gi,
         subscription.unsubscriptionCode,
       );
     } catch (ex) {}
     try {
       output = output.replace(
-        /\{unsubscription_url\}/gi,
+        /(?<!\\){unsubscription_url(?<!\\)}/gi,
         httpHost +
           this.appConfig.restApiRoot +
           '/subscriptions/' +
@@ -229,7 +235,7 @@ export class BaseController {
     } catch (ex) {}
     try {
       output = output.replace(
-        /\{unsubscription_all_url\}/gi,
+        /(?<!\\){unsubscription_all_url(?<!\\)}/gi,
         httpHost +
           this.appConfig.restApiRoot +
           '/subscriptions/' +
@@ -241,7 +247,7 @@ export class BaseController {
     } catch (ex) {}
     try {
       output = output.replace(
-        /\{subscription_confirmation_url\}/gi,
+        /(?<!\\){subscription_confirmation_url(?<!\\)}/gi,
         httpHost +
           this.appConfig.restApiRoot +
           '/subscriptions/' +
@@ -252,7 +258,7 @@ export class BaseController {
     } catch (ex) {}
     try {
       output = output.replace(
-        /\{unsubscription_reversion_url\}/gi,
+        /(?<!\\){unsubscription_reversion_url(?<!\\)}/gi,
         httpHost +
           this.appConfig.restApiRoot +
           '/subscriptions/' +
@@ -265,31 +271,40 @@ export class BaseController {
     // for backward compatibilities
     try {
       output = output.replace(
-        /\{confirmation_code\}/gi,
+        /(?<!\\){confirmation_code(?<!\\)}/gi,
         subscription.confirmationRequest?.confirmationCode,
       );
     } catch (ex) {}
     try {
-      output = output.replace(/\{serviceName\}/gi, subscription.serviceName);
-    } catch (ex) {}
-    try {
-      output = output.replace(/\{restApiRoot\}/gi, this.appConfig.restApiRoot);
-    } catch (ex) {}
-    try {
-      output = output.replace(/\{subscriptionId\}/gi, subscription.id);
+      output = output.replace(
+        /(?<!\\){serviceName(?<!\\)}/gi,
+        subscription.serviceName,
+      );
     } catch (ex) {}
     try {
       output = output.replace(
-        /\{unsubscriptionCode\}/gi,
+        /(?<!\\){restApiRoot(?<!\\)}/gi,
+        this.appConfig.restApiRoot,
+      );
+    } catch (ex) {}
+    try {
+      output = output.replace(
+        /(?<!\\){subscriptionId(?<!\\)}/gi,
+        subscription.id,
+      );
+    } catch (ex) {}
+    try {
+      output = output.replace(
+        /(?<!\\){unsubscriptionCode(?<!\\)}/gi,
         subscription.unsubscriptionCode,
       );
     } catch (ex) {}
     // substitute all other tokens with matching data.data properties
-    const matches = output.match(/{.+?}/g);
+    const matches = output.match(/(?<!\\){.+?(?<!\\)}/g);
     if (matches) {
       matches.forEach(function (e: string) {
         try {
-          const token = (e.match(/{(.+)}/) ?? [])[1];
+          const token = (e.match(/(?<!\\){(.+)(?<!\\)}/) ?? [])[1];
           const tokenParts = token.split('::');
           let val: string;
           switch (tokenParts[0]) {
@@ -308,6 +323,8 @@ export class BaseController {
         } catch (ex) {}
       });
     }
+    // unescape delimiter
+    output = output.replace(/\\{(.+?)\\}/g, '{$1}');
     return output;
   }
 
