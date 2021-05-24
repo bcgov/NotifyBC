@@ -18,6 +18,7 @@ import {
 } from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig, createBindingFromClass} from '@loopback/core';
+import {GraphQLBindings, GraphQLComponent} from '@loopback/graphql';
 import {AnyObject, RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {
@@ -90,6 +91,14 @@ export class NotifyBcApplication extends BootMixin(
     if (options.rest.port === undefined) options.rest.port = options.port;
     //    options.rest.basePath = options.restApiRoot;
     super(options);
+
+    this.component(GraphQLComponent);
+    this.configure(GraphQLBindings.GRAPHQL_SERVER).to({
+      asMiddlewareOnly: true,
+    });
+    const server = this.getSync(GraphQLBindings.GRAPHQL_SERVER);
+    this.expressMiddleware('middleware.express.GraphQL', server.expressApp);
+
     this.middlewareConfigs = middlewareConfigs;
 
     // Set up the custom sequence
