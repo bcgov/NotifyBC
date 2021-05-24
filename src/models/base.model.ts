@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {field, ID} from '@loopback/graphql';
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
 export class Base extends Entity {
+  @field(type => ID)
   @property({
     type: 'string',
     mongodb: {dataType: 'ObjectID'},
@@ -28,6 +30,7 @@ export class Base extends Entity {
   })
   id?: string;
 
+  @field()
   @property({
     type: 'date',
     default: '$now',
@@ -37,6 +40,7 @@ export class Base extends Entity {
   })
   created?: string;
 
+  @field()
   @property({
     type: 'date',
     default: '$now',

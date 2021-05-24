@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {field, objectType} from '@loopback/graphql';
 import {model, property} from '@loopback/repository';
 import {Base} from './base.model';
 
+@objectType({description: 'configuration'})
 @model({
   name: 'configuration',
   settings: {
@@ -33,6 +35,7 @@ import {Base} from './base.model';
   },
 })
 export class Configuration extends Base {
+  @field()
   @property({
     type: 'string',
     required: true,
@@ -44,6 +47,7 @@ export class Configuration extends Base {
   })
   value?: any;
 
+  @field()
   @property({
     type: 'string',
   })
