@@ -19,14 +19,12 @@
       "webRoot": "${workspaceFolder}/docs"
     },
     {
-      "type": "node",
+      "type": "pwa-node",
       "request": "launch",
       "name": "Server",
-      "program": "${workspaceFolder}\\dist\\index.js",
+      "runtimeExecutable": "yarn",
       "autoAttachChildProcesses": true,
-      "console": "internalConsole",
-      "outputCapture": "std",
-      "preLaunchTask": "Compile Project",
+      "runtimeArgs": ["run", "nodemon"],
       "env": {
         "NODE_ENV": "dev",
         "NOTIFYBC_WORKER_PROCESS_COUNT": "1",
