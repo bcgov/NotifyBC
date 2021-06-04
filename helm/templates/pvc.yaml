@@ -1,0 +1,13 @@
+﻿{{- if .Values.cronJob.enabled -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "NotifyBC.fullname" . }}-cronjob-mongodb-backup
+  labels: {{- include "NotifyBC.labels" . | nindent 4}}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.cronJob.persistence.size }}
+{{ end }}
