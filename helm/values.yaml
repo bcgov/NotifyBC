@@ -140,3 +140,12 @@ route:
       termination: edge
   smtp:
     host: ''
+
+cronJob:
+  enabled: false
+  schedule: '1 0 * * *'
+  retentionDays: 7
+  # timeZone: America/Vancouver
+  timeZone: UTC
+  persistence:
+    size: 5Gi

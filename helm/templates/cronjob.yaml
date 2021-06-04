@@ -1,0 +1,46 @@
+{{- if .Values.cronJob.enabled -}}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "NotifyBC.fullname" . }}-mongodb-backup
+  labels: {{- include "NotifyBC.labels" . | nindent 4}}
+spec:
+  concurrencyPolicy: Forbid
+  schedule: '{{ .Values.cronJob.schedule }}'
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- include "common.images.pullSecrets" (dict "images" (list .Values.mongodb.image) "global" .Values.global)  | trim | nindent 10 }}
+          containers:
+            - name: mongodb
+              image: {{ include "common.images.image" (dict "imageRoot" .Values.mongodb.image "global" .Values.global) }}
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: export
+                  mountPath: /export
+              env:
+                - name: DATABASE_SERVICE_NAME
+                  value: {{ .Release.Name }}-mongodb
+                  {{- if eq .Values.mongodb.architecture "replicaset" -}}
+                    -headless
+                  {{- end }}
+                - name: MONGODB_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Release.Name }}-mongodb
+                      key: mongodb-root-password
+                - name: TZ
+                  value: {{ .Values.cronJob.timeZone }}
+                - name: RETENTION_DAYS
+                  value: '{{ .Values.cronJob.retentionDays }}'
+              command:
+                - /bin/bash
+                - -vc
+                - mongodump --uri="mongodb://$DATABASE_SERVICE_NAME" -u root -p "$MONGODB_ADMIN_PASSWORD" --gzip --archive=/export/mongodb-backup-$(date +"%Y%m%d-%H%M%S").gz; find /export/ -mtime +$RETENTION_DAYS -delete; ls -lt /export; du -sh /export
+          restartPolicy: Never
+          volumes:
+            - name: export
+              persistentVolumeClaim:
+                claimName: {{ include "NotifyBC.fullname" . }}-cronjob-mongodb-backup
+{{ end }}
