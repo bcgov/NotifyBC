@@ -288,6 +288,29 @@ Following are some example customizations.
 
   The above settings assume you have setup secret \<docker-pull-secret\> to access \<artifactory.myOrg.com\>.
 
+* Enable scheduled MongoDB backup CronJob
+
+  ```yaml
+  # in file helm/values.local.yaml
+  cronJob:
+    enabled: true
+    schedule: '1 0 * * *'
+    retentionDays: 7
+    timeZone: UTC
+    persistence:
+      size: 5Gi
+  ```
+
+  where
+
+  - enabled: whether to enable the MongoDB backup CronJob or not; default to `false`
+  - schedule: the Unix crontab schedule; default to `'1 0 * * *'` which runs daily at 12:01AM
+  - retentionDays: how many days the backup is retained; default to `7`
+  - timeZone: the Unix TZ environment variable; default to `UTC`
+  - persistence size: size of PVC; default to `5Gi`
+
+  The CronJob backs up MongoDB to a PVC named after the chart with suffix _-cronjob-mongodb-backup_ and purges backups that are older than _retentionDays_.
+
 * _NotifyBC_ image tag defaults to latest published version. To change to _latest_, i.e. tip of the _main branch_,
 
   ```yaml
