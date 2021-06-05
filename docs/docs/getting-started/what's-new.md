@@ -8,6 +8,11 @@ permalink: /docs/what's-new/
 _NotifyBC_ has been built on Node.js [LoopBack](https://loopback.io/) framework since 2017. LoopBack v4, which was released in 2019, is backward incompatible. To keep software stack up-to-date, unless rewriting from scratch, it is necessary to port _NotifyBC_ to LoopBack v4. Great care has been taken to minimize migration effort.
 :::
 
+## v2.9.0
+
+- Issue [#34](https://github.com/bcgov/NotifyBC/issues/34): Helm - add k8s cronJob to backup MongoDB
+- docs updates
+
 ## v2.8.0
 
 - Issue [#28](https://github.com/bcgov/NotifyBC/issues/28): Allow subscription data be used by mail merge dynamic tokens
