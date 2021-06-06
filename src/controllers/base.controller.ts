@@ -108,7 +108,7 @@ export class BaseController {
       if (info?.accepted?.length < 1) {
         throw new Error('delivery failed');
       }
-    } catch (ex) {
+    } catch (ex: any) {
       if (
         smtpCfg.direct ||
         net.isIP(smtpCfg.host) ||
@@ -131,7 +131,7 @@ export class BaseController {
           if (info?.accepted?.length < 1) {
             throw new Error('delivery failed');
           }
-        } catch (newEx) {
+        } catch (newEx: any) {
           if (
             index < addresses.length - 1 &&
             newEx.command === 'CONN' &&
