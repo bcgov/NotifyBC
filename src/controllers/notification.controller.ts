@@ -366,7 +366,7 @@ export class NotificationController extends BaseController {
       }
       await this.bounceRepository.updateAll(
         {
-          latestNotificationStarted: dataNotification.updated,
+          latestNotificationStarted: <string>dataNotification.updated,
           latestNotificationEnded: new Date().toISOString(),
         },
         {
@@ -479,7 +479,7 @@ export class NotificationController extends BaseController {
                 channel: data.channel,
               },
               order: ['created ASC'],
-              skip: startIdx,
+              skip: startIdx ?? 0,
               limit: broadcastSubscriberChunkSize,
             },
             undefined,
@@ -729,10 +729,7 @@ export class NotificationController extends BaseController {
             }
 
             const q = queue(
-              (
-                task: {startIdx: string},
-                cb: (arg0: null, arg1: any) => any,
-              ) => {
+              (task: {startIdx: string}, cb: (arg0: any, arg1: any) => any) => {
                 const uri =
                   httpHost +
                   restApiRoot +
