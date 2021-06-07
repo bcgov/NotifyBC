@@ -490,7 +490,22 @@ export class NotificationController extends BaseController {
           if (ft) {
             jmespathSearchOpts.functionTable = ft;
           }
-          const tasks: Promise<any>[] = [];
+          const ret: AnyObject = {
+            fail: [],
+            success: [],
+          };
+          const notificationMsgCB = function (err: any, e: Subscription) {
+            if (err) {
+              ret.fail.push({
+                subscriptionId: e.id,
+                userChannelId: e.userChannelId,
+                error: err,
+              });
+            } else if (logSuccessfulBroadcastDispatches || handleBounce) {
+              ret.success.push(e.id);
+            }
+            return;
+          };
           await Promise.all(
             subscribers.map(async e => {
               if (e.broadcastPushNotificationFilter && data.data) {
@@ -521,128 +536,93 @@ export class NotificationController extends BaseController {
                   return;
                 }
               }
-              tasks.push(
-                (async () => {
-                  const notificationMsgCB = function (err: any) {
-                    const res: AnyObject = {};
-                    if (err) {
-                      res.fail = {
-                        subscriptionId: e.id,
-                        userChannelId: e.userChannelId,
-                        error: err,
-                      };
-                    } else if (
-                      logSuccessfulBroadcastDispatches ||
-                      handleBounce
-                    ) {
-                      res.success = e.id;
-                    }
-                    return res;
-                  };
-                  const textBody =
-                    data.message.textBody &&
+              const textBody =
+                data.message.textBody &&
+                this.mailMerge(
+                  data.message.textBody,
+                  e,
+                  data,
+                  this.httpContext,
+                );
+              switch (e.channel) {
+                case 'sms':
+                  try {
+                    await this.sendSMS(e.userChannelId, textBody, e);
+                    return notificationMsgCB(null, e);
+                  } catch (ex) {
+                    return notificationMsgCB(ex, e);
+                  }
+                  break;
+                default: {
+                  const subject =
+                    data.message.subject &&
                     this.mailMerge(
-                      data.message.textBody,
+                      data.message.subject,
                       e,
                       data,
                       this.httpContext,
                     );
-                  switch (e.channel) {
-                    case 'sms':
-                      try {
-                        await this.sendSMS(e.userChannelId, textBody, e);
-                        return notificationMsgCB(null);
-                      } catch (ex) {
-                        return notificationMsgCB(ex);
-                      }
-                      break;
-                    default: {
-                      const subject =
-                        data.message.subject &&
-                        this.mailMerge(
-                          data.message.subject,
-                          e,
-                          data,
-                          this.httpContext,
-                        );
-                      const htmlBody =
-                        data.message.htmlBody &&
-                        this.mailMerge(
-                          data.message.htmlBody,
-                          e,
-                          data,
-                          this.httpContext,
-                        );
-                      const unsubscriptUrl = this.mailMerge(
-                        '{unsubscription_url}',
+                  const htmlBody =
+                    data.message.htmlBody &&
+                    this.mailMerge(
+                      data.message.htmlBody,
+                      e,
+                      data,
+                      this.httpContext,
+                    );
+                  const unsubscriptUrl = this.mailMerge(
+                    '{unsubscription_url}',
+                    e,
+                    data,
+                    this.httpContext,
+                  );
+                  let listUnsub = unsubscriptUrl;
+                  if (handleListUnsubscribeByEmail && inboundSmtpServerDomain) {
+                    const unsubEmail =
+                      this.mailMerge(
+                        'un-{subscription_id}-{unsubscription_code}@',
                         e,
                         data,
                         this.httpContext,
-                      );
-                      let listUnsub = unsubscriptUrl;
-                      if (
-                        handleListUnsubscribeByEmail &&
-                        inboundSmtpServerDomain
-                      ) {
-                        const unsubEmail =
-                          this.mailMerge(
-                            'un-{subscription_id}-{unsubscription_code}@',
-                            e,
-                            data,
-                            this.httpContext,
-                          ) + inboundSmtpServerDomain;
-                        listUnsub = [[unsubEmail, unsubscriptUrl]];
-                      }
-                      const mailOptions: AnyObject = {
-                        from: data.message.from,
-                        to: e.userChannelId,
-                        subject: subject,
-                        text: textBody,
-                        html: htmlBody,
-                        list: {
-                          id:
-                            data.httpHost +
-                            '/' +
-                            encodeURIComponent(data.serviceName),
-                          unsubscribe: listUnsub,
-                        },
-                      };
-                      if (handleBounce && inboundSmtpServerDomain) {
-                        const bounceEmail = this.mailMerge(
-                          `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
-                          e,
-                          data,
-                          this.httpContext,
-                        );
-                        mailOptions.envelope = {
-                          from: bounceEmail,
-                          to: e.userChannelId,
-                        };
-                      }
-                      try {
-                        await this.sendEmail(mailOptions);
-                        return notificationMsgCB(null);
-                      } catch (ex) {
-                        return notificationMsgCB(ex);
-                      }
-                    }
+                      ) + inboundSmtpServerDomain;
+                    listUnsub = [[unsubEmail, unsubscriptUrl]];
                   }
-                })(),
-              );
+                  const mailOptions: AnyObject = {
+                    from: data.message.from,
+                    to: e.userChannelId,
+                    subject: subject,
+                    text: textBody,
+                    html: htmlBody,
+                    list: {
+                      id:
+                        data.httpHost +
+                        '/' +
+                        encodeURIComponent(data.serviceName),
+                      unsubscribe: listUnsub,
+                    },
+                  };
+                  if (handleBounce && inboundSmtpServerDomain) {
+                    const bounceEmail = this.mailMerge(
+                      `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
+                      e,
+                      data,
+                      this.httpContext,
+                    );
+                    mailOptions.envelope = {
+                      from: bounceEmail,
+                      to: e.userChannelId,
+                    };
+                  }
+                  try {
+                    await this.sendEmail(mailOptions);
+                    return notificationMsgCB(null, e);
+                  } catch (ex) {
+                    return notificationMsgCB(ex, e);
+                  }
+                }
+              }
             }),
           );
-          const resArr = await Promise.all(tasks);
-          const ret: AnyObject = {
-            fail: [],
-            success: [],
-          };
-          for (const res of resArr) {
-            if (res.fail) {
-              ret.fail.push(res.fail);
-            } else if (res.success) {
-              ret.success.push(res.success);
-            }
-          }
           return ret;
         };
         if (typeof startIdx !== 'number') {
