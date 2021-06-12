@@ -470,7 +470,7 @@ export class NotificationController extends BaseController {
         try {
           startIdx = await this.httpContext.get('NotifyBC.startIdx');
         } catch (ex) {}
-        const broadcastToChunkSubscribers = async () => {
+        const broadcastToSubscriberChunk = async () => {
           const subscribers = await this.subscriptionRepository.find(
             {
               where: {
@@ -687,7 +687,7 @@ export class NotificationController extends BaseController {
           ).count;
           if (count <= broadcastSubscriberChunkSize) {
             startIdx = 0;
-            const res = await broadcastToChunkSubscribers();
+            const res = await broadcastToSubscriberChunk();
             if (res.fail) {
               data.failedDispatches = res.fail;
             }
@@ -696,7 +696,7 @@ export class NotificationController extends BaseController {
             }
             await postBroadcastProcessing();
           } else {
-            // call broadcastToChunkSubscribers, coordinate output
+            // call broadcastToSubscriberChunk, coordinate output
             const chunks = Math.ceil(count / broadcastSubscriberChunkSize);
             let httpHost = this.appConfig.internalHttpHost;
             const restApiRoot = this.appConfig.restApiRoot ?? '';
@@ -793,7 +793,7 @@ export class NotificationController extends BaseController {
             await postBroadcastProcessing();
           }
         } else {
-          return broadcastToChunkSubscribers();
+          return broadcastToSubscriberChunk();
         }
         break;
       }
