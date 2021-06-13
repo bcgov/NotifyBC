@@ -1,15 +1,15 @@
 ---
-permalink: /docs/migration/
+permalink: /docs/upgrade/
 ---
 
-# Migration Guide
+# Upgrade Guide
 
 ## v1 to v2
 
-Migrating _NotifyBC_ from v1 to v2 involves two steps
+Upgrading _NotifyBC_ from v1 to v2 involves two steps
 
 1. [Update your client code](#update-your-client-code) if needed
-2. [Migrate _NotifyBC_ server](#migrate-notifybc-server)
+2. [Upgrade _NotifyBC_ server](#upgrade-notifybc-server)
 
 ### Update your client code
 
@@ -44,9 +44,9 @@ HTTP response code of success calls to following APIs are changed from 200 to 20
 - [Complexity rules](../api/administrator.md#sign-up) have been applied to passwords.
 - [login](../api-administrator/#login) API is open to non-admin
 
-### Migrate _NotifyBC_ server
+### Upgrade _NotifyBC_ server
 
-The procedure to migrate from v1 to v2 depends on how v1 was installed.
+The procedure to upgrade from v1 to v2 depends on how v1 was installed.
 
 #### Source-code Installation
 
@@ -146,10 +146,10 @@ yarn install && yarn build
 
 ## OpenShift template to Helm
 
-Migrating _NotifyBC_ on OpenShift created from OpenShift template to Helm involves 2 steps
+Upgrading _NotifyBC_ on OpenShift created from OpenShift template to Helm involves 2 steps
 
 1. [Customize and Install Helm chart](#customize-and-install-helm-chart)
-2. [Migrate MongoDB data](#migrate-mongodb-data)
+2. [Upgrade MongoDB data](#upgrade-mongodb-data)
 
 ### Customize and install Helm chart
 
@@ -160,7 +160,7 @@ Follow [customizations](../installation/#customizations) to create file _helm/va
 
 Then run `helm install` with documented arguments to install a release.
 
-### Migrate MongoDB data
+### Upgrade MongoDB data
 
 To backup data from source
 

@@ -115,7 +115,7 @@ module.exports = {
             'miscellaneous/benchmarks',
             'miscellaneous/bulk-import',
             'miscellaneous/developer-notes',
-            'miscellaneous/migration',
+            'miscellaneous/upgrade',
           ],
         },
         {

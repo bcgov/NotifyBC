@@ -322,7 +322,7 @@ Following are some example customizations.
 ## Deploy to OpenShift (deprecated)
 
 ::: warning Use Helm for OpenShift
-The OpenShift template documented in the rest of this section is deprecated and will be removed in next major release. Please follow [Deploy to Kubernetes](#deploy-to-kubernetes) to install using Helm. To migrate from OpenShift template, follow [OpenShift template to Helm](../miscellaneous/migration.md#openshift-template-to-helm).
+The OpenShift template documented in the rest of this section is deprecated and will be removed in next major release. Please follow [Deploy to Kubernetes](#deploy-to-kubernetes) to install using Helm. To migrate from OpenShift template, follow [OpenShift template to Helm](../miscellaneous/upgrade.md#openshift-template-to-helm).
 :::
 
 _NotifyBC_ supports deployment to OpenShift Origin of minimum version 1.5, or other compatible platforms such as OpenShift Container Platform of matching version. [OpenShift instant app templates](https://github.com/bcgov/NotifyBC/blob/main/.opensift-templates) have been created to facilitate build and deployment. This template adopts [source-to-image strategy](https://docs.openshift.org/latest/dev_guide/builds.html#using-secrets-s2i-strategy) with [binary source](https://docs.openshift.org/latest/dev_guide/builds.html#binary-source) input and supports [incremental builds](https://docs.openshift.org/latest/dev_guide/builds.html#incremental-builds).
