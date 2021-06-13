@@ -191,3 +191,17 @@ oc exec -i <mongodb-pod-0> -- bash -c \
 'mongorestore -u "$MONGODB_USERNAME" -p"$MONGODB_PASSWORD" \
 --uri="mongodb://$K8S_SERVICE_NAME" --db $MONGODB_DATABASE --gzip --drop --archive'
 ```
+
+## v2 to v3
+
+v3 introduced following backward incompatible changes
+
+1. Changed output-only fields _failedDispatches_ and _successDispatches_ to _dispatch.failed_ and _dispatch.successful_ respectively in _Notification_ api. If your client app depends on the fields, change accordingly.
+2. Changed config _notification.logSuccessfulBroadcastDispatches_ to _notification.guaranteedBroadcastPushDispatchProcessing_ and reversed default value from _false_ to _true_. If you don't want _NotifyBC_ guarantees processing all subscriptions to a broadcast push notification in a node failure resilient way, perhaps for performance reason, set the value to _false_ in file _/src/config.local.js_.
+
+After above changes are addressed, upgrading to v3 is as simple as
+
+```sh
+git pull
+yarn install && yarn build
+```
