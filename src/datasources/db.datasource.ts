@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
-import {juggler} from '@loopback/repository';
+import {AnyObject, juggler} from '@loopback/repository';
 
 const config = {
   name: 'db',
@@ -35,8 +35,11 @@ export class DbDataSource
 
   constructor(
     @inject('datasources.config.db', {optional: true})
-    dsConfig: object = config,
+    dsConfig: AnyObject = config,
   ) {
+    if (dsConfig.connector === 'mongodb') {
+      dsConfig.allowExtendedOperators = true;
+    }
     super(dsConfig);
   }
 }
