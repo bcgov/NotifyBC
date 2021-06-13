@@ -494,17 +494,60 @@ export class NotificationController extends BaseController {
             fail: [],
             success: [],
           };
-          const notificationMsgCB = function (err: any, e: Subscription) {
-            if (err) {
-              ret.fail.push({
-                subscriptionId: e.id,
-                userChannelId: e.userChannelId,
-                error: err,
-              });
-            } else if (logSuccessfulBroadcastDispatches || handleBounce) {
-              ret.success.push(e.id);
+          enum NotificationDispatchStatusField {
+            failedDispatches,
+            successfulDispatches,
+          }
+          const updateBroadcastPushNotificationStatus = async (
+            field: NotificationDispatchStatusField,
+            payload: any,
+          ) => {
+            if (
+              this.notificationRepository.dataSource.connector?.name ===
+              'mongodb'
+            ) {
+              return this.notificationRepository.updateById(
+                data.id,
+                {
+                  $push: {[NotificationDispatchStatusField[field]]: payload},
+                },
+                undefined,
+              );
+            } else {
+              const currentNotification = await this.notificationRepository.findById(
+                data.id,
+                {
+                  fields: [NotificationDispatchStatusField[field]],
+                },
+                undefined,
+              );
+              const currentVal: any[] =
+                currentNotification[NotificationDispatchStatusField[field]] ||
+                [];
+              currentVal.push(payload);
+              await this.notificationRepository.updateById(
+                data.id,
+                {[NotificationDispatchStatusField[field]]: currentVal},
+                undefined,
+              );
             }
-            return;
+          };
+          const notificationMsgCB = async (err: any, e: Subscription) => {
+            if (err) {
+              return updateBroadcastPushNotificationStatus(
+                NotificationDispatchStatusField.failedDispatches,
+                {
+                  subscriptionId: e.id,
+                  userChannelId: e.userChannelId,
+                  error: err,
+                },
+              );
+            } else if (logSuccessfulBroadcastDispatches || handleBounce) {
+              return updateBroadcastPushNotificationStatus(
+                NotificationDispatchStatusField.successfulDispatches,
+                e.id,
+              );
+            }
           };
           await Promise.all(
             subscribers.map(async e => {
@@ -548,9 +591,9 @@ export class NotificationController extends BaseController {
                 case 'sms':
                   try {
                     await this.sendSMS(e.userChannelId, textBody, e);
-                    return notificationMsgCB(null, e);
+                    return await notificationMsgCB(null, e);
                   } catch (ex) {
-                    return notificationMsgCB(ex, e);
+                    return await notificationMsgCB(ex, e);
                   }
                   break;
                 default: {
@@ -615,9 +658,9 @@ export class NotificationController extends BaseController {
                   }
                   try {
                     await this.sendEmail(mailOptions);
-                    return notificationMsgCB(null, e);
+                    return await notificationMsgCB(null, e);
                   } catch (ex) {
-                    return notificationMsgCB(ex, e);
+                    return await notificationMsgCB(ex, e);
                   }
                 }
               }
@@ -627,6 +670,11 @@ export class NotificationController extends BaseController {
         };
         if (typeof startIdx !== 'number') {
           const postBroadcastProcessing = async () => {
+            data = await this.notificationRepository.findById(
+              data.id,
+              undefined,
+              undefined,
+            );
             const res = await this.subscriptionRepository.find(
               {
                 fields: {
@@ -647,9 +695,6 @@ export class NotificationController extends BaseController {
             _.pullAll(userChannelIds, errUserChannelIds);
             await updateBounces(userChannelIds, data);
 
-            if (!logSuccessfulBroadcastDispatches) {
-              delete data.successfulDispatches;
-            }
             if (!data.asyncBroadcastPushNotification) {
               return;
             } else {
@@ -687,13 +732,7 @@ export class NotificationController extends BaseController {
           ).count;
           if (count <= broadcastSubscriberChunkSize) {
             startIdx = 0;
-            const res = await broadcastToSubscriberChunk();
-            if (res.fail) {
-              data.failedDispatches = res.fail;
-            }
-            if (res.success) {
-              data.successfulDispatches = res.success;
-            }
+            await broadcastToSubscriberChunk();
             await postBroadcastProcessing();
           } else {
             // call broadcastToSubscriberChunk, coordinate output
@@ -708,54 +747,20 @@ export class NotificationController extends BaseController {
                   this.httpContext.request.get('host');
             }
 
-            const q = queue(
-              (task: {startIdx: string}, cb: (arg0: any, arg1: any) => any) => {
-                const uri =
-                  httpHost +
-                  restApiRoot +
-                  '/notifications/' +
-                  data.id +
-                  '/broadcastToChunkSubscribers?start=' +
-                  task.startIdx;
-                request
-                  .get(uri)
-                  .then(function (response) {
-                    const body = response.data;
-                    if (response.status === 200) {
-                      return cb?.(null, body);
-                    }
-                    throw new HttpErrors[response.status]();
-                  })
-                  .catch(async () => {
-                    let subs, err;
-                    try {
-                      subs = await this.subscriptionRepository.find(
-                        {
-                          where: {
-                            serviceName: data.serviceName,
-                            state: 'confirmed',
-                            channel: data.channel,
-                          },
-                          order: ['created ASC'],
-                          skip: parseInt(task.startIdx),
-                          limit: broadcastSubscriberChunkSize,
-                          fields: {
-                            userChannelId: true,
-                          },
-                        },
-                        undefined,
-                      );
-                    } catch (ex) {
-                      err = ex;
-                    }
-                    return cb?.(
-                      err,
-                      subs?.map(e => e.userChannelId),
-                    );
-                  });
-              },
-              broadcastSubRequestBatchSize,
-            );
+            const q = queue(async (task: {startIdx: string}) => {
+              const uri =
+                httpHost +
+                restApiRoot +
+                '/notifications/' +
+                data.id +
+                '/broadcastToChunkSubscribers?start=' +
+                task.startIdx;
+              const response = await request.get(uri);
+              if (response.status === 200) {
+                return response.data;
+              }
+              throw new HttpErrors[response.status]();
+            }, broadcastSubRequestBatchSize);
             const queuedTasks = [];
             let i = 0;
             while (i < chunks) {
@@ -764,31 +769,12 @@ export class NotificationController extends BaseController {
               });
               i++;
             }
-            q.push(
-              queuedTasks,
-              function (err: any, res: {success: string | any[]; fail: any}) {
-                if (err) {
-                  data.state = 'error';
-                  return;
-                }
-                if (res.success && res.success.length > 0) {
-                  data.successfulDispatches = (
-                    data.successfulDispatches || []
-                  ).concat(res.success);
-                }
-                const failedDispatches = res.fail || res || [];
-                if (failedDispatches instanceof Array) {
-                  if (failedDispatches.length <= 0) {
-                    return;
-                  }
-                  data.failedDispatches = (data.failedDispatches || []).concat(
-                    failedDispatches,
-                  );
-                } else {
-                  data.state = 'error';
-                }
-              },
-            );
+            q.push(queuedTasks, function (err: any) {
+              if (err) {
+                data.state = 'error';
+                return;
+              }
+            });
             await q.drain();
             await postBroadcastProcessing();
           }
@@ -839,7 +825,7 @@ export class NotificationController extends BaseController {
       default:
         break;
     }
-    return res;
+    return this.notificationRepository.findById(res.id, undefined, undefined);
   }
 
   public async preCreationValidation(data: Partial<Notification>) {
