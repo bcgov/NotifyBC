@@ -1,6 +1,6 @@
 {
   "watch": ["src"],
-  "ext": "ts,json,js",
+  "ext": "*",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "yarn build:server && node ."
+  "exec": "yarn clean && yarn build:server && node ."
 }
