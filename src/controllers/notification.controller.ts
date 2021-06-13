@@ -495,8 +495,8 @@ export class NotificationController extends BaseController {
             success: [],
           };
           enum NotificationDispatchStatusField {
-            failedDispatches,
-            successfulDispatches,
+            failed,
+            successful,
           }
           const updateBroadcastPushNotificationStatus = async (
             field: NotificationDispatchStatusField,
@@ -509,7 +509,10 @@ export class NotificationController extends BaseController {
               return this.notificationRepository.updateById(
                 data.id,
                 {
-                  $push: {[NotificationDispatchStatusField[field]]: payload},
+                  $push: {
+                    ['dispatch.' +
+                    NotificationDispatchStatusField[field]]: payload,
+                  },
                 },
                 undefined,
               );
@@ -517,17 +520,26 @@ export class NotificationController extends BaseController {
               const currentNotification = await this.notificationRepository.findById(
                 data.id,
                 {
-                  fields: [NotificationDispatchStatusField[field]],
+                  fields: ['dispatch'],
                 },
                 undefined,
               );
+              currentNotification.dispatch = currentNotification.dispatch ?? {};
+              currentNotification.dispatch[
+                NotificationDispatchStatusField[field]
+              ] =
+                currentNotification.dispatch[
+                  NotificationDispatchStatusField[field]
+                ] ?? [];
               const currentVal: any[] =
-                currentNotification[NotificationDispatchStatusField[field]] ||
-                [];
+                currentNotification.dispatch[
+                  NotificationDispatchStatusField[field]
+                ];
               currentVal.push(payload);
+
               await this.notificationRepository.updateById(
                 data.id,
-                {[NotificationDispatchStatusField[field]]: currentVal},
+                {dispatch: currentNotification.dispatch},
                 undefined,
               );
             }
@@ -535,7 +547,7 @@ export class NotificationController extends BaseController {
           const notificationMsgCB = async (err: any, e: Subscription) => {
             if (err) {
               return updateBroadcastPushNotificationStatus(
-                NotificationDispatchStatusField.failedDispatches,
+                NotificationDispatchStatusField.failed,
                 {
                   subscriptionId: e.id,
                   userChannelId: e.userChannelId,
@@ -544,7 +556,7 @@ export class NotificationController extends BaseController {
               );
             } else if (logSuccessfulBroadcastDispatches || handleBounce) {
               return updateBroadcastPushNotificationStatus(
-                NotificationDispatchStatusField.successfulDispatches,
+                NotificationDispatchStatusField.successful,
                 e.id,
               );
             }
@@ -682,14 +694,14 @@ export class NotificationController extends BaseController {
                 },
                 where: {
                   id: {
-                    inq: data.successfulDispatches,
+                    inq: data.dispatch?.successful,
                   },
                 },
               },
               undefined,
             );
             const userChannelIds = res.map(e => e.userChannelId);
-            const errUserChannelIds = (data.failedDispatches || []).map(
+            const errUserChannelIds = (data.dispatch?.failed || []).map(
               (e: {userChannelId: any}) => e.userChannelId,
             );
             _.pullAll(userChannelIds, errUserChannelIds);

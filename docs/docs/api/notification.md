@@ -329,25 +329,17 @@ The API operates on following notification data model fields:
   </tr>
   <tr>
     <td>
-      <p class="name">failedDispatches</p>
-      <p class="description">this is an internal field to track the list of <i>subscriptions</i> a broadcast push notification failed to dispatch to. It is returned to notification creation API caller.</p>
+      <p class="name">dispatch</p>
+      <p class="description">this is an internal field to track the broadcast push notification dispatch outcome. It consists of up to three arrays</p>
+        <ul>
+          <li>failed - a list of objects containing subscription IDs and error of failed dispatching</li>
+          <li>successful - a list of strings containing subscription IDs of successful dispatching</li>
+          <li>candidates - a list of strings containing IDs of confirmed subscriptions to the service. Dispatching to a subscription is subject to filtering.</li>
+        </ul>
     </td>
     <td>
       <table>
-        <tr><td>type</td><td>array</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <p class="name">successfulDispatches</p>
-      <p class="description">this is an internal field to track the list of <i>subscriptions</i> a broadcast push notification successfully dispatched to. It is returned to notification creation API caller.</p>
-    </td>
-    <td>
-      <table>
-        <tr><td>type</td><td>array</td></tr>
+        <tr><td>type</td><td>object</td></tr>
         <tr><td>required</td><td>false</td></tr>
         <tr><td>auto-generated</td><td>true</td></tr>
       </table>
@@ -443,8 +435,8 @@ POST /notifications
 
      In both cases, mail merge is performed on messages.
 
-  8. the state of push notification is updated to _sent_ or _error_ depending on sending status. For broadcast push notification, the delivery could be failed only for a subset of users. In such case, the field _failedDispatches_ contains a list of objects of {userChannelId, subscriptionId, error} the message failed to deliver to, but the state will still be set to _sent_.
-  9. For broadcast push notifications, if _logSuccessfulBroadcastDispatches_ is _true_, then field _successfulDispatches_ is populated with a list of _subscriptionId_ of the successful dispatches.
+  8. the state of push notification is updated to _sent_ or _error_ depending on sending status. For broadcast push notification, the delivery could be failed only for a subset of users. In such case, the field _dispatch.failed_ contains a list of objects of {userChannelId, subscriptionId, error} the message failed to deliver to, but the state will still be set to _sent_.
+  9. For broadcast push notifications, if _logSuccessfulBroadcastDispatches_ is _true_, then field _dispatch.successful_ is populated with a list of _subscriptionId_ of the successful dispatches.
   10. For push notifications, the bounce records of successful dispatches are updated
   11. the updated notification is saved back to database
   12. if it's an async broadcast push notification with a callback url, then the url is called with POST verb containing the notification with updated status as the request body

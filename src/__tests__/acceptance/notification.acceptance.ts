@@ -716,8 +716,8 @@ describe('POST /notifications', function () {
       ),
     );
     expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledTwice);
-    expect(data[0].failedDispatches.length).equal(1);
-    expect(data[0].failedDispatches[0]).containEql({
+    expect(data[0].dispatch.failed.length).equal(1);
+    expect(data[0].dispatch.failed[0]).containEql({
       userChannelId: 'bar2@invalid',
       error: 'bar2@invalid',
     });
@@ -763,7 +763,7 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
       },
     });
-    expect(data[0].failedDispatches).undefined();
+    expect(data[0].dispatch?.failed).undefined();
   });
 
   it('should send broadcast email notification with matching filter', async function () {
@@ -916,7 +916,7 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(res.body.successfulDispatches[0]).equal('1');
+    expect(res.body.dispatch.successful[0]).equal('1');
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
@@ -938,7 +938,7 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(res.body.successfulDispatches === undefined);
+    expect(res.body.dispatch?.successful === undefined);
   });
 
   it('should set envelope address when bounce is enabled and inboundSmtpServer.domain is defined', async function () {
@@ -1063,12 +1063,12 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    expect(
-      res.body.failedDispatches.indexOf('bar1@foo.com'),
-    ).greaterThanOrEqual(0);
-    expect(
-      res.body.failedDispatches.indexOf('bar2@invalid'),
-    ).greaterThanOrEqual(0);
+    expect(res.body.dispatch.failed.indexOf('bar1@foo.com')).greaterThanOrEqual(
+      0,
+    );
+    expect(res.body.dispatch.failed.indexOf('bar2@invalid')).greaterThanOrEqual(
+      0,
+    );
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 

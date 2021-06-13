@@ -141,6 +141,6 @@ module.exports = {
 }
 ```
 
-The _successfulDispatches_ field of the notification record will then contain an array of subscription *id*s of the successful dispatches.
+The _dispatch.successful_ field of the notification record will then contain an array of subscription *id*s of the successful dispatches.
 
 A successful dispatch only means the sending is successful. It doesn't guarantee the recipient can receive the notification. [Bounce](../config-notificationBounce/) may occur for a successful dispatch.
