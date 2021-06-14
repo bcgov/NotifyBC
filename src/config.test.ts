@@ -36,7 +36,7 @@ module.exports = {
   },
   notification: {
     handleBounce: true,
-    logSuccessfulBroadcastDispatches: false,
+    guaranteedBroadcastPushDispatchProcessing: true,
     broadcastCustomFilterFunctions: {
       // eslint-disable-next-line  @typescript-eslint/naming-convention
       contains_ci: {

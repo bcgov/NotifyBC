@@ -114,7 +114,7 @@ const config: AnyObject = {
     handleBounce: true,
     broadcastSubscriberChunkSize: 1000,
     broadcastSubRequestBatchSize: 10,
-    logSuccessfulBroadcastDispatches: false,
+    guaranteedBroadcastPushDispatchProcessing: true,
   },
   cron: {
     purgeData: {
