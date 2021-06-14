@@ -754,7 +754,7 @@ export class NotificationController extends BaseController {
           data.dispatch = {candidates: subCandidates.map(e => e.id)};
           await this.notificationRepository.updateById(
             data.id,
-            {dispatch: data.dispatch},
+            {state: 'sending', dispatch: data.dispatch},
             undefined,
           );
 
@@ -841,7 +841,7 @@ export class NotificationController extends BaseController {
             // async
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.sendPushNotification(res);
-            break;
+            return res;
           } else {
             await this.sendPushNotification(res);
             res.state = 'sent';

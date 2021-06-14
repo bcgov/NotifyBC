@@ -585,7 +585,7 @@ describe('POST /notifications', function () {
       },
     });
     expect(data.length).equal(1);
-    expect(data[0].state).equal('new');
+    expect(data[0].state).equal('sending');
     await wait(3000);
     data = await notificationRepository.find({
       where: {
@@ -699,7 +699,7 @@ describe('POST /notifications', function () {
       },
     });
     expect(data.length).equal(1);
-    expect(data[0].state).equal('new');
+    expect(data[0].state).equal('sending');
     await wait(3000);
     data = await notificationRepository.find({
       where: {
