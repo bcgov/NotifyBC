@@ -436,7 +436,7 @@ POST /notifications
      In both cases, mail merge is performed on messages.
 
   8. the state of push notification is updated to _sent_ or _error_ depending on sending status. For broadcast push notification, the delivery could be failed only for a subset of users. In such case, the field _dispatch.failed_ contains a list of objects of {userChannelId, subscriptionId, error} the message failed to deliver to, but the state will still be set to _sent_.
-  9. For broadcast push notifications, if _logSuccessfulBroadcastDispatches_ is _true_, then field _dispatch.successful_ is populated with a list of _subscriptionId_ of the successful dispatches.
+  9. For broadcast push notifications, if _guaranteedBroadcastPushDispatchProcessing_ is _true_, then field _dispatch.successful_ is populated with a list of _subscriptionId_ of the successful dispatches.
   10. For push notifications, the bounce records of successful dispatches are updated
   11. the updated notification is saved back to database
   12. if it's an async broadcast push notification with a callback url, then the url is called with POST verb containing the notification with updated status as the request body

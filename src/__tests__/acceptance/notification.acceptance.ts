@@ -898,7 +898,7 @@ describe('POST /notifications', function () {
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       Object.assign({}, origConfig, {
         notification: Object.assign({}, origConfig.notification, {
-          logSuccessfulBroadcastDispatches: true,
+          guaranteedBroadcastPushDispatchProcessing: true,
         }),
       }),
     );

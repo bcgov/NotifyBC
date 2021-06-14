@@ -129,14 +129,14 @@ The recommended way to install additional Node.js modules is by running command 
 ## Log Successful Broadcast Dispatches
 
 To optimize performance, by default only failed broadcast notification dispatches
-are logged in the notification record. If you want to log successful dispatches too, set config _logSuccessfulBroadcastDispatches_ to _true_ in file _/src/config.local.js_
+are logged in the notification record. If you want to log successful dispatches too, set config _guaranteedBroadcastPushDispatchProcessing_ to _true_ in file _/src/config.local.js_
 
 ```js
 module.exports = {
   ...
   notification: {
     ...
-    logSuccessfulBroadcastDispatches: true,
+    guaranteedBroadcastPushDispatchProcessing: true,
   }
 }
 ```

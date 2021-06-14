@@ -464,8 +464,8 @@ export class NotificationController extends BaseController {
           ?.broadcastSubscriberChunkSize;
         const broadcastSubRequestBatchSize = this.appConfig.notification
           ?.broadcastSubRequestBatchSize;
-        const logSuccessfulBroadcastDispatches = this.appConfig.notification
-          ?.logSuccessfulBroadcastDispatches;
+        const guaranteedBroadcastPushDispatchProcessing = this.appConfig
+          .notification?.guaranteedBroadcastPushDispatchProcessing;
         let startIdx: undefined | number;
         try {
           startIdx = await this.httpContext.get('NotifyBC.startIdx');
@@ -554,7 +554,10 @@ export class NotificationController extends BaseController {
                   error: err,
                 },
               );
-            } else if (logSuccessfulBroadcastDispatches || handleBounce) {
+            } else if (
+              guaranteedBroadcastPushDispatchProcessing ||
+              handleBounce
+            ) {
               return updateBroadcastPushNotificationStatus(
                 NotificationDispatchStatusField.successful,
                 e.id,
