@@ -684,6 +684,7 @@ export class NotificationController extends BaseController {
           return ret;
         };
         if (typeof startIdx !== 'number') {
+          // main request
           const postBroadcastProcessing = async () => {
             data = await this.notificationRepository.findById(
               data.id,
@@ -735,16 +736,26 @@ export class NotificationController extends BaseController {
               }
             }
           };
-          const count = (
-            await this.subscriptionRepository.count(
-              {
+
+          const subCandidates = await this.subscriptionRepository.find(
+            {
+              where: {
                 serviceName: data.serviceName,
                 state: 'confirmed',
                 channel: data.channel,
               },
-              undefined,
-            )
-          ).count;
+              fields: ['id'],
+            },
+            undefined,
+          );
+          await this.notificationRepository.updateById(
+            data.id,
+            {dispatch: {candidates: subCandidates.map(e => e.id)}},
+            undefined,
+          );
+
+          const count = subCandidates.length;
+
           if (count <= broadcastSubscriberChunkSize) {
             startIdx = 0;
             await broadcastToSubscriberChunk();
