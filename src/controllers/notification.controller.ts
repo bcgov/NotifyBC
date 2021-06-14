@@ -471,16 +471,15 @@ export class NotificationController extends BaseController {
           startIdx = await this.httpContext.get('NotifyBC.startIdx');
         } catch (ex) {}
         const broadcastToSubscriberChunk = async () => {
+          const subChunk = (data.dispatch.candidates as string[]).slice(
+            startIdx,
+            startIdx + broadcastSubscriberChunkSize,
+          );
           const subscribers = await this.subscriptionRepository.find(
             {
               where: {
-                serviceName: data.serviceName,
-                state: 'confirmed',
-                channel: data.channel,
+                id: {inq: subChunk},
               },
-              order: ['created ASC'],
-              skip: startIdx ?? 0,
-              limit: broadcastSubscriberChunkSize,
             },
             undefined,
           );
@@ -717,9 +716,13 @@ export class NotificationController extends BaseController {
               if (data.state !== 'error') {
                 data.state = 'sent';
               }
-              await this.notificationRepository.updateById(data.id, data, {
-                httpContext: this.httpContext,
-              });
+              await this.notificationRepository.updateById(
+                data.id,
+                {state: data.state},
+                {
+                  httpContext: this.httpContext,
+                },
+              );
               if (typeof data.asyncBroadcastPushNotification === 'string') {
                 const options = {
                   headers: {
@@ -748,9 +751,10 @@ export class NotificationController extends BaseController {
             },
             undefined,
           );
+          data.dispatch = {candidates: subCandidates.map(e => e.id)};
           await this.notificationRepository.updateById(
             data.id,
-            {dispatch: {candidates: subCandidates.map(e => e.id)}},
+            {dispatch: data.dispatch},
             undefined,
           );
 
@@ -837,6 +841,7 @@ export class NotificationController extends BaseController {
             // async
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.sendPushNotification(res);
+            break;
           } else {
             await this.sendPushNotification(res);
             res.state = 'sent';
@@ -844,9 +849,13 @@ export class NotificationController extends BaseController {
         } catch (errSend: any) {
           res.state = 'error';
         }
-        await this.notificationRepository.updateById(res.id, res, {
-          httpContext: this.httpContext,
-        });
+        await this.notificationRepository.updateById(
+          res.id,
+          {state: res.state},
+          {
+            httpContext: this.httpContext,
+          },
+        );
         break;
       default:
         break;
