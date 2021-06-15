@@ -716,6 +716,7 @@ describe('POST /notifications', function () {
       ),
     );
     expect((BaseController.prototype.sendEmail as sinon.SinonStub).calledTwice);
+    expect(data[0].dispatch.candidates.indexOf('4')).greaterThanOrEqual(0);
     expect(data[0].dispatch.failed.length).equal(1);
     expect(data[0].dispatch.failed[0]).containEql({
       userChannelId: 'bar2@invalid',
@@ -916,6 +917,7 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
+    expect(res.body.dispatch.candidates.indexOf('1')).greaterThanOrEqual(0);
     expect(res.body.dispatch.successful[0]).equal('1');
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
@@ -1063,9 +1065,15 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
+    expect(
+      res.body.dispatch.candidates.indexOf('bar1@foo.com'),
+    ).greaterThanOrEqual(0);
     expect(res.body.dispatch.failed.indexOf('bar1@foo.com')).greaterThanOrEqual(
       0,
     );
+    expect(
+      res.body.dispatch.candidates.indexOf('bar2@invalid'),
+    ).greaterThanOrEqual(0);
     expect(res.body.dispatch.failed.indexOf('bar2@invalid')).greaterThanOrEqual(
       0,
     );
