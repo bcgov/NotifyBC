@@ -475,6 +475,13 @@ export class NotificationController extends BaseController {
             startIdx,
             startIdx + broadcastSubscriberChunkSize,
           );
+          _.pullAll(
+            _.pullAll(
+              subChunk,
+              (data.dispatch?.failed ?? []).map((e: any) => e.subscriptionId),
+            ),
+            data.dispatch?.successful ?? [],
+          );
           const subscribers = await this.subscriptionRepository.find(
             {
               where: {
@@ -489,10 +496,6 @@ export class NotificationController extends BaseController {
           if (ft) {
             jmespathSearchOpts.functionTable = ft;
           }
-          const ret: AnyObject = {
-            fail: [],
-            success: [],
-          };
           enum NotificationDispatchStatusField {
             failed,
             successful,
@@ -680,7 +683,6 @@ export class NotificationController extends BaseController {
               }
             }),
           );
-          return ret;
         };
         if (typeof startIdx !== 'number') {
           // main request
@@ -751,7 +753,9 @@ export class NotificationController extends BaseController {
             },
             undefined,
           );
-          data.dispatch = {candidates: subCandidates.map(e => e.id)};
+          data.dispatch = data.dispatch ?? {};
+          data.dispatch.candidates =
+            data.dispatch.candidates ?? subCandidates.map(e => e.id);
           await this.notificationRepository.updateById(
             data.id,
             {state: 'sending', dispatch: data.dispatch},
