@@ -725,6 +725,48 @@ describe('POST /notifications', function () {
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
+  it('should use successful and failed dispatch list', async function () {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      Object.assign({}, origConfig, {
+        notification: {
+          broadcastSubscriberChunkSize: 1,
+          broadcastSubRequestBatchSize: 10,
+        },
+      }),
+    );
+    const res = await client
+      .post('/api/notifications')
+      .send({
+        serviceName: 'myChunkedBroadcastService',
+        message: {
+          from: 'no_reply@bar.com',
+          subject: 'test',
+          textBody: 'test',
+        },
+        channel: 'email',
+        isBroadcast: true,
+        dispatch: {
+          successful: ['3'],
+          failed: [{subscriptionId: '4'}],
+        },
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).equal(200);
+    expect((BaseController.prototype.sendEmail as sinon.SinonStub).notCalled);
+    const data = await notificationRepository.find({
+      where: {
+        serviceName: 'myChunkedBroadcastService',
+      },
+    });
+    expect(data.length).equal(1);
+    expect(data[0].dispatch.candidates).containDeep(['3', '4']);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+  });
+
   it('should perform client-retry', async function () {
     sinon
       .stub(BaseCrudRepository.prototype, 'isAdminReq')
