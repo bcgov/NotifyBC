@@ -795,20 +795,22 @@ export class NotificationController extends BaseController {
               }
               throw new HttpErrors[response.status]();
             }, broadcastSubRequestBatchSize);
-            const queuedTasks = [];
-            let i = 0;
-            while (i < chunks) {
-              queuedTasks.push({
-                startIdx: i * broadcastSubscriberChunkSize,
-              });
-              i++;
-            }
-            q.push(queuedTasks, function (err: any) {
-              if (err) {
+            // re-submit task on error if
+            // guaranteedBroadcastPushDispatchProcessing.
+            // See issue #39
+            q.error(function (_err: any, task: any) {
+              if (guaranteedBroadcastPushDispatchProcessing) {
+                q.push(task);
+              } else {
                 data.state = 'error';
-                return;
               }
             });
+            let i = 0;
+            while (i < chunks) {
+              q.push({
+                startIdx: i++ * broadcastSubscriberChunkSize,
+              });
+            }
             await q.drain();
             await postBroadcastProcessing();
           }
