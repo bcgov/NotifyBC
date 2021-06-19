@@ -326,7 +326,7 @@ export class NotificationController extends BaseController {
   @oas.visibility(OperationVisibility.UNDOCUMENTED)
   @get('/notifications/{id}/broadcastToChunkSubscribers', {
     responses: {
-      '200': {
+      '204': {
         description: 'Operation Successful',
       },
     },
@@ -472,6 +472,73 @@ export class NotificationController extends BaseController {
         try {
           startIdx = await this.httpContext.get('NotifyBC.startIdx');
         } catch (ex) {}
+        enum NotificationDispatchStatusField {
+          failed,
+          successful,
+        }
+        const updateBroadcastPushNotificationStatus = async (
+          field: NotificationDispatchStatusField,
+          payload: any,
+        ) => {
+          let success = false;
+          while (!success) {
+            try {
+              if (
+                this.notificationRepository.dataSource.connector?.name ===
+                'mongodb'
+              ) {
+                const val =
+                  payload instanceof Array ? {$each: payload} : payload;
+                await this.notificationRepository.updateById(
+                  data.id,
+                  {
+                    $push: {
+                      ['dispatch.' +
+                      NotificationDispatchStatusField[field]]: val,
+                    },
+                  },
+                  undefined,
+                );
+                success = true;
+                return;
+              } else {
+                const currentNotification = await this.notificationRepository.findById(
+                  data.id,
+                  {
+                    fields: ['dispatch'],
+                  },
+                  undefined,
+                );
+                currentNotification.dispatch =
+                  currentNotification.dispatch ?? {};
+                currentNotification.dispatch[
+                  NotificationDispatchStatusField[field]
+                ] =
+                  currentNotification.dispatch[
+                    NotificationDispatchStatusField[field]
+                  ] ?? [];
+                const currentVal: any[] =
+                  currentNotification.dispatch[
+                    NotificationDispatchStatusField[field]
+                  ];
+                if (payload instanceof Array) {
+                  currentNotification.dispatch[
+                    NotificationDispatchStatusField[field]
+                  ] = currentVal.concat(payload);
+                } else {
+                  currentVal.push(payload);
+                }
+                await this.notificationRepository.updateById(
+                  data.id,
+                  {dispatch: currentNotification.dispatch},
+                  undefined,
+                );
+                success = true;
+              }
+            } catch (ex) {}
+            await sleep(1000);
+          }
+        };
         const broadcastToSubscriberChunk = async () => {
           const subChunk = (data.dispatch.candidates as string[]).slice(
             startIdx,
@@ -498,66 +565,6 @@ export class NotificationController extends BaseController {
           if (ft) {
             jmespathSearchOpts.functionTable = ft;
           }
-          enum NotificationDispatchStatusField {
-            failed,
-            successful,
-          }
-          const updateBroadcastPushNotificationStatus = async (
-            field: NotificationDispatchStatusField,
-            payload: any,
-          ) => {
-            let success = false;
-            while (!success) {
-              try {
-                if (
-                  this.notificationRepository.dataSource.connector?.name ===
-                  'mongodb'
-                ) {
-                  await this.notificationRepository.updateById(
-                    data.id,
-                    {
-                      $push: {
-                        ['dispatch.' +
-                        NotificationDispatchStatusField[field]]: payload,
-                      },
-                    },
-                    undefined,
-                  );
-                  success = true;
-                  return;
-                } else {
-                  const currentNotification = await this.notificationRepository.findById(
-                    data.id,
-                    {
-                      fields: ['dispatch'],
-                    },
-                    undefined,
-                  );
-                  currentNotification.dispatch =
-                    currentNotification.dispatch ?? {};
-                  currentNotification.dispatch[
-                    NotificationDispatchStatusField[field]
-                  ] =
-                    currentNotification.dispatch[
-                      NotificationDispatchStatusField[field]
-                    ] ?? [];
-                  const currentVal: any[] =
-                    currentNotification.dispatch[
-                      NotificationDispatchStatusField[field]
-                    ];
-                  currentVal.push(payload);
-
-                  await this.notificationRepository.updateById(
-                    data.id,
-                    {dispatch: currentNotification.dispatch},
-                    undefined,
-                  );
-                  success = true;
-                }
-              } catch (ex) {}
-              await sleep(1000);
-            }
-          };
           const notificationMsgCB = async (err: any, e: Subscription) => {
             if (err) {
               return updateBroadcastPushNotificationStatus(
@@ -802,7 +809,7 @@ export class NotificationController extends BaseController {
                 '/broadcastToChunkSubscribers?start=' +
                 task.startIdx;
               const response = await request.get(uri);
-              if (response.status === 200) {
+              if (response.status < 300) {
                 return response.data;
               }
               throw new HttpErrors[response.status]();
@@ -810,11 +817,22 @@ export class NotificationController extends BaseController {
             // re-submit task on error if
             // guaranteedBroadcastPushDispatchProcessing.
             // See issue #39
-            q.error(function (_err: any, task: any) {
+            let failedChunks: any[] = [];
+            q.error((_err: any, task: any) => {
               if (guaranteedBroadcastPushDispatchProcessing) {
                 q.push(task);
               } else {
                 data.state = 'error';
+                // mark all chunk subs as failed
+                const subChunk = (data.dispatch.candidates as string[]).slice(
+                  task.startIdx,
+                  task.startIdx + broadcastSubscriberChunkSize,
+                );
+                failedChunks = failedChunks.concat(
+                  subChunk.map(e => {
+                    return {subscriptionId: e};
+                  }),
+                );
               }
             });
             let i = 0;
@@ -824,6 +842,12 @@ export class NotificationController extends BaseController {
               });
             }
             await q.drain();
+            if (failedChunks.length > 0) {
+              await updateBroadcastPushNotificationStatus(
+                NotificationDispatchStatusField.failed,
+                failedChunks,
+              );
+            }
             await postBroadcastProcessing();
           }
         } else {
