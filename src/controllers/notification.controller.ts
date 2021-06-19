@@ -40,6 +40,7 @@ import {
 } from '@loopback/rest';
 import request from 'axios';
 import _ from 'lodash';
+import {promisify} from 'util';
 import {ApplicationConfig} from '..';
 import {Notification, Subscription} from '../models';
 import {
@@ -52,6 +53,7 @@ import {BaseController} from './base.controller';
 export {request};
 const jmespath = require('jmespath');
 const queue = require('async/queue');
+const sleep = promisify(setTimeout);
 
 @authenticate(
   'ipWhitelist',
@@ -504,46 +506,56 @@ export class NotificationController extends BaseController {
             field: NotificationDispatchStatusField,
             payload: any,
           ) => {
-            if (
-              this.notificationRepository.dataSource.connector?.name ===
-              'mongodb'
-            ) {
-              return this.notificationRepository.updateById(
-                data.id,
-                {
-                  $push: {
-                    ['dispatch.' +
-                    NotificationDispatchStatusField[field]]: payload,
-                  },
-                },
-                undefined,
-              );
-            } else {
-              const currentNotification = await this.notificationRepository.findById(
-                data.id,
-                {
-                  fields: ['dispatch'],
-                },
-                undefined,
-              );
-              currentNotification.dispatch = currentNotification.dispatch ?? {};
-              currentNotification.dispatch[
-                NotificationDispatchStatusField[field]
-              ] =
-                currentNotification.dispatch[
-                  NotificationDispatchStatusField[field]
-                ] ?? [];
-              const currentVal: any[] =
-                currentNotification.dispatch[
-                  NotificationDispatchStatusField[field]
-                ];
-              currentVal.push(payload);
+            let success = false;
+            while (!success) {
+              try {
+                if (
+                  this.notificationRepository.dataSource.connector?.name ===
+                  'mongodb'
+                ) {
+                  await this.notificationRepository.updateById(
+                    data.id,
+                    {
+                      $push: {
+                        ['dispatch.' +
+                        NotificationDispatchStatusField[field]]: payload,
+                      },
+                    },
+                    undefined,
+                  );
+                  success = true;
+                  return;
+                } else {
+                  const currentNotification = await this.notificationRepository.findById(
+                    data.id,
+                    {
+                      fields: ['dispatch'],
+                    },
+                    undefined,
+                  );
+                  currentNotification.dispatch =
+                    currentNotification.dispatch ?? {};
+                  currentNotification.dispatch[
+                    NotificationDispatchStatusField[field]
+                  ] =
+                    currentNotification.dispatch[
+                      NotificationDispatchStatusField[field]
+                    ] ?? [];
+                  const currentVal: any[] =
+                    currentNotification.dispatch[
+                      NotificationDispatchStatusField[field]
+                    ];
+                  currentVal.push(payload);
 
-              await this.notificationRepository.updateById(
-                data.id,
-                {dispatch: currentNotification.dispatch},
-                undefined,
-              );
+                  await this.notificationRepository.updateById(
+                    data.id,
+                    {dispatch: currentNotification.dispatch},
+                    undefined,
+                  );
+                  success = true;
+                }
+              } catch (ex) {}
+              await sleep(1000);
             }
           };
           const notificationMsgCB = async (err: any, e: Subscription) => {
