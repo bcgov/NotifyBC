@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {CoreBindings} from '@loopback/core';
-import {AnyObject} from '@loopback/repository';
 import {Client, expect} from '@loopback/testlab';
+import _ from 'lodash';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {BaseController} from '../../controllers/base.controller';
@@ -122,14 +122,18 @@ describe('GET /notifications', function () {
     expect(res.status).equal(401);
   });
 
-  it('should be allowed to sm user for current, non-expired, non-deleted inApp notifications', async function () {
-    const res = await client
-      .get('/api/notifications')
-      .set('Accept', 'application/json')
-      .set('SM_USER', 'bar');
-    expect(res.status).equal(200);
-    expect(res.body.length).equal(1);
-  });
+  it(
+    'should be allowed to sm user for current, non-expired, non-deleted ' +
+      'inApp notifications',
+    async function () {
+      const res = await client
+        .get('/api/notifications')
+        .set('Accept', 'application/json')
+        .set('SM_USER', 'bar');
+      expect(res.status).equal(200);
+      expect(res.body.length).equal(1);
+    },
+  );
 });
 
 describe('POST /notifications', function () {
@@ -213,9 +217,13 @@ describe('POST /notifications', function () {
           from: 'no_reply@bar.com',
           subject: 'test',
           textBody:
-            '\\{1\\} \\{2\\}, This is a broadcast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code} {2} {notification::1} {subscription::gender}',
+            '\\{1\\} \\{2\\}, This is a broadcast test {confirmation_code} ' +
+            '{service_name} {http_host} {rest_api_root} {subscription_id} ' +
+            '{unsubscription_code} {2} {notification::1} {subscription::gender}',
           htmlBody:
-            '\\{1\\} \\{2\\}, This is a broadcast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code} {2} {notification::1} {subscription::gender}',
+            '\\{1\\} \\{2\\}, This is a broadcast test {confirmation_code} ' +
+            '{service_name} {http_host} {rest_api_root} {subscription_id} ' +
+            '{unsubscription_code} {2} {notification::1} {subscription::gender}',
         },
         data: {
           '1': 'foo',
@@ -360,9 +368,11 @@ describe('POST /notifications', function () {
           from: 'no_reply@bar.com',
           subject: 'test',
           textBody:
-            'This is a unicast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+            'This is a unicast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
           htmlBody:
-            'This is a unicast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+            'This is a unicast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
         },
         channel: 'email',
         userId: 'bar',
@@ -391,7 +401,8 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
         message: {
           textBody:
-            'This is a unicast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+            'This is a unicast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
         },
         channel: 'sms',
         skipSubscriptionConfirmationCheck: true,
@@ -418,7 +429,8 @@ describe('POST /notifications', function () {
         serviceName: 'myService',
         message: {
           textBody:
-            'This is a unicast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+            'This is a unicast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
         },
         channel: 'sms',
         isBroadcast: true,
@@ -446,7 +458,8 @@ describe('POST /notifications', function () {
           from: 'no_reply@bar.com',
           subject: 'test',
           textBody:
-            'This is a unicast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+            'This is a unicast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
         },
         channel: 'email',
         userId: 'bar',
@@ -465,33 +478,38 @@ describe('POST /notifications', function () {
     expect(data.length).equal(1);
   });
 
-  it('should deny skipSubscriptionConfirmationCheck unicast notification missing userChannelId', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
-    const res = await client
-      .post('/api/notifications')
-      .send({
-        serviceName: 'myService',
-        message: {
-          from: 'no_reply@bar.com',
-          subject: 'test',
-          textBody:
-            'This is a unicast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+  it(
+    'should deny skipSubscriptionConfirmationCheck unicast notification ' +
+      'missing userChannelId',
+    async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'myService',
+          message: {
+            from: 'no_reply@bar.com',
+            subject: 'test',
+            textBody:
+              'This is a unicast test {confirmation_code} {service_name} ' +
+              '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+          },
+          channel: 'email',
+          userId: 'bar',
+          skipSubscriptionConfirmationCheck: true,
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).equal(403);
+      const data = await notificationRepository.find({
+        where: {
+          serviceName: 'myService',
         },
-        channel: 'email',
-        userId: 'bar',
-        skipSubscriptionConfirmationCheck: true,
-      })
-      .set('Accept', 'application/json');
-    expect(res.status).equal(403);
-    const data = await notificationRepository.find({
-      where: {
-        serviceName: 'myService',
-      },
-    });
-    expect(data.length).equal(0);
-  });
+      });
+      expect(data.length).equal(0);
+    },
+  );
 
   it('should deny unicast notification missing both userChannelId and userId', async function () {
     sinon
@@ -505,7 +523,8 @@ describe('POST /notifications', function () {
           from: 'no_reply@bar.com',
           subject: 'test',
           textBody:
-            'This is a unicast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+            'This is a unicast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
         },
         channel: 'email',
       })
@@ -554,58 +573,63 @@ describe('POST /notifications', function () {
     expect(res.status).equal(403);
   });
 
-  it('should perform async callback for broadcast push notification if asyncBroadcastPushNotification is set', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
-    (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
-    sinon
-      .stub(BaseController.prototype, 'sendEmail')
-      .callsFake(async (...args) => {
-        console.log('faking delayed sendEmail');
-        await wait(1000);
-      });
-    sinon.spy(request, 'post');
+  it(
+    'should perform async callback for broadcast push notification if ' +
+      'asyncBroadcastPushNotification is set',
+    async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
+      sinon
+        .stub(BaseController.prototype, 'sendEmail')
+        .callsFake(async (...args) => {
+          console.log('faking delayed sendEmail');
+          await wait(1000);
+        });
+      sinon.spy(request, 'post');
 
-    const res = await client
-      .post('/api/notifications')
-      .send({
-        serviceName: 'myService',
-        message: {
-          from: 'no_reply@bar.com',
-          subject: 'test',
-          textBody:
-            'This is a unicast test {confirmation_code} {service_name} {http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'myService',
+          message: {
+            from: 'no_reply@bar.com',
+            subject: 'test',
+            textBody:
+              'This is a unicast test {confirmation_code} {service_name} ' +
+              '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+          },
+          channel: 'email',
+          isBroadcast: true,
+          asyncBroadcastPushNotification: 'http://foo.com',
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).equal(200);
+      let data = await notificationRepository.find({
+        where: {
+          serviceName: 'myService',
         },
-        channel: 'email',
-        isBroadcast: true,
-        asyncBroadcastPushNotification: 'http://foo.com',
-      })
-      .set('Accept', 'application/json');
-    expect(res.status).equal(200);
-    let data = await notificationRepository.find({
-      where: {
-        serviceName: 'myService',
-      },
-    });
-    expect(data.length).equal(1);
-    expect(data[0].state).equal('sending');
-    await wait(3000);
-    data = await notificationRepository.find({
-      where: {
-        serviceName: 'myService',
-      },
-    });
-    expect(data.length).equal(1);
-    expect(data[0].state).equal('sent');
-    expect(
-      (request.post as sinon.SinonStub).calledWith(
-        'http://foo.com',
-        sinon.match.object,
-        sinon.match.object,
-      ),
-    ).true();
-  });
+      });
+      expect(data.length).equal(1);
+      expect(data[0].state).equal('sending');
+      await wait(3000);
+      data = await notificationRepository.find({
+        where: {
+          serviceName: 'myService',
+        },
+      });
+      expect(data.length).equal(1);
+      expect(data[0].state).equal('sent');
+      expect(
+        (request.post as sinon.SinonStub).calledWith(
+          'http://foo.com',
+          sinon.match.object,
+          sinon.match.object,
+        ),
+      ).true();
+    },
+  );
 
   it('should send chunked sync broadcast email notifications', async function () {
     sinon
@@ -613,7 +637,7 @@ describe('POST /notifications', function () {
       .callsFake(async () => true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
-      Object.assign({}, origConfig, {
+      _.merge({}, origConfig, {
         notification: {
           broadcastSubscriberChunkSize: 1,
           broadcastSubRequestBatchSize: 10,
@@ -652,7 +676,7 @@ describe('POST /notifications', function () {
       .callsFake(async () => true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
-      Object.assign({}, origConfig, {
+      _.merge({}, origConfig, {
         notification: {
           broadcastSubscriberChunkSize: 1,
           broadcastSubRequestBatchSize: 10,
@@ -660,15 +684,6 @@ describe('POST /notifications', function () {
       }),
     );
     sinon.spy(request, 'post');
-    sinon.stub(request, 'get').callsFake(async function (url: string) {
-      const uri = url.substring(url.indexOf('/api/notifications'));
-      const response: AnyObject = await client
-        .get(uri)
-        .set('Accept', 'application/json')
-        .expect('Content-Type', /json/);
-      response.data = response.body;
-      return response;
-    });
     (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
     sinon
       .stub(BaseController.prototype, 'sendEmail')
@@ -739,7 +754,7 @@ describe('POST /notifications', function () {
       .callsFake(async () => true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
-      Object.assign({}, origConfig, {
+      _.merge({}, origConfig, {
         notification: {
           broadcastSubscriberChunkSize: 1,
           broadcastSubRequestBatchSize: 10,
@@ -776,6 +791,53 @@ describe('POST /notifications', function () {
     expect(data[0].dispatch.candidates).containDeep(['3', '4']);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
+
+  it(
+    'should retry sub-request when sending chunked broadcast ' +
+      'notifications',
+    async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+      app.bind(CoreBindings.APPLICATION_CONFIG).to(
+        _.merge({}, origConfig, {
+          notification: {
+            broadcastSubscriberChunkSize: 1,
+            broadcastSubRequestBatchSize: 10,
+          },
+        }),
+      );
+      const reqStub = sinon.stub(request, 'get');
+      reqStub.callThrough();
+      reqStub.onFirstCall().throws({error: 'connection error'});
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'myChunkedBroadcastService',
+          message: {
+            from: 'no_reply@bar.com',
+            subject: 'test',
+            textBody: 'test',
+          },
+          channel: 'email',
+          isBroadcast: true,
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).equal(200);
+      expect(
+        (BaseController.prototype.sendEmail as sinon.SinonStub).calledTwice,
+      ).true();
+      sinon.assert.calledThrice(reqStub);
+      const data = await notificationRepository.find({
+        where: {
+          serviceName: 'myChunkedBroadcastService',
+        },
+      });
+      expect(data.length).equal(1);
+      app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+    },
+  );
 
   it('should perform client-retry', async function () {
     sinon
@@ -947,82 +1009,94 @@ describe('POST /notifications', function () {
     ).greaterThanOrEqual(Date.parse(data.latestNotificationStarted as string));
   });
 
-  it('should log successful dispatches after sending broadcast email notification if configured so', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
-    const res = await client
-      .post('/api/notifications')
-      .send({
-        serviceName: 'myService',
-        channel: 'email',
-        message: {
-          from: 'no_reply@invalid.local',
-          subject: 'test',
-          textBody: 'test',
-        },
-        isBroadcast: true,
-      })
-      .set('Accept', 'application/json');
-    expect(res.status).equal(200);
-    expect(res.body.dispatch.candidates.indexOf('1')).greaterThanOrEqual(0);
-    expect(res.body.dispatch.successful[0]).equal('1');
-  });
+  it(
+    'should log successful dispatches after sending broadcast email ' +
+      'notification if configured so',
+    async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'myService',
+          channel: 'email',
+          message: {
+            from: 'no_reply@invalid.local',
+            subject: 'test',
+            textBody: 'test',
+          },
+          isBroadcast: true,
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).equal(200);
+      expect(res.body.dispatch.candidates.indexOf('1')).greaterThanOrEqual(0);
+      expect(res.body.dispatch.successful[0]).equal('1');
+    },
+  );
 
-  it('should not log successful dispatches after sending broadcast email notification if configured so', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
-    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
-    app.bind(CoreBindings.APPLICATION_CONFIG).to(
-      Object.assign({}, origConfig, {
-        notification: Object.assign({}, origConfig.notification, {
-          guaranteedBroadcastPushDispatchProcessing: false,
-          handleBounce: false,
+  it(
+    'should not log successful dispatches after sending broadcast email ' +
+      'notification if configured so',
+    async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+      app.bind(CoreBindings.APPLICATION_CONFIG).to(
+        _.merge({}, origConfig, {
+          notification: {
+            guaranteedBroadcastPushDispatchProcessing: false,
+            handleBounce: false,
+          },
         }),
-      }),
-    );
-    const res = await client
-      .post('/api/notifications')
-      .send({
-        serviceName: 'myService',
-        channel: 'email',
-        message: {
-          from: 'no_reply@invalid.local',
-          subject: 'test',
-          textBody: 'test',
-        },
-        isBroadcast: true,
-      })
-      .set('Accept', 'application/json');
-    expect(res.status).equal(200);
-    expect(res.body.dispatch?.successful).undefined();
-    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
-  });
+      );
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'myService',
+          channel: 'email',
+          message: {
+            from: 'no_reply@invalid.local',
+            subject: 'test',
+            textBody: 'test',
+          },
+          isBroadcast: true,
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).equal(200);
+      expect(res.body.dispatch?.successful).undefined();
+      app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+    },
+  );
 
-  it('should set envelope address when bounce is enabled and inboundSmtpServer.domain is defined', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
-    const res = await client
-      .post('/api/notifications')
-      .send({
-        serviceName: 'myService',
-        channel: 'email',
-        message: {
-          from: 'no_reply@invalid.local',
-          subject: 'test',
-          textBody: 'test',
-        },
-        isBroadcast: true,
-      })
-      .set('Accept', 'application/json');
-    expect(res.status).equal(200);
-    expect(
-      (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
-        .firstArg.envelope.from,
-    ).equal('bn-1-54321@invalid.local');
-  });
+  it(
+    'should set envelope address when bounce is enabled and ' +
+      'inboundSmtpServer.domain is defined',
+    async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'myService',
+          channel: 'email',
+          message: {
+            from: 'no_reply@invalid.local',
+            subject: 'test',
+            textBody: 'test',
+          },
+          isBroadcast: true,
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).equal(200);
+      expect(
+        (BaseController.prototype.sendEmail as sinon.SinonStub).getCall(0)
+          .firstArg.envelope.from,
+      ).equal('bn-1-54321@invalid.local');
+    },
+  );
 
   it('should not set envelope address when bounce is disabled', async function () {
     sinon
@@ -1030,10 +1104,10 @@ describe('POST /notifications', function () {
       .callsFake(async () => true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
-      Object.assign({}, origConfig, {
-        notification: Object.assign({}, origConfig.notification, {
+      _.merge({}, origConfig, {
+        notification: {
           handleBounce: false,
-        }),
+        },
       }),
     );
     const res = await client
@@ -1064,9 +1138,9 @@ describe('POST /notifications', function () {
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       Object.assign({}, origConfig, {
-        inboundSmtpServer: Object.assign({}, origConfig.inboundSmtpServer, {
+        inboundSmtpServer: {
           domain: undefined,
-        }),
+        },
       }),
     );
     const res = await client
@@ -1090,52 +1164,48 @@ describe('POST /notifications', function () {
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
-  // temporarily skip. Proper error handling will be implemented by #39
-  it.skip('should handle batch broadcast request error', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
-    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
-    app.bind(CoreBindings.APPLICATION_CONFIG).to(
-      Object.assign({}, origConfig, {
-        notification: Object.assign({}, origConfig.notification, {
-          broadcastSubscriberChunkSize: 1,
-          broadcastSubRequestBatchSize: 2,
+  it(
+    'should handle batch broadcast request error ' +
+      'when guaranteedBroadcastPushDispatchProcessing is false',
+    async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+      app.bind(CoreBindings.APPLICATION_CONFIG).to(
+        _.merge({}, origConfig, {
+          notification: {
+            broadcastSubscriberChunkSize: 1,
+            broadcastSubRequestBatchSize: 2,
+            guaranteedBroadcastPushDispatchProcessing: false,
+          },
         }),
-      }),
-    );
-    sinon.stub(request, 'get').callsFake(async function () {
-      throw new Error('error');
-    });
+      );
+      sinon.stub(request, 'get').callsFake(async function () {
+        throw new Error('error');
+      });
 
-    const res = await client
-      .post('/api/notifications')
-      .send({
-        serviceName: 'myChunkedBroadcastService',
-        message: {
-          from: 'no_reply@bar.com',
-          subject: 'test',
-          textBody: 'test',
-        },
-        channel: 'email',
-        isBroadcast: true,
-      })
-      .set('Accept', 'application/json');
-    expect(res.status).equal(200);
-    expect(
-      res.body.dispatch.candidates.indexOf('bar1@foo.com'),
-    ).greaterThanOrEqual(0);
-    expect(res.body.dispatch.failed.indexOf('bar1@foo.com')).greaterThanOrEqual(
-      0,
-    );
-    expect(
-      res.body.dispatch.candidates.indexOf('bar2@invalid'),
-    ).greaterThanOrEqual(0);
-    expect(res.body.dispatch.failed.indexOf('bar2@invalid')).greaterThanOrEqual(
-      0,
-    );
-    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
-  });
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'myChunkedBroadcastService',
+          message: {
+            from: 'no_reply@bar.com',
+            subject: 'test',
+            textBody: 'test',
+          },
+          channel: 'email',
+          isBroadcast: true,
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).equal(200);
+      expect(res.body.dispatch.candidates.indexOf('3')).greaterThanOrEqual(0);
+      expect(res.body.dispatch.failed).to.containEql({subscriptionId: '3'});
+      expect(res.body.dispatch.candidates.indexOf('4')).greaterThanOrEqual(0);
+      expect(res.body.dispatch.failed).to.containEql({subscriptionId: '4'});
+      app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+    },
+  );
 
   it('should handle async broadcastCustomFilterFunctions', async function () {
     sinon
@@ -1177,26 +1247,30 @@ describe('POST /notifications', function () {
     expect(data[0].state).equal('sent');
   });
 
-  it('should reject notification with invalid string broadcastPushNotificationSubscriptionFilter', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
-    const res = await client
-      .post('/api/notifications')
-      .send({
-        serviceName: 'broadcastCustomFilterFunctionsTest',
-        channel: 'email',
-        isBroadcast: true,
-        message: {
-          from: 'no_reply@bar.com',
-          subject: 'test',
-          textBody: 'test',
-        },
-        broadcastPushNotificationSubscriptionFilter: "a === 'b'",
-      })
-      .set('Accept', 'application/json');
-    expect(res.status).equal(400);
-  });
+  it(
+    'should reject notification with invalid ' +
+      'string broadcastPushNotificationSubscriptionFilter',
+    async function () {
+      sinon
+        .stub(BaseCrudRepository.prototype, 'isAdminReq')
+        .callsFake(async () => true);
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'broadcastCustomFilterFunctionsTest',
+          channel: 'email',
+          isBroadcast: true,
+          message: {
+            from: 'no_reply@bar.com',
+            subject: 'test',
+            textBody: 'test',
+          },
+          broadcastPushNotificationSubscriptionFilter: "a === 'b'",
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).equal(400);
+    },
+  );
 
   it('should handle broadcastPushNotificationSubscriptionFilter', async function () {
     sinon
