@@ -88,6 +88,15 @@ export class CronObserver implements LifeCycleObserver {
         start: true,
       }),
     );
+    const reDispatchBroadcastPushNotifications =
+      cronConfig.reDispatchBroadcastPushNotifications || {};
+    this.jobs.push(
+      new CronJob({
+        cronTime: reDispatchBroadcastPushNotifications.timeSpec,
+        onTick: cronTasks.reDispatchBroadcastPushNotifications(this.app),
+        start: true,
+      }),
+    );
   }
   async stop(): Promise<void> {
     for (const job of this.jobs) {

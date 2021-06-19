@@ -118,6 +118,7 @@ const config: AnyObject = {
   },
   cron: {
     purgeData: {
+      // daily
       timeSpec: '0 0 1 * * *',
       pushNotificationRetentionDays: 30,
       expiredInAppNotificationRetentionDays: 30,
@@ -127,14 +128,21 @@ const config: AnyObject = {
       defaultRetentionDays: 30,
     },
     dispatchLiveNotifications: {
+      // minutely
       timeSpec: '0 * * * * *',
     },
     checkRssConfigUpdates: {
+      // minutely
       timeSpec: '0 * * * * *',
     },
     deleteBounces: {
+      // hourly
       timeSpec: '0 0 * * * *',
       minLapsedHoursSinceLatestNotificationEnded: 1,
+    },
+    reDispatchBroadcastPushNotifications: {
+      // minutely
+      timeSpec: '0 * * * * *',
     },
   },
   inboundSmtpServer: {

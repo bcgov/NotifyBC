@@ -309,7 +309,7 @@ module.exports.checkRssConfigUpdates = async (
                 } catch (ex) {}
                 if (!lastSavedRssData) {
                   lastSavedRssData = await rssRepository.create({
-                    serviceName: rssNtfctnConfigItem.serviceName,
+                    serviceName: rssNtfctnConfigItem.serviceName as string,
                     items: [],
                   });
                 }
@@ -454,7 +454,7 @@ module.exports.checkRssConfigUpdates = async (
                           notificationObject,
                           options,
                         );
-                      } catch (ex) {
+                      } catch (ex: any) {
                         console.error(new Error(ex.message));
                       }
                     }
@@ -523,6 +523,74 @@ module.exports.deleteBounces = async (app: Application) => {
         activeBounce.state = 'deleted';
         await bounceRepository.updateById(activeBounce.id, activeBounce);
       }),
+    );
+  };
+};
+
+module.exports.reDispatchBroadcastPushNotifications = (app: Application) => {
+  return async () => {
+    const notificationRepo: NotificationRepository = await app.get(
+      'repositories.NotificationRepository',
+    );
+
+    const staleBroadcastPushNotifications = await notificationRepo.find({
+      where: {
+        state: 'sending',
+        channel: {
+          neq: 'inApp',
+        },
+        isBroadcast: true,
+        updated: {
+          lt: Date.now() - 600000,
+        },
+      },
+    });
+    if (
+      staleBroadcastPushNotifications &&
+      staleBroadcastPushNotifications.length === 0
+    ) {
+      return staleBroadcastPushNotifications;
+    }
+    return Promise.all(
+      staleBroadcastPushNotifications.map(
+        async staleBroadcastPushNotification => {
+          staleBroadcastPushNotification.asyncBroadcastPushNotification =
+            staleBroadcastPushNotification.asyncBroadcastPushNotification ||
+            true;
+          const httpHost =
+            (await app.getConfig(
+              CoreBindings.APPLICATION_INSTANCE,
+              'internalHttpHost',
+            )) ||
+            staleBroadcastPushNotification.httpHost ||
+            (await app.getConfig(
+              CoreBindings.APPLICATION_INSTANCE,
+              'httpHost',
+            ));
+          const url =
+            httpHost +
+            (await app.getConfig(
+              CoreBindings.APPLICATION_INSTANCE,
+              'restApiRoot',
+            )) +
+            '/notifications/' +
+            staleBroadcastPushNotification.id;
+          const options = {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          };
+          try {
+            await module.exports.request.put(
+              url,
+              staleBroadcastPushNotification,
+              options,
+            );
+          } catch (ex: any) {
+            console.error(new Error(ex.message));
+          }
+        },
+      ),
     );
   };
 };
