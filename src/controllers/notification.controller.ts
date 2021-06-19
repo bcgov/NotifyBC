@@ -777,9 +777,23 @@ export class NotificationController extends BaseController {
             data.dispatch.candidates ?? subCandidates.map(e => e.id);
           await this.notificationRepository.updateById(
             data.id,
-            {state: 'sending', dispatch: data.dispatch},
+            {
+              state: 'sending',
+              dispatchHeartbeat: new Date(),
+              dispatch: data.dispatch,
+            },
             undefined,
           );
+          const hbTimeout = setInterval(() => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.notificationRepository.updateById(
+              data.id,
+              {
+                dispatchHeartbeat: new Date(),
+              },
+              undefined,
+            );
+          }, 60000);
 
           const count = subCandidates.length;
 
@@ -850,6 +864,16 @@ export class NotificationController extends BaseController {
             }
             await postBroadcastProcessing();
           }
+          clearTimeout(hbTimeout);
+          await this.notificationRepository.updateById(
+            data.id,
+            this.notificationRepository.dataSource.connector?.name === 'mongodb'
+              ? {
+                  $unset: {dispatchHeartbeat: ''},
+                }
+              : {dispatchHeartbeat: undefined},
+            undefined,
+          );
         } else {
           return broadcastToSubscriberChunk();
         }
