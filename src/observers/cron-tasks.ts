@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Application, Context, CoreBindings} from '@loopback/core';
+import {Application, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
-import {RestBindings} from '@loopback/rest';
-import {NotificationController} from '../controllers';
 import {Rss, RssItem, RssRelations} from '../models';
 import {
   AccessTokenRepository,
@@ -222,28 +220,31 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
     return Promise.all(
       livePushNotifications.map(async livePushNotification => {
         livePushNotification.state = 'sending';
-        if (
-          livePushNotification.asyncBroadcastPushNotification === undefined ||
-          livePushNotification.asyncBroadcastPushNotification === null
-        ) {
-          livePushNotification.asyncBroadcastPushNotification = true;
+        const httpHost =
+          (await app.getConfig(
+            CoreBindings.APPLICATION_INSTANCE,
+            'internalHttpHost',
+          )) ??
+          livePushNotification.httpHost ??
+          (await app.getConfig(CoreBindings.APPLICATION_INSTANCE, 'httpHost'));
+        const url =
+          httpHost +
+          (await app.getConfig(
+            CoreBindings.APPLICATION_INSTANCE,
+            'restApiRoot',
+          )) +
+          '/notifications/' +
+          livePushNotification.id;
+        const options = {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        };
+        try {
+          return module.exports.request.put(url, livePushNotification, options);
+        } catch (ex: any) {
+          console.error(new Error(ex.message));
         }
-        await notificationRepo.updateById(
-          livePushNotification.id,
-          livePushNotification,
-        );
-        const ctx: Context = new Context();
-        ctx.bind('args').to({data: livePushNotification});
-        app.bind(RestBindings.Http.CONTEXT).to(ctx);
-        const notificationController: NotificationController = await app.get(
-          'controllers.NotificationController',
-        );
-        await notificationController.preCreationValidation(
-          livePushNotification,
-        );
-        return notificationController.dispatchNotification(
-          livePushNotification,
-        );
       }),
     );
   };
