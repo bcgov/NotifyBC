@@ -150,6 +150,7 @@ To install,
 
    - A MongoDB cluster with 2 nodes and 1 arbiter, each implemented as a stateful set
    - Two deployments - _notify-bc-app_ and _notify-bc-cron_
+   - One HPA - _notify-bc-cron_
    - Four services - _notify-bc_, _notify-bc-smtp_, _mongodb-headless_ and _mongodb-arbiter-headless_
    - Two PVCs each for one MongoDB node
    - Two config maps - _notify-bc_ and _mongodb-scripts_
