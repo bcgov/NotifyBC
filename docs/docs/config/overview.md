@@ -2,6 +2,11 @@
 permalink: /docs/config-overview/
 ---
 
+::: tip Helm Chart Configurations
+The document pages in this section cover _NoitfyBC_ app level configurations only.
+If your _NotifyBC_ is deployed to Kubernetes using Helm, you can also [customize](../getting-started/installation.md#customizations) infrastructure level configurations.
+:::
+
 # Configuration Overview
 
 There are two types of configurations - static and dynamic. Static configurations are defined in files or environment variables, requiring restarting _NotifyBC_ to take effect, whereas dynamic configurations are defined in databases and updates take effect immediately.

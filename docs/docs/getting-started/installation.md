@@ -179,10 +179,18 @@ replace \<release-name\> with installed helm release name.
 
 ### Customizations
 
-Various customizations can be made to chart. Some are platform dependent. To customize, first create a file with extension _.local.yaml_. The rest of the document assumes the file is _helm/values.local.yaml_. Then add customized values to the file. To apply customization, add `-f helm/values.local.yaml` to the helm command after `-f helm/platform-specific/<platform>.yaml`. For example, to run `helm install` with customization,
+Various customizations can be made to chart. Some are platform dependent. To customize, first create a file with extension _.local.yaml_. The rest of the document assumes the file is _helm/values.local.yaml_. Then add customized parameters to the file. See _helm/values.yaml_ and Bitnami MongoDB chart [readme](https://github.com/bitnami/charts/tree/master/bitnami/mongodb) for customizable parameters. Parameters in _helm/values.local.yaml_ overrides corresponding ones in _helm/values.yaml_. In particular, parameters under _mongodb_ of _helm/values.local.yaml_ overrides Bitnami MongoDB chart parameters.
+
+To apply customizations, add `-f helm/values.local.yaml` to the helm command after `-f helm/platform-specific/<platform>.yaml`. For example, to run `helm install` with customization,
 
 ```sh
 helm install -gf helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+```
+
+to run `helm upgrade` with customization,
+
+```sh
+helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
 ```
 
 ::: tip Backup <i>helm/values.local.yaml</i>
