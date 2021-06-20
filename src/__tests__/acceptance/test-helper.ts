@@ -19,6 +19,7 @@ import {
   givenHttpServerConfig,
 } from '@loopback/testlab';
 import sinon from 'sinon';
+import {promisify} from 'util';
 import {NotifyBcApplication} from '../..';
 import {BaseController} from '../../controllers/base.controller';
 
@@ -62,6 +63,8 @@ export interface AppWithClient {
   app: NotifyBcApplication;
   client: Client;
 }
+
+export const wait = promisify(setTimeout);
 
 beforeEach(function () {
   async function fakeSendEmail(_mailOptions: any) {

@@ -219,6 +219,8 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
     }
     return Promise.all(
       livePushNotifications.map(async livePushNotification => {
+        livePushNotification.asyncBroadcastPushNotification =
+          livePushNotification.asyncBroadcastPushNotification || true;
         livePushNotification.state = 'sending';
         const httpHost =
           (await app.getConfig(
@@ -562,8 +564,8 @@ module.exports.reDispatchBroadcastPushNotifications = (app: Application) => {
             (await app.getConfig(
               CoreBindings.APPLICATION_INSTANCE,
               'internalHttpHost',
-            )) ||
-            staleBroadcastPushNotification.httpHost ||
+            )) ??
+            staleBroadcastPushNotification.httpHost ??
             (await app.getConfig(
               CoreBindings.APPLICATION_INSTANCE,
               'httpHost',
