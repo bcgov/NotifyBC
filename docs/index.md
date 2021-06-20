@@ -18,19 +18,18 @@ features:
   - title: Non-intrusive
     details: >
       <ul>
-        <li>Handles common backend business logic only, allowing site developer implement frontend UI using widgets native to the site.
+        <li>Handles common backend business logic only, allowing site developer implement frontend UI using widgets native to the site
         </li>
-        <li>Loose coupling - interacts with user browser or other server components through RESTful API.
+        <li>Loose coupling - interacts with user browser or other server components through RESTful API
         </li>
       </ul>
-  - title: Secure
+  - title: Secure & Reliable
     details: >
       <ul>
         <li>Support end-to-end encryption
         </li>
         <li>Multiple authentication strategies including client certificate for server-server and OIDC for user-server</li>
-        <li>Containerized deployment as a microservice to Kubernetes. No need for complex enterprise-wide shared service. Better meet privacy mandates.
-        </li>
+        <li>Resilient to node failures</li>
       </ul>
 footer: >
   The contents of this website are <br />&copy;&nbsp;2016-present under the terms of the <a href="https://github.com/bcgov/NotifyBC/blob/main/LICENSE">Apache&nbsp;License, Version 2.0</a>.
