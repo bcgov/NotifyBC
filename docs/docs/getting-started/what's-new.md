@@ -6,6 +6,13 @@ permalink: /docs/what's-new/
 
 _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
+## v3.0.0
+
+See [v2 to v3 upgrade guide](../upgrade/#v2-to-v3) for more information.
+
+- Reliability improvements - issues [#36](https://github.com/bcgov/NotifyBC/issues/36),[#37](https://github.com/bcgov/NotifyBC/issues/37),[#38](https://github.com/bcgov/NotifyBC/issues/38),[#39](https://github.com/bcgov/NotifyBC/issues/39),[#40](https://github.com/bcgov/NotifyBC/issues/40),[#41](https://github.com/bcgov/NotifyBC/issues/41),[#42](https://github.com/bcgov/NotifyBC/issues/42)
+- docs updates
+
 ## v2.9.0
 
 - Issue [#34](https://github.com/bcgov/NotifyBC/issues/34): Helm - add k8s cronJob to backup MongoDB

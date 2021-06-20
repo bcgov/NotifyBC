@@ -126,21 +126,39 @@ The recommended way to install additional Node.js modules is by running command 
 
 :::
 
-## Log Successful Broadcast Dispatches
+## Guaranteed Broadcast Push Dispatch Processing
 
-To optimize performance, by default only failed broadcast notification dispatches
-are logged in the notification record. If you want to log successful dispatches too, set config _guaranteedBroadcastPushDispatchProcessing_ to _true_ in file _/src/config.local.js_
+As a major enhancement in v3, by default _NotifyBC_ guarantees all subscribers
+of a broadcast push notification will be processed in spite of
+_NotifyBC_ node failures during dispatching. Node failure is a concern because
+the time takes to dispatch broadcast push notification is proportional
+to number of subscribers, which is potentially large.
+
+Guaranteed processing doesn't mean notification will be dispatched to every
+intended subscriber, however. Dispatch can still be rejected by smtp/sms
+server. Furthermore, even if dispatch is successful,
+it only means the sending is successful. It doesn't guarantee the
+recipient receives the notification. [Bounce](../config-notificationBounce/)
+may occur for a successful dispatch, for instance; or the recipient may not
+read the message.
+
+The guarantee comes at a performance penalty because result of each
+dispatch is written to database one by one, taking a toll on the database.
+It should be noted that the [benchmarks](../miscellaneous/benchmarks.md) were conducted
+without the guarantee.
+
+If performance is a higher priority to you, disable the guarantee by setting config
+_guaranteedBroadcastPushDispatchProcessing_ to
+_false_ in file _/src/config.local.js_
 
 ```js
 module.exports = {
   ...
   notification: {
     ...
-    guaranteedBroadcastPushDispatchProcessing: true,
+    guaranteedBroadcastPushDispatchProcessing: false,
   }
 }
 ```
 
-The _dispatch.successful_ field of the notification record will then contain an array of subscription *id*s of the successful dispatches.
-
-A successful dispatch only means the sending is successful. It doesn't guarantee the recipient can receive the notification. [Bounce](../config-notificationBounce/) may occur for a successful dispatch.
+In such case only failed dispatches are written to _dispatch.failed_ field of the notification.
