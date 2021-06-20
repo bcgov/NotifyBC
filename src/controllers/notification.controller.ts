@@ -64,6 +64,7 @@ const wait = promisify(setTimeout);
 )
 @oas.tags('notification')
 export class NotificationController extends BaseController {
+  chunkRequestAborted = false;
   constructor(
     @inject('repositories.NotificationRepository', {
       asProxyWithInterceptors: true,
@@ -335,6 +336,13 @@ export class NotificationController extends BaseController {
     @param.path.string('id') id: string,
     @param.query.integer('start') startIdx: number,
   ) {
+    if (
+      this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing
+    ) {
+      this.httpContext.request.on('aborted', () => {
+        this.chunkRequestAborted = true;
+      });
+    }
     const notification = await this.notificationRepository.findOne(
       {where: {id}},
       undefined,
@@ -626,6 +634,7 @@ export class NotificationController extends BaseController {
               switch (e.channel) {
                 case 'sms':
                   try {
+                    if (this.chunkRequestAborted) return;
                     await this.sendSMS(e.userChannelId, textBody, e);
                     return await notificationMsgCB(null, e);
                   } catch (ex) {
@@ -693,6 +702,7 @@ export class NotificationController extends BaseController {
                     };
                   }
                   try {
+                    if (this.chunkRequestAborted) return;
                     await this.sendEmail(mailOptions);
                     return await notificationMsgCB(null, e);
                   } catch (ex) {
