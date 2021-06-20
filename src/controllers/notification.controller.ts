@@ -53,7 +53,7 @@ import {BaseController} from './base.controller';
 export {request};
 const jmespath = require('jmespath');
 const queue = require('async/queue');
-const sleep = promisify(setTimeout);
+const wait = promisify(setTimeout);
 
 @authenticate(
   'ipWhitelist',
@@ -536,7 +536,7 @@ export class NotificationController extends BaseController {
                 success = true;
               }
             } catch (ex) {}
-            await sleep(1000);
+            await wait(1000);
           }
         };
         const broadcastToSubscriberChunk = async () => {

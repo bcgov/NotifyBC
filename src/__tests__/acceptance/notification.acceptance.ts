@@ -25,7 +25,7 @@ import {
   SubscriptionRepository,
 } from '../../repositories';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
-import {setupApplication} from './test-helper';
+import {setupApplication, wait} from './test-helper';
 
 let app: NotifyBcApplication;
 let client: Client;
@@ -39,12 +39,6 @@ before('setupApplication', async function () {
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
   bounceRepository = await app.get('repositories.BounceRepository');
 });
-
-async function wait(ms: number) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
-}
 
 describe('GET /notifications', function () {
   beforeEach(async function () {

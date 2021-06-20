@@ -27,7 +27,7 @@ import {
   SubscriptionRepository,
 } from '../../repositories';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
-import {setupApplication} from './test-helper';
+import {setupApplication, wait} from './test-helper';
 const cronTasks = require('../../observers/cron-tasks');
 // const parallel = require('async/parallel');
 const path = require('path');
@@ -331,8 +331,8 @@ describe('CRON dispatchLiveNotifications', function () {
     } catch (err: any) {
       fail(err);
     }
-
-    sinon.assert.calledWithMatch(
+    await wait(3000);
+    sinon.assert.calledOnceWithMatch(
       BaseController.prototype.sendEmail as sinon.SinonStub,
       {
         from: 'admin@foo.com',
@@ -350,9 +350,6 @@ describe('CRON dispatchLiveNotifications', function () {
           ],
         },
       },
-    );
-    sinon.assert.calledOnce(
-      BaseController.prototype.sendEmail as sinon.SinonStub,
     );
     const data = await notificationRepository.find({
       where: {
@@ -562,5 +559,87 @@ describe('CRON deleteBounces', function () {
     }
     const item = await bounceRepository.findById('1');
     expect(item.state).equal('active');
+  });
+});
+
+describe('CRON reDispatchBroadcastPushNotifications', function () {
+  beforeEach(async function () {
+    sinon.stub(BaseCrudRepository.prototype, 'updateTimestamp').resolves();
+    await Promise.all([
+      (async () => {
+        return notificationRepository.create({
+          channel: 'email',
+          message: {
+            from: 'admin@foo.com',
+            subject: 'test',
+            textBody: 'this is a test http://foo.com',
+          },
+          isBroadcast: true,
+          serviceName: 'myService',
+          httpHost: 'http://foo.com',
+          asyncBroadcastPushNotification: false,
+          state: 'sending',
+          updated: new Date(new Date().valueOf() - 601000).toUTCString(),
+          dispatch: {
+            candidates: ['1'],
+          },
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          unsubscriptionCode: '12345',
+        });
+      })(),
+    ]);
+  });
+
+  it('should reDispatch broadcast push notifications', async function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
+    sinon.stub(cronTasks.request, 'put').callsFake(async function (url, body) {
+      return client.put(url).send(body);
+    });
+
+    try {
+      const results = await cronTasks.reDispatchBroadcastPushNotifications(
+        app,
+      )();
+      expect(results.length).equal(1);
+    } catch (err: any) {
+      fail(err);
+    }
+
+    sinon.assert.calledOnceWithMatch(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+      {
+        from: 'admin@foo.com',
+        to: 'bar@foo.com',
+        subject: 'test',
+        text: 'this is a test http://foo.com',
+        html: undefined,
+        list: {
+          id: 'http://foo.com/myService',
+          unsubscribe: [
+            [
+              'un-1-12345@invalid.local',
+              'http://foo.com/api/subscriptions/1/unsubscribe?unsubscriptionCode=12345',
+            ],
+          ],
+        },
+      },
+    );
+    await wait(3000);
+    const data = await notificationRepository.find({
+      where: {
+        serviceName: 'myService',
+        channel: 'email',
+        state: 'sent',
+      },
+    });
+    expect(data.length).equal(1);
+    expect(data[0].dispatch?.successful).containEql('1');
   });
 });
