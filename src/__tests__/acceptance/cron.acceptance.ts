@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {AnyObject} from '@loopback/repository';
-import {expect} from '@loopback/testlab';
+import {Client, expect} from '@loopback/testlab';
 import {fail} from 'assert';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
-import {NotificationController} from '../../controllers';
+import {BaseController} from '../../controllers/base.controller';
 import {
   AccessTokenRepository,
   BounceRepository,
@@ -33,21 +33,20 @@ const cronTasks = require('../../observers/cron-tasks');
 const path = require('path');
 const fs = require('fs');
 let app: NotifyBcApplication;
+let client: Client;
 let rssRepository: RssRepository;
 let notificationRepository: NotificationRepository;
 let subscriptionRepository: SubscriptionRepository;
 let configurationRepository: ConfigurationRepository;
 let bounceRepository: BounceRepository;
-let notificationController: NotificationController;
 let accessTokenRepository: AccessTokenRepository;
 before('setupApplication', async function () {
-  ({app} = await setupApplication());
+  ({app, client} = await setupApplication());
   rssRepository = await app.get('repositories.RssRepository');
   configurationRepository = await app.get(
     'repositories.ConfigurationRepository',
   );
   notificationRepository = await app.get('repositories.NotificationRepository');
-  notificationController = await app.get('controllers.NotificationController');
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
   bounceRepository = await app.get('repositories.BounceRepository');
   accessTokenRepository = await app.get('repositories.AccessTokenRepository');
@@ -79,7 +78,7 @@ describe('CRON purgeData', function () {
     });
     try {
       await (await cronTasks.purgeData(app))();
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     let data = await notificationRepository.find({
@@ -124,7 +123,7 @@ describe('CRON purgeData', function () {
     });
     try {
       await (await cronTasks.purgeData(app))();
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     let data = await notificationRepository.find({
@@ -156,7 +155,7 @@ describe('CRON purgeData', function () {
     });
     try {
       await (await cronTasks.purgeData(app))();
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     const data = await notificationRepository.find({
@@ -189,7 +188,7 @@ describe('CRON purgeData', function () {
     stub.restore();
     try {
       await (await cronTasks.purgeData(app))();
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     const data = await subscriptionRepository.find({
@@ -214,7 +213,7 @@ describe('CRON purgeData', function () {
     try {
       const results = await (await cronTasks.purgeData(app))();
       expect(results[4].count).equal(1);
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     let data;
@@ -237,7 +236,7 @@ describe('CRON purgeData', function () {
     try {
       const results = await (await cronTasks.purgeData(app))();
       expect(results[4].count).equal(0);
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     data = await bounceRepository.findById('1');
@@ -256,7 +255,7 @@ describe('CRON purgeData', function () {
     });
     try {
       await (await cronTasks.purgeData(app))();
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     let data = await accessTokenRepository.find({
@@ -321,15 +320,20 @@ describe('CRON dispatchLiveNotifications', function () {
   });
 
   it('should send all live push notifications', async function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
+    sinon.stub(cronTasks.request, 'put').callsFake(async function (url, body) {
+      return client.put(url).send(body);
+    });
+
     try {
-      const results = await (await cronTasks.dispatchLiveNotifications(app))();
+      const results = await cronTasks.dispatchLiveNotifications(app)();
       expect(results.length).equal(1);
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
 
     sinon.assert.calledWithMatch(
-      notificationController.sendEmail as sinon.SinonStub,
+      BaseController.prototype.sendEmail as sinon.SinonStub,
       {
         from: 'admin@foo.com',
         to: 'bar@foo.com',
@@ -348,7 +352,7 @@ describe('CRON dispatchLiveNotifications', function () {
       },
     );
     sinon.assert.calledOnce(
-      notificationController.sendEmail as sinon.SinonStub,
+      BaseController.prototype.sendEmail as sinon.SinonStub,
     );
     const data = await notificationRepository.find({
       where: {
@@ -422,7 +426,7 @@ describe('CRON checkRssConfigUpdates', function () {
     try {
       const rssTasks = await cronTasks.checkRssConfigUpdates(app, true);
       expect(rssTasks['1']).not.null();
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     sinon.assert.calledOnce(cronTasks.request.post);
@@ -530,7 +534,7 @@ describe('CRON deleteBounces', function () {
     } as AnyObject);
     try {
       await (await cronTasks.deleteBounces(app))();
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     const item = await bounceRepository.findById('1');
@@ -553,7 +557,7 @@ describe('CRON deleteBounces', function () {
     } as AnyObject);
     try {
       await (await cronTasks.deleteBounces(app))();
-    } catch (err) {
+    } catch (err: any) {
       fail(err);
     }
     const item = await bounceRepository.findById('1');

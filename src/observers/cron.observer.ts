@@ -63,7 +63,7 @@ export class CronObserver implements LifeCycleObserver {
     this.jobs.push(
       new CronJob({
         cronTime: cronConfigDispatchLiveNotifications.timeSpec,
-        onTick: await cronTasks.dispatchLiveNotifications(this.app),
+        onTick: cronTasks.dispatchLiveNotifications(this.app),
         start: true,
       }),
     );
