@@ -779,7 +779,6 @@ export class NotificationController extends BaseController {
             data.id,
             {
               state: 'sending',
-              dispatchHeartbeat: new Date(),
               dispatch: data.dispatch,
             },
             undefined,
@@ -789,7 +788,7 @@ export class NotificationController extends BaseController {
             this.notificationRepository.updateById(
               data.id,
               {
-                dispatchHeartbeat: new Date(),
+                updated: new Date().toUTCString(),
               },
               undefined,
             );
@@ -865,15 +864,6 @@ export class NotificationController extends BaseController {
             await postBroadcastProcessing();
           }
           clearTimeout(hbTimeout);
-          await this.notificationRepository.updateById(
-            data.id,
-            this.notificationRepository.dataSource.connector?.name === 'mongodb'
-              ? {
-                  $unset: {dispatchHeartbeat: ''},
-                }
-              : {dispatchHeartbeat: undefined},
-            undefined,
-          );
         } else {
           return broadcastToSubscriberChunk();
         }
