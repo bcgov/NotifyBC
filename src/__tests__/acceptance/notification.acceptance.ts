@@ -18,7 +18,10 @@ import _ from 'lodash';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {BaseController} from '../../controllers/base.controller';
-import {request} from '../../controllers/notification.controller';
+import {
+  NotificationController,
+  request,
+} from '../../controllers/notification.controller';
 import {
   BounceRepository,
   NotificationRepository,
@@ -832,6 +835,57 @@ describe('POST /notifications', function () {
       app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
     },
   );
+
+  it('should handle chunk request abortion', async function () {
+    sinon
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
+      .callsFake(async () => true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      _.merge({}, origConfig, {
+        notification: {
+          broadcastSubscriberChunkSize: 1,
+          broadcastSubRequestBatchSize: 10,
+        },
+      }),
+    );
+    const sendPushNotificationStub = sinon
+      .stub(NotificationController.prototype, 'sendPushNotification')
+      .callsFake(async function (this: any, ...args) {
+        await wait(3000);
+        await sendPushNotificationStub.wrappedMethod.apply(this, args);
+      });
+
+    const notification = await notificationRepository.create(
+      {
+        serviceName: 'myChunkedBroadcastService',
+        state: 'sending',
+        message: {
+          from: 'no_reply@invalid.local',
+          subject: 'test',
+          textBody: 'test',
+        },
+        channel: 'email',
+        isBroadcast: true,
+        dispatch: {
+          candidates: ['3', '4'],
+        },
+      },
+      undefined,
+    );
+    const res = client
+      .get(
+        `/api/notifications/${notification.id}/broadcastToChunkSubscribers?start=0`,
+      )
+      .end();
+    await wait(10);
+    res.abort();
+    await wait(4000);
+    sinon.assert.notCalled(
+      BaseController.prototype.sendEmail as sinon.SinonStub,
+    );
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+  });
 
   it('should perform client-retry', async function () {
     sinon
