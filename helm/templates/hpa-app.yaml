@@ -2,7 +2,7 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "NotifyBC.fullname" . }}
+  name: {{ include "NotifyBC.fullname" . }}-app
   labels:
     {{- include "NotifyBC.labels" . | nindent 4 }}
 spec:
