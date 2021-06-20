@@ -721,7 +721,6 @@ describe('POST /notifications', function () {
     });
     expect(data.length).equal(1);
     expect(data[0].state).equal('sending');
-    expect(data[0].dispatchHeartbeat).not.undefined();
     await wait(3000);
     data = await notificationRepository.find({
       where: {
@@ -730,7 +729,6 @@ describe('POST /notifications', function () {
     });
     expect(data.length).equal(1);
     expect(data[0].state).equal('sent');
-    expect(data[0].dispatchHeartbeat).undefined();
     expect(
       (request.post as sinon.SinonStub).calledWith(
         'http://foo.com',
