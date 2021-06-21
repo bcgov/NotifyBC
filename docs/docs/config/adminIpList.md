@@ -20,4 +20,4 @@ module.exports = {
 };
 ```
 
-It should be noted that _NotifyBC_ may generate http requests sending to itself. These http requests are expected to be admin requests. If you have created an app cluster such as in OpenShift, you should add the cluster ip range to _adminIps_. In OpenShift, this ip range is a private ip range. In BCGov's OpenShift cluster OCP4, the ip range starts with octet 10.
+It should be noted that _NotifyBC_ may generate http requests sending to itself. These http requests are expected to be admin requests. If you have created an app cluster such as in Kubernetes, you should add the cluster ip range to _adminIps_. In Kubernetes, this ip range is a private ip range. For example, in BCGov's OpenShift cluster OCP4, the ip range starts with octet 10.

@@ -16,6 +16,6 @@ then the HTTP request will be sent to the configured host. An internal request c
 
 All internal requests are supposed to be admin requests. The purpose of _internalHttpHost_ is to facilitate identifying the internal server ip as admin ip.
 
-::: tip OpenShift Use Case
-The OpenShift deployment script sets <i>internalHttpHost</i> to service url <i>http://notify-bc:3000</i> in config map. The source ip in such case would be in a private OpenShift ip range. You should add this private ip range to <a href="#admin-ip-list">admin ip list</a>. The private ip range varies from OpenShift installation. In BCGov's OCP4 cluster, it starts with octet 10.
+::: tip Kubernetes Use Case
+The Kubernetes deployment script sets <i>internalHttpHost</i> to _notify-bc-app_ service url in config map. The source ip in such case would be in a private Kubernetes ip range. You should add this private ip range to <a href="#admin-ip-list">admin ip list</a>. The private ip range varies from Kubernetes installation. In BCGov's OCP4 cluster, it starts with octet 10.
 :::
