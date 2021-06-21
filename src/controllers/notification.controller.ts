@@ -634,7 +634,7 @@ export class NotificationController extends BaseController {
               switch (e.channel) {
                 case 'sms':
                   try {
-                    if (this.chunkRequestAborted) return;
+                    if (this.chunkRequestAborted) throw new HttpErrors[500]();
                     await this.sendSMS(e.userChannelId, textBody, e);
                     return await notificationMsgCB(null, e);
                   } catch (ex) {
@@ -702,7 +702,7 @@ export class NotificationController extends BaseController {
                     };
                   }
                   try {
-                    if (this.chunkRequestAborted) return;
+                    if (this.chunkRequestAborted) throw new HttpErrors[500]();
                     await this.sendEmail(mailOptions);
                     return await notificationMsgCB(null, e);
                   } catch (ex) {
