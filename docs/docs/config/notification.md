@@ -147,8 +147,9 @@ dispatch is written to database one by one, taking a toll on the database.
 It should be noted that the [benchmarks](../miscellaneous/benchmarks.md) were conducted
 without the guarantee.
 
-If performance is a higher priority to you, disable the guarantee by setting config
-_guaranteedBroadcastPushDispatchProcessing_ to
+If performance is a higher priority to you, disable both the guarantee and
+[bounce](../config/notificationBounce.md) handling by setting config
+_guaranteedBroadcastPushDispatchProcessing_ and _handleBounce_ to
 _false_ in file _/src/config.local.js_
 
 ```js
@@ -157,6 +158,7 @@ module.exports = {
   notification: {
     ...
     guaranteedBroadcastPushDispatchProcessing: false,
+    handleBounce: false,
   }
 }
 ```
