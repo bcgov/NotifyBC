@@ -6,6 +6,11 @@ permalink: /docs/what's-new/
 
 _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
+## v3.1.0
+
+- Issue [#45](https://github.com/bcgov/NotifyBC/issues/45): Reliability - Log skipped dispatches for broadcast push notifications
+- docs updates
+
 ## v3.0.0
 
 See [v2 to v3 upgrade guide](../upgrade/#v2-to-v3) for more information.

@@ -164,3 +164,19 @@ module.exports = {
 ```
 
 In such case only failed dispatches are written to _dispatch.failed_ field of the notification.
+
+### Also log skipped dispatches for broadcast push notifications
+
+When _guaranteedBroadcastPushDispatchProcessing_ is _true_, by default only successful and failed dispatches are logged, along with dispatch candidates. Dispatches that are skipped by filters defined at subscription (_broadcastPushNotificationFilter_) or notification (_broadcastPushNotificationSubscriptionFilter_) are not logged for performance reason. If you also want skipped dispatches to be logged to _dispatch.skipped_ field of the notification, set _logSkippedBroadcastPushDispatches_ to _true_ in file _/src/config.local.js_
+
+```js
+module.exports = {
+  ...
+  notification: {
+    ...
+    logSkippedBroadcastPushDispatches: true,
+  }
+}
+```
+
+Setting _logSkippedBroadcastPushDispatches_ to _true_ only has effect when _guaranteedBroadcastPushDispatchProcessing_ is _true_.
