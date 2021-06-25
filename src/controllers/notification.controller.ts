@@ -476,6 +476,8 @@ export class NotificationController extends BaseController {
           ?.broadcastSubRequestBatchSize;
         const guaranteedBroadcastPushDispatchProcessing = this.appConfig
           .notification?.guaranteedBroadcastPushDispatchProcessing;
+        const logSkippedBroadcastPushDispatches = this.appConfig.notification
+          ?.logSkippedBroadcastPushDispatches;
         let startIdx: undefined | number;
         try {
           startIdx = await this.httpContext.get('NotifyBC.startIdx');
@@ -483,6 +485,7 @@ export class NotificationController extends BaseController {
         enum NotificationDispatchStatusField {
           failed,
           successful,
+          skipped,
         }
         const updateBroadcastPushNotificationStatus = async (
           field: NotificationDispatchStatusField,
@@ -605,6 +608,14 @@ export class NotificationController extends BaseController {
                   );
                 } catch (ex) {}
                 if (!match || match.length === 0) {
+                  if (
+                    guaranteedBroadcastPushDispatchProcessing &&
+                    logSkippedBroadcastPushDispatches
+                  )
+                    await updateBroadcastPushNotificationStatus(
+                      NotificationDispatchStatusField.skipped,
+                      e.id,
+                    );
                   return;
                 }
               }
@@ -620,6 +631,14 @@ export class NotificationController extends BaseController {
                   );
                 } catch (ex) {}
                 if (!match || match.length === 0) {
+                  if (
+                    guaranteedBroadcastPushDispatchProcessing &&
+                    logSkippedBroadcastPushDispatches
+                  )
+                    await updateBroadcastPushNotificationStatus(
+                      NotificationDispatchStatusField.skipped,
+                      e.id,
+                    );
                   return;
                 }
               }
