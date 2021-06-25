@@ -330,10 +330,11 @@ The API operates on following notification data model fields:
   <tr>
     <td>
       <p class="name">dispatch</p>
-      <p class="description">this is an internal field to track the broadcast push notification dispatch outcome. It consists of up to three arrays</p>
+      <p class="description">this is an internal field to track the broadcast push notification dispatch outcome. It consists of up to four arrays</p>
         <ul>
           <li>failed - a list of objects containing subscription IDs and error of failed dispatching</li>
           <li>successful - a list of strings containing subscription IDs of successful dispatching</li>
+          <li>skipped - a list of strings containing subscription IDs of skipped dispatching</li>
           <li>candidates - a list of strings containing IDs of confirmed subscriptions to the service. Dispatching to a subscription is subject to filtering.</li>
         </ul>
     </td>
@@ -425,17 +426,20 @@ POST /notifications
   4. the notification request is saved to database
   5. if the notification is future-dated, then all subsequent request processing is skipped and response is sent back to user. Steps 7-11 below will be carried out later on by the cron job when the notification becomes current.
   6. if it's an async broadcast push notification, then response is sent back to user but steps 7-12 below is processed separately
-  7. for unicast push notification, the message is sent to targeted user; for broadcast push notification, following actions are performed:
+  7. for unicast push notification, the message is dispatched to targeted user; for broadcast push notification, following actions are performed:
 
      1. number of confirmed subscriptions is retrieved
      2. the subscriptions are partitioned and processed concurrently as described in config section [Broadcast Push Notification Task Concurrency](../config-notification/#broadcast-push-notification-task-concurrency)
      3. when processing an individual subscription,
-        1. if the subscription has filter rule defined in field _broadcastPushNotificationFilter_ and notification contains field _data_, then the data is matched against the filter rule. Notification message is only sent if there is a match.
-        2. if the notification has filter rule defined in field _broadcastPushNotificationSubscriptionFilter_ and subscription contains field _data_, then the data is matched against the filter rule. Notification message is only sent if there is a match.
 
-     In both cases, mail merge is performed on messages.
+        1. if the subscription has filter rule defined in field _broadcastPushNotificationFilter_ and notification contains field _data_, then the data is matched against the filter rule. Notification message is only dispatched if there is a match.
+        2. if the notification has filter rule defined in field _broadcastPushNotificationSubscriptionFilter_ and subscription contains field _data_, then the data is matched against the filter rule. Notification message is only dispatched if there is a match.
 
-  8. the state of push notification is updated to _sent_ or _error_ depending on sending status. For broadcast push notification, the delivery could be failed only for a subset of users. In such case, the field _dispatch.failed_ contains a list of objects of {userChannelId, subscriptionId, error} the message failed to deliver to, but the state will still be set to _sent_.
+        If the subscription failed to pass any of the two filters, and if both _guaranteedBroadcastPushDispatchProcessing_ and _logSkippedBroadcastPushDispatches_ are true, the subscription id is logged to _dispatch.skipped_
+
+     Regardless of unicast or broadcast, mail merge is performed on messages before dispatching.
+
+  8. the state of push notification is updated to _sent_ or _error_ depending on sending status. For broadcast push notification, the dispatching could be failed only for a subset of users. In such case, the field _dispatch.failed_ contains a list of objects of {userChannelId, subscriptionId, error} the message failed to deliver to, but the state will still be set to _sent_.
   9. For broadcast push notifications, if _guaranteedBroadcastPushDispatchProcessing_ is _true_, then field _dispatch.successful_ is populated with a list of _subscriptionId_ of the successful dispatches.
   10. For push notifications, the bounce records of successful dispatches are updated
   11. the updated notification is saved back to database
