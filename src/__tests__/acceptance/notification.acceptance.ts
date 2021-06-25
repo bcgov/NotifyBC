@@ -962,6 +962,17 @@ describe('POST /notifications', function () {
   });
 
   it('should skip broadcast email notification with un-matching filter', async function () {
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      _.merge({}, origConfig, {
+        notification: {
+          broadcastSubscriberChunkSize: 1,
+          broadcastSubRequestBatchSize: 10,
+          logSkippedBroadcastPushDispatches: true,
+        },
+      }),
+    );
+
     sinon
       .stub(BaseCrudRepository.prototype, 'isAdminReq')
       .callsFake(async () => true);
@@ -992,6 +1003,8 @@ describe('POST /notifications', function () {
     });
     expect(data.length).equal(1);
     expect(data[0].state).equal('sent');
+    expect(data[0].dispatch?.skipped).containEql('5');
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should update bounce record after sending unicast email notification', async function () {
