@@ -134,6 +134,15 @@ _NotifyBC_ node failures during dispatching. Node failure is a concern because
 the time takes to dispatch broadcast push notification is proportional
 to number of subscribers, which is potentially large.
 
+The guarantee is achieved by
+
+1. logging the dispatch result to database individually right after each dispatch
+2. when subscribers are divided into chunks and a chunk sub-request fails, the original request re-submits the sub-request
+3. the original request periodically updates the notification _updated_ timestamp field as heartbeat during dispatching
+4. if original request fails,
+   1. a cron job detects the failure from the stale timestamp, and re-submits the original request
+   2. all chunk sub-requests detects the the failure from the socket error, and stop processing
+
 Guaranteed processing doesn't mean notification will be dispatched to every
 intended subscriber, however. Dispatch can still be rejected by smtp/sms
 server. Furthermore, even if dispatch is successful,

@@ -557,10 +557,13 @@ export class NotificationController extends BaseController {
           );
           _.pullAll(
             _.pullAll(
-              subChunk,
-              (data.dispatch?.failed ?? []).map((e: any) => e.subscriptionId),
+              _.pullAll(
+                subChunk,
+                (data.dispatch?.failed ?? []).map((e: any) => e.subscriptionId),
+              ),
+              data.dispatch?.successful ?? [],
             ),
-            data.dispatch?.successful ?? [],
+            data.dispatch?.skipped ?? [],
           );
           const subscribers = await this.subscriptionRepository.find(
             {
