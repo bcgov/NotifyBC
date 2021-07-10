@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyObject} from '@loopback/repository';
-import {Client, expect} from '@loopback/testlab';
+import {Client, expect, SinonSpy} from '@loopback/testlab';
 import {fail} from 'assert';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
@@ -426,6 +426,7 @@ describe('CRON checkRssConfigUpdates', function () {
     } catch (err: any) {
       fail(err);
     }
+    await wait(1000);
     sinon.assert.calledOnce(cronTasks.request.post);
     sinon.assert.calledOnceWithMatch(
       cronTasks.request.post,
@@ -467,6 +468,7 @@ describe('CRON checkRssConfigUpdates', function () {
     };
     await rssRepository.create(data);
     await cronTasks.checkRssConfigUpdates(app, true);
+    await wait(2000);
     sinon.assert.notCalled(cronTasks.request.post);
     const results = (await rssRepository.find()) as AnyObject;
     expect(results[0].items[0].author).equal('foo');
@@ -495,6 +497,7 @@ describe('CRON checkRssConfigUpdates', function () {
     };
     await rssRepository.create(data);
     await cronTasks.checkRssConfigUpdates(app, true);
+    await wait(2000);
     sinon.assert.calledOnce(cronTasks.request.post);
   });
 
@@ -504,12 +507,12 @@ describe('CRON checkRssConfigUpdates', function () {
         status: 300,
       };
     });
-    try {
-      const rssTasks = await cronTasks.checkRssConfigUpdates(app, true);
-      expect(rssTasks['1']).not.null();
-    } catch (err) {
-      expect(err).not.null();
-    }
+    sinon.spy(console, 'error');
+    await cronTasks.checkRssConfigUpdates(app, true);
+    await wait(2000);
+    sinon.assert.calledWithMatch(console.error as SinonSpy, {
+      message: 'Bad status code',
+    });
   });
 });
 
