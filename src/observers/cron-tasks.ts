@@ -415,22 +415,14 @@ module.exports.checkRssConfigUpdates = async (
                   );
                   // notify new or updated items
                   newOrUpdatedItems.forEach(async (newOrUpdatedItem: any) => {
-                    for (const channel in rssNtfctnConfigItem.value
-                      .messageTemplates) {
-                      if (
-                        // eslint-disable-next-line no-prototype-builtins
-                        !rssNtfctnConfigItem.value.messageTemplates.hasOwnProperty(
-                          channel,
-                        )
-                      ) {
-                        continue;
-                      }
+                    for (const [channel, message] of Object.entries(
+                      rssNtfctnConfigItem.value.messageTemplates,
+                    )) {
                       const notificationObject = {
                         serviceName: rssNtfctnConfigItem.serviceName,
                         channel: channel,
                         isBroadcast: true,
-                        message:
-                          rssNtfctnConfigItem.value.messageTemplates[channel],
+                        message,
                         data: newOrUpdatedItem,
                         httpHost: rssNtfctnConfigItem.value.httpHost,
                       };
