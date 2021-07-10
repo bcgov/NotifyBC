@@ -17,5 +17,6 @@
     "@dovyp/vuepress-plugin-clipboard-copy": "^1.0.0-alpha.7",
     "axios": "^0.21.0",
     "vuepress": "^1.5.3"
-  }
+  },
+  "dependencies": {}
 }

@@ -36,6 +36,9 @@ For example, to notify subscribers of _myService_ on updates to feed _http://my-
         "subject": "{title}",
         "textBody": "{description}",
         "htmlBody": "{description}"
+      },
+      "sms": {
+        "textBody": "{description}"
       }
     }
   }
@@ -52,7 +55,7 @@ The config items in the _value_ field are
   - includeUpdatedItems: whether to notify also updated items or just new items. By default _false_
   - fieldsToCheckForUpdate: list of fields to check for updates if _includeUpdatedItems_ is _true_. By default _["pubDate"]_
 - httpHost: the http protocol, host and port used by [mail merge](../overview/#mail-merge). If missing, the value is auto-populated based on the REST request that creates this config item.
-- messageTemplates: channel-specific message template supporting dynamic token as shown. Message template fields is same as those in [notification api](../api-notification/#field-message)
+- messageTemplates: channel-specific message templates with channel name as the key. _NotifyBC_ generates a notification for each channel specified in the message templates. Message template fields are the same as those in [notification api](../api-notification/#field-message). Message template fields support dynamic token.
 
 ## Broadcast Push Notification Task Concurrency
 
