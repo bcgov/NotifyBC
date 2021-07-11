@@ -203,7 +203,7 @@ module.exports.app = function (...argsArr: any[]) {
             const unsubscriptionCode = match[3];
             switch (type) {
               case 'un':
-                exports.request.get(
+                await exports.request.get(
                   urlPrefix +
                     '/subscriptions/' +
                     id +

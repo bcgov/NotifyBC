@@ -76,14 +76,11 @@ describe('list-unsubscribe by email', function () {
   });
 
   it('should accept valid email', function (done) {
-    sinon.stub(origRequest, 'get').callsFake(function (...args) {
+    sinon.stub(origRequest, 'get').callsFake(function (...args: any[]) {
       const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
-      for (const p in args[1].headers) {
-        // eslint-disable-next-line no-prototype-builtins
-        if (args[1].headers.hasOwnProperty(p)) {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          getReq.set(p, args[1].headers[p]);
-        }
+      for (const [p, v] of Object.entries(args[1].headers as object)) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        getReq.set(p, v);
       }
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       getReq.end((err, res) => {
@@ -195,16 +192,13 @@ describe('bounce', function () {
     sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(origRequest, 'get').callsFake(function (...args) {
+    sinon.stub(origRequest, 'get').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
-          for (const p in args[1].headers) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (args[1].headers.hasOwnProperty(p)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              getReq.set(p, args[1].headers[p]);
-            }
+          for (const [p, v] of Object.entries(args[1].headers as object)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            getReq.set(p, v);
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -219,7 +213,7 @@ describe('bounce', function () {
         });
       });
     });
-    sinon.stub(origRequest, 'post').callsFake(function (...args) {
+    sinon.stub(origRequest, 'post').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const req = client.post(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
@@ -266,16 +260,13 @@ describe('bounce', function () {
     sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(origRequest, 'get').callsFake(function (...args) {
+    sinon.stub(origRequest, 'get').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
-          for (const p in args[1].headers) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (args[1].headers.hasOwnProperty(p)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              getReq.set(p, args[1].headers[p]);
-            }
+          for (const [p, v] of Object.entries(args[1].headers as object)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            getReq.set(p, v);
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -290,7 +281,7 @@ describe('bounce', function () {
         });
       });
     });
-    sinon.stub(origRequest, 'patch').callsFake(function (...args) {
+    sinon.stub(origRequest, 'patch').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const req = client.patch(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
@@ -350,16 +341,13 @@ describe('bounce', function () {
     sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(origRequest, 'get').callsFake(function (...args) {
+    sinon.stub(origRequest, 'get').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
-          for (const p in args[1].headers) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (args[1].headers.hasOwnProperty(p)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              getReq.set(p, args[1].headers[p]);
-            }
+          for (const [p, v] of Object.entries(args[1].headers as object)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            getReq.set(p, v);
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -374,7 +362,7 @@ describe('bounce', function () {
         });
       });
     });
-    sinon.stub(origRequest, 'patch').callsFake(function (...args) {
+    sinon.stub(origRequest, 'patch').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const req = client.patch(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
@@ -434,16 +422,13 @@ describe('bounce', function () {
     sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(origRequest, 'get').callsFake(function (...args) {
+    sinon.stub(origRequest, 'get').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
-          for (const p in args[1].headers) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (args[1].headers.hasOwnProperty(p)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              getReq.set(p, args[1].headers[p]);
-            }
+          for (const [p, v] of Object.entries(args[1].headers as object)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            getReq.set(p, v);
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -458,7 +443,7 @@ describe('bounce', function () {
         });
       });
     });
-    sinon.stub(origRequest, 'patch').callsFake(function (...args) {
+    sinon.stub(origRequest, 'patch').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const req = client.patch(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
@@ -518,16 +503,13 @@ describe('bounce', function () {
     sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(origRequest, 'get').callsFake(function (...args) {
+    sinon.stub(origRequest, 'get').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
-          for (const p in args[1].headers) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (args[1].headers.hasOwnProperty(p)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              getReq.set(p, args[1].headers[p]);
-            }
+          for (const [p, v] of Object.entries(args[1].headers as object)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            getReq.set(p, v);
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -542,7 +524,7 @@ describe('bounce', function () {
         });
       });
     });
-    sinon.stub(origRequest, 'patch').callsFake(function (...args) {
+    sinon.stub(origRequest, 'patch').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const req = client.patch(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
@@ -602,16 +584,13 @@ describe('bounce', function () {
     sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(origRequest, 'get').callsFake(function (...args) {
+    sinon.stub(origRequest, 'get').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
-          for (const p in args[1].headers) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (args[1].headers.hasOwnProperty(p)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              getReq.set(p, args[1].headers[p]);
-            }
+          for (const [p, v] of Object.entries(args[1].headers as object)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            getReq.set(p, v);
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -626,7 +605,7 @@ describe('bounce', function () {
         });
       });
     });
-    sinon.stub(origRequest, 'patch').callsFake(function (...args) {
+    sinon.stub(origRequest, 'patch').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const req = client.patch(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
@@ -686,16 +665,13 @@ describe('bounce', function () {
     sinon.stub(bounceRepository, 'isAdminReq').callsFake(async () => {
       return true;
     });
-    sinon.stub(origRequest, 'get').callsFake(function (...args) {
+    sinon.stub(origRequest, 'get').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
-          for (const p in args[1].headers) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (args[1].headers.hasOwnProperty(p)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              getReq.set(p, args[1].headers[p]);
-            }
+          for (const [p, v] of Object.entries(args[1].headers as object)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            getReq.set(p, v);
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -718,7 +694,7 @@ describe('bounce', function () {
         });
       });
     });
-    sinon.stub(origRequest, 'patch').callsFake(function (...args) {
+    sinon.stub(origRequest, 'patch').callsFake(function (...args: any[]) {
       return new Promise((resolve, reject) => {
         const req = client.patch(args[0].substring(args[0].indexOf('/api')));
         if (args[1]) {
