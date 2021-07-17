@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {CoreBindings} from '@loopback/core';
+import {HttpErrors} from '@loopback/rest';
 import {Client, expect} from '@loopback/testlab';
 import _ from 'lodash';
 import sinon from 'sinon';
@@ -198,13 +199,27 @@ describe('POST /notifications', function () {
           state: 'confirmed',
         });
       })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'smsThrottle',
+          channel: 'sms',
+          userChannelId: '12345',
+          state: 'confirmed',
+        });
+      })(),
+      (async () => {
+        return subscriptionRepository.create({
+          serviceName: 'smsThrottle',
+          channel: 'sms',
+          userChannelId: '23456',
+          state: 'confirmed',
+        });
+      })(),
     ]);
   });
 
   it('should send broadcast email notifications with proper mail merge', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
 
     const res = await client
       .post('/api/notifications')
@@ -354,9 +369,7 @@ describe('POST /notifications', function () {
   });
 
   it('should send unicast email notification', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .post('/api/notifications')
       .send({
@@ -389,9 +402,7 @@ describe('POST /notifications', function () {
   });
 
   it('should send unicast sms notification', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .post('/api/notifications')
       .send({
@@ -417,16 +428,14 @@ describe('POST /notifications', function () {
   });
 
   it('should send broadcast sms notification', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .post('/api/notifications')
       .send({
         serviceName: 'myService',
         message: {
           textBody:
-            'This is a unicast test {confirmation_code} {service_name} ' +
+            'This is a broadcast test {confirmation_code} {service_name} ' +
             '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
         },
         channel: 'sms',
@@ -443,10 +452,77 @@ describe('POST /notifications', function () {
     expect(data.length).equal(1);
   });
 
+  it('should throttle sms broadcast push notification', async function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      _.merge({}, origConfig, {
+        sms: {broadcastPushNotificationThrottle: {minTime: 2000}},
+      }),
+    );
+    (BaseController.prototype.sendSMS as sinon.SinonStub).restore();
+    sinon.stub(request, 'post').resolves(null);
+    const res = await client
+      .post('/api/notifications')
+      .send({
+        serviceName: 'smsThrottle',
+        message: {
+          textBody:
+            'This is a broadcast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+        },
+        channel: 'sms',
+        isBroadcast: true,
+        asyncBroadcastPushNotification: true,
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).equal(200);
+    await wait(1000);
+    sinon.assert.calledOnce(request.post as sinon.SinonStub);
+    await wait(3000);
+    sinon.assert.calledTwice(request.post as sinon.SinonStub);
+    const data = await notificationRepository.find({
+      where: {
+        serviceName: 'smsThrottle',
+        or: [{state: 'sending'}, {state: 'sent'}],
+      },
+    });
+    expect(data.length).equal(1);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+  });
+
+  it('should handle sms broadcast push notification failures', async function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
+    (BaseController.prototype.sendSMS as sinon.SinonStub).restore();
+    sinon.stub(request, 'post').throws(new HttpErrors[429]());
+    const res = await client
+      .post('/api/notifications')
+      .send({
+        serviceName: 'myService',
+        message: {
+          textBody:
+            'This is a broadcast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+        },
+        channel: 'sms',
+        isBroadcast: true,
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).equal(200);
+    sinon.assert.calledOnce(request.post as sinon.SinonStub);
+    const data = await notificationRepository.find({
+      where: {
+        serviceName: 'myService',
+        state: 'sent',
+      },
+    });
+    expect(data?.[0]?.dispatch?.failed?.[0]?.error?.message).equal(
+      'Too Many Requests',
+    );
+  });
+
   it('should not send future-dated notification', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .post('/api/notifications')
       .send({
@@ -479,9 +555,7 @@ describe('POST /notifications', function () {
     'should deny skipSubscriptionConfirmationCheck unicast notification ' +
       'missing userChannelId',
     async function () {
-      sinon
-        .stub(BaseCrudRepository.prototype, 'isAdminReq')
-        .callsFake(async () => true);
+      sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
       const res = await client
         .post('/api/notifications')
         .send({
@@ -509,9 +583,7 @@ describe('POST /notifications', function () {
   );
 
   it('should deny unicast notification missing both userChannelId and userId', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .post('/api/notifications')
       .send({
@@ -574,9 +646,7 @@ describe('POST /notifications', function () {
     'should perform async callback for broadcast push notification if ' +
       'asyncBroadcastPushNotification is set',
     async function () {
-      sinon
-        .stub(BaseCrudRepository.prototype, 'isAdminReq')
-        .callsFake(async () => true);
+      sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
       (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
       sinon
         .stub(BaseController.prototype, 'sendEmail')
@@ -629,9 +699,7 @@ describe('POST /notifications', function () {
   );
 
   it('should send chunked sync broadcast email notifications', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       _.merge({}, origConfig, {
@@ -668,9 +736,7 @@ describe('POST /notifications', function () {
   });
 
   it('should send chunked async broadcast email notifications', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       _.merge({}, origConfig, {
@@ -746,9 +812,7 @@ describe('POST /notifications', function () {
   });
 
   it('should use successful and failed dispatch list', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       _.merge({}, origConfig, {
@@ -793,9 +857,7 @@ describe('POST /notifications', function () {
     'should retry sub-request when sending chunked broadcast ' +
       'notifications',
     async function () {
-      sinon
-        .stub(BaseCrudRepository.prototype, 'isAdminReq')
-        .callsFake(async () => true);
+      sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
       app.bind(CoreBindings.APPLICATION_CONFIG).to(
         _.merge({}, origConfig, {
@@ -837,9 +899,7 @@ describe('POST /notifications', function () {
   );
 
   it('should handle chunk request abortion', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       _.merge({}, origConfig, {
@@ -888,9 +948,7 @@ describe('POST /notifications', function () {
   });
 
   it('should perform client-retry', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
     const mailer = require('nodemailer/lib/mailer');
     sinon
@@ -930,9 +988,7 @@ describe('POST /notifications', function () {
   });
 
   it('should send broadcast email notification with matching filter', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .post('/api/notifications')
       .send({
@@ -973,9 +1029,7 @@ describe('POST /notifications', function () {
       }),
     );
 
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .post('/api/notifications')
       .send({
@@ -1008,9 +1062,7 @@ describe('POST /notifications', function () {
   });
 
   it('should update bounce record after sending unicast email notification', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     await bounceRepository.create({
       channel: 'email',
       userChannelId: 'bar@foo.com',
@@ -1040,9 +1092,7 @@ describe('POST /notifications', function () {
   });
 
   it('should update bounce record after sending broadcast email notification', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     await bounceRepository.create({
       channel: 'email',
       userChannelId: 'bar@foo.com',
@@ -1074,9 +1124,7 @@ describe('POST /notifications', function () {
     'should log successful dispatches after sending broadcast email ' +
       'notification if configured so',
     async function () {
-      sinon
-        .stub(BaseCrudRepository.prototype, 'isAdminReq')
-        .callsFake(async () => true);
+      sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
       const res = await client
         .post('/api/notifications')
         .send({
@@ -1100,9 +1148,7 @@ describe('POST /notifications', function () {
     'should not log successful dispatches after sending broadcast email ' +
       'notification if configured so',
     async function () {
-      sinon
-        .stub(BaseCrudRepository.prototype, 'isAdminReq')
-        .callsFake(async () => true);
+      sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
       app.bind(CoreBindings.APPLICATION_CONFIG).to(
         _.merge({}, origConfig, {
@@ -1135,9 +1181,7 @@ describe('POST /notifications', function () {
     'should set envelope address when bounce is enabled and ' +
       'inboundSmtpServer.domain is defined',
     async function () {
-      sinon
-        .stub(BaseCrudRepository.prototype, 'isAdminReq')
-        .callsFake(async () => true);
+      sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
       const res = await client
         .post('/api/notifications')
         .send({
@@ -1160,9 +1204,7 @@ describe('POST /notifications', function () {
   );
 
   it('should not set envelope address when bounce is disabled', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       _.merge({}, origConfig, {
@@ -1193,9 +1235,7 @@ describe('POST /notifications', function () {
   });
 
   it('should not set envelope address when inboundSmtpServer.domain is undefined', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       Object.assign({}, origConfig, {
@@ -1229,9 +1269,7 @@ describe('POST /notifications', function () {
     'should handle batch broadcast request error ' +
       'when guaranteedBroadcastPushDispatchProcessing is false',
     async function () {
-      sinon
-        .stub(BaseCrudRepository.prototype, 'isAdminReq')
-        .callsFake(async () => true);
+      sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
       app.bind(CoreBindings.APPLICATION_CONFIG).to(
         _.merge({}, origConfig, {
@@ -1269,9 +1307,7 @@ describe('POST /notifications', function () {
   );
 
   it('should handle async broadcastCustomFilterFunctions', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     await subscriptionRepository.create({
       serviceName: 'broadcastCustomFilterFunctionsTest',
       channel: 'email',
@@ -1312,9 +1348,7 @@ describe('POST /notifications', function () {
     'should reject notification with invalid ' +
       'string broadcastPushNotificationSubscriptionFilter',
     async function () {
-      sinon
-        .stub(BaseCrudRepository.prototype, 'isAdminReq')
-        .callsFake(async () => true);
+      sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
       const res = await client
         .post('/api/notifications')
         .send({
@@ -1334,9 +1368,7 @@ describe('POST /notifications', function () {
   );
 
   it('should handle broadcastPushNotificationSubscriptionFilter', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     await subscriptionRepository.create({
       serviceName: 'broadcastCustomFilterFunctionsTest',
       channel: 'email',
@@ -1402,9 +1434,7 @@ describe('PATCH /notifications/{id}', function () {
     expect(data.state).equal('new');
   });
   it('should set state field of broadcast inApp notifications for admin users', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .patch('/api/notifications/1')
       .send({
@@ -1451,9 +1481,7 @@ describe('DELETE /notifications/{id}', function () {
     expect(data.state).equal('new');
   });
   it('should set state field of broadcast inApp notifications for admin users', async function () {
-    sinon
-      .stub(BaseCrudRepository.prototype, 'isAdminReq')
-      .callsFake(async () => true);
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
       .delete('/api/notifications/1')
       .set('Accept', 'application/json');
