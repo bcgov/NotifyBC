@@ -474,7 +474,7 @@ export class SubscriptionController extends BaseController {
         },
         data,
       );
-    } catch (error) {
+    } catch (error: any) {
       this.httpContext.response.setHeader('Content-Type', 'text/plain');
       if (anonymousUnsubscription.acknowledgements.onScreen.redirectUrl) {
         let redirectUrl =
@@ -742,7 +742,7 @@ export class SubscriptionController extends BaseController {
           },
         ],
       });
-    } catch (err) {
+    } catch (err: any) {
       this.httpContext.response.setHeader('Content-Type', 'text/plain');
       if (anonymousUndoUnsubscription.redirectUrl) {
         let redirectUrl = anonymousUndoUnsubscription.redirectUrl;
