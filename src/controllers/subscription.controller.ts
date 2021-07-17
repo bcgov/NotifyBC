@@ -861,10 +861,13 @@ export class SubscriptionController extends BaseController {
       notifyBCSwiftKey: '1111'
     }
     */
-    if (this.appConfig['smsServiceProvider'] !== 'swift') {
+    if (
+      (this.appConfig.sms.provider ?? this.appConfig.smsServiceProvider) !==
+      'swift'
+    ) {
       throw new HttpErrors[403]();
     }
-    const smsConfig = this.appConfig.sms;
+    const smsConfig = this.appConfig.sms.providerSettings ?? this.appConfig.sms;
     if (!smsConfig || !smsConfig.swift || !smsConfig.swift.notifyBCSwiftKey) {
       throw new HttpErrors[403]();
     }

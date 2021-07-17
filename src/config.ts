@@ -44,10 +44,23 @@ const config: AnyObject = {
     direct: true,
     name: 'localhost',
   },
-  smsServiceProvider: 'twilio',
   sms: {
-    swift: {
-      apiUrlPrefix: 'https://secure.smsgateway.ca/services/message.svc/',
+    provider: 'twilio',
+    providerSettings: {
+      swift: {
+        apiUrlPrefix: 'https://secure.smsgateway.ca/services/message.svc/',
+      },
+    },
+    broadcastPushNotificationThrottle: {
+      id: 'notifyBCSms',
+      minTime: 250,
+      clearDatastore: true,
+      /* Redis clustering options */
+      // datastore: 'redis',
+      // clientOptions: {
+      //   host: '127.0.0.1',
+      //   port: 6379,
+      // },
     },
   },
   subscription: {
