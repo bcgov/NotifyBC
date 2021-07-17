@@ -25,10 +25,12 @@ module.exports = {
     host: 'invalid.local',
     port: 465,
   },
-  smsServiceProvider: 'swift',
   sms: {
-    swift: {
-      accountKey: '123',
+    provider: 'swift',
+    providerSettings: {
+      swift: {
+        accountKey: '123',
+      },
     },
   },
   subscription: {

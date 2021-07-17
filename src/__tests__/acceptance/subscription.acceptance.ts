@@ -15,6 +15,7 @@
 import {CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
 import {Client, expect} from '@loopback/testlab';
+import _ from 'lodash';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {axios, BaseController} from '../../controllers/base.controller';
@@ -1170,8 +1171,8 @@ describe('POST /subscriptions/swift', function () {
   before(async function () {
     origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
-      Object.assign({}, origConfig, {
-        sms: {swift: {notifyBCSwiftKey: '12345'}},
+      _.merge({}, origConfig, {
+        sms: {providerSettings: {swift: {notifyBCSwiftKey: '12345'}}},
       }),
     );
   });
