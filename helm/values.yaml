@@ -104,7 +104,17 @@ configMap:
           secure: true
           {{- end }}
         }
-      }
+      },
+      sms:{
+        broadcastPushNotificationThrottle: {
+          /* Redis clustering options */
+          datastore: 'redis',
+          clientOptions: {
+            host: process.env.REDIS_SERVICE_NAME,
+            password: process.env.REDIS_PASSWORD,
+          },
+        },
+      },
     }
   middleware.local.js: |-
     module.exports = {
@@ -149,3 +159,12 @@ cronJob:
   timeZone: UTC
   persistence:
     size: 5Gi
+
+redis:
+  enabled: true
+  master:
+    persistence:
+      enabled: false
+  replica:
+    persistence:
+      enabled: false

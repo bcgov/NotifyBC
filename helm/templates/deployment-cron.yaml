@@ -58,6 +58,16 @@ spec:
               value: master
             - name: NOTIFYBC_WORKER_PROCESS_COUNT
               value: '1'
+            - name: REDIS_SERVICE_NAME
+              value: {{ .Release.Name }}-redis
+              {{- if eq .Values.mongodb.architecture "replication" -}}
+                -headless
+              {{- end }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-redis
+                  key: redis-password
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
