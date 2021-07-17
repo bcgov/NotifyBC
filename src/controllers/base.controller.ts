@@ -48,6 +48,7 @@ export class BaseController {
   ) {}
 
   smsClient: any;
+  smsLimiter: any;
   async sendSMS(
     to: string,
     textBody: string,
@@ -69,7 +70,11 @@ export class BaseController {
         if (subscription?.id) {
           body.Reference = subscription.id;
         }
-        return axios.post(url, body, {
+        let req = axios.post;
+        if (this.smsLimiter) {
+          req = this.smsLimiter.wrap(req);
+        }
+        return req(url, body, {
           headers: {
             'Content-Type': 'application/json;charset=UTF-8',
           },
@@ -82,7 +87,11 @@ export class BaseController {
         //require the Twilio module and create a REST client
         this.smsClient =
           this.smsClient || require('twilio')(accountSid, authToken);
-        return this.smsClient.messages.create({
+        let req = this.smsClient.messages.create;
+        if (this.smsLimiter) {
+          req = this.smsLimiter.wrap(req);
+        }
+        return req({
           to: to,
           from: smsConfig.fromNumber,
           body: textBody,
