@@ -4,33 +4,40 @@ permalink: /docs/config-sms/
 
 # SMS
 
+## Provider
+
 _NotifyBC_ depends on underlying SMS service providers to deliver SMS messages. The supported service providers are
 
 - [Twilio](https://twilio.com/) (default)
 - [Swift](https://www.swiftsmsgateway.com)
 
-Only one service provider can be chosen per installation. To change service provider, add following _smsServiceProvider_ config object to file _/src/config.local.js_
+Only one service provider can be chosen per installation. To change service provider, add following config to file _/src/config.local.js_
 
-```js
+```ts
 module.exports = {
-  ...
-  smsServiceProvider: 'swift'
-}
+  sms: {
+    provider: 'swift',
+  },
+};
 ```
 
-The rest configs are service provider specific. You should have an account with the chosen service provider before proceeding.
+## Provider Settings
 
-## Twilio
+Provider specific settings are defined in config _sms.providerSettings_. You should have an account with the chosen service provider before proceeding.
 
-Add _sms.twilio_ config object to file _/src/config.local.js_
+### Twilio
+
+Add _sms.providerSettings.twilio_ config object to file _/src/config.local.js_
 
 ```js
 module.exports = {
   sms: {
-    twilio: {
-      accountSid: '<AccountSid>',
-      authToken: '<AuthToken>',
-      fromNumber: '<FromNumber>',
+    providerSettings: {
+      twilio: {
+        accountSid: '<AccountSid>',
+        authToken: '<AuthToken>',
+        fromNumber: '<FromNumber>',
+      },
     },
   },
 };
@@ -38,15 +45,17 @@ module.exports = {
 
 Obtain _\<AccountSid\>_, _\<AuthToken\>_ and _\<FromNumber\>_ from your Twilio account.
 
-## Swift
+### Swift
 
-Add _sms.swift_ config object to file _/src/config.local.js_
+Add _sms.providerSettings.swift_ config object to file _/src/config.local.js_
 
 ```js
 module.exports = {
   sms: {
-    swift: {
-      accountKey: '<accountKey>',
+    providerSettings: {
+      swift: {
+        accountKey: '<accountKey>',
+      },
     },
   },
 };
@@ -54,24 +63,25 @@ module.exports = {
 
 Obtain _\<accountKey\>_ from your Swift account.
 
-### Unsubscription by replying a keyword
+#### Unsubscription by replying a keyword
 
 With Swift short code, sms user can unsubscribe by replying to a sms message with a keyword. The keyword must be pre-registered with Swift.
 
 To enable this feature,
 
 1. Generate a random string, hereafter referred to as _\<randomly-generated-string\>_
-2. Add it to _sms.swift.notifyBCSwiftKey_ in file _/src/config.local.js_
+2. Add it to _sms.providerSettings.swift.notifyBCSwiftKey_ in file _/src/config.local.js_
 
    ```js
-    module.exports = {
-      sms: {
-        swift: {
-          ...
-          notifyBCSwiftKey: '<randomly-generated-string>',
-        },
-      },
-    }
+   module.exports = {
+     sms: {
+       providerSettings: {
+         swift: {
+           notifyBCSwiftKey: '<randomly-generated-string>',
+         },
+       },
+     },
+   };
    ```
 
 3. Go to Swift web admin console, click _Number Management_ tab
@@ -84,3 +94,7 @@ To enable this feature,
    - set _Custom Parameter 1 Name_ to _notifyBCSwiftKey_
    - set _Custom Parameter 1 Value_ to _\<randomly-generated-string\>_
 8. Click _Save Changes_ button and then _Done_
+
+## Throttle
+
+All supported SMS service providers imposes request rate limit.

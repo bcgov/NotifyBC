@@ -33,6 +33,7 @@ installing from source code is preferred.
   - A SMS service provider account if needs to enable SMS channel. The supported service providers are
     - Twilio (default)
     - Swift
+  - Redis, optional but recommended if SMS is enabled
   - SiteMinder, if need to allow SiteMinder authenticated user request
   - OIDC provide, if need to allow OIDC authenticated user request
 - Network and Permissions

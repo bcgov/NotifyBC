@@ -51,7 +51,7 @@ const config: AnyObject = {
         apiUrlPrefix: 'https://secure.smsgateway.ca/services/message.svc/',
       },
     },
-    broadcastPushNotificationThrottle: {
+    throttle: {
       id: 'notifyBCSms',
       minTime: 250,
       clearDatastore: true,
