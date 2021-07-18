@@ -28,3 +28,9 @@ redis:
     containerSecurityContext:
       enabled: true
       runAsUser: 1004000000
+  sentinel:
+    podSecurityContext:
+      enabled: false
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1004000000
