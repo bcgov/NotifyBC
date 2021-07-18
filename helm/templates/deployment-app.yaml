@@ -60,9 +60,6 @@ spec:
               value: '1'
             - name: REDIS_SERVICE_NAME
               value: {{ .Release.Name }}-redis
-              {{- if eq .Values.redis.architecture "replication" -}}
-                -headless
-              {{- end }}
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:

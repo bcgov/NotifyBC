@@ -108,10 +108,14 @@ configMap:
       sms:{
         broadcastPushNotificationThrottle: {
           /* Redis clustering options */
-          datastore: 'redis',
+          datastore: 'ioredis',
           clientOptions: {
-            host: process.env.REDIS_SERVICE_NAME,
+            name: "mymaster",
             password: process.env.REDIS_PASSWORD,
+            sentinelPassword: process.env.REDIS_PASSWORD,
+            sentinels: [
+              { host: process.env.REDIS_SERVICE_NAME },
+            ],
           },
         },
       },
@@ -162,6 +166,8 @@ cronJob:
 
 redis:
   enabled: true
+  sentinel:
+    enabled: true
   master:
     persistence:
       enabled: false
