@@ -56,7 +56,7 @@ module.exports.app = function (...argsArr: any[]) {
       new RegExp(process.env.BOUNCE_FAILED_RECIPIENT_REGEX);
 
     if (app) {
-      const smtpSvr = app.inboundSmtpServer;
+      const smtpSvr = app.email.inboundSmtpServer;
       const notificationCfg = app.notification;
       const internalHttpHost = app.internalHttpHost;
       if (internalHttpHost) {

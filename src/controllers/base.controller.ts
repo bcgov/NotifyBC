@@ -101,7 +101,8 @@ export class BaseController {
   directTransport = require('nodemailer-direct-transport');
   transporter: any;
   async sendEmail(mailOptions: any) {
-    const smtpCfg = this.appConfig.smtp || this.appConfig.defaultSmtp;
+    const smtpCfg =
+      this.appConfig.email.smtp || this.appConfig.email.defaultSmtp;
     if (!this.transporter) {
       if (smtpCfg.direct) {
         this.transporter = this.nodemailer.createTransport(

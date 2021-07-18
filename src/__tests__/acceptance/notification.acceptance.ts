@@ -1238,9 +1238,11 @@ describe('POST /notifications', function () {
     sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
-      Object.assign({}, origConfig, {
-        inboundSmtpServer: {
-          domain: undefined,
+      _.merge({}, origConfig, {
+        email: {
+          inboundSmtpServer: {
+            domain: null,
+          },
         },
       }),
     );

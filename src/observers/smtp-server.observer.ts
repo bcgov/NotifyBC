@@ -44,7 +44,7 @@ export class SmtpServerObserver implements LifeCycleObserver {
       return;
     }
     const appConfig = await this.app.get<any>(CoreBindings.APPLICATION_CONFIG);
-    const smtpSvr = appConfig.inboundSmtpServer;
+    const smtpSvr = appConfig.email.inboundSmtpServer;
     if (!smtpSvr.enabled) {
       return;
     }
