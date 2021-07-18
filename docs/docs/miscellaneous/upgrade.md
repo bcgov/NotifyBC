@@ -220,15 +220,16 @@ v4 introduced following backward incompatible changes
 
 1. The precedence of config, middleware and datasource files has been changed. Local file takes higher precedence than environment specific file. For example, for config file, the new precedence in ascending order is
 
-   1. default file _/src/config.\<ts|js|json\>_
-   2. environment specific file _/src/config.\<env\>.\<ts|js|json\>_, where \<env\> is determined by env variable environment variable _NODE_ENV_
-   3. local file _/src/config.local.\<ts|js|json\>_
+   1. default file _/src/config.ts_
+   2. environment specific file _/src/config.\<env\>.js_, where \<env\> is determined by env variable environment variable _NODE_ENV_
+   3. local file _/src/config.local.js_
 
    To upgrade, if you have environment specific file, merge its content into the local file, then delete it.
 
 2. Config _smsServiceProvider_ is changed to _sms.provider_.
-3. SMS service provider specific settings defined in _sms_ is changed to _sms.providerSettings_. The config object _sms_ now encapsulates all SMS configs - _provider_, _providerSettings_ and _broadcastPushNotificationThrottle_.
-4. Helm chart added Redis that requires authentication. Define password in _helm/values.local.yaml_
+3. SMS service provider specific settings defined in config _sms_ is changed to _sms.providerSettings_. The config object _sms_ now encapsulates all SMS configs - _provider_, _providerSettings_ and _broadcastPushNotificationThrottle_.
+4. Legacy config _subscription.unsubscriptionEmailDomain_ is removed. If you have it defined in your file _/src/config.local.js_, replace with _inboundSmtpServer.domain_.
+5. Helm chart added Redis that requires authentication by default. Create a new password in _helm/values.local.yaml_ to facilitate upgrading
 
    ```yaml
    # in file helm/values.local.yaml
