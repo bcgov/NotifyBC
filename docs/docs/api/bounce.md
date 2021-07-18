@@ -4,7 +4,7 @@ permalink: /docs/api-bounce/
 
 # Bounce
 
-[Notification bounce](../config-notificationBounce/) handling involves recording bounce messages into bounce records, which are implemented using this bounce API and model. Administrator can view bounce records in web console or through API explorer. Bounce record is for internal use and should be read-only under normal circumstances.
+[Bounce](../config/email.md#bounce) handling involves recording bounce messages into bounce records, which are implemented using this bounce API and model. Administrator can view bounce records in web console or through API explorer. Bounce record is for internal use and should be read-only under normal circumstances.
 
 ## Model Schema
 

@@ -229,10 +229,12 @@ v4 introduced following backward incompatible changes
 
    To upgrade, if you have environment specific file, merge its content into the local file, then delete it.
 
-2. Config _smsServiceProvider_ is changed to _sms.provider_.
-3. SMS service provider specific settings defined in config _sms_ is changed to _sms.providerSettings_. The config object _sms_ now encapsulates all SMS configs - _provider_, _providerSettings_ and _throttle_.
-4. Legacy config _subscription.unsubscriptionEmailDomain_ is removed. If you have it defined in your file _/src/config.local.js_, replace with _inboundSmtpServer.domain_.
-5. Helm chart added Redis that requires authentication by default. Create a new password in _helm/values.local.yaml_ to facilitate upgrading
+2. Config _smtp_ is changed to _email.smtp_. See [SMTP](../config/email.md#smtp) for example.
+3. Config _inboundSmtpServer_ is changed to _email.inboundSmtpServer_. See [Inbound SMTP Server](../config/email.md#inbound-smtp-server) for example.
+4. Config _smsServiceProvider_ is changed to _sms.provider_. See [Provider](../config/sms.md#provider) for example.
+5. SMS service provider specific settings defined in config _sms_ are changed to _sms.providerSettings_. See [Provider Settings](../config/sms.md#provider-settings) for example. The config object _sms_ now encapsulates all SMS configs - _provider_, _providerSettings_ and _throttle_.
+6. Legacy config _subscription.unsubscriptionEmailDomain_ is removed. If you have it defined in your file _/src/config.local.js_, replace with _email.inboundSmtpServer.domain_.
+7. Helm chart added Redis that requires authentication by default. Create a new password in _helm/values.local.yaml_ to facilitate upgrading
 
    ```yaml
    # in file helm/values.local.yaml

@@ -150,7 +150,7 @@ Guaranteed processing doesn't mean notification will be dispatched to every
 intended subscriber, however. Dispatch can still be rejected by smtp/sms
 server. Furthermore, even if dispatch is successful,
 it only means the sending is successful. It doesn't guarantee the
-recipient receives the notification. [Bounce](../config-notificationBounce/)
+recipient receives the notification. [Bounce](../config/email.md#bounce)
 may occur for a successful dispatch, for instance; or the recipient may not
 read the message.
 
@@ -160,7 +160,7 @@ It should be noted that the [benchmarks](../miscellaneous/benchmarks.md) were co
 without the guarantee.
 
 If performance is a higher priority to you, disable both the guarantee and
-[bounce](../config/notificationBounce.md) handling by setting config
+bounce handling by setting config
 _guaranteedBroadcastPushDispatchProcessing_ and _handleBounce_ to
 _false_ in file _/src/config.local.js_
 
