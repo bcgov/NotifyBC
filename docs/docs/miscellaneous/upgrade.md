@@ -226,7 +226,9 @@ v4 introduced following backward incompatible changes
 
    To upgrade, if you have environment specific file, merge its content into the local file, then delete it.
 
-2. Helm chart added Redis that requires authentication. Define password in _helm/values.local.yaml_
+2. Config _smsServiceProvider_ is changed to _sms.provider_.
+3. SMS service provider specific settings defined in _sms_ is changed to _sms.providerSettings_. The config object _sms_ now encapsulates all SMS configs - _provider_, _providerSettings_ and _broadcastPushNotificationThrottle_.
+4. Helm chart added Redis that requires authentication. Define password in _helm/values.local.yaml_
 
    ```yaml
    # in file helm/values.local.yaml

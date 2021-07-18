@@ -54,11 +54,8 @@ export class BaseController {
     textBody: string,
     subscription: Partial<Subscription>,
   ) {
-    const smsProvider =
-      this.appConfig.sms.provider ?? this.appConfig.smsServiceProvider;
-    const smsConfig =
-      this.appConfig.sms.providerSettings[smsProvider] ??
-      this.appConfig.sms[smsProvider];
+    const smsProvider = this.appConfig.sms.provider;
+    const smsConfig = this.appConfig.sms.providerSettings[smsProvider];
     switch (smsProvider) {
       case 'swift': {
         const url = `${smsConfig['apiUrlPrefix']}${
