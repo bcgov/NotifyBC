@@ -58,7 +58,7 @@ The procedure to upgrade from v1 to v2 depends on how v1 was installed.
    git branch -u origin/main
    ```
 4. Make a note of any extra packages added to _package.json_
-5. Run `git pull` from app root
+5. Run `git pull && git checkout tags/v2.x.x -b <branch_name>` from app root, replace _v2.x.x_ with a v2 release, preferably latest, found in GitHub such as _v2.9.0_.
 6. Make sure _version_ property in _package.json_ is _2.x.x_
 7. Add back extra packages noted in step 4
 8. Move _server/config.(local|dev|production).(js|json)_ to _src/_ if exists
@@ -149,7 +149,7 @@ yarn install && yarn build
 Upgrading _NotifyBC_ on OpenShift created from OpenShift template to Helm involves 2 steps
 
 1. [Customize and Install Helm chart](#customize-and-install-helm-chart)
-2. [Upgrade MongoDB data](#upgrade-mongodb-data)
+2. [Migrate MongoDB data](#migrate-mongodb-data)
 
 ### Customize and install Helm chart
 
@@ -160,26 +160,26 @@ Follow [customizations](../installation/#customizations) to create file _helm/va
 
 Then run `helm install` with documented arguments to install a release.
 
-### Upgrade MongoDB data
+### Migrate MongoDB data
 
-To backup data from source
+1. backup data from source
 
-```sh
-oc exec -i <mongodb-pod> -- bash -c 'mongodump -u "$MONGODB_USER" \
--p "$MONGODB_PASSWORD" -d $MONGODB_DATABASE --gzip --archive' > notify-bc.gz
-```
+   ```sh
+   oc exec -i <mongodb-pod> -- bash -c 'mongodump -u "$MONGODB_USER" \
+   -p "$MONGODB_PASSWORD" -d $MONGODB_DATABASE --gzip --archive' > notify-bc.gz
+   ```
 
-replace \<mongodb-pod\> with the mongodb pod name.
+   replace \<mongodb-pod\> with the mongodb pod name.
 
-To restore backup to target
+2. restore backup to target
 
-```sh
-cat notify-bc.gz | oc exec -i <mongodb-pod-0> -- \
-bash -c 'mongorestore -u "$MONGODB_USERNAME" -p"$MONGODB_PASSWORD" \
---uri="mongodb://$K8S_SERVICE_NAME" --db $MONGODB_DATABASE --gzip --drop --archive'
-```
+   ```sh
+   cat notify-bc.gz | oc exec -i <mongodb-pod-0> -- \
+   bash -c 'mongorestore -u "$MONGODB_USERNAME" -p"$MONGODB_PASSWORD" \
+   --uri="mongodb://$K8S_SERVICE_NAME" --db $MONGODB_DATABASE --gzip --drop --archive'
+   ```
 
-replace \<mongodb-pod-0\> with the first pod name in the mongodb stateful set.
+   replace \<mongodb-pod-0\> with the first pod name in the mongodb stateful set.
 
 If both source and target are in the same OpenShift cluster, the two operations can be
 combined into one
@@ -203,16 +203,19 @@ After above changes are addressed, upgrading to v3 is as simple as
 
 ```sh
 git pull
+git checkout tags/v3.x.x -b <branch_name>
 yarn install && yarn build
 ```
 
-or
+or, if _NotifyBC_ is deployed to Kubernetes using Helm.
 
 ```sh
+git pull
+git checkout tags/v3.x.x -b <branch_name>
 helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
 ```
 
-if _NotifyBC_ is deployed to Kubernetes using Helm.
+Replace _v3.x.x_ with a v4 release, preferably latest, found in GitHub such as _v3.1.2_.
 
 ## v3 to v4
 
@@ -221,7 +224,7 @@ v4 introduced following backward incompatible changes
 1. The precedence of config, middleware and datasource files has been changed. Local file takes higher precedence than environment specific file. For example, for config file, the new precedence in ascending order is
 
    1. default file _/src/config.ts_
-   2. environment specific file _/src/config.\<env\>.js_, where \<env\> is determined by env variable environment variable _NODE_ENV_
+   2. environment specific file _/src/config.\<env\>.js_, where \<env\> is determined by environment variable _NODE_ENV_
    3. local file _/src/config.local.js_
 
    To upgrade, if you have environment specific file, merge its content into the local file, then delete it.
@@ -242,13 +245,16 @@ After above changes are addressed, upgrading to v4 is as simple as
 
 ```sh
 git pull
+git checkout tags/v4.x.x -b <branch_name>
 yarn install && yarn build
 ```
 
-or
+or, if _NotifyBC_ is deployed to Kubernetes using Helm.
 
 ```sh
+git pull
+git checkout tags/v4.x.x -b <branch_name>
 helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
 ```
 
-if _NotifyBC_ is deployed to Kubernetes using Helm.
+Replace _v4.x.x_ with a v4 release, preferably latest, found in GitHub such as _v4.0.0_.

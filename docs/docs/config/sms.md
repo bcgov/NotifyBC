@@ -97,4 +97,53 @@ To enable this feature,
 
 ## Throttle
 
-All supported SMS service providers imposes request rate limit.
+All supported SMS service providers impose request rate limit. _NotifyBC_ by default throttles request rate to 4/sec. To adjust the rate, create following config in file _/src/config.local.js_
+
+```js
+module.exports = {
+  sms: {
+    throttle: {
+      // minimum request interval in ms
+      minTime: 250,
+    },
+  },
+};
+```
+
+When _NotifyBC_ is deployed from source code, by default the rate limit applies to one Node.js process only. If there are multiple processes, i.e. a cluster, the aggregated rate limit is multiplied by the number of processes. To enforce the rate limit across entire cluster, install Redis and add Redis config to _sms.throttle_
+
+```js
+module.exports = {
+  sms: {
+    throttle: {
+      /* Redis clustering options */
+      datastore: 'ioredis',
+      clientOptions: {
+        host: '127.0.0.1',
+        port: 6379,
+      },
+    },
+  },
+};
+```
+
+If you installed Redis Sentinel,
+
+```js
+module.exports = {
+  sms: {
+    throttle: {
+      /* Redis clustering options */
+      datastore: 'ioredis',
+      clientOptions: {
+        name: 'mymaster',
+        sentinels: [{host: '127.0.0.1', port: 26379}],
+      },
+    },
+  },
+};
+```
+
+Throttle is implemented using [Bottleneck](https://github.com/SGrondin/bottleneck) and [ioredis](https://github.com/luin/ioredis). See their documentations for more configurations.
+
+When _NotifyBC_ is deployed to Kubernetes using Helm, by default throttle uses Redis Sentinel therefore rate limit applies to whole cluster.

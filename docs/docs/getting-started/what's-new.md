@@ -6,6 +6,13 @@ permalink: /docs/what's-new/
 
 _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
+## v4.0.0
+
+See [v3 to v4 upgrade guide](../upgrade/#v3-to-v4) for more information.
+
+- Issue [#48](https://github.com/bcgov/NotifyBC/issues/48): SMS message throttle
+- docs updates
+
 ## v3.1.0
 
 - Issue [#45](https://github.com/bcgov/NotifyBC/issues/45): Reliability - Log skipped dispatches for broadcast push notifications
