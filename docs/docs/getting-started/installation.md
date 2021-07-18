@@ -7,10 +7,10 @@ permalink: /docs/installation/
 _NotifyBC_ can be installed in 3 ways:
 
 1. [Deploy Locally from Source Code](#deploy-locally-from-source-code)
-2. [Deploy Docker Container](#deploy-docker-container)
-3. [Deploy to Kubernetes](#deploy-to-kubernetes)
+2. [Deploy to Kubernetes](#deploy-to-kubernetes)
+3. [Deploy Docker Container](#deploy-docker-container)
 
-For small-scale production deployment or for evaluation, both source code and docker container will do. For large-scale production deployment that requires horizontal scalability, the recommendation is one of
+For the purpose of evaluation, both source code and docker container will do. For production, the recommendation is one of
 
 - deploying to Kubernetes
 - setting up a load balanced app cluster from source code build, backed by MongoDB.
@@ -65,7 +65,7 @@ If successful, you will see following output
 Server is running at http://0.0.0.0:3000
 ```
 
-Now browse to <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> the page displays NotifyBC Web Console.
+Now open [http://localhost:3000](http://localhost:3000). The page displays NotifyBC Web Console.
 
 The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v2.1.0_, run
 
@@ -109,19 +109,6 @@ node windows-service.js
 ```
 
 This will create and start service _notifyBC_. To change service name, modify file _windows-service.js_ before running it. See [node-windows](https://github.com/coreybutler/node-windows) for other operations such as uninstalling the service.
-
-## Deploy Docker Container
-
-If you have git and Docker installed, you can run following command to deploy _NotifyBC_ Docker container:
-
-```sh
-git clone https://github.com/bcgov/NotifyBC.git
-cd NotifyBC
-docker build -t notify-bc .
-docker run -p 3000:3000 notify-bc
-```
-
-If successful, similar output is displayed as in source code installation.
 
 ## Deploy to Kubernetes
 
@@ -168,7 +155,7 @@ To upgrade,
 helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml --set mongodb.auth.rootPassword=<mongodb-root-password> --set mongodb.auth.replicaSetKey=<mongodb-replica-set-key> --set mongodb.auth.password=<mongodb-password> helm
 ```
 
-replace \<release-name\> with installed helm release name and \<platform\> with _openshift_ or _aks_ depending on your platform. \<mongodb-root-password\>, \<mongodb-replica-set-key\> and \<mongodb-password\> can be found in _mongodb_ secret.
+replace \<release-name\> with installed helm release name and \<platform\> with _openshift_ or _aks_ depending on your platform. MongoDB credentials \<mongodb-root-password\>, \<mongodb-replica-set-key\> and \<mongodb-password\> can be found in secret _\<release-name\>-mongodb_. It is recommended to specify mongodb credentials in a file rather than command line. See [Customizations](#customizations) below.
 
 To uninstall,
 
@@ -182,25 +169,36 @@ replace \<release-name\> with installed helm release name.
 
 Various customizations can be made to chart. Some are platform dependent. To customize, first create a file with extension _.local.yaml_. The rest of the document assumes the file is _helm/values.local.yaml_. Then add customized parameters to the file. See _helm/values.yaml_ and Bitnami MongoDB chart [readme](https://github.com/bitnami/charts/tree/master/bitnami/mongodb) for customizable parameters. Parameters in _helm/values.local.yaml_ overrides corresponding ones in _helm/values.yaml_. In particular, parameters under _mongodb_ of _helm/values.local.yaml_ overrides Bitnami MongoDB chart parameters.
 
-To apply customizations, add `-f helm/values.local.yaml` to the helm command after `-f helm/platform-specific/<platform>.yaml`. For example, to run `helm install` with customization,
+To apply customizations, add `-f helm/values.local.yaml` to the helm command after `-f helm/platform-specific/<platform>.yaml`. For example, to install chart with customization on OpenShift,
 
 ```sh
-helm install -gf helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+helm install -gf helm/platform-specific/openshift.yaml -f helm/values.local.yaml helm
 ```
 
-to run `helm upgrade` with customization,
+to upgrade an existing release with customization on OpenShift,
 
 ```sh
-helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+helm upgrade <release-name> -f helm/platform-specific/openshift.yaml -f helm/values.local.yaml helm
 ```
 
 ::: tip Backup <i>helm/values.local.yaml</i>
 Backup _helm/values.local.yaml_ to a private secured SCM is highly recommended, especially for production environment.
 :::
 
-Following are some example customizations.
+Following are some common customizations
 
-- To set hostname on AKS,
+- Update _config.local.js_ in ConfigMap, for example to define _httpHost_
+
+  ```yaml
+  # in file helm/values.local.yaml
+  configMap:
+    config.local.js: |-
+      module.exports = {
+        httpHost: 'https://myNotifyBC.myOrg.com',
+      }
+  ```
+
+- Set hostname on AKS,
   ```yaml
   # in file helm/values.local.yaml
   ingress:
@@ -222,7 +220,7 @@ Following are some example customizations.
           - notify-bc.local
   ```
 
-- Route host names on Openshift are by default auto-generated. To set to fix values
+- Route host names on Openshift are by default auto-generated. To set to fixed values
 
   ```yaml
   # in file helm/values.local.yaml
@@ -233,7 +231,7 @@ Following are some example customizations.
       host: 'smtp.myNotifyBC.myOrg.com'
   ```
 
-- To add certificates to OpenShift web route
+- Add certificates to OpenShift web route
 
   ```yaml
   # in file helm/values.local.yaml
@@ -255,29 +253,9 @@ Following are some example customizations.
           -----END PRIVATE KEY-----
   ```
 
-- To update _config.local.js_ in config map,
-
-  ```yaml
-  # in file helm/values.local.yaml
-  configMap:
-    config.local.js: |-
-      module.exports = {
-        httpHost: 'https://myNotifyBC.myOrg.com',
-        internalHttpHost: 'http://{{include "NotifyBC.fullname" .}}:{{ .Values.service.web.port }}',
-        inboundSmtpServer: {
-          listeningSmtpPort: 2525,
-          options: {
-            {{- if not (.Values.service.smtp.enabled) }}
-            secure: true
-            {{- end }}
-          }
-        }
-      }
-  ```
-
 - MongoDb
 
-  _NotifyBC_ chart depends on [Bitnami MongoDB chart](https://github.com/bitnami/charts/tree/master/bitnami/mongodb) for MongoDB database provisioning. All documented parameters are customizable by adding _mongodb._ prefix. For example, to change _architecture_ to _standalone_
+  _NotifyBC_ chart depends on [Bitnami MongoDB chart](https://github.com/bitnami/charts/tree/master/bitnami/mongodb) for MongoDB database provisioning. All documented parameters are customizable under _mongodb_. For example, to change _architecture_ to _standalone_
 
   ```yaml
   # in file helm/values.local.yaml
@@ -285,18 +263,43 @@ Following are some example customizations.
     architecture: standalone
   ```
 
-  Bitnami MongoDB uses Docker Hub for docker registry. Rate limit imposed by Docker Hub can cause runtime problems. If your organization has JFrog artifactory, you can change the registry
+  To set credentials,
 
   ```yaml
   # in file helm/values.local.yaml
   mongodb:
-    image:
-      registry: <artifactory.myOrg.com>
-      pullSecrets:
-        - <docker-pull-secret>
+    auth:
+      rootPassword: <secret>
+      replicaSetKey: <secret>
+      password: <secret>
   ```
 
-  The above settings assume you have setup secret \<docker-pull-secret\> to access \<artifactory.myOrg.com\>.
+  To install a Helm chart, the above credentials can be randomly defined. To upgrade an existing release, they must match what's defined in secret _\<release-name\>-mongodb_.
+
+- Redis
+
+  _NotifyBC_ chart depends on [Bitnami Redis chart](https://github.com/bitnami/charts/tree/master/bitnami/redis) for Redis provisioning. All documented parameters are customizable under _redis_. For example, to set credential
+
+  ```yaml
+  # in file helm/values.local.yaml
+  redis:
+    auth:
+      password: <secret>
+  ```
+
+  To install a Helm chart, the above credential can be randomly defined. To upgrade an existing release, It must match what's defined in secret _\<release-name\>-redis_.
+
+- Both Bitnami MongoDB and Redis use Docker Hub for docker registry. Rate limit imposed by Docker Hub can cause runtime problems. If your organization has JFrog artifactory, you can change the registry
+
+```yaml
+# in file helm/values.local.yaml
+global:
+  imageRegistry: <artifactory.myOrg.com>
+  imagePullSecrets:
+    - <docker-pull-secret>
+```
+
+The above settings assume you have setup secret \<docker-pull-secret\> to access \<artifactory.myOrg.com\>. The secret can be created using [kubectl](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line).
 
 - Enable scheduled MongoDB backup CronJob
 
@@ -336,3 +339,14 @@ Following are some example customizations.
   autoscaling:
     enabled: true
   ```
+
+## Deploy Docker Container
+
+If you have git and Docker installed, you can run following command to deploy _NotifyBC_ Docker container:
+
+```sh
+docker run --rm -dp 3000:3000 ghcr.io/bcgov/notify-bc
+# open http://localhost:3000
+```
+
+If successful, similar output is displayed as in source code installation.

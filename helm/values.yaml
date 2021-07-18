@@ -95,11 +95,9 @@ mongodb:
 
 configMap:
   config.local.js: |-
-    module.exports = {
-    }
+    module.exports = {};
   middleware.local.js: |-
-    module.exports = {
-    };
+    module.exports = {};
   db.datasource.local.js: |-
     module.exports = require('./db.datasource.production.js');
 
