@@ -11,6 +11,8 @@ _NotifyBC_ uses [semantic versioning](https://semver.org/).
 See [v3 to v4 upgrade guide](../upgrade/#v3-to-v4) for more information.
 
 - Issue [#48](https://github.com/bcgov/NotifyBC/issues/48): SMS message throttle
+- Re-ordered config file precedence
+- Re-organized Email and SMS configs
 - docs updates
 
 ## v3.1.0

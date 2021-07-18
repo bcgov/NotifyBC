@@ -28,7 +28,7 @@ Following configs should be customized per installation
 - [Admin IP List](../config/adminIpList.md)
 - [Reverse Proxy IP Lists](../config/reverseProxyIpLists.md)
 - [HTTP Host](../config/httpHost.md)
-- [SMTP](../config/smtp.md)
+- [SMTP](../config/email.md#smtp)
 
 In addition, if installing from source code
 
