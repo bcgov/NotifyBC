@@ -457,7 +457,7 @@ describe('POST /notifications', function () {
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       _.merge({}, origConfig, {
-        sms: {broadcastPushNotificationThrottle: {minTime: 2000}},
+        sms: {throttle: {minTime: 2000}},
       }),
     );
     (BaseController.prototype.sendSMS as sinon.SinonStub).restore();

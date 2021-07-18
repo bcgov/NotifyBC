@@ -598,13 +598,8 @@ export class NotificationController extends BaseController {
               );
             }
           };
-          if (
-            data.channel === 'sms' &&
-            this.appConfig.sms.broadcastPushNotificationThrottle
-          ) {
-            this.smsLimiter = new Bottleneck(
-              this.appConfig.sms.broadcastPushNotificationThrottle,
-            );
+          if (data.channel === 'sms' && this.appConfig.sms.throttle) {
+            this.smsLimiter = new Bottleneck(this.appConfig.sms.throttle);
           }
           await Promise.all(
             subscribers.map(async e => {
