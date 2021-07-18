@@ -96,50 +96,20 @@ mongodb:
 configMap:
   config.local.js: |-
     module.exports = {
-      internalHttpHost: 'http://{{include "NotifyBC.fullname" .}}:{{ .Values.service.web.port }}',
-      inboundSmtpServer: {
-        listeningSmtpPort: 2525,
-        options: {
-          {{- if not (.Values.service.smtp.enabled) }}
-          secure: true
-          {{- end }}
-        }
-      },
-      sms:{
-        broadcastPushNotificationThrottle: {
-          /* Redis clustering options */
-          datastore: 'ioredis',
-          clientOptions: {
-            name: "mymaster",
-            password: process.env.REDIS_PASSWORD,
-            sentinelPassword: process.env.REDIS_PASSWORD,
-            sentinels: [
-              { host: process.env.REDIS_SERVICE_NAME },
-            ],
-          },
-        },
-      },
     }
   middleware.local.js: |-
     module.exports = {
-      apiOnly: {
-        morgan: {
-          enabled: false,
-        },
-      },
     };
   db.datasource.local.js: |-
-    module.exports = {
-      name: 'db',
-      connector: 'mongodb',
-      hostname: process.env.DATABASE_SERVICE_NAME,
-      port: process.env.DB_PORT || 27017,
-      user: process.env.MONGODB_USER,
-      password: process.env.MONGODB_PASSWORD,
-      database: process.env.MONGODB_DATABASE,
-    };
+    module.exports = require('./db.datasource.production.js');
 
 configMapVolumeMounts:
+  - mountPath: /home/node/app/dist/config.production.js
+    subPath: config.production.js
+  - mountPath: /home/node/app/dist/middleware.production.js
+    subPath: middleware.production.js
+  - mountPath: /home/node/app/dist/datasources/db.datasource.production.js
+    subPath: db.datasource.production.js
   - mountPath: /home/node/app/dist/config.local.js
     subPath: config.local.js
   - mountPath: /home/node/app/dist/middleware.local.js
