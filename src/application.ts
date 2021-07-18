@@ -49,6 +49,14 @@ export class NotifyBcApplication extends BootMixin(
     let configFiles = ['config.json', 'config.js'];
     let middlewareFiles = ['middleware.js', 'middleware.json'];
     if (process.env.NODE_ENV) {
+      configFiles = configFiles.concat([
+        `config.${process.env.NODE_ENV}.json`,
+        `config.${process.env.NODE_ENV}.js`,
+      ]);
+      middlewareFiles = middlewareFiles.concat([
+        `middleware.${process.env.NODE_ENV}.json`,
+        `middleware.${process.env.NODE_ENV}.js`,
+      ]);
       if (process.env.NODE_ENV !== 'test') {
         configFiles = configFiles.concat([
           `config.local.json`,
@@ -59,14 +67,6 @@ export class NotifyBcApplication extends BootMixin(
           `middleware.local.js`,
         ]);
       }
-      configFiles = configFiles.concat([
-        `config.${process.env.NODE_ENV}.json`,
-        `config.${process.env.NODE_ENV}.js`,
-      ]);
-      middlewareFiles = middlewareFiles.concat([
-        `middleware.${process.env.NODE_ENV}.json`,
-        `middleware.${process.env.NODE_ENV}.js`,
-      ]);
     }
     const middlewareConfigs: AnyObject = {};
     for (const e of [
@@ -111,11 +111,17 @@ export class NotifyBcApplication extends BootMixin(
       path.join(__dirname, '../client/node_modules/iframe-resizer/js'),
     );
 
-    let dsFiles = ['db.datasource.local.json', 'db.datasource.local.js'];
+    let dsFiles: string[] = [];
     if (process.env.NODE_ENV) {
-      dsFiles = dsFiles.concat([
+      dsFiles = [
         `db.datasource.${process.env.NODE_ENV}.json`,
         `db.datasource.${process.env.NODE_ENV}.js`,
+      ];
+    }
+    if (process.env.NODE_ENV !== 'test') {
+      dsFiles = dsFiles.concat([
+        'db.datasource.local.json',
+        'db.datasource.local.js',
       ]);
     }
     for (const dsFile of dsFiles) {

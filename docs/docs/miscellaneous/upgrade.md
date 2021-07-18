@@ -205,3 +205,47 @@ After above changes are addressed, upgrading to v3 is as simple as
 git pull
 yarn install && yarn build
 ```
+
+or
+
+```sh
+helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+```
+
+if _NotifyBC_ is deployed to Kubernetes using Helm.
+
+## v3 to v4
+
+v4 introduced following backward incompatible changes
+
+1. The precedence of config, middleware and datasource files has been changed. Local file takes higher precedence than environment specific file. For example, for config file, the new precedence in ascending order is
+
+   1. default file _/src/config.\<ts|js|json\>_
+   2. environment specific file _/src/config.\<env\>.\<ts|js|json\>_, where \<env\> is determined by env variable environment variable _NODE_ENV_
+   3. local file _/src/config.local.\<ts|js|json\>_
+
+   To upgrade, if you have environment specific file, merge its content into the local file, then delete it.
+
+2. Helm chart added Redis that requires authentication. Define password in _helm/values.local.yaml_
+
+   ```yaml
+   # in file helm/values.local.yaml
+   redis:
+     auth:
+       password: '<secret>'
+   ```
+
+After above changes are addressed, upgrading to v4 is as simple as
+
+```sh
+git pull
+yarn install && yarn build
+```
+
+or
+
+```sh
+helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+```
+
+if _NotifyBC_ is deployed to Kubernetes using Helm.

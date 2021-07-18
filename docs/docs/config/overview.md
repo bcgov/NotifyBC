@@ -15,9 +15,9 @@ There are two types of configurations - static and dynamic. Static configuration
 
 Most static configurations are specified in file _/src/config.ts_. If you need to change, instead of updating _/src/config.ts_ file, create local file _/src/config.local.ts_ or environment specific file _/src/config.\<env\>.ts_, which is only included when environment variable _NODE_ENV_ equals _\<env\>_. Besides _ts_, _js_ and _json_ file extension are also supported. Content in these files are deeply merged in following ascending precedence
 
-- default file _/src/config.ts_
-- local file _/src/config.local.ts_
-- environment specific file _/src/config.\<env\>.ts_
+- default file _/src/config.\<ts|js|json\>_
+- environment specific file _/src/config.\<env\>.\<ts|js|json\>_
+- local file _/src/config.local.\<ts|js|json\>_
 
 ::: warning Run build script whenever changing file in /src
 Every time a file under _/src_, including config files, is updated, run `yarn build` before restarting _NotifyBC_ to take effect.
