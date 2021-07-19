@@ -113,7 +113,7 @@ Bounce handling involves four actions
 To setup bounce handling
 
 - set up [inbound smtp server](#inbound-smtp-server)
-- verify config _notification.handleBounce_ is set to true or absent in _/src/config.local.js_
+- verify config _email.bounce.enabled_ is set to true or absent in _/src/config.local.js_
 - verify and adjust unsubscription threshold and bounce filter criteria if needed.
   Following is the default config in file _/src/config.ts_ compatible with [rfc 3464](https://tools.ietf.org/html/rfc3464)
 
@@ -121,6 +121,7 @@ To setup bounce handling
   module.exports = {
     email: {
       bounce: {
+        enabled: true,
         unsubThreshold: 5,
         subjectRegex: '',
         smtpStatusCodeRegex: '5\\.\\d{1,3}\\.\\d{1,3}',

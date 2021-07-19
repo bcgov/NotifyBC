@@ -161,18 +161,18 @@ without the guarantee.
 
 If performance is a higher priority to you, disable both the guarantee and
 bounce handling by setting config
-_guaranteedBroadcastPushDispatchProcessing_ and _handleBounce_ to
+_notification.guaranteedBroadcastPushDispatchProcessing_ and _email.bounce.enabled_ to
 _false_ in file _/src/config.local.js_
 
 ```js
 module.exports = {
-  ...
   notification: {
-    ...
     guaranteedBroadcastPushDispatchProcessing: false,
-    handleBounce: false,
-  }
-}
+  },
+  email: {
+    bounce: {enabled: false},
+  },
+};
 ```
 
 In such case only failed dispatches are written to _dispatch.failed_ field of the notification.

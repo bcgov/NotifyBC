@@ -357,7 +357,7 @@ export class NotificationController extends BaseController {
   async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain = this.appConfig.email.inboundSmtpServer
       ?.domain;
-    const handleBounce = this.appConfig.notification?.handleBounce;
+    const handleBounce = this.appConfig.email?.bounce?.enabled;
     const handleListUnsubscribeByEmail = this.appConfig.notification
       ?.handleListUnsubscribeByEmail;
 

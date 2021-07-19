@@ -36,6 +36,7 @@ module.exports = {
       },
     },
     bounce: {
+      enable: true,
       unsubThreshold: 2,
       subjectRegex: '^Returned mail: see transcript for details',
       failedRecipientRegex:
@@ -54,7 +55,6 @@ module.exports = {
     detectDuplicatedSubscription: false,
   },
   notification: {
-    handleBounce: true,
     broadcastCustomFilterFunctions: {
       // eslint-disable-next-line  @typescript-eslint/naming-convention
       contains_ci: {

@@ -49,6 +49,7 @@ const config: AnyObject = {
       enabled: true,
     },
     bounce: {
+      enabled: true,
       unsubThreshold: 5,
       subjectRegex: '',
       smtpStatusCodeRegex: '5\\.\\d{1,3}\\.\\d{1,3}',
@@ -136,7 +137,6 @@ const config: AnyObject = {
   },
   notification: {
     handleListUnsubscribeByEmail: true,
-    handleBounce: true,
     broadcastSubscriberChunkSize: 1000,
     broadcastSubRequestBatchSize: 10,
     guaranteedBroadcastPushDispatchProcessing: true,
