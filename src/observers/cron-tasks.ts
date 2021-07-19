@@ -14,6 +14,7 @@
 
 import {Application, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
+import Bottleneck from 'bottleneck';
 import {Rss, RssItem, RssRelations} from '../models';
 import {
   AccessTokenRepository,
@@ -29,6 +30,7 @@ const request = require('axios');
 const _ = require('lodash');
 
 module.exports.request = request;
+module.exports.Bottleneck = Bottleneck;
 module.exports.purgeData = async (app: Application) => {
   const cronConfig: AnyObject =
     (await app.getConfig(
@@ -568,5 +570,33 @@ module.exports.reDispatchBroadcastPushNotifications = (app: Application) => {
         },
       ),
     );
+  };
+};
+
+module.exports.clearRedisDatastore = (app: Application) => {
+  return async () => {
+    const notificationRepository: NotificationRepository = await app.get(
+      'repositories.NotificationRepository',
+    );
+    const sendingSmsNotification = await notificationRepository.findOne(
+      {
+        where: {
+          state: 'sending',
+          channel: 'sms',
+          isBroadcast: true,
+        },
+      },
+      undefined,
+    );
+    if (sendingSmsNotification) return;
+    const smsThrottleConfig = <Bottleneck.ConstructorOptions>(
+      await app.getConfig(CoreBindings.APPLICATION_INSTANCE, 'sms.throttle')
+    );
+    const newSmsThrottleConfig = Object.assign({}, smsThrottleConfig, {
+      clearDatastore: true,
+    });
+    const smsLimiter = new module.exports.Bottleneck(newSmsThrottleConfig);
+    await smsLimiter.ready();
+    await smsLimiter.disconnect();
   };
 };

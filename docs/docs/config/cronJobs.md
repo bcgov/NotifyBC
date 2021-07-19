@@ -8,6 +8,8 @@ _NotifyBC_ runs several cron jobs described below. These jobs are controlled by 
 
 By default cron jobs are enabled. In a multi-node deployment, cron jobs should only run on the [master node](../config-nodeRoles/) to ensure single execution.
 
+All cron jobs share common config item <a name="timeSpec"></a>_timeSpec_ - a space separated fields conformed to [unix crontab format](<https://www.freebsd.org/cgi/man.cgi?crontab(5)>) with an optional left-most seconds field. See [allowed ranges](https://github.com/kelektiv/node-cron#cron-ranges) of each field.
+
 ## Purge Data
 
 This cron job purges old notifications, subscriptions and notification bounces. The default frequency of cron job and retention policy are defined by _cron.purgeData_ config object in file _/src/config.ts_
@@ -16,6 +18,7 @@ This cron job purges old notifications, subscriptions and notification bounces. 
 module.exports = {
   cron: {
     purgeData: {
+      // daily at 1am
       timeSpec: '0 0 1 * * *',
       pushNotificationRetentionDays: 30,
       expiredInAppNotificationRetentionDays: 30,
@@ -28,9 +31,8 @@ module.exports = {
 };
 ```
 
-The config items are
+where
 
-- <a name="timeSpec"></a>_timeSpec_: a space separated fields conformed to [unix crontab format](<https://www.freebsd.org/cgi/man.cgi?crontab(5)>) with an optional left-most seconds field. See [allowed ranges](https://github.com/kelektiv/node-cron#cron-ranges) of each field.
 - _pushNotificationRetentionDays_: the retention days of push notifications
 - _expiredInAppNotificationRetentionDays_: the retention days of expired inApp notifications
 - _nonConfirmedSubscriptionRetentionDays_: the retention days of non-confirmed subscriptions, i.e. all unconfirmed and deleted subscriptions
@@ -58,13 +60,12 @@ This cron job sends out future-dated notifications when the notification becomes
 module.exports = {
   cron: {
     dispatchLiveNotifications: {
+      // minutely
       timeSpec: '0 * * * * *',
     },
   },
 };
 ```
-
-_timeSpec_ follows [same syntax described above](#timeSpec).
 
 ## Check Rss Config Updates
 
@@ -74,13 +75,14 @@ This cron job monitors RSS feed notification dynamic config items. If a config i
 module.exports = {
   cron: {
     checkRssConfigUpdates: {
+      // minutely
       timeSpec: '0 * * * * *',
     },
   },
 };
 ```
 
-_timeSpec_ follows [same syntax described above](#timeSpec). Note this _timeSpec_ doesn't control the RSS poll frequency (which is defined in dynamic configs and is service specific), instead it only controls the frequency to check for dynamic config changes.
+Note _timeSpec_ doesn't control the RSS poll frequency (which is defined in dynamic configs and is service specific), instead it only controls the frequency to check for dynamic config changes.
 
 ## Delete Notification Bounces
 
@@ -95,6 +97,7 @@ The default config is defined by _cron.deleteBounces_ config object in file _/sr
 module.exports = {
   cron: {
     deleteBounces: {
+      // hourly
       timeSpec: '0 0 * * * *',
       minLapsedHoursSinceLatestNotificationEnded: 1,
     },
@@ -104,5 +107,38 @@ module.exports = {
 
 where
 
-- _timeSpec_ is the frequency of cron job, following [same syntax described above](#timeSpec)
 - _minLapsedHoursSinceLatestNotificationEnded_ is the time span
+
+## Re-dispatch Broadcast Push Notifications
+
+This cron job re-dispatches a broadcast push notifications when original request failed. It is part of [guaranteed broadcast push dispatch processing](../config/notification.md#guaranteed-broadcast-push-dispatch-processing)
+
+The default config is defined by _cron.reDispatchBroadcastPushNotifications_ config object in file _/src/config.ts_
+
+```ts
+module.exports = {
+  cron: {
+    reDispatchBroadcastPushNotifications: {
+      // minutely
+      timeSpec: '0 * * * * *',
+    },
+  },
+};
+```
+
+## Clear Redis Datastore
+
+This cron job clears Redis datastore, including updating settings, used for SMS [throttle](../config/sms.md#throttle). The job is enabled only if Redis is used. Datastore is cleared only when there is no SMS broadcast push notifications in _sending_ state. Without this cron job, updated throttle settings in config file will never take effect, and staled jobs in Redis datastore will not be cleaned up.
+
+The default config is defined by _cron.clearRedisDatastore_ config object in file _/src/config.ts_
+
+```ts
+module.exports = {
+  cron: {
+    clearRedisDatastore: {
+      // hourly
+      timeSpec: '0 0 * * * *',
+    },
+  },
+};
+```

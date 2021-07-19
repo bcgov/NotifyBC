@@ -646,3 +646,40 @@ describe('CRON reDispatchBroadcastPushNotifications', function () {
     expect(data[0].dispatch?.successful).containEql('1');
   });
 });
+
+describe('CRON clearRedisDatastore', function () {
+  let ready: sinon.SinonStub;
+  let disconnect: sinon.SinonStub;
+  beforeEach(async function () {
+    ready = sinon.stub().resolves(null);
+    disconnect = sinon.stub().resolves(null);
+    sinon.stub(cronTasks, 'Bottleneck').returns({
+      ready,
+      disconnect,
+    });
+  });
+  it('should not clear datastore when there is sending notification', async function () {
+    await notificationRepository.create({
+      channel: 'sms',
+      message: {
+        textBody: 'this is a test http://foo.com',
+      },
+      isBroadcast: true,
+      serviceName: 'myService',
+      state: 'sending',
+    });
+    await cronTasks.clearRedisDatastore(app)();
+    sinon.assert.notCalled(cronTasks.Bottleneck);
+    sinon.assert.notCalled(ready);
+    sinon.assert.notCalled(disconnect);
+  });
+
+  it('should clear datastore when no sending notification', async function () {
+    await cronTasks.clearRedisDatastore(app)();
+    sinon.assert.calledOnceWithMatch(cronTasks.Bottleneck, {
+      clearDatastore: true,
+    });
+    sinon.assert.calledOnce(ready);
+    sinon.assert.calledOnce(disconnect);
+  });
+});

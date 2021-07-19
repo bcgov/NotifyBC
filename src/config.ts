@@ -70,9 +70,8 @@ const config: AnyObject = {
     throttle: {
       id: 'notifyBCSms',
       minTime: 250,
-      clearDatastore: true,
       /* Redis clustering options */
-      // datastore: 'redis',
+      // datastore: 'ioredis',
       // clientOptions: {
       //   host: '127.0.0.1',
       //   port: 6379,
@@ -146,7 +145,7 @@ const config: AnyObject = {
   },
   cron: {
     purgeData: {
-      // daily
+      // daily at 1am
       timeSpec: '0 0 1 * * *',
       pushNotificationRetentionDays: 30,
       expiredInAppNotificationRetentionDays: 30,
@@ -171,6 +170,10 @@ const config: AnyObject = {
     reDispatchBroadcastPushNotifications: {
       // minutely
       timeSpec: '0 * * * * *',
+    },
+    clearRedisDatastore: {
+      // hourly
+      timeSpec: '0 0 * * * *',
     },
   },
   tls: {},

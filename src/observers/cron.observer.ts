@@ -97,6 +97,26 @@ export class CronObserver implements LifeCycleObserver {
         start: true,
       }),
     );
+
+    const smsThrottleConfig: AnyObject =
+      (await this.app.getConfig(
+        CoreBindings.APPLICATION_INSTANCE,
+        'sms.throttle',
+      )) ?? {};
+    if (
+      smsThrottleConfig.clearDatastore !== true &&
+      smsThrottleConfig.datastore !== 'local'
+    ) {
+      const clearRedisDatastore = cronConfig.clearRedisDatastore || {};
+      this.jobs.push(
+        new CronJob({
+          cronTime: clearRedisDatastore.timeSpec,
+          onTick: cronTasks.clearRedisDatastore(this.app),
+          start: true,
+          runOnInit: true,
+        }),
+      );
+    }
   }
   async stop(): Promise<void> {
     for (const job of this.jobs) {
