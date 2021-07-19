@@ -71,22 +71,22 @@ module.exports.app = function (...argsArr: any[]) {
       if (notificationCfg.handleBounce !== undefined) {
         handleBounce = notificationCfg.handleBounce;
       }
-      bounceUnsubThreshold = smtpSvr.bounce.unsubThreshold;
+      bounceUnsubThreshold = app.email.bounce.unsubThreshold;
       if (
-        smtpSvr.bounce.subjectRegex &&
-        smtpSvr.bounce.subjectRegex.length > 0
+        app.email.bounce.subjectRegex &&
+        app.email.bounce.subjectRegex.length > 0
       ) {
-        bounceSubjectRegex = new RegExp(smtpSvr.bounce.subjectRegex);
+        bounceSubjectRegex = new RegExp(app.email.bounce.subjectRegex);
       }
       bounceSmtpStatusCodeRegex = new RegExp(
-        smtpSvr.bounce.smtpStatusCodeRegex,
+        app.email.bounce.smtpStatusCodeRegex,
       );
       if (
-        smtpSvr.bounce.failedRecipientRegex &&
-        smtpSvr.bounce.failedRecipientRegex.length > 0
+        app.email.bounce.failedRecipientRegex &&
+        app.email.bounce.failedRecipientRegex.length > 0
       ) {
         bounceFailedRecipientRegex = new RegExp(
-          smtpSvr.bounce.failedRecipientRegex,
+          app.email.bounce.failedRecipientRegex,
         );
       }
     }
