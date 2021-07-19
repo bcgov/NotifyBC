@@ -1154,8 +1154,8 @@ describe('POST /notifications', function () {
         _.merge({}, origConfig, {
           notification: {
             guaranteedBroadcastPushDispatchProcessing: false,
-            handleBounce: false,
           },
+          email: {bounce: {enabled: false}},
         }),
       );
       const res = await client
@@ -1208,9 +1208,7 @@ describe('POST /notifications', function () {
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(
       _.merge({}, origConfig, {
-        notification: {
-          handleBounce: false,
-        },
+        email: {bounce: {enabled: false}},
       }),
     );
     const res = await client

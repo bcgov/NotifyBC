@@ -57,7 +57,6 @@ module.exports.app = function (...argsArr: any[]) {
 
     if (app) {
       const smtpSvr = app.email.inboundSmtpServer;
-      const notificationCfg = app.notification;
       const internalHttpHost = app.internalHttpHost;
       if (internalHttpHost) {
         urlPrefix = internalHttpHost + app.restApiRoot;
@@ -68,8 +67,8 @@ module.exports.app = function (...argsArr: any[]) {
           .split(',')
           .map((e: string) => e.trim().toLowerCase()));
       smtpSvr.options && (smtpOpts = smtpSvr.options);
-      if (notificationCfg.handleBounce !== undefined) {
-        handleBounce = notificationCfg.handleBounce;
+      if (app.email?.bounce?.enabled !== undefined) {
+        handleBounce = app.email.bounce.enabled;
       }
       bounceUnsubThreshold = app.email.bounce.unsubThreshold;
       if (
