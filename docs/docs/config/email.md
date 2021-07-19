@@ -27,7 +27,7 @@ Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options th
 
 ## Inbound SMTP Server
 
-_NotifyBC_ has an inbound SMTP server to handle
+_NotifyBC_ implemented an inbound SMTP server to handle
 
 - [bounce](#bounce)
 - [list-unsubscribe by email](#list-unsubscribe-by-email)
@@ -161,14 +161,14 @@ To support this unsubscription method, _NotifyBC_ implements a custom inbound SM
 To enable list-unsubscribe by email
 
 - set up [inbound smtp server](#inbound-smtp-server)
-- verify config _notification.handleListUnsubscribeByEmail_ is set to true or absent in _/src/config.local.js_
+- verify config _email.listUnsubscribeByEmail.enabled_ is set to true or absent in _/src/config.local.js_
 
-To disable list-unsubscribe by email, set _notification.handleListUnsubscribeByEmail_ to false in _/src/config.local.js_
+To disable list-unsubscribe by email, set _email.listUnsubscribeByEmail.enabled_ to _false_ in _/src/config.local.js_
 
 ```js
 module.exports = {
-  notification: {
-    handleListUnsubscribeByEmail: false,
+  email: {
+    listUnsubscribeByEmail: {enabled: false},
   },
 };
 ```

@@ -358,8 +358,8 @@ export class NotificationController extends BaseController {
     const inboundSmtpServerDomain = this.appConfig.email.inboundSmtpServer
       ?.domain;
     const handleBounce = this.appConfig.email?.bounce?.enabled;
-    const handleListUnsubscribeByEmail = this.appConfig.notification
-      ?.handleListUnsubscribeByEmail;
+    const handleListUnsubscribeByEmail = this.appConfig.email
+      ?.listUnsubscribeByEmail?.enabled;
 
     const updateBounces = async (
       userChannelIds: string[] | string,

@@ -233,17 +233,18 @@ v4 introduced following backward incompatible changes that need to be addressed 
 3. Config _inboundSmtpServer_ is changed to _email.inboundSmtpServer_. See [Inbound SMTP Server](../config/email.md#inbound-smtp-server) for example.
 4. Config _email.inboundSmtpServer.bounce_ is changed to _email.bounce_. See [Bounce](../config/email.md#bounce) for example.
 5. Config _notification.handleBounce_ is changed to _email.bounce.enabled_.
-6. Config _smsServiceProvider_ is changed to _sms.provider_. See [Provider](../config/sms.md#provider) for example.
-7. SMS service provider specific settings defined in config _sms_ are changed to _sms.providerSettings_. See [Provider Settings](../config/sms.md#provider-settings) for example. The config object _sms_ now encapsulates all SMS configs - _provider_, _providerSettings_ and _throttle_.
-8. Legacy config _subscription.unsubscriptionEmailDomain_ is removed. If you have it defined in your file _/src/config.local.js_, replace with _email.inboundSmtpServer.domain_.
-9. Helm chart added Redis that requires authentication by default. Create a new password in _helm/values.local.yaml_ to facilitate upgrading
+6. Config _notification.handleListUnsubscribeByEmail_ is changed to _email.listUnsubscribeByEmail.enabled_. See [List-unsubscribe by Email](../config/email.md#list-unsubscribe-by-email) for example.
+7. Config _smsServiceProvider_ is changed to _sms.provider_. See [Provider](../config/sms.md#provider) for example.
+8. SMS service provider specific settings defined in config _sms_ are changed to _sms.providerSettings_. See [Provider Settings](../config/sms.md#provider-settings) for example. The config object _sms_ now encapsulates all SMS configs - _provider_, _providerSettings_ and _throttle_.
+9. Legacy config _subscription.unsubscriptionEmailDomain_ is removed. If you have it defined in your file _/src/config.local.js_, replace with _email.inboundSmtpServer.domain_.
+10. Helm chart added Redis that requires authentication by default. Create a new password in _helm/values.local.yaml_ to facilitate upgrading
 
-   ```yaml
-   # in file helm/values.local.yaml
-   redis:
-     auth:
-       password: '<secret>'
-   ```
+```yaml
+# in file helm/values.local.yaml
+redis:
+  auth:
+    password: '<secret>'
+```
 
 After above changes are addressed, upgrading to v4 is as simple as
 
