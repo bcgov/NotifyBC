@@ -215,7 +215,7 @@ git checkout tags/v3.x.x -b <branch_name>
 helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
 ```
 
-Replace _v3.x.x_ with a v4 release, preferably latest, found in GitHub such as _v3.1.2_.
+Replace _v3.x.x_ with a v3 release, preferably latest, found in GitHub such as _v3.1.2_.
 
 ## v3 to v4
 
