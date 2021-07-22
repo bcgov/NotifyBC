@@ -8,7 +8,7 @@ _NotifyBC_ runs several cron jobs described below. These jobs are controlled by 
 
 By default cron jobs are enabled. In a multi-node deployment, cron jobs should only run on the [master node](../config-nodeRoles/) to ensure single execution.
 
-All cron jobs share common config item <a name="timeSpec"></a>_timeSpec_ - a space separated fields conformed to [unix crontab format](<https://www.freebsd.org/cgi/man.cgi?crontab(5)>) with an optional left-most seconds field. See [allowed ranges](https://github.com/kelektiv/node-cron#cron-ranges) of each field.
+All cron jobs have a property named <a name="timeSpec"></a>_timeSpec_ with the value of a space separated fields conforming to [unix crontab format](<https://www.freebsd.org/cgi/man.cgi?crontab(5)>) with an optional left-most seconds field. See [allowed ranges](https://github.com/kelektiv/node-cron#cron-ranges) of each field.
 
 ## Purge Data
 
