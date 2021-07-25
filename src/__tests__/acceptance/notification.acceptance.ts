@@ -31,6 +31,7 @@ import {
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication, wait} from './test-helper';
 
+const nodemailer = require('nodemailer');
 let app: NotifyBcApplication;
 let client: Client;
 let notificationRepository: NotificationRepository;
@@ -47,71 +48,61 @@ before('setupApplication', async function () {
 describe('GET /notifications', function () {
   beforeEach(async function () {
     await Promise.all([
-      (async () => {
-        return notificationRepository.create({
-          channel: 'inApp',
-          isBroadcast: true,
-          message: {
-            title: 'test',
-            body: 'this is a test',
-          },
-          serviceName: 'myService',
-          validTill: '2000-01-01',
-          state: 'new',
-        });
-      })(),
-      (async () => {
-        return notificationRepository.create({
-          channel: 'inApp',
-          isBroadcast: true,
-          message: {
-            title: 'test',
-            body: 'this is a test',
-          },
-          serviceName: 'myService',
-          readBy: ['bar'],
-          state: 'new',
-        });
-      })(),
-      (async () => {
-        return notificationRepository.create({
-          channel: 'inApp',
-          isBroadcast: true,
-          message: {
-            title: 'test',
-            body: 'this is a test',
-          },
-          serviceName: 'myService',
-          deletedBy: ['bar'],
-          state: 'new',
-        });
-      })(),
-      (async () => {
-        return notificationRepository.create({
-          channel: 'inApp',
-          isBroadcast: true,
-          message: {
-            title: 'test',
-            body: 'this is a test',
-          },
-          serviceName: 'myService',
-          invalidBefore: '3017-05-30',
-          state: 'new',
-        });
-      })(),
-      (async () => {
-        return notificationRepository.create({
-          channel: 'email',
-          isBroadcast: true,
-          message: {
-            from: 'no_reply@invlid.local',
-            subject: 'hello',
-            htmlBody: 'hello',
-          },
-          serviceName: 'myService',
-          state: 'sent',
-        });
-      })(),
+      notificationRepository.create({
+        channel: 'inApp',
+        isBroadcast: true,
+        message: {
+          title: 'test',
+          body: 'this is a test',
+        },
+        serviceName: 'myService',
+        validTill: '2000-01-01',
+        state: 'new',
+      }),
+      notificationRepository.create({
+        channel: 'inApp',
+        isBroadcast: true,
+        message: {
+          title: 'test',
+          body: 'this is a test',
+        },
+        serviceName: 'myService',
+        readBy: ['bar'],
+        state: 'new',
+      }),
+      notificationRepository.create({
+        channel: 'inApp',
+        isBroadcast: true,
+        message: {
+          title: 'test',
+          body: 'this is a test',
+        },
+        serviceName: 'myService',
+        deletedBy: ['bar'],
+        state: 'new',
+      }),
+      notificationRepository.create({
+        channel: 'inApp',
+        isBroadcast: true,
+        message: {
+          title: 'test',
+          body: 'this is a test',
+        },
+        serviceName: 'myService',
+        invalidBefore: '3017-05-30',
+        state: 'new',
+      }),
+      notificationRepository.create({
+        channel: 'email',
+        isBroadcast: true,
+        message: {
+          from: 'no_reply@invlid.local',
+          subject: 'hello',
+          htmlBody: 'hello',
+        },
+        serviceName: 'myService',
+        state: 'sent',
+      }),
     ]);
   });
 
@@ -137,84 +128,80 @@ describe('GET /notifications', function () {
 describe('POST /notifications', function () {
   beforeEach(async function () {
     await Promise.all([
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'myService',
-          channel: 'email',
-          userId: 'bar',
-          userChannelId: 'bar@foo.com',
-          state: 'confirmed',
-          confirmationRequest: {
-            confirmationCodeRegex: '\\d{5}',
-            sendRequest: true,
-            from: 'no_reply@invlid.local',
-            subject: 'Subscription confirmation',
-            textBody: 'enter {confirmation_code} in this email',
-            confirmationCode: '12345',
-          },
-          unsubscriptionCode: '54321',
-          data: {
-            gender: 'male',
-          },
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'myService',
-          channel: 'sms',
-          userChannelId: '12345',
-          state: 'confirmed',
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'myChunkedBroadcastService',
-          channel: 'email',
-          userChannelId: 'bar1@foo.com',
-          state: 'confirmed',
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'myChunkedBroadcastService',
-          channel: 'email',
-          userChannelId: 'bar2@invalid',
-          state: 'confirmed',
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'myFilterableBroadcastService',
-          channel: 'email',
-          userChannelId: 'bar2@invalid',
-          state: 'confirmed',
-          broadcastPushNotificationFilter: "contains(name,'f')",
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'myInvalidEmailService',
-          channel: 'email',
-          userChannelId: 'bar@invalid.local',
-          state: 'confirmed',
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'smsThrottle',
-          channel: 'sms',
-          userChannelId: '12345',
-          state: 'confirmed',
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'smsThrottle',
-          channel: 'sms',
-          userChannelId: '23456',
-          state: 'confirmed',
-        });
-      })(),
+      subscriptionRepository.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userId: 'bar',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        confirmationRequest: {
+          confirmationCodeRegex: '\\d{5}',
+          sendRequest: true,
+          from: 'no_reply@invlid.local',
+          subject: 'Subscription confirmation',
+          textBody: 'enter {confirmation_code} in this email',
+          confirmationCode: '12345',
+        },
+        unsubscriptionCode: '54321',
+        data: {
+          gender: 'male',
+        },
+      }),
+      subscriptionRepository.create({
+        serviceName: 'myService',
+        channel: 'sms',
+        userChannelId: '12345',
+        state: 'confirmed',
+      }),
+      subscriptionRepository.create({
+        serviceName: 'myChunkedBroadcastService',
+        channel: 'email',
+        userChannelId: 'bar1@foo.com',
+        state: 'confirmed',
+      }),
+      subscriptionRepository.create({
+        serviceName: 'myChunkedBroadcastService',
+        channel: 'email',
+        userChannelId: 'bar2@invalid',
+        state: 'confirmed',
+      }),
+      subscriptionRepository.create({
+        serviceName: 'myFilterableBroadcastService',
+        channel: 'email',
+        userChannelId: 'bar2@invalid',
+        state: 'confirmed',
+        broadcastPushNotificationFilter: "contains(name,'f')",
+      }),
+      subscriptionRepository.create({
+        serviceName: 'myInvalidEmailService',
+        channel: 'email',
+        userChannelId: 'bar@invalid.local',
+        state: 'confirmed',
+      }),
+      subscriptionRepository.create({
+        serviceName: 'smsThrottle',
+        channel: 'sms',
+        userChannelId: '12345',
+        state: 'confirmed',
+      }),
+      subscriptionRepository.create({
+        serviceName: 'smsThrottle',
+        channel: 'sms',
+        userChannelId: '23456',
+        state: 'confirmed',
+      }),
+      subscriptionRepository.create({
+        serviceName: 'emailThrottle',
+        channel: 'email',
+        userChannelId: 'foo@invalid.local',
+        state: 'confirmed',
+      }),
+      subscriptionRepository.create({
+        serviceName: 'emailThrottle',
+        channel: 'email',
+        userChannelId: 'foo2@invalid.local',
+        state: 'confirmed',
+      }),
     ]);
   });
 
@@ -366,6 +353,50 @@ describe('POST /notifications', function () {
       },
     });
     expect(data.length).equal(1);
+  });
+
+  it('should throttle email broadcast push notification', async function () {
+    sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
+    const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      _.merge({}, origConfig, {
+        email: {throttle: {enabled: true, minTime: 2000}},
+      }),
+    );
+    (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
+    const sendMail = sinon.stub();
+    sinon.stub(nodemailer, 'createTransport').callsFake(() => {
+      return {sendMail};
+    });
+    const res = await client
+      .post('/api/notifications')
+      .send({
+        serviceName: 'emailThrottle',
+        message: {
+          from: 'foo@invalid.local',
+          subject: 'test',
+          textBody:
+            'This is a broadcast test {confirmation_code} {service_name} ' +
+            '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+        },
+        channel: 'email',
+        isBroadcast: true,
+        asyncBroadcastPushNotification: true,
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).equal(200);
+    await wait(1000);
+    sinon.assert.calledOnce(sendMail);
+    await wait(3000);
+    sinon.assert.calledTwice(sendMail);
+    const data = await notificationRepository.find({
+      where: {
+        serviceName: 'emailThrottle',
+        or: [{state: 'sending'}, {state: 'sent'}],
+      },
+    });
+    expect(data.length).equal(1);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
 
   it('should send unicast email notification', async function () {

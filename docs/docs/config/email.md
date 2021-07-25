@@ -23,7 +23,72 @@ module.exports = {
 };
 ```
 
-Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options that you can define in _smtp_ object. Using SMTP relay and fine-tuning some options are critical for performance. See [benchmark advices](../benchmarks/#advices). There are also options allowing you to throttle down throughput if needed.
+Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options that you can define in _smtp_ object. Using SMTP relay and fine-tuning some options are critical for performance. See [benchmark advices](../benchmarks/#advices).
+
+## Throttle
+
+SMTP servers may impose request rate limit. _NotifyBC_ can throttle request under the rate limit. To enable throttle and set rate limit, create following config in file _/src/config.local.js_
+
+```js
+module.exports = {
+  throttle: {
+    throttle: {
+      enabled: true,
+      // minimum request interval in ms
+      minTime: 250,
+    },
+  },
+};
+```
+
+where
+
+- _enabled_ - whether to enable throttle or not. Default to _false_.
+- _minTime_ - minimum request interval in ms. Example value 250 throttles request rate to 4/sec.
+
+When _NotifyBC_ is deployed from source code, by default the rate limit applies to one Node.js process only. If there are multiple processes, i.e. a cluster, the aggregated rate limit is multiplied by the number of processes. To enforce the rate limit across entire cluster, install Redis and add Redis config to _email.throttle_
+
+```js
+module.exports = {
+  email: {
+    throttle: {
+      enabled: true,
+      // minimum request interval in ms
+      minTime: 250,
+      /* Redis clustering options */
+      datastore: 'ioredis',
+      clientOptions: {
+        host: '127.0.0.1',
+        port: 6379,
+      },
+    },
+  },
+};
+```
+
+If you installed Redis Sentinel,
+
+```js
+module.exports = {
+  email: {
+    throttle: {
+      enabled: true,
+      // minimum request interval in ms
+      minTime: 250,
+      /* Redis clustering options */
+      datastore: 'ioredis',
+      clientOptions: {
+        name: 'mymaster',
+        sentinels: [{host: '127.0.0.1', port: 26379}],
+      },
+    },
+  },
+};
+```
+
+Throttle is implemented using [Bottleneck](https://github.com/SGrondin/bottleneck) and [ioredis](https://github.com/luin/ioredis). See their documentations for more configurations.
+
+When _NotifyBC_ is deployed to Kubernetes using Helm, by default throttle, if enabled, uses Redis Sentinel therefore rate limit applies to whole cluster.
 
 ## Inbound SMTP Server
 
