@@ -6,6 +6,12 @@ permalink: /docs/what's-new/
 
 _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
+## v4.1.0
+
+- Issue [#50](https://github.com/bcgov/NotifyBC/issues/50): Email message throttle
+- applied sms throttle to all sms messages rather than just broadcast push notification.
+- docs updates
+
 ## v4.0.0
 
 See [v3 to v4 upgrade guide](../upgrade/#v3-to-v4) for more information.
