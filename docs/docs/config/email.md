@@ -27,7 +27,7 @@ Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options th
 
 ## Throttle
 
-SMTP servers may impose request rate limit. _NotifyBC_ can throttle request under the rate limit. To enable throttle and set rate limit, create following config in file _/src/config.local.js_
+_NotifyBC_ can throttle email requests if SMTP server imposes rate limit. To enable throttle and set rate limit, create following config in file _/src/config.local.js_
 
 ```js
 module.exports = {
