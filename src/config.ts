@@ -78,6 +78,7 @@ const config: AnyObject = {
       },
     },
     throttle: {
+      enabled: true,
       id: 'notifyBCSms',
       minTime: 250,
       /* Redis clustering options */
