@@ -98,14 +98,14 @@ export class CronObserver implements LifeCycleObserver {
       }),
     );
 
-    const smsThrottleConfig: AnyObject =
-      (await this.app.getConfig(
-        CoreBindings.APPLICATION_INSTANCE,
-        'sms.throttle',
-      )) ?? {};
+    const appConfig: AnyObject =
+      (await this.app.getConfig(CoreBindings.APPLICATION_INSTANCE)) ?? {};
+
     if (
-      smsThrottleConfig.clearDatastore !== true &&
-      smsThrottleConfig.datastore !== 'local'
+      (appConfig.sms?.throttle?.clearDatastore !== true &&
+        appConfig.sms?.throttle?.datastore !== 'local') ||
+      (appConfig.email?.throttle?.clearDatastore !== true &&
+        appConfig.email?.throttle?.datastore !== 'local')
     ) {
       const clearRedisDatastore = cronConfig.clearRedisDatastore || {};
       this.jobs.push(

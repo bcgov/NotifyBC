@@ -59,6 +59,16 @@ const config: AnyObject = {
     listUnsubscribeByEmail: {
       enabled: true,
     },
+    throttle: {
+      enabled: false,
+      id: 'notifyBCEmail',
+      /* Redis clustering options */
+      // datastore: 'ioredis',
+      // clientOptions: {
+      //   host: '127.0.0.1',
+      //   port: 6379,
+      // },
+    },
   },
   sms: {
     provider: 'twilio',

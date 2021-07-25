@@ -17,6 +17,7 @@ import {inject} from '@loopback/context';
 import {ApplicationConfig, CoreBindings} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import axios from 'axios';
+import Bottleneck from 'bottleneck';
 import dns from 'dns';
 import _ from 'lodash';
 import net from 'net';
@@ -99,22 +100,35 @@ export class BaseController {
 
   nodemailer = require('nodemailer');
   directTransport = require('nodemailer-direct-transport');
-  transporter: any;
+  transport: any;
+  static emailLimiter: Bottleneck;
   async sendEmail(mailOptions: any) {
     const smtpCfg =
       this.appConfig.email.smtp || this.appConfig.email.defaultSmtp;
-    if (!this.transporter) {
+    if (!this.transport) {
       if (smtpCfg.direct) {
-        this.transporter = this.nodemailer.createTransport(
+        this.transport = this.nodemailer.createTransport(
           this.directTransport(smtpCfg),
         );
       } else {
-        this.transporter = this.nodemailer.createTransport(smtpCfg);
+        this.transport = this.nodemailer.createTransport(smtpCfg);
       }
+    }
+    if (
+      !BaseController.emailLimiter &&
+      this.appConfig?.email?.throttle?.enabled
+    ) {
+      const emailThrottleCfg = Object.assign({}, this.appConfig.email.throttle);
+      delete emailThrottleCfg.enabled;
+      BaseController.emailLimiter = new Bottleneck(emailThrottleCfg);
     }
     let info;
     try {
-      info = await this.transporter.sendMail(mailOptions);
+      let sendMail = this.transport.sendMail;
+      if (BaseController.emailLimiter) {
+        sendMail = BaseController.emailLimiter.wrap(sendMail);
+      }
+      info = await sendMail.call(this.transport, mailOptions);
       if (info?.accepted?.length < 1) {
         throw new Error('delivery failed');
       }
@@ -135,9 +149,13 @@ export class BaseController {
       // do client retry if there are multiple addresses
       for (const [index, address] of addresses.entries()) {
         const newSmtpCfg = Object.assign({}, smtpCfg, {host: address.address});
-        const newTransporter = this.nodemailer.createTransport(newSmtpCfg);
+        const transport = this.nodemailer.createTransport(newSmtpCfg);
+        let sendMail = transport.sendMail;
+        if (BaseController.emailLimiter) {
+          sendMail = BaseController.emailLimiter.wrap(sendMail);
+        }
         try {
-          info = await newTransporter.sendMail(mailOptions);
+          info = await sendMail.call(transport, mailOptions);
           if (info?.accepted?.length < 1) {
             throw new Error('delivery failed');
           }

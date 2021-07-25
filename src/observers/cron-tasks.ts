@@ -578,25 +578,31 @@ module.exports.clearRedisDatastore = (app: Application) => {
     const notificationRepository: NotificationRepository = await app.get(
       'repositories.NotificationRepository',
     );
-    const sendingSmsNotification = await notificationRepository.findOne(
-      {
-        where: {
-          state: 'sending',
-          channel: 'sms',
-          isBroadcast: true,
+    for (const channel of ['sms', 'email']) {
+      const sendingNotification = await notificationRepository.findOne(
+        {
+          where: {
+            state: 'sending',
+            channel: channel,
+            isBroadcast: true,
+          },
         },
-      },
-      undefined,
-    );
-    if (sendingSmsNotification) return;
-    const smsThrottleConfig = <Bottleneck.ConstructorOptions>(
-      await app.getConfig(CoreBindings.APPLICATION_INSTANCE, 'sms.throttle')
-    );
-    const newSmsThrottleConfig = Object.assign({}, smsThrottleConfig, {
-      clearDatastore: true,
-    });
-    const smsLimiter = new module.exports.Bottleneck(newSmsThrottleConfig);
-    await smsLimiter.ready();
-    await smsLimiter.disconnect();
+        undefined,
+      );
+      if (sendingNotification) continue;
+      const throttleConfig = <Bottleneck.ConstructorOptions>(
+        await app.getConfig(
+          CoreBindings.APPLICATION_INSTANCE,
+          channel + '.throttle',
+        )
+      );
+      const newThrottleConfig = Object.assign({}, throttleConfig, {
+        clearDatastore: true,
+      });
+      delete newThrottleConfig.enabled;
+      const limiter = new module.exports.Bottleneck(newThrottleConfig);
+      await limiter.ready();
+      await limiter.disconnect();
+    }
   };
 };

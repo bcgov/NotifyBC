@@ -373,39 +373,35 @@ describe('CRON checkRssConfigUpdates', function () {
     });
     sinon.spy(cronTasks.request, 'post');
     const res = await Promise.all([
-      (async () => {
-        return configurationRepository.create({
-          name: 'notification',
-          serviceName: 'myService',
-          value: {
-            rss: {
-              url: 'http://myService/rss',
-              timeSpec: '0 0 1 0 0',
-              outdatedItemRetentionGenerations: 1,
-              includeUpdatedItems: false,
-              fieldsToCheckForUpdate: ['title'],
-            },
-            messageTemplates: {
-              email: {
-                from: 'no_reply@invlid.local',
-                subject: '{title}',
-                textBody: '{description}',
-                htmlBody: '{description}',
-              },
-            },
-            httpHost: 'http://foo',
+      configurationRepository.create({
+        name: 'notification',
+        serviceName: 'myService',
+        value: {
+          rss: {
+            url: 'http://myService/rss',
+            timeSpec: '0 0 1 0 0',
+            outdatedItemRetentionGenerations: 1,
+            includeUpdatedItems: false,
+            fieldsToCheckForUpdate: ['title'],
           },
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'myService',
-          channel: 'email',
-          userChannelId: 'bar@foo.com',
-          state: 'confirmed',
-          unsubscriptionCode: '12345',
-        });
-      })(),
+          messageTemplates: {
+            email: {
+              from: 'no_reply@invlid.local',
+              subject: '{title}',
+              textBody: '{description}',
+              htmlBody: '{description}',
+            },
+          },
+          httpHost: 'http://foo',
+        },
+      }),
+      subscriptionRepository.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        unsubscriptionCode: '12345',
+      }),
     ]);
     return res;
   });
@@ -569,34 +565,30 @@ describe('CRON reDispatchBroadcastPushNotifications', function () {
   beforeEach(async function () {
     sinon.stub(BaseCrudRepository.prototype, 'updateTimestamp').resolves();
     await Promise.all([
-      (async () => {
-        return notificationRepository.create({
-          channel: 'email',
-          message: {
-            from: 'admin@foo.com',
-            subject: 'test',
-            textBody: 'this is a test http://foo.com',
-          },
-          isBroadcast: true,
-          serviceName: 'myService',
-          httpHost: 'http://foo.com',
-          asyncBroadcastPushNotification: false,
-          state: 'sending',
-          updated: new Date(new Date().valueOf() - 601000).toUTCString(),
-          dispatch: {
-            candidates: ['1'],
-          },
-        });
-      })(),
-      (async () => {
-        return subscriptionRepository.create({
-          serviceName: 'myService',
-          channel: 'email',
-          userChannelId: 'bar@foo.com',
-          state: 'confirmed',
-          unsubscriptionCode: '12345',
-        });
-      })(),
+      notificationRepository.create({
+        channel: 'email',
+        message: {
+          from: 'admin@foo.com',
+          subject: 'test',
+          textBody: 'this is a test http://foo.com',
+        },
+        isBroadcast: true,
+        serviceName: 'myService',
+        httpHost: 'http://foo.com',
+        asyncBroadcastPushNotification: false,
+        state: 'sending',
+        updated: new Date(new Date().valueOf() - 601000).toUTCString(),
+        dispatch: {
+          candidates: ['1'],
+        },
+      }),
+      subscriptionRepository.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        unsubscriptionCode: '12345',
+      }),
     ]);
   });
 
@@ -659,15 +651,23 @@ describe('CRON clearRedisDatastore', function () {
     });
   });
   it('should not clear datastore when there is sending notification', async function () {
-    await notificationRepository.create({
-      channel: 'sms',
-      message: {
-        textBody: 'this is a test http://foo.com',
-      },
-      isBroadcast: true,
-      serviceName: 'myService',
-      state: 'sending',
-    });
+    await Promise.all([
+      notificationRepository.create({
+        channel: 'sms',
+        message: {
+          textBody: 'this is a test http://foo.com',
+        },
+        isBroadcast: true,
+        serviceName: 'myService',
+        state: 'sending',
+      }),
+      notificationRepository.create({
+        channel: 'email',
+        isBroadcast: true,
+        serviceName: 'myService',
+        state: 'sending',
+      }),
+    ]);
     await cronTasks.clearRedisDatastore(app)();
     sinon.assert.notCalled(cronTasks.Bottleneck);
     sinon.assert.notCalled(ready);
@@ -676,10 +676,10 @@ describe('CRON clearRedisDatastore', function () {
 
   it('should clear datastore when no sending notification', async function () {
     await cronTasks.clearRedisDatastore(app)();
-    sinon.assert.calledOnceWithMatch(cronTasks.Bottleneck, {
+    sinon.assert.alwaysCalledWithMatch(cronTasks.Bottleneck, {
       clearDatastore: true,
     });
-    sinon.assert.calledOnce(ready);
-    sinon.assert.calledOnce(disconnect);
+    sinon.assert.calledTwice(ready);
+    sinon.assert.calledTwice(disconnect);
   });
 });
