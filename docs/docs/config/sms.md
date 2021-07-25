@@ -147,3 +147,15 @@ module.exports = {
 Throttle is implemented using [Bottleneck](https://github.com/SGrondin/bottleneck) and [ioredis](https://github.com/luin/ioredis). See their documentations for more configurations.
 
 When _NotifyBC_ is deployed to Kubernetes using Helm, by default throttle uses Redis Sentinel therefore rate limit applies to whole cluster.
+
+To disable throttle, set _sms.throttle.enabled_ to _false_ in file /src/config.local.js
+
+```js
+module.exports = {
+  sms: {
+    throttle: {
+      enabled: false,
+    },
+  },
+};
+```

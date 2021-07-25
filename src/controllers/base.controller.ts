@@ -49,12 +49,17 @@ export class BaseController {
   ) {}
 
   smsClient: any;
-  smsLimiter: any;
+  static smsLimiter: Bottleneck;
   async sendSMS(
     to: string,
     textBody: string,
     subscription: Partial<Subscription>,
   ) {
+    if (!BaseController.smsLimiter && this.appConfig?.sms?.throttle?.enabled) {
+      const smsThrottleCfg = Object.assign({}, this.appConfig.sms.throttle);
+      delete smsThrottleCfg.enabled;
+      BaseController.smsLimiter = new Bottleneck(smsThrottleCfg);
+    }
     const smsProvider = this.appConfig.sms.provider;
     const smsConfig = this.appConfig.sms.providerSettings[smsProvider];
     switch (smsProvider) {
@@ -68,9 +73,9 @@ export class BaseController {
         if (subscription?.id) {
           body.Reference = subscription.id;
         }
-        let req = axios.post;
-        if (this.smsLimiter) {
-          req = this.smsLimiter.wrap(req);
+        let req: any = axios.post;
+        if (BaseController.smsLimiter) {
+          req = BaseController.smsLimiter.wrap(req);
         }
         return req(url, body, {
           headers: {
@@ -86,10 +91,10 @@ export class BaseController {
         this.smsClient =
           this.smsClient || require('twilio')(accountSid, authToken);
         let req = this.smsClient.messages.create;
-        if (this.smsLimiter) {
-          req = this.smsLimiter.wrap(req);
+        if (BaseController.smsLimiter) {
+          req = BaseController.smsLimiter.wrap(req);
         }
-        return req({
+        return req.call(this.smsClient.messages, {
           to: to,
           from: smsConfig.fromNumber,
           body: textBody,

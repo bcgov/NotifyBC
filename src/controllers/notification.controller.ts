@@ -39,7 +39,6 @@ import {
   RestBindings,
 } from '@loopback/rest';
 import request from 'axios';
-import Bottleneck from 'bottleneck';
 import _ from 'lodash';
 import {promisify} from 'util';
 import {ApplicationConfig} from '..';
@@ -599,9 +598,6 @@ export class NotificationController extends BaseController {
               );
             }
           };
-          if (data.channel === 'sms' && this.appConfig.sms.throttle) {
-            this.smsLimiter = new Bottleneck(this.appConfig.sms.throttle);
-          }
           await Promise.all(
             subscribers.map(async e => {
               if (e.broadcastPushNotificationFilter && data.data) {
@@ -737,9 +733,6 @@ export class NotificationController extends BaseController {
               }
             }),
           );
-          if (this.smsLimiter) {
-            await this.smsLimiter.disconnect();
-          }
         };
         if (typeof startIdx !== 'number') {
           // main request
