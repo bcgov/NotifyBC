@@ -48,7 +48,7 @@ export class BaseController {
     public configurationRepository: ConfigurationRepository,
   ) {}
 
-  smsClient: any;
+  static smsClient: any;
   static smsLimiter: Bottleneck;
   async sendSMS(
     to: string,
@@ -88,13 +88,13 @@ export class BaseController {
         const accountSid = smsConfig.accountSid;
         const authToken = smsConfig.authToken;
         //require the Twilio module and create a REST client
-        this.smsClient =
-          this.smsClient || require('twilio')(accountSid, authToken);
-        let req = this.smsClient.messages.create;
+        BaseController.smsClient =
+          BaseController.smsClient || require('twilio')(accountSid, authToken);
+        let req = BaseController.smsClient.messages.create;
         if (BaseController.smsLimiter) {
           req = BaseController.smsLimiter.wrap(req);
         }
-        return req.call(this.smsClient.messages, {
+        return req.call(BaseController.smsClient.messages, {
           to: to,
           from: smsConfig.fromNumber,
           body: textBody,
