@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ApplicationConfig, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
 import {Client, expect, SinonSpy} from '@loopback/testlab';
 import {fail} from 'assert';
+import _ from 'lodash';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {BaseController} from '../../controllers/base.controller';
@@ -642,7 +644,15 @@ describe('CRON reDispatchBroadcastPushNotifications', function () {
 describe('CRON clearRedisDatastore', function () {
   let ready: sinon.SinonStub;
   let disconnect: sinon.SinonStub;
+  let origConfig: ApplicationConfig;
   beforeEach(async function () {
+    origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(
+      _.merge({}, origConfig, {
+        email: {throttle: {enabled: true, datastore: 'ioredis'}},
+        sms: {throttle: {enabled: true, datastore: 'ioredis'}},
+      }),
+    );
     ready = sinon.stub().resolves(null);
     disconnect = sinon.stub().resolves(null);
     sinon.stub(cronTasks, 'Bottleneck').returns({
@@ -650,6 +660,10 @@ describe('CRON clearRedisDatastore', function () {
       disconnect,
     });
   });
+  afterEach(async function () {
+    app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+  });
+
   it('should not clear datastore when there is sending notification', async function () {
     await Promise.all([
       notificationRepository.create({

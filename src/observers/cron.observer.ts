@@ -102,9 +102,11 @@ export class CronObserver implements LifeCycleObserver {
       (await this.app.getConfig(CoreBindings.APPLICATION_INSTANCE)) ?? {};
 
     if (
-      (appConfig.sms?.throttle?.clearDatastore !== true &&
+      (appConfig.sms?.throttle?.enabled &&
+        appConfig.sms?.throttle?.clearDatastore !== true &&
         appConfig.sms?.throttle?.datastore !== 'local') ||
-      (appConfig.email?.throttle?.clearDatastore !== true &&
+      (appConfig.email?.throttle?.enabled &&
+        appConfig.email?.throttle?.clearDatastore !== true &&
         appConfig.email?.throttle?.datastore !== 'local')
     ) {
       const clearRedisDatastore = cronConfig.clearRedisDatastore || {};

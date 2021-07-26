@@ -579,6 +579,18 @@ module.exports.clearRedisDatastore = (app: Application) => {
       'repositories.NotificationRepository',
     );
     for (const channel of ['sms', 'email']) {
+      const throttleConfig = <Bottleneck.ConstructorOptions>(
+        await app.getConfig(
+          CoreBindings.APPLICATION_INSTANCE,
+          channel + '.throttle',
+        )
+      );
+      if (
+        !throttleConfig.enabled ||
+        throttleConfig.clearDatastore === true ||
+        throttleConfig.datastore !== 'ioredis'
+      )
+        continue;
       const sendingNotification = await notificationRepository.findOne(
         {
           where: {
@@ -590,12 +602,6 @@ module.exports.clearRedisDatastore = (app: Application) => {
         undefined,
       );
       if (sendingNotification) continue;
-      const throttleConfig = <Bottleneck.ConstructorOptions>(
-        await app.getConfig(
-          CoreBindings.APPLICATION_INSTANCE,
-          channel + '.throttle',
-        )
-      );
       const newThrottleConfig = Object.assign({}, throttleConfig, {
         clearDatastore: true,
       });
