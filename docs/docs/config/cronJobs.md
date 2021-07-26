@@ -128,7 +128,7 @@ module.exports = {
 
 ## Clear Redis Datastore
 
-This cron job clears Redis datastore, including updating settings, used for SMS [throttle](../config/sms.md#throttle). The job is enabled only if Redis is used. Datastore is cleared only when there is no SMS broadcast push notifications in _sending_ state. Without this cron job, updated throttle settings in config file will never take effect, and staled jobs in Redis datastore will not be cleaned up.
+This cron job clears Redis datastore used for SMS and email throttle. The job is enabled only if Redis is used. Datastore is cleared only when there is no broadcast push notifications in _sending_ state. Without this cron job, updated throttle settings in config file will never take effect, and staled jobs in Redis datastore will not be cleaned up.
 
 The default config is defined by _cron.clearRedisDatastore_ config object in file _/src/config.ts_
 
