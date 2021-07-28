@@ -136,6 +136,8 @@ redis:
   enabled: true
   sentinel:
     enabled: true
+    downAfterMilliseconds: 4000
+    failoverTimeout: 2000
   master:
     persistence:
       enabled: false
