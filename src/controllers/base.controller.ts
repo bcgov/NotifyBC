@@ -22,7 +22,7 @@ import dns from 'dns';
 import _ from 'lodash';
 import net from 'net';
 import util from 'util';
-import {Configuration, Subscription} from '../models';
+import {Configuration, Notification, Subscription} from '../models';
 import {ConfigurationRepository} from '../repositories';
 const toSentence = require('underscore.string/toSentence');
 const pluralize = require('pluralize');
