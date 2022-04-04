@@ -30,7 +30,8 @@ import {SubscriptionController} from '../controllers';
   tags: {key: SubscriptionAfterRemoteInterceptor.BINDING_KEY},
 })
 export class SubscriptionAfterRemoteInterceptor
-  implements Provider<Interceptor> {
+  implements Provider<Interceptor>
+{
   static readonly BINDING_KEY = `interceptors.${SubscriptionAfterRemoteInterceptor.name}`;
 
   /*

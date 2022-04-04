@@ -79,7 +79,9 @@ describe('CRON purgeData', function () {
       state: 'sent',
     });
     try {
-      await (await cronTasks.purgeData(app))();
+      await (
+        await cronTasks.purgeData(app)
+      )();
     } catch (err: any) {
       fail(err);
     }
@@ -124,7 +126,9 @@ describe('CRON purgeData', function () {
       state: 'new',
     });
     try {
-      await (await cronTasks.purgeData(app))();
+      await (
+        await cronTasks.purgeData(app)
+      )();
     } catch (err: any) {
       fail(err);
     }
@@ -156,7 +160,9 @@ describe('CRON purgeData', function () {
       state: 'deleted',
     });
     try {
-      await (await cronTasks.purgeData(app))();
+      await (
+        await cronTasks.purgeData(app)
+      )();
     } catch (err: any) {
       fail(err);
     }
@@ -189,7 +195,9 @@ describe('CRON purgeData', function () {
     });
     stub.restore();
     try {
-      await (await cronTasks.purgeData(app))();
+      await (
+        await cronTasks.purgeData(app)
+      )();
     } catch (err: any) {
       fail(err);
     }
@@ -256,7 +264,9 @@ describe('CRON purgeData', function () {
       userId: '2',
     });
     try {
-      await (await cronTasks.purgeData(app))();
+      await (
+        await cronTasks.purgeData(app)
+      )();
     } catch (err: any) {
       fail(err);
     }
@@ -531,7 +541,9 @@ describe('CRON deleteBounces', function () {
       ],
     } as AnyObject);
     try {
-      await (await cronTasks.deleteBounces(app))();
+      await (
+        await cronTasks.deleteBounces(app)
+      )();
     } catch (err: any) {
       fail(err);
     }
@@ -554,7 +566,9 @@ describe('CRON deleteBounces', function () {
       ],
     } as AnyObject);
     try {
-      await (await cronTasks.deleteBounces(app))();
+      await (
+        await cronTasks.deleteBounces(app)
+      )();
     } catch (err: any) {
       fail(err);
     }

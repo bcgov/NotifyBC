@@ -354,11 +354,11 @@ export class NotificationController extends BaseController {
   }
 
   async sendPushNotification(data: Notification) {
-    const inboundSmtpServerDomain = this.appConfig.email.inboundSmtpServer
-      ?.domain;
+    const inboundSmtpServerDomain =
+      this.appConfig.email.inboundSmtpServer?.domain;
     const handleBounce = this.appConfig.email?.bounce?.enabled;
-    const handleListUnsubscribeByEmail = this.appConfig.email
-      ?.listUnsubscribeByEmail?.enabled;
+    const handleListUnsubscribeByEmail =
+      this.appConfig.email?.listUnsubscribeByEmail?.enabled;
 
     const updateBounces = async (
       userChannelIds: string[] | string,
@@ -469,14 +469,15 @@ export class NotificationController extends BaseController {
         }
       }
       case true: {
-        const broadcastSubscriberChunkSize = this.appConfig.notification
-          ?.broadcastSubscriberChunkSize;
-        const broadcastSubRequestBatchSize = this.appConfig.notification
-          ?.broadcastSubRequestBatchSize;
-        const guaranteedBroadcastPushDispatchProcessing = this.appConfig
-          .notification?.guaranteedBroadcastPushDispatchProcessing;
-        const logSkippedBroadcastPushDispatches = this.appConfig.notification
-          ?.logSkippedBroadcastPushDispatches;
+        const broadcastSubscriberChunkSize =
+          this.appConfig.notification?.broadcastSubscriberChunkSize;
+        const broadcastSubRequestBatchSize =
+          this.appConfig.notification?.broadcastSubRequestBatchSize;
+        const guaranteedBroadcastPushDispatchProcessing =
+          this.appConfig.notification
+            ?.guaranteedBroadcastPushDispatchProcessing;
+        const logSkippedBroadcastPushDispatches =
+          this.appConfig.notification?.logSkippedBroadcastPushDispatches;
         let startIdx: undefined | number;
         try {
           startIdx = await this.httpContext.get('NotifyBC.startIdx');
@@ -503,8 +504,8 @@ export class NotificationController extends BaseController {
                   data.id,
                   {
                     $push: {
-                      ['dispatch.' +
-                      NotificationDispatchStatusField[field]]: val,
+                      ['dispatch.' + NotificationDispatchStatusField[field]]:
+                        val,
                     },
                   },
                   undefined,
@@ -512,13 +513,14 @@ export class NotificationController extends BaseController {
                 success = true;
                 return;
               } else {
-                const currentNotification = await this.notificationRepository.findById(
-                  data.id,
-                  {
-                    fields: ['dispatch'],
-                  },
-                  undefined,
-                );
+                const currentNotification =
+                  await this.notificationRepository.findById(
+                    data.id,
+                    {
+                      fields: ['dispatch'],
+                    },
+                    undefined,
+                  );
                 currentNotification.dispatch =
                   currentNotification.dispatch ?? {};
                 currentNotification.dispatch[
@@ -573,8 +575,8 @@ export class NotificationController extends BaseController {
             undefined,
           );
           const jmespathSearchOpts: AnyObject = {};
-          const ft = this.appConfig.notification
-            ?.broadcastCustomFilterFunctions;
+          const ft =
+            this.appConfig.notification?.broadcastCustomFilterFunctions;
           if (ft) {
             jmespathSearchOpts.functionTable = ft;
           }

@@ -723,7 +723,8 @@ export class SubscriptionController extends BaseController {
           id: instance.id,
         });
       }
-      const unsubscribedAdditionalServicesIds = instance.unsubscribedAdditionalServices.ids.slice();
+      const unsubscribedAdditionalServicesIds =
+        instance.unsubscribedAdditionalServices.ids.slice();
       delete instance.unsubscribedAdditionalServices;
       await this.subscriptionRepository.replaceById(
         instance.id,
@@ -779,9 +780,10 @@ export class SubscriptionController extends BaseController {
     },
   })
   async getSubscribedServiceNames(): Promise<string[]> {
-    const subscriptionCollection = this.subscriptionRepository.dataSource.connector?.collection(
-      Subscription.modelName,
-    );
+    const subscriptionCollection =
+      this.subscriptionRepository.dataSource.connector?.collection(
+        Subscription.modelName,
+      );
     // distinct is db-dependent feature. MongoDB supports it
     if (typeof subscriptionCollection.distinct === 'function') {
       return new Promise((res, rej) => {

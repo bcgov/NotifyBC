@@ -36,9 +36,9 @@ module.exports.app = function (...argsArr: any[]) {
 
     let urlPrefix = process.env.API_URL_PREFIX ?? 'http://localhost:3000/api';
     let port = process.env.LISTENING_SMTP_PORT ?? '0';
-    let allowedSmtpDomains = process.env.ALLOWED_SMTP_DOMAINS?.split(
-      ',',
-    ).map(e => e.trim().toLowerCase());
+    let allowedSmtpDomains = process.env.ALLOWED_SMTP_DOMAINS?.split(',').map(
+      e => e.trim().toLowerCase(),
+    );
     let bounceUnsubThreshold = parseInt(
       process.env.BOUNCE_UNSUBSCRIBE_THRESHOLD ?? '5',
     );
@@ -142,9 +142,9 @@ module.exports.app = function (...argsArr: any[]) {
       args.options['listening-smtp-port'] &&
         (port = args.options['listening-smtp-port']);
       args.options['allowed-smtp-domains'] &&
-        (allowedSmtpDomains = args.options[
-          'allowed-smtp-domains'
-        ].map((e: string) => e.toLowerCase()));
+        (allowedSmtpDomains = args.options['allowed-smtp-domains'].map(
+          (e: string) => e.toLowerCase(),
+        ));
       args.options['bounce-unsubscribe-threshold'] &&
         (bounceUnsubThreshold = parseInt(
           args.options['bounce-unsubscribe-threshold'],
@@ -252,9 +252,8 @@ module.exports.app = function (...argsArr: any[]) {
                     },
                   );
                   if (deliveryStatusAttachment?.content) {
-                    smtpBody = deliveryStatusAttachment.content.toString(
-                      'utf8',
-                    );
+                    smtpBody =
+                      deliveryStatusAttachment.content.toString('utf8');
                   }
                 }
                 if (

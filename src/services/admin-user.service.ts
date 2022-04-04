@@ -28,7 +28,8 @@ export type Credentials = {
 
 @injectable()
 export class AdminUserService
-  implements UserService<Administrator, Credentials> {
+  implements UserService<Administrator, Credentials>
+{
   constructor(
     @repository(AdministratorRepository)
     public userRepository: AdministratorRepository,

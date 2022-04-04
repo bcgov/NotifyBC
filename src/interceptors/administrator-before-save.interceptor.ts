@@ -32,7 +32,8 @@ import {AdministratorRepository} from '../repositories';
   tags: {key: AdministratorBeforeSaveInterceptor.BINDING_KEY},
 })
 export class AdministratorBeforeSaveInterceptor
-  implements Provider<Interceptor> {
+  implements Provider<Interceptor>
+{
   static readonly BINDING_KEY = `interceptors.${AdministratorBeforeSaveInterceptor.name}`;
 
   /*
@@ -82,7 +83,8 @@ export class AdministratorBeforeSaveInterceptor
       if (!administratorData.email) {
         return;
       }
-      const administratorRepository = invocationCtx.target as AdministratorRepository;
+      const administratorRepository =
+        invocationCtx.target as AdministratorRepository;
       // neq filter not working see https://github.com/strongloop/loopback-next/issues/6518
       // let where: Where<Administrator> = {email: administratorData.email};
       // const dataId = id ?? administratorData.id;

@@ -19,7 +19,8 @@ import {securityId, UserProfile} from '@loopback/security';
 import {ConfigurationRepository} from '../repositories';
 
 export class SiteMinderAuthenticationStrategy
-  implements AuthenticationStrategy {
+  implements AuthenticationStrategy
+{
   name = 'siteMinder';
   constructor(
     @inject('repositories.ConfigurationRepository')

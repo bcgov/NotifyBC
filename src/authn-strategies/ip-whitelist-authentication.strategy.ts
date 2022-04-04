@@ -19,7 +19,8 @@ import {securityId, UserProfile} from '@loopback/security';
 import {ConfigurationRepository} from '../repositories';
 
 export class IpWhitelistAuthenticationStrategy
-  implements AuthenticationStrategy {
+  implements AuthenticationStrategy
+{
   name = 'ipWhitelist';
   constructor(
     @inject('repositories.ConfigurationRepository')

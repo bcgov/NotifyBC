@@ -55,7 +55,8 @@ export class NotificationAccessInterceptor implements Provider<Interceptor> {
     next: () => ValueOrPromise<InvocationResult>,
   ) {
     // Add pre-invocation logic here
-    const notificationRepository = invocationCtx.target as NotificationRepository;
+    const notificationRepository =
+      invocationCtx.target as NotificationRepository;
     const httpCtx = invocationCtx.parent;
     if (
       await notificationRepository.isAdminReq(httpCtx, undefined, undefined)
