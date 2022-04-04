@@ -22,7 +22,7 @@ import {BounceRepository, SubscriptionRepository} from '../../repositories';
 import {setupApplication} from './test-helper';
 
 let app: NotifyBcApplication;
-const SMTPConnection = require('smtp-connection');
+const SMTPConnection = require('nodemailer/lib/smtp-connection');
 let smtpSvrImport: any;
 let smtpSvr: any;
 let origRequest: any;

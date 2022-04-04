@@ -81,7 +81,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
     "loopback-connector-mongodb": "^5.5.0",
-    "mailparser": "^2.3.2",
+    "mailparser": "^3.4.0",
     "morgan": "^1.10.0",
     "node-getopt": "^0.2.3",
     "node-rsa": "^0.4.1",
@@ -108,7 +108,6 @@
     "copyfiles": "^2.4.1",
     "eslint": "^7.18.0",
     "nodemon": "^2.0.7",
-    "smtp-connection": "^4.0.2",
     "source-map-support": "^0.5.19",
     "typescript": "~4.1.3"
   },
