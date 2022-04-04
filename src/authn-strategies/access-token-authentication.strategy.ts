@@ -25,7 +25,8 @@ import {UserProfile} from '@loopback/security';
 import {AccessTokenService} from '../services/access-token.service';
 
 export class AccessTokenAuthenticationStrategy
-  implements AuthenticationStrategy {
+  implements AuthenticationStrategy
+{
   name = 'accessToken';
   constructor(
     @service(AccessTokenService)

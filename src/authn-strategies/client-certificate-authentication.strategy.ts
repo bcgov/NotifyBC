@@ -18,7 +18,8 @@ import {securityId, UserProfile} from '@loopback/security';
 import {TLSSocket} from 'tls';
 
 export class ClientCertificateAuthenticationStrategy
-  implements AuthenticationStrategy {
+  implements AuthenticationStrategy
+{
   name = 'clientCertificate';
   constructor() {}
 

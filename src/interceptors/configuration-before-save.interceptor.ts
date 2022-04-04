@@ -32,7 +32,8 @@ import {MiddlewareContext} from '@loopback/rest';
  */
 @injectable({tags: {key: ConfigurationBeforeSaveInterceptor.BINDING_KEY}})
 export class ConfigurationBeforeSaveInterceptor
-  implements Provider<Interceptor> {
+  implements Provider<Interceptor>
+{
   static readonly BINDING_KEY = `interceptors.${ConfigurationBeforeSaveInterceptor.name}`;
 
   constructor(

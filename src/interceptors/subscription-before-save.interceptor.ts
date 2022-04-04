@@ -29,7 +29,8 @@ const jmespath = require('jmespath');
  */
 @injectable({tags: {key: SubscriptionBeforeSaveInterceptor.BINDING_KEY}})
 export class SubscriptionBeforeSaveInterceptor
-  implements Provider<Interceptor> {
+  implements Provider<Interceptor>
+{
   static readonly BINDING_KEY = `interceptors.${SubscriptionBeforeSaveInterceptor.name}`;
 
   /*

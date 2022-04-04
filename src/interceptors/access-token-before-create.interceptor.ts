@@ -28,7 +28,8 @@ import cryptoRandomString from 'crypto-random-string';
  */
 @injectable({tags: {key: AccessTokenBeforeCreateInterceptor.BINDING_KEY}})
 export class AccessTokenBeforeCreateInterceptor
-  implements Provider<Interceptor> {
+  implements Provider<Interceptor>
+{
   static readonly BINDING_KEY = `interceptors.${AccessTokenBeforeCreateInterceptor.name}`;
 
   /*

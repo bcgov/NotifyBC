@@ -42,9 +42,10 @@ export class RsaObserver implements LifeCycleObserver {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
-    const configurationRepository: ConfigurationRepository = await this.app.get<ConfigurationRepository>(
-      'repositories.ConfigurationRepository',
-    );
+    const configurationRepository: ConfigurationRepository =
+      await this.app.get<ConfigurationRepository>(
+        'repositories.ConfigurationRepository',
+      );
     const data = await configurationRepository.findOne({
       where: {
         name: 'rsa',

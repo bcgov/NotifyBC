@@ -21,7 +21,7 @@ const ipRangeCheck = require('ip-range-check');
 export class BaseCrudRepository<
   T extends Entity,
   ID,
-  Relations extends object = {}
+  Relations extends object = {},
 > extends DefaultCrudRepository<T, ID, Relations> {
   constructor(
     entityClass: typeof Entity & {

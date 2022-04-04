@@ -62,7 +62,8 @@ export class SubscriptionAccessInterceptor implements Provider<Interceptor> {
       return next();
     }
     const httpCtx = invocationCtx.parent;
-    const subscriptionRepository = invocationCtx.target as SubscriptionRepository;
+    const subscriptionRepository =
+      invocationCtx.target as SubscriptionRepository;
     const isAdmin = await subscriptionRepository.isAdminReq(httpCtx);
     if (isAdmin) {
       return next();
