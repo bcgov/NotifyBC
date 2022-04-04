@@ -970,6 +970,7 @@ describe('POST /notifications', function () {
       )
       .end();
     await wait(10);
+    ((res as any).req as any).socket.destroy();
     res.abort();
     await wait(4000);
     sinon.assert.notCalled(

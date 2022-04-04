@@ -339,7 +339,7 @@ export class NotificationController extends BaseController {
     if (
       this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing
     ) {
-      this.httpContext.request.on('aborted', () => {
+      this.httpContext.request.on('close', () => {
         this.chunkRequestAborted = true;
       });
     }
