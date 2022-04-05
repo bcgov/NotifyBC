@@ -335,7 +335,7 @@ describe('POST /subscriptions', function () {
       axiosStub,
       'https://secure.smsgateway.ca/services/message.svc/123/12345',
     );
-    expect(axiosStub.getCall(0).args[1]['MessageBody']).match(
+    expect((axiosStub.getCall(0).args[1] as any)['MessageBody']).match(
       /Enter \d{5} on screen/,
     );
     const data = await subscriptionRepository.find({
