@@ -6,7 +6,7 @@ metadata:
   labels: {{- include "NotifyBC.labels" . | nindent 4}}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: {{ .Values.cronJob.persistence.size }}
