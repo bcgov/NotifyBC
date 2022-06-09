@@ -324,6 +324,29 @@ The above settings assume you have setup secret \<docker-pull-secret\> to access
 
   The CronJob backs up MongoDB to a PVC named after the chart with suffix _-cronjob-mongodb-backup_ and purges backups that are older than _retentionDays_.
 
+  To facilitate restoration, mount the PVC to MongoDB pod
+
+  ```yaml
+  # in file helm/values.local.yaml
+  mongodb:
+    extraVolumes:
+      - name: export
+        persistentVolumeClaim:
+          claimName: <PVC_NAME>
+    extraVolumeMounts:
+      - name: export
+        mountPath: /export
+        readOnly: true
+  ```
+
+  Restoration can then be achieved by running in MongoDB pod
+
+  ```bash
+  mongorestore -u "$MONGODB_USERNAME" -p"$MONGODB_PASSWORD" \
+  --uri="mongodb://$K8S_SERVICE_NAME" --db $MONGODB_DATABASE --gzip --drop \
+  --archive=/export/<mongodb-backup-YYMMDD-hhmmss.gz>
+  ```
+
 - _NotifyBC_ image tag defaults to latest published version. To change to _latest_, i.e. tip of the _main branch_,
 
   ```yaml
