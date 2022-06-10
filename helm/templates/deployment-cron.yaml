@@ -54,6 +54,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-mongodb
                   key: mongodb-root-password
+            - name: MONGODB_REPLICA_SET_NAME
+              value: {{ .Values.mongodb.replicaSetName | default "rs0" | squote }}
             - name: NOTIFYBC_NODE_ROLE
               value: master
             - name: NOTIFYBC_WORKER_PROCESS_COUNT
