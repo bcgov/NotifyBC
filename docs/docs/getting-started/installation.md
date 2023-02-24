@@ -6,7 +6,7 @@ permalink: /docs/installation/
 
 _NotifyBC_ can be installed in 3 ways:
 
-1. [Deploy Locally from Source Code](#deploy-locally-from-source-code)
+1. [Deploy locally from Source Code](#deploy-locally-from-source-code)
 2. [Deploy to Kubernetes](#deploy-to-kubernetes)
 3. [Deploy Docker Container](#deploy-docker-container)
 
@@ -18,7 +18,7 @@ For the purpose of evaluation, both source code and docker container will do. Fo
 To setup a development environment in order to contribute to _NotifyBC_,
 installing from source code is preferred.
 
-## Deploy Locally from Source Code
+## Deploy locally from Source Code
 
 ### System Requirements
 
