@@ -28,19 +28,19 @@ import {
   repository,
 } from '@loopback/repository';
 import {
+  HttpErrors,
+  MiddlewareContext,
+  ParameterObject,
+  RestBindings,
   del,
   get,
   getFilterSchemaFor,
-  HttpErrors,
-  MiddlewareContext,
   oas,
   param,
-  ParameterObject,
   patch,
   post,
   put,
   requestBody,
-  RestBindings,
 } from '@loopback/rest';
 import _ from 'lodash';
 import {SubscriptionAfterRemoteInterceptor} from '../interceptors';
@@ -400,9 +400,10 @@ export class SubscriptionController extends BaseController {
         await handleUnsubscriptionResponse();
       };
       if (!additionalServices) {
-        return await unsubscribeItems({
+        await unsubscribeItems({
           id: id,
         });
+        return;
       }
       interface AdditionalServices {
         names: string[];
@@ -485,9 +486,10 @@ export class SubscriptionController extends BaseController {
       } else {
         if (anonymousUnsubscription.acknowledgements.onScreen.failureMessage) {
           this.httpContext.response.status(error.status || 500);
-          return this.httpContext.response.end(
+          this.httpContext.response.end(
             anonymousUnsubscription.acknowledgements.onScreen.failureMessage,
           );
+          return;
         } else {
           throw error;
         }
@@ -599,7 +601,8 @@ export class SubscriptionController extends BaseController {
       (instance.confirmationRequest &&
         confirmationCode !== instance.confirmationRequest.confirmationCode)
     ) {
-      return handleConfirmationAcknowledgement(new HttpErrors[403]());
+      await handleConfirmationAcknowledgement(new HttpErrors[403]());
+      return;
     }
     try {
       if (replace && instance.userChannelId) {
@@ -640,9 +643,11 @@ export class SubscriptionController extends BaseController {
         undefined,
       )) as Subscription;
     } catch (err) {
-      return await handleConfirmationAcknowledgement(err);
+      await handleConfirmationAcknowledgement(err);
+      return;
     }
-    return handleConfirmationAcknowledgement(null, 'OK');
+    await handleConfirmationAcknowledgement(null, 'OK');
+    return;
   }
 
   @get('/subscriptions/{id}/unsubscribe/undo', {
@@ -719,9 +724,10 @@ export class SubscriptionController extends BaseController {
         }
       };
       if (!instance.unsubscribedAdditionalServices) {
-        return await revertItems({
+        await revertItems({
           id: instance.id,
         });
+        return;
       }
       const unsubscribedAdditionalServicesIds =
         instance.unsubscribedAdditionalServices.ids.slice();
@@ -752,9 +758,10 @@ export class SubscriptionController extends BaseController {
         return this.httpContext.response.redirect(redirectUrl);
       } else {
         this.httpContext.response.status(err.status || 500);
-        return this.httpContext.response.end(
+        this.httpContext.response.end(
           anonymousUndoUnsubscription.failureMessage,
         );
+        return;
       }
     }
   }
@@ -867,7 +874,7 @@ export class SubscriptionController extends BaseController {
       throw new HttpErrors[403]();
     }
     const smsConfig = this.appConfig.sms.providerSettings;
-    if (!smsConfig || !smsConfig.swift || !smsConfig.swift.notifyBCSwiftKey) {
+    if (!smsConfig?.swift?.notifyBCSwiftKey) {
       throw new HttpErrors[403]();
     }
     if (smsConfig.swift.notifyBCSwiftKey !== body.notifyBCSwiftKey) {
