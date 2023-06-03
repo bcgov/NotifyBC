@@ -53,14 +53,14 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@loopback/authentication": "^7.0.7",
-    "@loopback/boot": "^3.2.1",
-    "@loopback/core": "^2.14.1",
-    "@loopback/openapi-v3": "^5.1.4",
-    "@loopback/repository": "^3.4.1",
-    "@loopback/rest": "^9.1.3",
-    "@loopback/rest-explorer": "^3.1.0",
-    "@loopback/service-proxy": "^3.0.7",
+    "@loopback/authentication": "^10.0.0",
+    "@loopback/boot": "^6.0.0",
+    "@loopback/core": "^5.0.0",
+    "@loopback/openapi-v3": "^9.0.0",
+    "@loopback/repository": "^6.0.0",
+    "@loopback/rest": "^13.0.0",
+    "@loopback/rest-explorer": "^6.0.0",
+    "@loopback/service-proxy": "^6.0.0",
     "async": "^3.0.1",
     "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
@@ -79,7 +79,7 @@
     "jmespath": "f-w/jmespath.js#semver:^1.0",
     "js-base64": "^3.6.0",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "loopback-connector-mongodb": "^5.5.0",
     "mailparser": "^3.4.0",
     "morgan": "^1.10.0",
@@ -97,19 +97,19 @@
     "underscore.string": "^3.3.4"
   },
   "devDependencies": {
-    "@loopback/build": "^6.2.9",
-    "@loopback/eslint-config": "^10.0.5",
-    "@loopback/testlab": "^3.2.12",
+    "@loopback/build": "^10.0.0",
+    "@loopback/eslint-config": "^14.0.0",
+    "@loopback/testlab": "^6.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/lodash": "^4.14.157",
     "@types/morgan": "^1.9.2",
-    "@types/node": "^10.17.51",
+    "@types/node": "^14.18.47",
     "connect-history-api-fallback": "^1.4.0",
     "copyfiles": "^2.4.1",
-    "eslint": "^7.18.0",
+    "eslint": "^8.40.0",
     "nodemon": "^2.0.7",
-    "source-map-support": "^0.5.19",
-    "typescript": "~4.1.3"
+    "source-map-support": "^0.5.21",
+    "typescript": "~4.9.5"
   },
   "private": true
 }

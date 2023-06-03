@@ -20,23 +20,23 @@ import {
   CountSchema,
   Filter,
   FilterExcludingWhere,
-  repository,
   Where,
+  repository,
 } from '@loopback/repository';
 import {
+  HttpErrors,
+  MiddlewareContext,
+  OperationVisibility,
+  RestBindings,
   del,
   get,
   getModelSchemaRef,
-  HttpErrors,
-  MiddlewareContext,
   oas,
-  OperationVisibility,
   param,
   patch,
   post,
   put,
   requestBody,
-  RestBindings,
 } from '@loopback/rest';
 import request from 'axios';
 import _ from 'lodash';
@@ -858,7 +858,7 @@ export class NotificationController extends BaseController {
               if (response.status < 300) {
                 return response.data;
               }
-              throw new HttpErrors[response.status]();
+              throw HttpErrors(response.status);
             }, broadcastSubRequestBatchSize);
             // re-submit task on error if
             // guaranteedBroadcastPushDispatchProcessing.
