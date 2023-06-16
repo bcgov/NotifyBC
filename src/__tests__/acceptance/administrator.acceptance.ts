@@ -104,31 +104,31 @@ describe('Administrator API', function () {
         password: 'Too_sh0rt',
       });
       expect(res.status).equal(422);
-      sinon.assert.match(res.text, 'should match pattern');
+      sinon.assert.match(res.text, 'must match pattern');
       res = await client.post('/api/administrators').send({
         email: 'baz@invalid.local',
         password: 'No__number',
       });
       expect(res.status).equal(422);
-      sinon.assert.match(res.text, 'should match pattern');
+      sinon.assert.match(res.text, 'must match pattern');
       res = await client.post('/api/administrators').send({
         email: 'baz@invalid.local',
         password: '1no_uppercase',
       });
       expect(res.status).equal(422);
-      sinon.assert.match(res.text, 'should match pattern');
+      sinon.assert.match(res.text, 'must match pattern');
       res = await client.post('/api/administrators').send({
         email: 'baz@invalid.local',
         password: '1NO_LOWERCASE',
       });
       expect(res.status).equal(422);
-      sinon.assert.match(res.text, 'should match pattern');
+      sinon.assert.match(res.text, 'must match pattern');
       res = await client.post('/api/administrators').send({
         email: 'baz@invalid.local',
         password: '1NoSpecialChar',
       });
       expect(res.status).equal(422);
-      sinon.assert.match(res.text, 'should match pattern');
+      sinon.assert.match(res.text, 'must match pattern');
       app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
     });
 
