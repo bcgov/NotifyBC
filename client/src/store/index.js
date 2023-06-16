@@ -1,9 +1,6 @@
 import axios from 'axios';
 import {UserManager} from 'oidc-client';
-import Vue from 'vue';
 import Vuex from 'vuex';
-
-Vue.use(Vuex);
 
 const apiUrlPrefix = window.apiUrlPrefix || '/api';
 let accessToken;

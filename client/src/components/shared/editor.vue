@@ -28,7 +28,7 @@
 import 'json-editor';
 import 'summernote';
 export default {
-  data: function() {
+  data: function () {
     return {
       jsonEditor: null,
       currentlyEditedItem: undefined,
@@ -37,7 +37,7 @@ export default {
   },
   props: ['item', 'schema', 'model'],
   methods: {
-    setCurrentlyEditedItem: async function() {
+    setCurrentlyEditedItem: async function () {
       try {
         this.errorMessage = undefined;
         let item = this.jsonEditor.getValue();
@@ -52,12 +52,12 @@ export default {
         this.createJsonEditor();
       }
     },
-    resetEditor: function() {
+    resetEditor: function () {
       this.errorMessage = undefined;
       this.createJsonEditor();
       this.$emit('cancel');
     },
-    createJsonEditor: function() {
+    createJsonEditor: function () {
       let element = $('#nb-item-editor', this.$el).get(0);
       if (this.jsonEditor) {
         this.jsonEditor.destroy();
@@ -75,10 +75,10 @@ export default {
       });
     },
   },
-  mounted: function() {
+  mounted: function () {
     this.createJsonEditor();
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     this.jsonEditor && this.jsonEditor.destroy();
   },
 };
@@ -90,8 +90,8 @@ export default {
 }
 
 #nb-item-editor {
-  @import '~bootstrap/less/bootstrap.less';
-  @import (less) '~summernote/dist/summernote.css';
+  @import 'bootstrap/less/bootstrap.less';
+  @import (less) 'summernote/dist/summernote.css';
   select {
     -webkit-appearance: menulist-button;
   }

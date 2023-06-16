@@ -56,18 +56,14 @@
       "request": "launch",
       "name": "Client",
       "cwd": "${workspaceFolder}/client",
-      "program": "${workspaceFolder}/client/node_modules/@vue/cli-service/bin/vue-cli-service.js",
-      "args": ["serve"]
+      "program": "${workspaceFolder}/client/node_modules/vite/bin/vite.js",
+      "args": ["--force"]
     }
   ],
   "compounds": [
     {
       "name": "Server&Docs",
       "configurations": ["Server", "Docs", "Launch Docs"]
-    },
-    {
-      "name": "Server&Client",
-      "configurations": ["Server", "Client", "Launch Client"]
     }
   ]
 }
