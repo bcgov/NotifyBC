@@ -83,7 +83,7 @@
     "loopback-connector-mongodb": "^5.5.0",
     "mailparser": "^3.4.0",
     "morgan": "^1.10.0",
-    "node-getopt": "^0.2.3",
+    "node-getopt": "f-w/node-getopt",
     "node-rsa": "^0.4.1",
     "nodemailer": "^6.7.3",
     "nodemailer-direct-transport": "^3.3.2",

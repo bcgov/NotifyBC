@@ -3812,10 +3812,9 @@ node-fetch-h2@^2.3.0:
   dependencies:
     http2-client "^1.2.5"
 
-node-getopt@^0.2.3:
-  version "0.2.4"
-  resolved "https://registry.npmjs.org/node-getopt/-/node-getopt-0.2.4.tgz"
-  integrity sha512-06LC4wHO+nyH0J07dUzFsZTVZMsMMKTkXo8BUTmuYbJhbsKX2cVDn2xADoFqjbnBYThVlGSlaM10CDyEi+48Iw==
+node-getopt@f-w/node-getopt:
+  version "0.3.2"
+  resolved "https://codeload.github.com/f-w/node-getopt/tar.gz/7fbb55222b2d06db2c60f8ac2522d6e493b7f6b6"
 
 node-preload@^0.2.1:
   version "0.2.1"
