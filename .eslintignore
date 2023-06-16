@@ -3,6 +3,7 @@
 /docs/
 /coverage/
 /dist/
+**/*.local.*
 ecosystem.config.js
 /server/
 # js in root
