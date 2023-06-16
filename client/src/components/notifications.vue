@@ -59,11 +59,11 @@ import 'jquery-ui-bundle';
 import {mapActions} from 'vuex';
 // one-time definition of custom jquery-ui widget
 $.widget('custom.annotatedAutoComplete', $.ui.autocomplete, {
-  _create: function() {
+  _create: function () {
     this._super();
     this.widget().menu('option', 'items', '> :not(.disabled)');
   },
-  _renderMenu: function(ul, items) {
+  _renderMenu: function (ul, items) {
     $('<li>')
       .attr('class', 'disabled')
       .append('matching services having confirmed subscribers:')
@@ -79,7 +79,7 @@ export default {
   },
   methods: {
     ...mapActions(['getSubscribedServiceNames']),
-    createAutoCompleteServiceNameWidget: async function() {
+    createAutoCompleteServiceNameWidget: async function () {
       try {
         let items = await this.getSubscribedServiceNames();
         $(
@@ -92,7 +92,7 @@ export default {
       } catch (ex) {}
     },
   },
-  data: function() {
+  data: function () {
     return {
       headers: [
         {
@@ -268,7 +268,7 @@ export default {
 
 <style lang="less">
 #nb-wc-notification-table {
-  @import (less) '~jquery-ui-bundle/jquery-ui.css';
+  @import (less) 'jquery-ui-bundle/jquery-ui.css';
   .disabled {
     pointer-events: none; //This makes it not clickable
     opacity: 0.6; //This grays it out to look disabled
