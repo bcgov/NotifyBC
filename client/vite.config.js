@@ -15,17 +15,24 @@ export default defineConfig({
     vue({
       template: {transformAssetUrls},
     }),
-    // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
-    vuetify({
-      autoImport: true,
-    }),
     inject({
       // => that should be first under plugins array
       $: 'jquery',
       jQuery: 'jquery',
     }),
+    // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
+    vuetify({
+      autoImport: true,
+    }),
   ],
-  define: {'process.env': {}},
+  define: {
+    'process.env': {},
+    apiUrlPrefix: JSON.stringify(app.options.restApiRoot),
+    oidcAuthority: JSON.stringify(
+      app.options.oidc && app.options.oidc.discoveryUrl,
+    ),
+    oidcClientId: JSON.stringify(app.options.oidc && app.options.oidc.clientId),
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
