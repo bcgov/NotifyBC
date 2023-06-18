@@ -19,6 +19,7 @@
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-inject": "^5.0.3",
     "@vitejs/plugin-vue": "^3.0.3",
     "bootstrap": "^3.3.7",
     "eslint": "^8.37.0",
@@ -34,7 +35,7 @@
     "summernote": "^0.8.8",
     "vite": "^4.2.0",
     "vite-plugin-vuetify": "^1.0.0",
-    "vuex": "^3.6.2"
+    "vuex": "^4.0.2"
   },
   "eslintConfig": {
     "root": true,
