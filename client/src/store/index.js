@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {UserManager} from 'oidc-client';
-import Vuex from 'vuex';
+import {createStore} from 'vuex';
 
 const apiUrlPrefix = window.apiUrlPrefix || '/api';
 let accessToken;
@@ -9,7 +9,7 @@ try {
     .value;
   // eslint-disable-next-line no-empty
 } catch (ex) {}
-export default new Vuex.Store({
+export default createStore({
   state: {
     notifications: {
       items: [],

@@ -1,8 +1,8 @@
 // Plugins
 import vue from '@vitejs/plugin-vue';
 import vuetify, {transformAssetUrls} from 'vite-plugin-vuetify';
-
 // Utilities
+import inject from '@rollup/plugin-inject';
 import {fileURLToPath, URL} from 'node:url';
 import {defineConfig} from 'vite';
 
@@ -18,6 +18,11 @@ export default defineConfig({
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
     vuetify({
       autoImport: true,
+    }),
+    inject({
+      // => that should be first under plugins array
+      $: 'jquery',
+      jQuery: 'jquery',
     }),
   ],
   define: {'process.env': {}},
