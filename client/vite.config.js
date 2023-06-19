@@ -8,6 +8,7 @@ import {defineConfig} from 'vite';
 
 const NotifyBcApplication = require('../dist/application').NotifyBcApplication;
 const app = new NotifyBcApplication();
+const proxyProto = app.options.tls.enabled ? 'https' : 'http';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -41,6 +42,15 @@ export default defineConfig({
   },
   server: {
     port: 8000,
-    https: app.options.tls.enabled,
+    open: '/',
+    proxy: {
+      '^/api/': {
+        target: proxyProto + '://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+      '^/oauth2-redirect.html': {
+        target: proxyProto + '://127.0.0.1:3000',
+      },
+    },
   },
 });
