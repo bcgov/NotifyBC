@@ -27,57 +27,43 @@
           <v-list-item-action>
             <v-icon>home</v-icon>
           </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
         <v-list-item to="/subscriptions/">
           <v-list-item-action>
             <v-icon>list</v-icon>
           </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Subscriptions</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Subscriptions</v-list-item-title>
         </v-list-item>
         <v-list-item to="/notifications/">
           <v-list-item-action>
             <v-icon>email</v-icon>
           </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Notifications</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Notifications</v-list-item-title>
         </v-list-item>
         <v-list-item to="/configurations/">
           <v-list-item-action>
             <v-icon>settings_applications</v-icon>
           </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Configurations</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Configurations</v-list-item-title>
         </v-list-item>
         <v-list-item to="/administrators/">
           <v-list-item-action>
             <v-icon>security</v-icon>
           </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Administrators</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Administrators</v-list-item-title>
         </v-list-item>
         <v-list-item to="/bounces/">
           <v-list-item-action>
             <v-icon>report</v-icon>
           </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Bounces</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Bounces</v-list-item-title>
         </v-list-item>
         <v-list-item to="/api-explorer/">
           <v-list-item-action>
             <v-icon>code</v-icon>
           </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>API Explorer</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>API Explorer</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
