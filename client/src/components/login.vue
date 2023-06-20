@@ -17,8 +17,8 @@
   <v-toolbar-items class="center-text">
     <div v-if="$store.state.authnStrategy === 'clientCertificate'">
       <v-tooltip bottom>
-        <template v-slot:activator="{on}">
-          <v-icon v-on="on">verified</v-icon>
+        <template v-slot:activator="{props}">
+          <v-icon v-bind="props">verified</v-icon>
         </template>
         <span>You are super-admin</span>
       </v-tooltip>
@@ -26,8 +26,8 @@
     <template v-else>
       <div v-if="$store.state.authnStrategy === 'ipWhitelist'">
         <v-tooltip bottom>
-          <template v-slot:activator="{on}">
-            <v-icon v-on="on">verified_user</v-icon>
+          <template v-slot:activator="{props}">
+            <v-icon v-bind="props" icon="verified_user"></v-icon>
           </template>
           <span>You are super-admin</span>
         </v-tooltip>
@@ -49,8 +49,8 @@
             max-width="500px"
             v-if="$store.state.authnStrategy === 'anonymous'"
           >
-            <template v-slot:activator="{on}">
-              <v-btn plain v-on="on"> Login<v-icon>login</v-icon> </v-btn>
+            <template v-slot:activator="{props}">
+              <v-btn plain v-bind="props"> Login<v-icon>login</v-icon> </v-btn>
             </template>
             <v-card>
               <v-card-title>
@@ -87,9 +87,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" text @click="login">
-                  Submit
-                </v-btn>
+                <v-btn color="primary" text @click="login"> Submit </v-btn>
                 <v-btn color="error" text @click="dialog = false">
                   Cancel
                 </v-btn>
@@ -117,7 +115,7 @@
 import {UserManager} from 'oidc-client';
 
 export default {
-  data: function() {
+  data: function () {
     return {
       dialog: false,
       showPassword: false,
@@ -144,10 +142,10 @@ export default {
       },
     },
   },
-  beforeMount: async function() {
+  beforeMount: async function () {
     await this.$store.dispatch('getAuthenticationStrategy');
   },
-  mounted: async function() {
+  mounted: async function () {
     if (!window.oidcAuthority) {
       return;
     }
@@ -168,7 +166,7 @@ export default {
     }
   },
   methods: {
-    oidclogin: async function() {
+    oidclogin: async function () {
       let config = this.$store.state.oidcConfig;
       config = Object.assign({}, config, {
         redirect_uri: window.location.href,
@@ -176,7 +174,7 @@ export default {
       let um = new UserManager(config);
       await um.signinRedirect();
     },
-    oidcLogout: async function() {
+    oidcLogout: async function () {
       let config = this.$store.state.oidcConfig;
       config = Object.assign({}, config, {
         post_logout_redirect_uri: window.location.href,
@@ -184,7 +182,7 @@ export default {
       let um = new UserManager(config);
       await um.signoutRedirect();
     },
-    login: async function() {
+    login: async function () {
       try {
         this.loginError = undefined;
         await this.$store.dispatch('login', {
@@ -199,3 +197,9 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="less">
+.v-toolbar-items {
+  padding: 4px 16px;
+}
+</style>

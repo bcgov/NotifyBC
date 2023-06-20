@@ -54,8 +54,7 @@
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title
-        >NotifyBC Web Console -
-        {{ this.$router.currentRoute.name }}</v-toolbar-title
+        >NotifyBC Web Console - {{ this.$route.name }}</v-toolbar-title
       >
       <v-spacer></v-spacer>
       <login />
@@ -107,5 +106,9 @@ export default {
 <style lang="less">
 a[target='_blank']:after {
   content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+}
+.v-application ol,
+.v-application ul {
+  padding-left: 24px;
 }
 </style>
