@@ -23,46 +23,25 @@
       v-if="this.$route.name !== 'oidcCallback'"
     >
       <v-list dense>
-        <v-list-item to="/home">
-          <v-list-item-action>
-            <v-icon>home</v-icon>
-          </v-list-item-action>
+        <v-list-item to="/home" prepend-icon="home">
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/subscriptions/">
-          <v-list-item-action>
-            <v-icon>list</v-icon>
-          </v-list-item-action>
+        <v-list-item to="/subscriptions/" prepend-icon="list">
           <v-list-item-title>Subscriptions</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/notifications/">
-          <v-list-item-action>
-            <v-icon>email</v-icon>
-          </v-list-item-action>
+        <v-list-item to="/notifications/" prepend-icon="email">
           <v-list-item-title>Notifications</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/configurations/">
-          <v-list-item-action>
-            <v-icon>settings_applications</v-icon>
-          </v-list-item-action>
+        <v-list-item to="/configurations/" prepend-icon="settings_applications">
           <v-list-item-title>Configurations</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/administrators/">
-          <v-list-item-action>
-            <v-icon>security</v-icon>
-          </v-list-item-action>
+        <v-list-item to="/administrators/" prepend-icon="security">
           <v-list-item-title>Administrators</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/bounces/">
-          <v-list-item-action>
-            <v-icon>report</v-icon>
-          </v-list-item-action>
+        <v-list-item to="/bounces/" prepend-icon="report">
           <v-list-item-title>Bounces</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/api-explorer/">
-          <v-list-item-action>
-            <v-icon>code</v-icon>
-          </v-list-item-action>
+        <v-list-item to="/api-explorer/" prepend-icon="code">
           <v-list-item-title>API Explorer</v-list-item-title>
         </v-list-item>
       </v-list>
