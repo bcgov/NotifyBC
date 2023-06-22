@@ -10,7 +10,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=10.16 <17"
+    "node": ">17"
   },
   "scripts": {
     "build": "yarn build:server",
@@ -39,7 +39,7 @@
     "openapi-spec": "node ./dist/openapi-spec",
     "start": "node .",
     "clean": "lb-clean dist/ */dist/ *.tsbuildinfo .eslintcache .nyc_output/ coverage/",
-    "clean:all": "yarn clean && lb-clean */node_modules && rm -rf node_modules"
+    "clean:all": "yarn clean && lb-clean **/node_modules && rm -rf node_modules"
   },
   "repository": {
     "type": "git"
