@@ -58,7 +58,7 @@ export default {
   components: {
     ComboTable,
   },
-  data: function() {
+  data: function () {
     return {
       headers: [
         {
@@ -68,7 +68,7 @@ export default {
         },
         {
           text: 'hardBounceCount',
-          align: 'right',
+          align: 'end',
           value: 'hardBounceCount',
         },
         {
@@ -78,7 +78,7 @@ export default {
         },
         {
           text: 'updated',
-          align: 'right',
+          align: 'end',
           value: 'updated',
         },
         {

@@ -70,7 +70,7 @@ export default {
   components: {
     ComboTable,
   },
-  data: function() {
+  data: function () {
     return {
       headers: [
         {
@@ -85,7 +85,7 @@ export default {
         },
         {
           text: 'updated',
-          align: 'right',
+          align: 'end',
           value: 'updated',
         },
         {

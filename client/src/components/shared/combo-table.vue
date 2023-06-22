@@ -27,16 +27,18 @@
         <span v-html="message"></span>
       </template>
     </v-text-field>
-    <v-data-table
+    <v-data-table-server
+      v-model:items-per-page="options.itemsPerPage"
+      :page="options.page"
       :headers="headers"
       :items="$store.state[this.model].items"
       :single-expand="true"
       :expanded="expanded"
       class="elevation-1"
-      :options.sync="options"
-      :server-items-length="$store.state[this.model].totalCount"
+      :items-length="$store.state[this.model].totalCount"
       :loading="loading"
       :no-data-text="noDataText"
+      @update:options="updateOptions"
     >
       <template #item="props">
         <slot
@@ -46,7 +48,8 @@
           :deleteItem="deleteItem"
         />
       </template>
-      <template #expanded-item="props">
+      <!--
+        <template #expanded-row="props">
         <tr>
           <td :colspan="props.headers.length">
             <component
@@ -64,11 +67,11 @@
       <template slot="footer">
         <v-expansion-panels v-model="newPanelExpanded">
           <v-expansion-panel>
-            <v-expansion-panel-header :hide-actions="true">
+            <v-expansion-panel-title :hide-actions="true">
               <v-tooltip bottom>
-                <template v-slot:activator="{on}">
+                <template v-slot:activator="{props}">
                   <div class="text-center" color="indigo">
-                    <v-btn v-on="on" text icon>
+                    <v-btn v-bind="props" text icon>
                       <v-icon large color="indigo">{{
                         newPanelExpanded === 0 ? 'keyboard_arrow_up' : 'add'
                       }}</v-icon>
@@ -77,8 +80,8 @@
                 </template>
                 new
               </v-tooltip>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
               <v-card>
                 <v-card-text class="grey lighten-3">
                   <slot
@@ -98,11 +101,12 @@
                   </slot>
                 </v-card-text>
               </v-card>
-            </v-expansion-panel-content>
+            </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
       </template>
-    </v-data-table>
+      -->
+    </v-data-table-server>
   </div>
 </template>
 
@@ -155,7 +159,7 @@ export default {
     },
   },
   methods: {
-    fetchItems: async function(filter) {
+    fetchItems: async function (filter) {
       this.loading = true;
       this.noDataText = NoDataText;
       try {
@@ -168,7 +172,7 @@ export default {
       }
       this.loading = false;
     },
-    editItem: function(props) {
+    editItem: function (props) {
       let isExpanded = !props.isExpanded;
       if (this.currentExpanderView !== 'modelEditor' && !isExpanded) {
         isExpanded = !isExpanded;
@@ -177,7 +181,7 @@ export default {
       props.expand(isExpanded);
       this.$emit('inputFormExpanded');
     },
-    viewItem: function(props) {
+    viewItem: function (props) {
       let isExpanded = !props.isExpanded;
       if (this.currentExpanderView !== 'modelViewer' && !isExpanded) {
         isExpanded = !isExpanded;
@@ -185,27 +189,27 @@ export default {
       this.currentExpanderView = 'modelViewer';
       props.expand(isExpanded);
     },
-    submitEditPanel: function() {
+    submitEditPanel: function () {
       this.expanded.pop();
       this.$store.dispatch('fetchItems', {
         model: this.model,
         filter: {},
       });
     },
-    cancelEditPanel: function() {
+    cancelEditPanel: function () {
       this.expanded.pop();
     },
-    submitNewPanel: function() {
+    submitNewPanel: function () {
       this.newPanelExpanded = undefined;
       this.$store.dispatch('fetchItems', {
         model: this.model,
         filter: {},
       });
     },
-    cancelNewPanel: function() {
+    cancelNewPanel: function () {
       this.newPanelExpanded = undefined;
     },
-    deleteItem: async function(props) {
+    deleteItem: async function (props) {
       await this.$store.dispatch('deleteItem', {
         model: this.model,
         item: props.item,
@@ -215,40 +219,38 @@ export default {
         filter: {},
       });
     },
+    updateOptions: async function (options) {
+      let filter;
+      this.options = options;
+      if (this.options.itemsPerPage >= -1) {
+        filter = filter || {};
+        if (this.options.itemsPerPage > 0) {
+          filter.limit = this.options.itemsPerPage;
+          filter.skip = this.options.itemsPerPage * (this.options.page - 1);
+        } else {
+          filter.limit = undefined;
+          filter.skip = 0;
+        }
+      }
+      if (this.options.sortBy.length > 0) {
+        filter = filter || {};
+        filter.order = this.options.sortBy.map((e, i) => {
+          return `${e}  ${this.options.sortDesc[i] ? 'DESC' : 'ASC'}`;
+        });
+      }
+      await this.fetchItems(filter);
+      return;
+    },
   },
   watch: {
-    options: {
-      handler: async function() {
-        let filter;
-        if (this.options.itemsPerPage >= -1) {
-          filter = filter || {};
-          if (this.options.itemsPerPage > 0) {
-            filter.limit = this.options.itemsPerPage;
-            filter.skip = this.options.itemsPerPage * (this.options.page - 1);
-          } else {
-            filter.limit = undefined;
-            filter.skip = 0;
-          }
-        }
-        if (this.options.sortBy.length > 0) {
-          filter = filter || {};
-          filter.order = this.options.sortBy.map((e, i) => {
-            return `${e}  ${this.options.sortDesc[i] ? 'DESC' : 'ASC'}`;
-          });
-        }
-        await this.fetchItems(filter);
-        return;
-      },
-      deep: true,
-    },
-    newPanelExpanded: function(newVal) {
+    newPanelExpanded: function (newVal) {
       if (newVal === 0) this.$emit('inputFormExpanded');
     },
-    accessToken: async function() {
+    accessToken: async function () {
       await this.fetchItems(this.$store.state[this.model].filter);
     },
   },
-  data: function() {
+  data: function () {
     return {
       newPanelExpanded: undefined,
       currentExpanderView: 'modelEditor',
