@@ -945,7 +945,7 @@ js-yaml@^4.1.0:
 
 json-editor@f-w/json-editor:
   version "0.7.20"
-  resolved "https://codeload.github.com/f-w/json-editor/tar.gz/dba1fcf952df4bfe8d22bec09d9f775b3e1ef57e"
+  resolved "https://codeload.github.com/f-w/json-editor/tar.gz/a858246ff75eb8696455bdb2e3ed209485ade9e6"
 
 json-schema-traverse@^0.4.1:
   version "0.4.1"
