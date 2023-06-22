@@ -117,7 +117,7 @@ export default {
         },
         {
           text: 'updated',
-          align: 'right',
+          align: 'end',
           value: 'updated',
         },
         {

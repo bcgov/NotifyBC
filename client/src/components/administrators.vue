@@ -75,7 +75,7 @@ export default {
     ComboTable,
     ModelEditor,
   },
-  data: function() {
+  data: function () {
     const schema = {
       type: 'object',
       properties: {
@@ -136,7 +136,7 @@ export default {
         },
         {
           text: 'updated',
-          align: 'right',
+          align: 'end',
           value: 'updated',
         },
         {
