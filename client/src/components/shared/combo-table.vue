@@ -235,7 +235,7 @@ export default {
       if (this.options.sortBy.length > 0) {
         filter = filter || {};
         filter.order = this.options.sortBy.map((e, i) => {
-          return `${e}  ${this.options.sortDesc[i] ? 'DESC' : 'ASC'}`;
+          return `${e.key}  ${e.order}`;
         });
       }
       await this.fetchItems(filter);
