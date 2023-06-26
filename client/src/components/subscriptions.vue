@@ -15,18 +15,20 @@
  -->
 <template>
   <combo-table :headers="headers" :schema="schema" model="subscriptions">
-    <template #default="props">
+    <template #default="defaultProps">
       <tr>
-        <td>{{ props.props.item.columns.serviceName }}</td>
-        <td>{{ props.props.item.columns.channel }}</td>
-        <td>{{ props.props.item.columns.state }}</td>
-        <td class="text-right">{{ props.props.item.columns.updated }}</td>
+        <td>{{ defaultProps.props.item.columns.serviceName }}</td>
+        <td>{{ defaultProps.props.item.columns.channel }}</td>
+        <td>{{ defaultProps.props.item.columns.state }}</td>
+        <td class="text-right">
+          {{ defaultProps.props.item.columns.updated }}
+        </td>
         <td>
           <v-tooltip bottom>
             <template v-slot:activator="{props}">
               <v-btn
                 v-bind="props"
-                @click="props.viewItem(props.props)"
+                @click="defaultProps.viewItem(defaultProps.props)"
                 icon="info"
                 density="compact"
                 variant="plain"
@@ -38,7 +40,7 @@
             <template v-slot:activator="{props}">
               <v-btn
                 v-bind="props"
-                @click="props.editItem(props.props)"
+                @click="defaultProps.editItem(defaultProps.props)"
                 icon="create"
                 density="compact"
                 variant="plain"

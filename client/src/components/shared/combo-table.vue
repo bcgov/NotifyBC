@@ -48,10 +48,9 @@
           :deleteItem="deleteItem"
         />
       </template>
-      <!--
-        <template #expanded-row="props">
+      <template #expanded-row="props">
         <tr>
-          <td :colspan="props.headers.length">
+          <td :colspan="props.columns.length">
             <component
               :is="currentExpanderView"
               class="ma-2"
@@ -64,6 +63,7 @@
           </td>
         </tr>
       </template>
+      <!--
       <template slot="footer">
         <v-expansion-panels v-model="newPanelExpanded">
           <v-expansion-panel>
@@ -178,7 +178,7 @@ export default {
         isExpanded = !isExpanded;
       }
       this.currentExpanderView = 'modelEditor';
-      props.expand(isExpanded);
+      props.toggleExpand(props.item);
       this.$emit('inputFormExpanded');
     },
     viewItem: function (props) {
@@ -187,7 +187,7 @@ export default {
         isExpanded = !isExpanded;
       }
       this.currentExpanderView = 'modelViewer';
-      props.expand(isExpanded);
+      props.toggleExpand(props.item);
     },
     submitEditPanel: function () {
       this.expanded.pop();
