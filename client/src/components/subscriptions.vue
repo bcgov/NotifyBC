@@ -27,11 +27,10 @@
               <v-btn
                 v-bind="props"
                 @click="props.viewItem(props.props)"
-                text
-                icon
-              >
-                <v-icon>info</v-icon>
-              </v-btn>
+                icon="info"
+                density="compact"
+                variant="plain"
+              />
             </template>
             details
           </v-tooltip>
@@ -40,11 +39,10 @@
               <v-btn
                 v-bind="props"
                 @click="props.editItem(props.props)"
-                text
-                icon
-              >
-                <v-icon>create</v-icon>
-              </v-btn>
+                icon="create"
+                density="compact"
+                variant="plain"
+              />
             </template>
             edit
           </v-tooltip>
