@@ -63,49 +63,57 @@
           </td>
         </tr>
       </template>
-      <!--
-      <template slot="footer">
-        <v-expansion-panels v-model="newPanelExpanded">
-          <v-expansion-panel>
-            <v-expansion-panel-title :hide-actions="true">
-              <v-tooltip bottom>
-                <template v-slot:activator="{props}">
-                  <div class="text-center" color="indigo">
-                    <v-btn v-bind="props" text icon>
-                      <v-icon large color="indigo">{{
-                        newPanelExpanded === 0 ? 'keyboard_arrow_up' : 'add'
-                      }}</v-icon>
-                    </v-btn>
-                  </div>
-                </template>
-                new
-              </v-tooltip>
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <v-card>
-                <v-card-text class="grey lighten-3">
-                  <slot
-                    name="newItem"
-                    :submitNewPanel="submitNewPanel"
-                    :cancelNewPanel="cancelNewPanel"
-                    :schema="schema"
-                    :model="model"
+      <template #tfoot="tfootProps">
+        <tfoot class="v-data-table__tfoot">
+          <tr>
+            <td :colspan="tfootProps.columns.length">
+              <v-expansion-panels v-model="newPanelExpanded">
+                <v-expansion-panel>
+                  <v-expansion-panel-title
+                    :hide-actions="true"
+                    class="d-flex justify-center"
                   >
-                    <model-editor
-                      class="ma-2"
-                      @submit="submitNewPanel"
-                      @cancel="cancelNewPanel"
-                      :schema="schema"
-                      :model="model"
-                    />
-                  </slot>
-                </v-card-text>
-              </v-card>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{props}">
+                        <v-btn
+                          v-bind="props"
+                          :icon="
+                            newPanelExpanded === 0 ? 'keyboard_arrow_up' : 'add'
+                          "
+                          color="indigo"
+                        >
+                        </v-btn>
+                      </template>
+                      new
+                    </v-tooltip>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <v-card>
+                      <v-card-text class="grey lighten-3">
+                        <slot
+                          name="newItem"
+                          :submitNewPanel="submitNewPanel"
+                          :cancelNewPanel="cancelNewPanel"
+                          :schema="schema"
+                          :model="model"
+                        >
+                          <model-editor
+                            class="ma-2"
+                            @submit="submitNewPanel"
+                            @cancel="cancelNewPanel"
+                            :schema="schema"
+                            :model="model"
+                          />
+                        </slot>
+                      </v-card-text>
+                    </v-card>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </td>
+          </tr>
+        </tfoot>
       </template>
-      -->
     </v-data-table-server>
   </div>
 </template>
