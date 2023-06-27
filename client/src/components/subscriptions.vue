@@ -15,39 +15,32 @@
  -->
 <template>
   <combo-table :headers="headers" :schema="schema" model="subscriptions">
-    <template #default="defaultProps">
+    <template #default="props">
       <tr>
-        <td>{{ defaultProps.props.item.columns.serviceName }}</td>
-        <td>{{ defaultProps.props.item.columns.channel }}</td>
-        <td>{{ defaultProps.props.item.columns.state }}</td>
+        <td>{{ props.props.item.columns.serviceName }}</td>
+        <td>{{ props.props.item.columns.channel }}</td>
+        <td>{{ props.props.item.columns.state }}</td>
         <td class="text-right">
-          {{ defaultProps.props.item.columns.updated }}
+          {{ props.props.item.columns.updated }}
         </td>
         <td>
-          <v-tooltip bottom>
-            <template v-slot:activator="{props}">
-              <v-btn
-                v-bind="props"
-                @click="defaultProps.viewItem(defaultProps.props)"
-                icon="info"
-                density="compact"
-                variant="plain"
-              />
-            </template>
-            details
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{props}">
-              <v-btn
-                v-bind="props"
-                @click="defaultProps.editItem(defaultProps.props)"
-                icon="create"
-                density="compact"
-                variant="plain"
-              />
-            </template>
-            edit
-          </v-tooltip>
+          <v-btn
+            @click="props.viewItem(props.props)"
+            icon="info"
+            density="compact"
+            variant="plain"
+          >
+            <v-icon>info</v-icon>
+            <v-tooltip activator="parent" location="bottom">details</v-tooltip>
+          </v-btn>
+          <v-btn
+            @click="props.editItem(props.props)"
+            density="compact"
+            variant="plain"
+          >
+            <v-icon>create</v-icon>
+            <v-tooltip activator="parent" location="bottom">edit</v-tooltip>
+          </v-btn>
         </td>
       </tr>
     </template>
