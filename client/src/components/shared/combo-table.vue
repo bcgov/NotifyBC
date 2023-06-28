@@ -181,31 +181,35 @@ export default {
       this.loading = false;
     },
     editItem: function (props) {
-      let isExpanded = !props.isExpanded;
-      if (this.currentExpanderView !== 'modelEditor' && !isExpanded) {
-        isExpanded = !isExpanded;
+      let toggleExpand = false;
+      if (this.currentExpanderView === 'modelEditor') {
+        toggleExpand = true;
+      } else if (!props.isExpanded(props.item)) {
+        toggleExpand = true;
       }
       this.currentExpanderView = 'modelEditor';
-      props.toggleExpand(props.item);
+      toggleExpand && props.toggleExpand(props.item);
       this.$emit('inputFormExpanded');
     },
     viewItem: function (props) {
-      let isExpanded = !props.isExpanded;
-      if (this.currentExpanderView !== 'modelViewer' && !isExpanded) {
-        isExpanded = !isExpanded;
+      let toggleExpand = false;
+      if (this.currentExpanderView === 'modelViewer') {
+        toggleExpand = true;
+      } else if (!props.isExpanded(props.item)) {
+        toggleExpand = true;
       }
       this.currentExpanderView = 'modelViewer';
-      props.toggleExpand(props.item);
+      toggleExpand && props.toggleExpand(props.item);
     },
-    submitEditPanel: function () {
-      this.expanded.pop();
+    submitEditPanel: function ({toggleExpand, item}) {
+      toggleExpand(item);
       this.$store.dispatch('fetchItems', {
         model: this.model,
         filter: {},
       });
     },
-    cancelEditPanel: function () {
-      this.expanded.pop();
+    cancelEditPanel: function ({toggleExpand, item}) {
+      toggleExpand(item);
     },
     submitNewPanel: function () {
       this.newPanelExpanded = undefined;

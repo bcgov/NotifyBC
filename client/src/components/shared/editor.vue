@@ -43,7 +43,7 @@ export default {
         let item = this.jsonEditor.getValue();
         await this.$store.dispatch('setItem', {
           model: this.model,
-          item: item,
+          item: item.raw,
         });
         this.currentlyEditedItem = item;
         this.$emit('submit');
