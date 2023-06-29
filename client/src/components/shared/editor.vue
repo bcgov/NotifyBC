@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import 'json-editor';
-import 'summernote';
+import {JSONEditor} from '@json-editor/json-editor';
+
 export default {
   data: function () {
     return {
@@ -43,7 +43,7 @@ export default {
         let item = this.jsonEditor.getValue();
         await this.$store.dispatch('setItem', {
           model: this.model,
-          item: item.raw,
+          item: item,
         });
         this.currentlyEditedItem = item;
         this.$emit('submit');
@@ -62,16 +62,16 @@ export default {
       if (this.jsonEditor) {
         this.jsonEditor.destroy();
       }
-      this.jsonEditor = new window.JSONEditor(element, {
-        theme: 'bootstrap3',
-        iconlib: 'fontawesome4',
+      this.jsonEditor = new JSONEditor(element, {
+        theme: 'bootstrap4',
+        iconlib: 'fontawesome5',
         keep_oneof_values: false,
         required_by_default: false,
         // required: ['serviceName', 'channel', 'message'],
         remove_empty_properties: true,
         disable_collapse: true,
-        startval: this.item,
         schema: this.schema,
+        ...(this.item && {startval: this.item.raw}),
       });
     },
   },
@@ -90,22 +90,14 @@ export default {
 }
 
 #nb-item-editor {
-  @import 'bootstrap/less/bootstrap.less';
-  @import (less) 'summernote/dist/summernote.css';
+  @import (less) 'bootstrap/dist/css/bootstrap.css';
+  @import (less) '@json-editor/json-editor/src/editors/object.css';
+  @import (less) '@json-editor/json-editor/src/style.css';
   select {
     -webkit-appearance: menulist-button;
   }
   .btn {
     min-width: unset;
-  }
-}
-
-// some divs created by summernote and jquery-ui are
-// appended to body, creating extra empty bottom space
-body {
-  & > .note-popover.popover.bottom.in,
-  & > .ui-helper-hidden-accessible {
-    display: none;
   }
 }
 </style>
