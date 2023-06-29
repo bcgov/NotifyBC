@@ -392,6 +392,11 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
+autobind-decorator@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/autobind-decorator/-/autobind-decorator-2.4.0.tgz#ea9e1c98708cf3b5b356f7cf9f10f265ff18239c"
+  integrity sha512-OGYhWUO72V6DafbF8PM8rm3EPbfuyMZcJhtm5/n26IDwO18pohE4eNazLoCGhPiXOCD0gEGmrbU3849QvM8bbw==
+
 balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
@@ -960,6 +965,13 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
+
+jodit@^4.0.0-beta.61:
+  version "4.0.0-beta.61"
+  resolved "https://registry.yarnpkg.com/jodit/-/jodit-4.0.0-beta.61.tgz#e0003aafa9a6c0c9c1fb7b8d2370bf0ce69c103e"
+  integrity sha512-FEck/EVy3lYCxE+mZqeReMf9hIaQvwfiwSIacS53N6cBhSu0QguJtMNya9EWkz9zLzCjEyxex2xTreTF9BP21w==
+  dependencies:
+    autobind-decorator "^2.4.0"
 
 jquery-ui-bundle@^1.12.1:
   version "1.12.1"

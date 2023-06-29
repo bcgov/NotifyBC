@@ -26,7 +26,8 @@
 
 <script>
 import {JSONEditor} from '@json-editor/json-editor';
-
+import {Jodit} from 'jodit/es2015/jodit.min.js';
+window.Jodit = Jodit;
 export default {
   data: function () {
     return {
@@ -84,6 +85,7 @@ export default {
 };
 </script>
 
+<style src="jodit/es2015/jodit.min.css"></style>
 <style lang="less">
 .datatable__expand-content:not(.v-leave-active) {
   height: auto !important;
