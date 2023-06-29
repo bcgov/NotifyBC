@@ -224,10 +224,7 @@ export default {
                   },
                   htmlBody: {
                     type: 'string',
-                    format: 'html',
-                    options: {
-                      wysiwyg: 'summernote',
-                    },
+                    format: 'jodit',
                   },
                 },
               },
