@@ -8,7 +8,9 @@
 import '@mdi/font/css/materialdesignicons.css';
 import 'vuetify/styles';
 import {aliases, md} from 'vuetify/iconsets/md';
+import {fa} from 'vuetify/iconsets/fa';
 import {VDataTableServer} from 'vuetify/labs/VDataTable';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 // Composables
 import {createVuetify} from 'vuetify';
@@ -30,6 +32,7 @@ export default createVuetify({
     aliases,
     sets: {
       md,
+      fa,
     },
   },
   components: {
