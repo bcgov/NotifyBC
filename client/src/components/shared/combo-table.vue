@@ -28,8 +28,6 @@
       </template>
     </v-text-field>
     <v-data-table-server
-      v-model:items-per-page="options.itemsPerPage"
-      :page="options.page"
       :headers="headers"
       :items="$store.state[this.model].items"
       :single-expand="true"
@@ -38,6 +36,7 @@
       :items-length="$store.state[this.model].totalCount"
       :loading="loading"
       :no-data-text="noDataText"
+      :options="options"
       @update:options="updateOptions"
     >
       <template #item="props">
@@ -231,9 +230,9 @@ export default {
         filter: {},
       });
     },
-    updateOptions: async function (options) {
+    updateOptions: async function (newOptions) {
       let filter;
-      this.options = options;
+      this.options = newOptions;
       if (this.options.itemsPerPage >= -1) {
         filter = filter || {};
         if (this.options.itemsPerPage > 0) {
@@ -266,7 +265,7 @@ export default {
     return {
       newPanelExpanded: undefined,
       currentExpanderView: 'modelEditor',
-      options: {itemsPerPage: 5},
+      options: {itemsPerPage: 10},
       loading: true,
       expanded: [],
       noDataText: NoDataText,
