@@ -15,7 +15,7 @@
  -->
 <template>
   <div>
-    <pre>{{ JSON.stringify(item, null, 2) }}</pre>
+    <pre>{{ JSON.stringify(item.raw, null, 2) }}</pre>
   </div>
 </template>
 
