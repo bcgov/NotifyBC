@@ -93,8 +93,7 @@ export default {
 
 #nb-item-editor {
   @import (less) 'bootstrap/dist/css/bootstrap.css';
-  @import (less) '@json-editor/json-editor/src/editors/object.css';
-  @import (less) '@json-editor/json-editor/src/style.css';
+  inject-css: 'node_modules/@json-editor/json-editor/src/**/*.css';
   select {
     -webkit-appearance: menulist-button;
   }
