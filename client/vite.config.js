@@ -5,7 +5,8 @@ import vuetify, {transformAssetUrls} from 'vite-plugin-vuetify';
 import inject from '@rollup/plugin-inject';
 import {fileURLToPath, URL} from 'node:url';
 import {defineConfig} from 'vite';
-
+import fs from 'fs';
+import {globSync} from 'fast-glob';
 const NotifyBcApplication = require('../dist/application').NotifyBcApplication;
 const app = new NotifyBcApplication();
 const proxyProto = app.options.tls.enabled ? 'https' : 'http';
@@ -16,6 +17,23 @@ export default defineConfig({
     vue({
       template: {transformAssetUrls},
     }),
+    // glob inject css
+    {
+      load(id) {
+        if (id.endsWith('.vue')) {
+          const source = fs
+            .readFileSync(id)
+            .toString()
+            .replace(/inject-css:\s*'([^']+)';/g, replace => {
+              const pattern = replace.match(/'([^']+)/)[1];
+              return globSync(pattern, {absolute: true})
+                .map(file => fs.readFileSync(file))
+                .join('\n');
+            });
+          return source;
+        }
+      },
+    },
     inject({
       // => that should be first under plugins array
       $: 'jquery',

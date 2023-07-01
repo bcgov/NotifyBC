@@ -26,6 +26,7 @@
     "bootstrap": "^4.6.0",
     "eslint": "^8.37.0",
     "eslint-plugin-vue": "^9.3.0",
+    "fast-glob": "^3.3.0",
     "jodit": "^4.0.0-beta.61",
     "jquery": "^3.5.0",
     "jquery-ui-bundle": "^1.12.1",
