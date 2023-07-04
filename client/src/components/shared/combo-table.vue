@@ -30,8 +30,6 @@
     <v-data-table-server
       :headers="headers"
       :items="$store.state[this.model].items"
-      :single-expand="true"
-      :expanded="expanded"
       class="elevation-1"
       :items-length="$store.state[this.model].totalCount"
       :loading="loading"
@@ -72,7 +70,7 @@
                     :hide-actions="true"
                     class="d-flex justify-center"
                   >
-                    <v-tooltip bottom>
+                    <v-tooltip location="bottom">
                       <template v-slot:activator="{props}">
                         <v-btn
                           v-bind="props"
@@ -179,36 +177,50 @@ export default {
       }
       this.loading = false;
     },
-    editItem: function (props) {
+    handleToggle: function (expanderView, props) {
+      const isExpanded = props.isExpanded(props.item);
       let toggleExpand = false;
-      if (this.currentExpanderView === 'modelEditor') {
+      let collapseOthers = false;
+      if (
+        this.expanded.length > 0 &&
+        this.expanded[0].index !== props.item.index
+      ) {
+        collapseOthers = true;
         toggleExpand = true;
-      } else if (!props.isExpanded(props.item)) {
+      } else if (this.currentExpanderView === expanderView) {
+        toggleExpand = true;
+      } else if (!isExpanded) {
         toggleExpand = true;
       }
-      this.currentExpanderView = 'modelEditor';
-      toggleExpand && props.toggleExpand(props.item);
+      if (collapseOthers) {
+        props.toggleExpand(this.expanded.pop());
+      }
+      this.currentExpanderView = expanderView;
+      if (toggleExpand) {
+        props.toggleExpand(props.item);
+        if (!isExpanded) {
+          this.expanded.push(props.item);
+        } else {
+          this.expanded.pop(props.item);
+        }
+      }
+    },
+    editItem: function (props) {
+      this.handleToggle('modelEditor', props);
       this.$emit('inputFormExpanded');
     },
     viewItem: function (props) {
-      let toggleExpand = false;
-      if (this.currentExpanderView === 'modelViewer') {
-        toggleExpand = true;
-      } else if (!props.isExpanded(props.item)) {
-        toggleExpand = true;
-      }
-      this.currentExpanderView = 'modelViewer';
-      toggleExpand && props.toggleExpand(props.item);
+      this.handleToggle('modelViewer', props);
     },
     submitEditPanel: function ({toggleExpand, item}) {
-      toggleExpand(item);
+      toggleExpand(this.expanded.pop());
       this.$store.dispatch('fetchItems', {
         model: this.model,
         filter: {},
       });
     },
     cancelEditPanel: function ({toggleExpand, item}) {
-      toggleExpand(item);
+      toggleExpand(this.expanded.pop());
     },
     submitNewPanel: function () {
       this.newPanelExpanded = undefined;
@@ -255,7 +267,10 @@ export default {
   },
   watch: {
     newPanelExpanded: function (newVal) {
-      if (newVal === 0) this.$emit('inputFormExpanded');
+      if (newVal === 0) {
+        this.$emit('inputFormExpanded');
+        this.expanded.length > 0 && this.toggleExpand(this.expanded.pop());
+      }
     },
     accessToken: async function () {
       await this.fetchItems(this.$store.state[this.model].filter);
