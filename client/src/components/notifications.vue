@@ -23,29 +23,31 @@
   >
     <template #default="props">
       <tr>
-        <td>{{ props.props.item.serviceName }}</td>
-        <td>{{ props.props.item.channel }}</td>
-        <td>{{ props.props.item.state }}</td>
-        <td>{{ props.props.item.isBroadcast }}</td>
-        <td class="text-right">{{ props.props.item.updated }}</td>
+        <td>{{ props.props.item.columns.serviceName }}</td>
+        <td>{{ props.props.item.columns.channel }}</td>
+        <td>{{ props.props.item.columns.state }}</td>
+        <td>{{ props.props.item.columns.isBroadcast }}</td>
+        <td class="text-right">{{ props.props.item.columns.updated }}</td>
         <td>
-          <v-tooltip bottom>
-            <template v-slot:activator="{on}">
-              <v-btn v-on="on" @click="props.viewItem(props.props)" text icon>
-                <v-icon>info</v-icon>
-              </v-btn>
-            </template>
-            details
-          </v-tooltip>
+          <v-btn
+            @click="props.viewItem(props.props)"
+            density="compact"
+            variant="plain"
+            icon="info"
+          >
+            <v-icon>info</v-icon>
+            <v-tooltip activator="parent" location="bottom">details</v-tooltip>
+          </v-btn>
           <template v-if="props.props.item.state === 'new'">
-            <v-tooltip bottom>
-              <template v-slot:activator="{on}">
-                <v-btn v-on="on" @click="props.editItem(props.props)" text icon>
-                  <v-icon>create</v-icon>
-                </v-btn>
-              </template>
-              edit
-            </v-tooltip>
+            <v-btn
+              @click="props.editItem(props.props)"
+              density="compact"
+              variant="plain"
+              icon="create"
+            >
+              <v-icon>create</v-icon>
+              <v-tooltip activator="parent" location="bottom">edit</v-tooltip>
+            </v-btn>
           </template>
         </td>
       </tr>
@@ -96,32 +98,32 @@ export default {
     return {
       headers: [
         {
-          text: 'serviceName',
+          title: 'serviceName',
           align: 'left',
-          value: 'serviceName',
+          key: 'serviceName',
         },
         {
-          text: 'channel',
+          title: 'channel',
           align: 'left',
-          value: 'channel',
+          key: 'channel',
         },
         {
-          text: 'state',
+          title: 'state',
           align: 'left',
-          value: 'state',
+          key: 'state',
         },
         {
-          text: 'isBroadcast',
+          title: 'isBroadcast',
           align: 'left',
-          value: 'isBroadcast',
+          key: 'isBroadcast',
         },
         {
-          text: 'updated',
+          title: 'updated',
           align: 'end',
-          value: 'updated',
+          key: 'updated',
         },
         {
-          text: 'actions',
+          title: 'actions',
           align: 'left',
           sortable: false,
         },
