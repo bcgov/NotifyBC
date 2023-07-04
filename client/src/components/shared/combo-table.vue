@@ -269,7 +269,6 @@ export default {
     newPanelExpanded: function (newVal) {
       if (newVal === 0) {
         this.$emit('inputFormExpanded');
-        this.expanded.length > 0 && this.toggleExpand(this.expanded.pop());
       }
     },
     accessToken: async function () {

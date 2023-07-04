@@ -17,40 +17,44 @@
   <combo-table :headers="headers" :schema="schema" model="administrators">
     <template #default="props">
       <tr>
-        <td>{{ props.props.item.email }}</td>
-        <td class="text-right">{{ props.props.item.updated }}</td>
+        <td>{{ props.props.item.columns.email }}</td>
+        <td class="text-right">{{ props.props.item.columns.updated }}</td>
         <td>
-          <v-tooltip bottom>
-            <template v-slot:activator="{on}">
-              <v-btn v-on="on" @click="props.viewItem(props.props)" text icon>
-                <v-icon>info</v-icon>
-              </v-btn>
-            </template>
-            details
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{on}">
-              <v-btn
-                v-on="on"
-                @click="
-                  (props.props.item.password = ''), props.editItem(props.props)
-                "
-                text
-                icon
-              >
-                <v-icon>create</v-icon>
-              </v-btn>
-            </template>
-            edit
-          </v-tooltip>
-          <v-tooltip bottom color="red">
-            <template v-slot:activator="{on}">
-              <v-btn v-on="on" @click="props.deleteItem(props.props)" text icon>
-                <v-icon color="red darken-2">delete_forever</v-icon>
-              </v-btn>
-            </template>
-            Caution: delete immediately without confirmation
-          </v-tooltip>
+          <v-btn
+            @click="props.viewItem(props.props)"
+            density="compact"
+            variant="plain"
+            icon="info"
+          >
+            <v-icon>info</v-icon>
+            <v-tooltip activator="parent" location="bottom">details</v-tooltip>
+          </v-btn>
+
+          <v-btn
+            @click="editAdmin(props)"
+            density="compact"
+            variant="plain"
+            icon="create"
+          >
+            <v-icon>create</v-icon>
+            <v-tooltip activator="parent" location="bottom">edit</v-tooltip>
+          </v-btn>
+
+          <v-btn
+            @click="props.deleteItem(props.props)"
+            density="compact"
+            variant="plain"
+            icon="delete_forever"
+          >
+            <v-icon color="red darken-2">delete_forever</v-icon>
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+              color="red darken-2"
+            >
+              Caution: delete immediately without confirmation
+            </v-tooltip>
+          </v-btn>
         </td>
       </tr>
     </template>
@@ -130,17 +134,17 @@ export default {
     return {
       headers: [
         {
-          text: 'email',
+          title: 'email',
           align: 'left',
-          value: 'email',
+          key: 'email',
         },
         {
-          text: 'updated',
+          title: 'updated',
           align: 'end',
-          value: 'updated',
+          key: 'updated',
         },
         {
-          text: 'actions',
+          title: 'actions',
           align: 'left',
           sortable: false,
         },
@@ -155,6 +159,14 @@ export default {
         },
       }),
     };
+  },
+  methods: {
+    editAdmin: function (props) {
+      try {
+        props.props.item.raw.password = '';
+      } catch (ex) {}
+      props.editItem(props.props);
+    },
   },
 };
 </script>
