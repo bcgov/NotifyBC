@@ -235,7 +235,7 @@ export default {
     deleteItem: async function (props) {
       await this.$store.dispatch('deleteItem', {
         model: this.model,
-        item: props.item,
+        item: props.item.raw,
       });
       await this.$store.dispatch('fetchItems', {
         model: this.model,

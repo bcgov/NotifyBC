@@ -17,46 +17,55 @@
   <combo-table :headers="headers" :schema="schema" model="configurations">
     <template #default="props">
       <tr>
-        <td>{{ props.props.item.name }}</td>
-        <td>{{ props.props.item.serviceName }}</td>
-        <td class="text-right">{{ props.props.item.updated }}</td>
+        <td>{{ props.props.item.columns.name }}</td>
+        <td>{{ props.props.item.columns.serviceName }}</td>
+        <td class="text-right">{{ props.props.item.columns.updated }}</td>
         <td>
-          <v-tooltip bottom>
-            <template v-slot:activator="{on}">
-              <v-btn v-on="on" @click="props.viewItem(props.props)" text icon>
-                <v-icon>info</v-icon>
-              </v-btn>
-            </template>
-            details
-          </v-tooltip>
+          <v-btn
+            @click="props.viewItem(props.props)"
+            density="compact"
+            variant="plain"
+            icon="info"
+          >
+            <v-icon>info</v-icon>
+            <v-tooltip activator="parent" location="bottom">details</v-tooltip>
+          </v-btn>
+
           <template
             v-if="['dbSchemaVersion', 'rsa'].indexOf(props.props.item.name) < 0"
           >
-            <v-tooltip bottom>
-              <template v-slot:activator="{on}">
-                <v-btn v-on="on" @click="props.editItem(props.props)" text icon>
-                  <v-icon>create</v-icon>
-                </v-btn>
-              </template>
-              edit
-            </v-tooltip>
+            <v-btn
+              @click="props.editItem(props.props)"
+              density="compact"
+              variant="plain"
+              icon="create"
+            >
+              <v-icon>create</v-icon>
+              <v-tooltip activator="parent" location="bottom">edit</v-tooltip>
+            </v-btn>
           </template>
           <template
-            v-if="['dbSchemaVersion', 'rsa'].indexOf(props.props.item.name) < 0"
+            v-if="
+              ['dbSchemaVersion', 'rsa'].indexOf(
+                props.props.item.columns.name,
+              ) < 0
+            "
           >
-            <v-tooltip bottom color="red">
-              <template v-slot:activator="{on}">
-                <v-btn
-                  v-on="on"
-                  @click="props.deleteItem(props.props)"
-                  text
-                  icon
-                >
-                  <v-icon color="red darken-2">delete_forever</v-icon>
-                </v-btn>
-              </template>
-              Caution: delete immediately without confirmation
-            </v-tooltip>
+            <v-btn
+              @click="props.deleteItem(props.props)"
+              density="compact"
+              variant="plain"
+              icon="delete_forever"
+            >
+              <v-icon color="red darken-2">delete_forever</v-icon>
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+                color="red darken-2"
+              >
+                Caution: delete immediately without confirmation
+              </v-tooltip>
+            </v-btn>
           </template>
         </td>
       </tr>
@@ -74,22 +83,22 @@ export default {
     return {
       headers: [
         {
-          text: 'name',
+          title: 'name',
           align: 'left',
-          value: 'name',
+          key: 'name',
         },
         {
-          text: 'serviceName',
+          title: 'serviceName',
           align: 'left',
-          value: 'serviceName',
+          key: 'serviceName',
         },
         {
-          text: 'updated',
+          title: 'updated',
           align: 'end',
-          value: 'updated',
+          key: 'updated',
         },
         {
-          text: 'actions',
+          title: 'actions',
           align: 'left',
           sortable: false,
         },
