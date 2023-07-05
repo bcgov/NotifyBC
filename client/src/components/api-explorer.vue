@@ -15,25 +15,28 @@
  -->
 <template>
   <div>
-    <iframe id="nb-api-explorer" :src="ApiExplorerUrlPrefix" />
+    <iframe id="nb-api-explorer" v-resized :src="ApiExplorerUrlPrefix"></iframe>
   </div>
 </template>
 <script>
-/*eslint no-unused-vars: "off" */
-import iFrameResize from 'iframe-resizer';
+import {iframeResize} from 'iframe-resizer';
 export default {
-  data: function() {
+  data: function () {
     return {
       ApiExplorerUrlPrefix: `${window.apiUrlPrefix || '/api'}/explorer`,
-      iFrameResizer: undefined,
     };
   },
-  mounted: async function() {
-    $('#nb-api-explorer').iFrameResize();
-    this.iFrameResizer = $('#nb-api-explorer')[0].iFrameResizer;
-  },
-  beforeDestroy: function() {
-    this.iFrameResizer && this.iFrameResizer.close();
+
+  directives: {
+    // enables v-resize in template
+    resized: {
+      mounted: (el, {value}) => {
+        el.addEventListener('load', () => iframeResize(value, el));
+      },
+      unmounted: function (el) {
+        el.iFrameResizer.removeListeners();
+      },
+    },
   },
 };
 </script>
