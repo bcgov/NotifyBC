@@ -37,11 +37,12 @@
           <template v-if="$store.state.authnStrategy === 'accessToken'">
             <div class="mr-1">Access Token</div>
             <v-text-field
-              dark
+              style="min-width: 200px"
+              theme="dark"
               single-line
               hide-details
-              :value="accessToken"
-              @change="v => (accessToken = v)"
+              v-model="accessToken"
+              @change="setAccessToken"
             ></v-text-field>
           </template>
           <v-dialog
@@ -125,17 +126,10 @@ export default {
       oidcUserManager:
         window.oidcAuthority && new UserManager(this.$store.state.oidcConfig),
       oidcUser: undefined,
+      accessToken: this.$store.state.accessToken,
     };
   },
   computed: {
-    accessToken: {
-      get() {
-        return this.$store.state.accessToken;
-      },
-      set(value) {
-        this.$store.commit('setAccessToken', value);
-      },
-    },
     authnStrategy: {
       get() {
         return this.$store.state.authnStrategy;
@@ -166,6 +160,9 @@ export default {
     }
   },
   methods: {
+    setAccessToken(evt) {
+      this.$store.commit('setAccessToken', evt.target.value);
+    },
     oidclogin: async function () {
       let config = this.$store.state.oidcConfig;
       config = Object.assign({}, config, {
