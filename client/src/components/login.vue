@@ -152,8 +152,8 @@ export default {
       try {
         this.oidcUser = await this.oidcUserManager.signinRedirectCallback();
         this.oidcUserManager.clearStaleState();
-        this.$router.push(this.$router.currentRoute.path);
-        this.$router.go(this.$router.currentRoute);
+        await this.$router.push(this.$route.path);
+        this.$router.go();
       } catch (ex) {
         true;
       }
