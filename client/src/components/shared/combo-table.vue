@@ -65,7 +65,7 @@
           <tr>
             <td :colspan="tfootProps.columns.length">
               <v-expansion-panels v-model="newPanelExpanded">
-                <v-expansion-panel>
+                <v-expansion-panel elevation="0">
                   <v-expansion-panel-title
                     :hide-actions="true"
                     class="d-flex justify-center"
