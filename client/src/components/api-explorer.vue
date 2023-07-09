@@ -31,7 +31,13 @@ export default {
     // enables v-resize in template
     resized: {
       mounted: (el, {value}) => {
-        el.addEventListener('load', () => iframeResize(value, el));
+        el.addEventListener('load', ev => {
+          iframeResize(value, el);
+          const new_style_element = document.createElement('style');
+          new_style_element.textContent =
+            '.swagger-ui .dialog-ux .modal-ux {top: 10px; transform: translate(-50%);}';
+          ev.target.contentDocument.head.appendChild(new_style_element);
+        });
       },
       unmounted: function (el) {
         el.iFrameResizer.removeListeners();
