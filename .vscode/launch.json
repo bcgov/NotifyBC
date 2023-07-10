@@ -40,7 +40,7 @@
       "request": "launch",
       "name": "Docs",
       "cwd": "${workspaceFolder}/docs",
-      "program": "node_modules/vuepress/cli.js",
+      "program": "node_modules/vitepress/bin/vitepress.js",
       "args": ["dev"],
       "console": "internalConsole",
       "envFile": "${workspaceFolder}/docs/.env"
