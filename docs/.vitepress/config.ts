@@ -23,8 +23,8 @@ export default defineConfig({
           text: 'Getting Started',
           collapsed: false,
           items: [
-            {text: 'Welcome', link: 'getting-started/'},
-            // 'getting-started/overview',
+            {text: 'Welcome', link: 'docs/getting-started/'},
+            {text: 'Overview', link: 'docs/getting-started/overview'},
             // 'getting-started/quickstart',
             // 'getting-started/installation',
             // 'getting-started/web-console',

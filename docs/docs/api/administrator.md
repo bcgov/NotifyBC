@@ -53,7 +53,7 @@ To enable access token authentication,
 
 The _Administrator_ API operates on three related sub-models - _Administrator_, _UserCredential_ and _AccessToken_. An administrator has one and only one user credential and zero or more access tokens. Their relationship is diagramed as
 
-<img :src="$withBase('/img/admin-data-models.svg')" alt="administrator model diagram">
+![administrator model diagram](/img/admin-data-models.svg)
 
 ### Administrator
 
