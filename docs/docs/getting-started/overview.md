@@ -38,7 +38,7 @@ _NotifyBC_ facilitates both anonymous and authentication-enabled secure webapps 
 - generate random un-subscription code
 - send acknowledgement message after un-subscription for anonymous subscribers
 - bulk unsubscription
-- [list-unsubscribe](http://www.list-unsubscribe.com/) by email
+- list-unsubscribe by email
 - track bounces and unsubscribe the recipient from all subscriptions when hard bounce count exceeds threshold
 - sms user can unsubscribe by replying a shortcode keyword with Swift sms provider
 
@@ -52,19 +52,19 @@ Tokens whose names are predetermined by _NotifyBC_ are called static tokens; oth
 
 _NotifyBC_ recognizes following case-insensitive static tokens. Most of the names are self-explanatory.
 
-- {subscription_confirmation_url}
-- {subscription_confirmation_code}
-- {service_name}
-- {http_host} - http host in the form <i>http(s): //<host_name\>:\<port\></i>. The value is obtained from the http request that triggers the message
-- {rest_api_root} - configured Loopback [REST API basePath](https://loopback.io/doc/en/lb4/Customizing-server-configuration.html#configure-the-base-path)
-- {subscription_id}
+- \{subscription_confirmation_url\}
+- \{subscription_confirmation_code\}
+- \{service_name\}
+- \{http_host\} - http host in the form <i>http(s): //<host_name\>:\<port\></i>. The value is obtained from the http request that triggers the message
+- \{rest_api_root\} - configured Loopback [REST API basePath](https://loopback.io/doc/en/lb4/Customizing-server-configuration.html#configure-the-base-path)
+  -\{subscription_id\}
 - anonymous unsubscription related tokens
-  - {unsubscription_url}
-  - {unsubscription_all_url} - url to unsubscribe all services the user has subscribed on
+  - \{unsubscription_url\}
+  - \{unsubscription_all_url\} - url to unsubscribe all services the user has subscribed on
     this <i>NotifyBC</i> instance
-  - {unsubscription_code}
-  - {unsubscription_reversion_url}
-  - {unsubscription_service_names} - includes {service_name} and additional services user has unsubscribed, prefixed with conditionally pluralized word <i>service</i>.
+  - \{unsubscription_code\}
+  - \{unsubscription_reversion_url\}
+  - \{unsubscription_service_names\} - includes \{service_name\} and additional services user has unsubscribed, prefixed with conditionally pluralized word <i>service</i>.
 
 #### dynamic tokens
 
@@ -72,10 +72,10 @@ Dynamic tokens are replaced with correspondingly named sub-field of _data_ field
 
 Examples
 
-- _{notification::description}_ is replaced with field _data.description_ of the notification request if exist
-- _{subscription::gender}_ is replaced with field _data.gender_ of the subscription if exist
-- _{addresses[0].city}_ is replaced with field _data.addresses[0].city_ of the notification if exist; otherwise is replaced with field _data.addresses[0].city_ of the subscription if exist
-- _{nonexistingDataField}_ is unreplaced if neither notification nor subscription contains _data.nonexistingDataField_
+- _\{notification::description\}_ is replaced with field _data.description_ of the notification request if exist
+- _\{subscription::gender\}_ is replaced with field _data.gender_ of the subscription if exist
+- _\{addresses[0].city\}_ is replaced with field _data.addresses[0].city_ of the notification if exist; otherwise is replaced with field _data.addresses[0].city_ of the subscription if exist
+- _\{nonexistingDataField\}_ is unreplaced if neither notification nor subscription contains _data.nonexistingDataField_
 
 ::: tip Notification by RSS feeds relies on dynamic token
 A notification created by RSS feeds relies on dynamic token to supply the context to message template. In this case the <i>data</i> field contains the RSS item.
@@ -134,7 +134,7 @@ An admin request carries full authorization whereas user request has limited acc
 The result of an API call to the same end point may differ depending on the request type. For example, the call _GET /notifications_ without a filter will return all notifications to all users for an admin request, but only non-deleted, non-expired in-app notifications for authenticated user request, and forbidden for anonymous user request. Sometimes it is desirable for a request from admin ip list, which would normally be admin request, to be voluntarily downgraded to user request in order to take advantage of predefined filters such as the ones described above. This can be achieved by adding one of the HTTP headers listed above to the request. This is also why admin request is not determined by ip or token alone.
 
 The way _NotifyBC_ interacts with other components is diagrammed below.
-<img :src="$withBase('/img/architecture.svg')" alt="architecture diagram">
+![architecture diagram](/img/architecture.svg)
 
 ### Authentication Strategies
 
