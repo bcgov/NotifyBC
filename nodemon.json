@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "*",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "yarn clean && yarn build:server && node ."
+  "exec": "yarn clean && yarn build && node ."
 }
