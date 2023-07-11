@@ -121,7 +121,7 @@ POST /configurations
 
   _NotifyBC_ performs following actions in sequence
 
-  1. if it’s a user request, error is returned
+  1. if it's a user request, error is returned
   2. inputs are validated. For example, required fields without default values must be populated. If validation fails, error is returned
   3. if config item is _notification_ with field _value.rss_ populated, and if the field _value.httpHost_ is missing, it is generated using this request's HTTP protocol , host name and port.
   4. item is saved to database
