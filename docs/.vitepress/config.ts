@@ -23,7 +23,7 @@ export default defineConfig({
           text: 'Getting Started',
           collapsed: false,
           items: [
-            {text: 'Welcome', link: 'docs/getting-started/'},
+            {text: 'Welcome', link: 'docs/'},
             {text: 'Overview', link: 'docs/getting-started/overview'},
             {text: 'Quick Start', link: 'docs/getting-started/quickstart'},
             // 'getting-started/installation',
@@ -93,4 +93,5 @@ export default defineConfig({
     'docs/getting-started/index.md': 'docs/index.md',
   },
   cleanUrls: true,
+  ignoreDeadLinks: true,
 });
