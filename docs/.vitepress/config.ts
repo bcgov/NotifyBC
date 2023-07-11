@@ -28,7 +28,7 @@ export default defineConfig({
             {text: 'Quick Start', link: 'docs/getting-started/quickstart'},
             // 'getting-started/installation',
             // 'getting-started/web-console',
-            // "getting-started/what's-new",
+            // "getting-started/whats-new",
           ],
         },
         /*
