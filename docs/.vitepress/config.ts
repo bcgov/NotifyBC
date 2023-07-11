@@ -89,4 +89,7 @@ export default defineConfig({
     socialLinks: [{icon: 'github', link: 'https://github.com/vuejs/vitepress'}],
     externalLinkIcon: true,
   },
+  rewrites: {
+    'docs/getting-started/index.md': 'docs/index.md',
+  },
 });
