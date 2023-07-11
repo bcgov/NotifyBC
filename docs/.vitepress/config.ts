@@ -92,4 +92,5 @@ export default defineConfig({
   rewrites: {
     'docs/getting-started/index.md': 'docs/index.md',
   },
+  cleanUrls: true,
 });
