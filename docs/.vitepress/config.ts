@@ -3,6 +3,7 @@ const {description} = require('../package');
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`,
   title: 'NotifyBC',
   description: description,
   themeConfig: {
