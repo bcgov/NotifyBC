@@ -4,6 +4,7 @@ import {useData} from 'vitepress/dist/client/theme-default/composables/data';
 import {useLangs} from 'vitepress/dist/client/theme-default/composables/langs';
 import {normalizeLink} from 'vitepress/dist/client/theme-default/support/utils';
 import VPImage from 'vitepress/dist/client/theme-default/components/VPImage.vue';
+import Versions from './versions.vue';
 
 const {site, theme} = useData();
 const {hasSidebar} = useSidebar();
@@ -17,15 +18,20 @@ const {currentLang} = useLangs();
       <VPImage v-if="theme.logo" class="logo" :image="theme.logo" />
       <slot name="nav-bar-title-after" />
     </a>
+    <Versions />
   </div>
 </template>
 
 <style scoped>
+.VPNavBarTitle {
+  display: inline-flex;
+  align-items: center;
+}
+
 .title {
   display: flex;
   align-items: center;
   border-bottom: 1px solid transparent;
-  width: 100%;
   height: var(--vp-nav-height);
   font-size: 16px;
   font-weight: 600;
