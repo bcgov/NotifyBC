@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'vitepress';
 const {description} = require('../package');
 
@@ -97,6 +98,16 @@ export default defineConfig({
   cleanUrls: true,
   ignoreDeadLinks: true,
   vite: {
+    resolve: {
+      alias: [
+        {
+          find: /^.*\/VPNavBarTitle\.vue$/,
+          replacement: fileURLToPath(
+            new URL('./components/NavBarTitle.vue', import.meta.url),
+          ),
+        },
+      ],
+    },
     server: {
       port: 8080,
     },
