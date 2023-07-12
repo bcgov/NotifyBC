@@ -92,6 +92,14 @@ export default defineConfig({
 
     socialLinks: [{icon: 'github', link: `https://github.com/${repo}`}],
     externalLinkIcon: true,
+    search: {
+      provider: 'algolia',
+      options: {
+        apiKey: process.env.ALGOLIA_API_Key,
+        appId: process.env.ALGOLIA_APP_ID,
+        indexName: 'notifybc',
+      },
+    },
   },
   rewrites: {
     'docs/getting-started/index.md': 'docs/index.md',
