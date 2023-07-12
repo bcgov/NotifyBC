@@ -7,6 +7,7 @@ export default defineConfig({
   title: 'NotifyBC',
   description: description,
   themeConfig: {
+    logo: '/img/logo.svg',
     repo: 'bcgov/NotifyBC',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -95,4 +96,9 @@ export default defineConfig({
   },
   cleanUrls: true,
   ignoreDeadLinks: true,
+  vite: {
+    server: {
+      port: 8080,
+    },
+  },
 });
