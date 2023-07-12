@@ -1,7 +1,8 @@
 import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'vitepress';
-const {description} = require('../package');
+import {description, repository} from '../package';
 
+const repo = repository.substring(19);
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   base: `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`,
@@ -9,7 +10,7 @@ export default defineConfig({
   description: description,
   themeConfig: {
     logo: '/img/logo.svg',
-    repo: 'bcgov/NotifyBC',
+    repo: repo,
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       {text: 'Home', link: '/'},
@@ -89,7 +90,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{icon: 'github', link: 'https://github.com/vuejs/vitepress'}],
+    socialLinks: [{icon: 'github', link: `https://github.com/${repo}`}],
     externalLinkIcon: true,
   },
   rewrites: {

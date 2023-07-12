@@ -42,7 +42,8 @@
     "clean:all": "yarn clean && lb-clean **/node_modules && rm -rf node_modules"
   },
   "repository": {
-    "type": "git"
+    "type": "git",
+    "url": "https://github.com/bcgov/notifybc"
   },
   "author": "",
   "license": "Apache-2.0",
