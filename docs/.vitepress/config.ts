@@ -32,7 +32,7 @@ export default defineConfig({
             {text: 'Overview', link: '/docs/getting-started/overview'},
             {text: 'Quick Start', link: '/docs/getting-started/quickstart'},
             {text: 'Installation', link: '/docs/getting-started/installation'},
-            // 'getting-started/web-console',
+            {text: 'Web Console', link: '/docs/getting-started/web-console'},
             // "getting-started/whats-new",
           ],
         },
@@ -134,4 +134,13 @@ export default defineConfig({
     },
   },
   lastUpdated: true,
+  head: [
+    [
+      'link',
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/icon?family=Material+Icons',
+      },
+    ],
+  ],
 });
