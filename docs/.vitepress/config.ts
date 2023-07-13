@@ -1,14 +1,15 @@
 import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'vitepress';
-import {description, repository} from '../package';
+import packageJson, {description, repository} from '../../package.json';
 
-const repo = repository.substring(19);
+const repo = repository.url.substring(19);
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   base: `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`,
   title: 'NotifyBC',
   description: description,
   themeConfig: {
+    package: packageJson,
     logo: '/img/logo.svg',
     repo: repo,
     // https://vitepress.dev/reference/default-theme-config
@@ -30,7 +31,7 @@ export default defineConfig({
             {text: 'Welcome', link: 'docs/'},
             {text: 'Overview', link: 'docs/getting-started/overview'},
             {text: 'Quick Start', link: 'docs/getting-started/quickstart'},
-            // 'getting-started/installation',
+            {text: 'Installation', link: 'docs/getting-started/installation'},
             // 'getting-started/web-console',
             // "getting-started/whats-new",
           ],
