@@ -22,21 +22,20 @@ export default defineConfig({
       {text: 'Help', link: '/help/'},
     ],
 
-    sidebar: {
-      '/docs/': [
-        {
-          text: 'Getting Started',
-          collapsed: false,
-          items: [
-            {text: 'Welcome', link: '/docs/'},
-            {text: 'Overview', link: '/docs/getting-started/overview'},
-            {text: 'Quick Start', link: '/docs/getting-started/quickstart'},
-            {text: 'Installation', link: '/docs/getting-started/installation'},
-            {text: 'Web Console', link: '/docs/getting-started/web-console'},
-            // "getting-started/whats-new",
-          ],
-        },
-        /*
+    sidebar: [
+      {
+        text: 'Getting Started',
+        collapsed: false,
+        items: [
+          {text: 'Welcome', link: '/docs/'},
+          {text: 'Overview', link: '/docs/overview/'},
+          {text: 'Quick Start', link: '/docs/quickstart/'},
+          {text: 'Installation', link: '/docs/installation/'},
+          {text: 'Web Console', link: '/docs/web-console/'},
+          // "getting-started/whats-new",
+        ],
+      },
+      /*
         {
           text: 'Configuration',
           collapsed: false,
@@ -88,8 +87,7 @@ export default defineConfig({
           items: ['meta/conduct', 'meta/acknowledgments'],
         },
         */
-      ],
-    },
+    ],
 
     socialLinks: [{icon: 'github', link: `https://github.com/${repo}`}],
     externalLinkIcon: true,
@@ -109,6 +107,10 @@ export default defineConfig({
   },
   rewrites: {
     'docs/getting-started/index.md': 'docs/index.md',
+    'docs/getting-started/overview.md': 'docs/overview/index.md',
+    'docs/getting-started/quickstart.md': 'docs/quickstart/index.md',
+    'docs/getting-started/installation.md': 'docs/installation/index.md',
+    'docs/getting-started/web-console.md': 'docs/web-console/index.md',
   },
   cleanUrls: true,
   ignoreDeadLinks: true,
