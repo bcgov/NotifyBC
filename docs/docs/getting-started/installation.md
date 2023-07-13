@@ -24,7 +24,7 @@ installing from source code is preferred.
 
 - Software
   - Git
-  - [Node.js](https://nodejs.org)@>=14.5.0
+  - [Node.js](https://nodejs.org)@{{ theme.package.engines.node }}
   - openssl (if enable HTTPS)
 - Services
   - MongoDB, optional but recommended for production
@@ -373,3 +373,8 @@ docker run --rm -dp 3000:3000 ghcr.io/bcgov/notify-bc
 ```
 
 If successful, similar output is displayed as in source code installation.
+
+<script setup>
+import { useData } from 'vitepress'
+const { theme } = useData()
+</script>
