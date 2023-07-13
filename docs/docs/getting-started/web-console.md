@@ -4,7 +4,7 @@ permalink: /docs/web-console/
 
 # Web Console
 
-After [installing](../installation) _NotifyBC_, you can start exploring _NotifyBC_ resources by opening web console, a curated GUI, at [http://localhost:3000](http://localhost:3000). You can further explore full-blown APIs by clicking the API explorer Swagger UI embedded in web console.
+After [installing](../installation/) _NotifyBC_, you can start exploring _NotifyBC_ resources by opening web console, a curated GUI, at [http://localhost:3000](http://localhost:3000). You can further explore full-blown APIs by clicking the API explorer Swagger UI embedded in web console.
 
 Consult the [API docs](../api-overview/) for valid inputs and expected outcome while you are exploring the APIs. Once you are familiar with the APIs, you can start writing code to call the APIs from either user browser or from a server application.
 
