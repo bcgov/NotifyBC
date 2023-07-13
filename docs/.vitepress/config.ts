@@ -100,6 +100,11 @@ export default defineConfig({
         indexName: 'notifybc',
       },
     },
+    footer: {
+      message: 'The contents of this website are',
+      copyright:
+        '&copy;&nbsp;2016-present under the terms of the <a href="https://github.com/bcgov/NotifyBC/blob/main/LICENSE" target="_blank">Apache&nbsp;License, Version 2.0</a>.',
+    },
   },
   rewrites: {
     'docs/getting-started/index.md': 'docs/index.md',
@@ -113,6 +118,12 @@ export default defineConfig({
           find: /^.*\/VPNavBarTitle\.vue$/,
           replacement: fileURLToPath(
             new URL('./components/NavBarTitle.vue', import.meta.url),
+          ),
+        },
+        {
+          find: /^.*\/VPHero\.vue$/,
+          replacement: fileURLToPath(
+            new URL('./components/Hero.vue', import.meta.url),
           ),
         },
       ],
