@@ -25,7 +25,6 @@ export default defineConfig({
     sidebar: [
       {
         text: 'Getting Started',
-        collapsed: false,
         items: [
           {text: 'Welcome', link: '/docs/'},
           {text: 'Overview', link: '/docs/overview/'},
@@ -145,4 +144,5 @@ export default defineConfig({
       },
     ],
   ],
+  mpa: true,
 });
