@@ -50,7 +50,7 @@ const {currentLang} = useLangs();
 }
 
 :deep(.logo) {
-  margin-right: 0.8rem;
+  margin-right: 0.3rem;
   height: 2.2rem;
   min-width: 2.2rem;
 }
