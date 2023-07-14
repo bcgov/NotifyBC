@@ -247,5 +247,5 @@ export default defineConfig({
       },
     ],
   ],
-  mpa: true,
+  mpa: false,
 });
