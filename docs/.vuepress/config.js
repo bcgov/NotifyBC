@@ -1,6 +1,7 @@
 const {description} = require('../package');
 import {defineUserConfig, defaultTheme} from 'vuepress';
 import {getDirname, path} from '@vuepress/utils';
+import {docsearchPlugin} from '@vuepress/plugin-docsearch';
 
 const __dirname = getDirname(import.meta.url);
 export default defineUserConfig({
@@ -143,5 +144,11 @@ export default defineUserConfig({
   /**
    * Apply plugins，ref：https://v1.vuepress.vuejs.org/zh/plugin/
    */
-  plugins: ['@dovyp/vuepress-plugin-clipboard-copy'],
+  plugins: [
+    docsearchPlugin({
+      apiKey: process.env.ALGOLIA_API_Key,
+      appId: process.env.ALGOLIA_APP_ID,
+      indexName: 'notifybc',
+    }),
+  ],
 });
