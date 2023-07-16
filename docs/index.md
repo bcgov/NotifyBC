@@ -2,8 +2,11 @@
 home: true
 metaTitle: NotifyBC | A versatile notification API server
 heroImage: /img/logo.svg
-actionText: Quick Start →
-actionLink: /docs/quickstart/
+heroText: null
+actions:
+  - text: Quick Start →
+    link: /docs/quickstart/
+    type: primary
 features:
   - title: Versatile
     details: >
@@ -33,4 +36,12 @@ features:
       </ul>
 footer: >
   The contents of this website are <br />&copy;&nbsp;2016-present under the terms of the <a href="https://github.com/bcgov/NotifyBC/blob/main/LICENSE">Apache&nbsp;License, Version 2.0</a>.
+footerHtml: true
 ---
+
+<style>
+.hero img {
+  height: fit-content;
+  margin-top: 0;
+}
+</style>
