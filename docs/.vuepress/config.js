@@ -1,6 +1,7 @@
 const {description} = require('../package');
+import {defineUserConfig, defaultTheme} from 'vuepress';
 
-module.exports = {
+export default defineUserConfig({
   base: `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`,
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
@@ -35,7 +36,7 @@ module.exports = {
    *
    * ref：https://v1.vuepress.vuejs.org/theme/default-theme-config.html
    */
-  themeConfig: {
+  theme: defaultTheme({
     repo: 'bcgov/NotifyBC',
     logo: '/img/logo.svg',
     editLinks: false,
@@ -126,14 +127,10 @@ module.exports = {
       apiKey: process.env.ALGOLIA_API_Key,
       indexName: 'notifybc',
     },
-  },
+  }),
 
   /**
    * Apply plugins，ref：https://v1.vuepress.vuejs.org/zh/plugin/
    */
-  plugins: [
-    '@vuepress/plugin-back-to-top',
-    '@vuepress/plugin-medium-zoom',
-    '@dovyp/vuepress-plugin-clipboard-copy',
-  ],
-};
+  plugins: ['@dovyp/vuepress-plugin-clipboard-copy'],
+});
