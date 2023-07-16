@@ -1,6 +1,8 @@
 const {description} = require('../package');
 import {defineUserConfig, defaultTheme} from 'vuepress';
+import {getDirname, path} from '@vuepress/utils';
 
+const __dirname = getDirname(import.meta.url);
 export default defineUserConfig({
   base: `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`,
   /**
@@ -128,7 +130,16 @@ export default defineUserConfig({
       indexName: 'notifybc',
     },
   }),
-
+  alias: {
+    '@theme/NavbarBrand.vue': path.resolve(
+      __dirname,
+      './components/myNavbarBrand.vue',
+    ),
+    '@theme/HomeFeatures.vue': path.resolve(
+      __dirname,
+      './components/myHomeFeatures.vue',
+    ),
+  },
   /**
    * Apply plugins，ref：https://v1.vuepress.vuejs.org/zh/plugin/
    */
