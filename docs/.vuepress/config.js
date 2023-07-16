@@ -1,4 +1,4 @@
-const {description} = require('../package');
+import packageJson, {description} from '../../package';
 import {defineUserConfig, defaultTheme} from 'vuepress';
 import {getDirname, path} from '@vuepress/utils';
 import {docsearchPlugin} from '@vuepress/plugin-docsearch';
@@ -40,13 +40,13 @@ export default defineUserConfig({
    * ref：https://v1.vuepress.vuejs.org/theme/default-theme-config.html
    */
   theme: defaultTheme({
-    repo: 'bcgov/NotifyBC',
+    repo: packageJson.repository.url,
     logo: '/img/logo.svg',
     editLinks: false,
     docsDir: '',
     editLinkText: '',
     lastUpdated: false,
-    nav: [
+    navbar: [
       {
         text: 'Home',
         link: '/',
