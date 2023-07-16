@@ -11,7 +11,7 @@ import {
   useDarkMode,
   useThemeLocaleData,
 } from '@vuepress/theme-default/lib/client/composables/index.js';
-
+import Versions from './versions.vue';
 const routeLocale = useRouteLocale();
 const siteLocale = useSiteLocaleData();
 const themeLocale = useThemeLocaleData();
@@ -44,7 +44,10 @@ const NavbarBrandLogo: FunctionalComponent = () => {
 </script>
 
 <template>
-  <RouterLink :to="navbarBrandLink">
-    <NavbarBrandLogo />
-  </RouterLink>
+  <div>
+    <RouterLink :to="navbarBrandLink">
+      <NavbarBrandLogo />
+    </RouterLink>
+    <Versions />
+  </div>
 </template>
