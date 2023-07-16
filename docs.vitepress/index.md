@@ -15,15 +15,7 @@ hero:
 
 features:
   - title: Versatile
-    details: >
-      <ul>
-        <li>Anonymous or authenticated subscriptions</li>
-        <li>Push and in-app pull notifications</li>
-        <li>Email and SMS push notification channels</li>
-        <li>Unicast and broadcast message types</li>
-        <li>Broadcast push notification filter rules specifiable by both sender and subscriber</li>
-        <li>Notification auto-gen from RSS</li>
-      </ul>
+    details: <ul><li>Anonymous or authenticated subscriptions</li><li>Push and in-app pull notifications</li><li>Email and SMS push notification channels</li><li>Unicast and broadcast message types</li><li>Broadcast push notification filter rules specifiable by both sender and subscriber</li><li>Notification auto-gen from RSS</li></ul>
   - title: Non-intrusive
     details: >
       <ul>

@@ -231,10 +231,25 @@ export default defineConfig({
             new URL('./components/Hero.vue', import.meta.url),
           ),
         },
+        {
+          find: /^.*\/VPFeature\.vue$/,
+          replacement: fileURLToPath(
+            new URL('./components/Feature.vue', import.meta.url),
+          ),
+        },
       ],
     },
     server: {
       port: 8080,
+    },
+    build: {
+      minify: false,
+      sourcemap: true,
+      rollupOptions: {
+        output: {
+          sourcemap: true,
+        },
+      },
     },
   },
   lastUpdated: true,
