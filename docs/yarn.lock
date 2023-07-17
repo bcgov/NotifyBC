@@ -724,7 +724,7 @@
     "@vuepress/core" "2.0.0-beta.66"
     prismjs "^1.29.0"
 
-"@vuepress/plugin-theme-data@2.0.0-beta.66":
+"@vuepress/plugin-theme-data@2.0.0-beta.66", "@vuepress/plugin-theme-data@^2.0.0-beta.66":
   version "2.0.0-beta.66"
   resolved "https://registry.yarnpkg.com/@vuepress/plugin-theme-data/-/plugin-theme-data-2.0.0-beta.66.tgz#52c87db594763b5c38913f5a2e417599b080b536"
   integrity sha512-EzDXhpG47Sc796fg1q7m3XXjD2qD+bpozRcM1aoyYP1fe/o25/q/5l8ARz9vpONuI8JvDVYmaYT3rUAh5oKstw==
