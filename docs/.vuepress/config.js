@@ -87,137 +87,59 @@ export default defineUserConfig({
       {
         text: 'Getting Started',
         children: [
-          {text: 'Welcome', link: '/docs/'},
-          {text: 'Overview', link: '/docs/overview/'},
-          {text: 'Quick Start', link: '/docs/quickstart/'},
-          {text: 'Installation', link: '/docs/installation/'},
-          {text: 'Web Console', link: '/docs/web-console/'},
-          // "getting-started/whats-new",
+          '/docs/',
+          '/docs/overview/',
+          '/docs/quickstart/',
+          '/docs/installation/',
+          '/docs/web-console/',
+          "/docs/what's-new/",
         ],
       },
       {
         text: 'Configuration',
         children: [
-          {text: 'Configuration Overview', link: '/docs/config-overview/'},
-          {text: 'Database', link: '/docs/config-database/'},
-          {text: 'Admin IP List', link: '/docs/config-adminIpList/'},
-          {
-            text: 'Reverse Proxy IP Lists',
-            link: '/docs/config-reverseProxyIpLists/',
-          },
-          {
-            text: 'HTTP Host',
-            link: '/docs/config-httpHost/',
-          },
-          {
-            text: 'Internal HTTP Host',
-            link: '/docs/config-internalHttpHost/',
-          },
-          {
-            text: 'Email',
-            link: '/docs/config-email/',
-          },
-          {
-            text: 'SMS',
-            link: '/docs/config-sms/',
-          },
-          {
-            text: 'Subscription',
-            link: '/docs/config-subscription/',
-          },
-          {
-            text: 'Notification',
-            link: '/docs/config-notification/',
-          },
-          {
-            text: 'Node Roles',
-            link: '/docs/config-nodeRoles/',
-          },
-          {
-            text: 'Cron Jobs',
-            link: '/docs/config-cronJobs/',
-          },
-          {
-            text: 'RSA Keys',
-            link: '/docs/config-rsaKeys/',
-          },
-          {
-            text: 'Worker Process Count',
-            link: '/docs/config-workerProcessCount/',
-          },
-          {
-            text: 'Middleware',
-            link: '/docs/config-middleware/',
-          },
-          {
-            text: 'OIDC',
-            link: '/docs/config-oidc/',
-          },
-          {
-            text: 'TLS Certificates',
-            link: '/docs/config-certificates/',
-          },
+          '/docs/config-overview/',
+          '/docs/config-database/',
+          '/docs/config-adminIpList/',
+          '/docs/config-reverseProxyIpLists/',
+          '/docs/config-httpHost/',
+          '/docs/config-internalHttpHost/',
+          '/docs/config-email/',
+          '/docs/config-sms/',
+          '/docs/config-subscription/',
+          '/docs/config-notification/',
+          '/docs/config-nodeRoles/',
+          '/docs/config-cronJobs/',
+          '/docs/config-rsaKeys/',
+          '/docs/config-workerProcessCount/',
+          '/docs/config-middleware/',
+          '/docs/config-oidc/',
+          '/docs/config-certificates/',
         ],
       },
       {
         text: 'API',
         collapsed: false,
         children: [
-          {
-            text: 'API Overview',
-            link: '/docs/api-overview/',
-          },
-          {
-            text: 'Subscription',
-            link: '/docs/api-subscription/',
-          },
-          {
-            text: 'Notification',
-            link: '/docs/api-notification/',
-          },
-          {
-            text: 'Configuration',
-            link: '/docs/api-config/',
-          },
-          {
-            text: 'Administrator',
-            link: '/docs/api-administrator/',
-          },
-          {
-            text: 'Bounce',
-            link: '/docs/api-bounce/',
-          },
+          '/docs/api-overview/',
+          '/docs/api-subscription/',
+          '/docs/api-notification/',
+          '/docs/api-config/',
+          '/docs/api-administrator/',
+          '/docs/api-bounce/',
         ],
       },
       {
         text: 'Miscellaneous',
         children: [
-          {
-            text: 'Benchmarks',
-            link: '/docs/benchmarks/',
-          },
-          {
-            text: 'Developer Notes',
-            link: '/docs/developer-notes/',
-          },
-          {
-            text: 'Upgrade Guide',
-            link: '/docs/upgrade/',
-          },
+          '/docs/benchmarks/',
+          '/docs/developer-notes/',
+          '/docs/upgrade/',
         ],
       },
       {
         text: 'Meta',
-        children: [
-          {
-            text: 'Code of Conduct',
-            link: '/docs/conduct/',
-          },
-          {
-            text: 'Acknowledgments',
-            link: '/docs/acknowledgments/',
-          },
-        ],
+        children: ['/docs/conduct/', '/docs/acknowledgments/'],
       },
     ],
     algolia: {
