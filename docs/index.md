@@ -1,6 +1,5 @@
 ---
 home: true
-metaTitle: NotifyBC | A versatile notification API server
 heroImage: /img/logo.svg
 heroText: null
 actions:
@@ -37,6 +36,10 @@ features:
 footer: >
   The contents of this website are <br />&copy;&nbsp;2016-present under the terms of the <a href="https://github.com/bcgov/NotifyBC/blob/main/LICENSE">Apache&nbsp;License, Version 2.0</a>.
 footerHtml: true
+head:
+  - - title
+    - {}
+    - NotifyBC | A versatile notification API server
 ---
 
 <style>
