@@ -51,9 +51,16 @@ export default defineUserConfig({
    */
   plugins: [
     docsearchPlugin({
-      apiKey: process.env.ALGOLIA_API_Key,
+      apiKey: process.env.ALGOLIA_API_KEY,
       appId: process.env.ALGOLIA_APP_ID,
       indexName: 'notifybc',
+      indexBase: '/NotifyBC/preview/',
+      // transformItems: items => {
+      //   return items.map(item => ({
+      //     ...item,
+      //     content: item.content.toUpperCase(),
+      //   }));
+      // },
     }),
     codeCopyPlugin(),
   ],
@@ -145,9 +152,5 @@ export default defineUserConfig({
         children: ['/docs/conduct/', '/docs/acknowledgments/'],
       },
     ],
-    algolia: {
-      apiKey: process.env.ALGOLIA_API_Key,
-      indexName: 'notifybc',
-    },
   }),
 });
