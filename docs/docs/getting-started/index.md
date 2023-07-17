@@ -25,6 +25,11 @@ Be aware of these messages if you wish to avoid disaster.
 :::
 
 If you come across anything along the way that we haven’t covered, or if you
-know of a tip you think others would find handy, please <a target="_blank" rel="noopener noreferrer" :href="'https://github.com/'+$site.themeConfig.repo+'/issues/new'">file an
+know of a tip you think others would find handy, please <a target="_blank" rel="noopener noreferrer" :href="themeData.repo+'/issues/new'">file an
 issue</a> and we’ll see about
 including it in this guide.
+
+<script setup>
+import { useThemeData } from '@vuepress/plugin-theme-data/client';
+const themeData = useThemeData();
+</script>
