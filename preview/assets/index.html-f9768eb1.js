@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-94b7dab4","path":"/docs/config-oidc/","title":"OIDC","lang":"en-US","frontmatter":{"permalink":"/docs/config-oidc/"},"headers":[],"git":{},"filePathRelative":"docs/config/oidc.md"}');export{e as data};
