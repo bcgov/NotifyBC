@@ -2,6 +2,7 @@ import packageJson, {description} from '../../package';
 import {defineUserConfig, defaultTheme} from 'vuepress';
 import {getDirname, path} from '@vuepress/utils';
 import {docsearchPlugin} from '@vuepress/plugin-docsearch';
+import codeCopyPlugin from '@snippetors/vuepress-plugin-code-copy';
 
 const __dirname = getDirname(import.meta.url);
 
@@ -54,6 +55,7 @@ export default defineUserConfig({
       appId: process.env.ALGOLIA_APP_ID,
       indexName: 'notifybc',
     }),
+    codeCopyPlugin(),
   ],
 
   /**
