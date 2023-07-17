@@ -65,6 +65,7 @@ export default defineUserConfig({
    */
   theme: defaultTheme({
     repo: packageJson.repository.url,
+    packageJson,
     logo: '/img/logo.svg',
     docsDir: '',
     editLink: false,
