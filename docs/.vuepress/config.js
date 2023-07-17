@@ -82,72 +82,144 @@ export default defineUserConfig({
             link: '/help/',
           },
         ],
-        sidebar: {
-          '/docs/': [
-            {
-              title: 'Getting Started',
-              collapsable: false,
-              children: [
-                'getting-started/',
-                'getting-started/overview',
-                'getting-started/quickstart',
-                'getting-started/installation',
-                'getting-started/web-console',
-                "getting-started/what's-new",
-              ],
-            },
-            {
-              title: 'Configuration',
-              collapsable: false,
-              children: [
-                'config/overview',
-                'config/database',
-                'config/adminIpList',
-                'config/reverseProxyIpLists',
-                'config/httpHost',
-                'config/internalHttpHost',
-                'config/email',
-                'config/sms',
-                'config/subscription',
-                'config/notification',
-                'config/nodeRoles',
-                'config/cronJobs',
-                'config/rsaKeys',
-                'config/workerProcessCount',
-                'config/middleware',
-                'config/oidc',
-                'config/certificates',
-              ],
-            },
-            {
-              title: 'API',
-              collapsable: false,
-              children: [
-                'api/overview',
-                'api/subscription',
-                'api/notification',
-                'api/config',
-                'api/administrator',
-                'api/bounce',
-              ],
-            },
-            {
-              title: 'Miscellaneous',
-              collapsable: false,
-              children: [
-                'miscellaneous/benchmarks',
-                'miscellaneous/bulk-import',
-                'miscellaneous/developer-notes',
-                'miscellaneous/upgrade',
-              ],
-            },
-            {
-              title: 'Meta',
-              collapsable: false,
-              children: ['meta/conduct', 'meta/acknowledgments'],
-            },
-          ],
-        },
+        sidebarDepth: 1,
+        sidebar: [
+          {
+            text: 'Getting Started',
+            children: [
+              {text: 'Welcome', link: '/docs/'},
+              {text: 'Overview', link: '/docs/overview/'},
+              {text: 'Quick Start', link: '/docs/quickstart/'},
+              {text: 'Installation', link: '/docs/installation/'},
+              {text: 'Web Console', link: '/docs/web-console/'},
+              // "getting-started/whats-new",
+            ],
+          },
+          {
+            text: 'Configuration',
+            children: [
+              {text: 'Configuration Overview', link: '/docs/config-overview/'},
+              {text: 'Database', link: '/docs/config-database/'},
+              {text: 'Admin IP List', link: '/docs/config-adminIpList/'},
+              {
+                text: 'Reverse Proxy IP Lists',
+                link: '/docs/config-reverseProxyIpLists/',
+              },
+              {
+                text: 'HTTP Host',
+                link: '/docs/config-httpHost/',
+              },
+              {
+                text: 'Internal HTTP Host',
+                link: '/docs/config-internalHttpHost/',
+              },
+              {
+                text: 'Email',
+                link: '/docs/config-email/',
+              },
+              {
+                text: 'SMS',
+                link: '/docs/config-sms/',
+              },
+              {
+                text: 'Subscription',
+                link: '/docs/config-subscription/',
+              },
+              {
+                text: 'Notification',
+                link: '/docs/config-notification/',
+              },
+              {
+                text: 'Node Roles',
+                link: '/docs/config-nodeRoles/',
+              },
+              {
+                text: 'Cron Jobs',
+                link: '/docs/config-cronJobs/',
+              },
+              {
+                text: 'RSA Keys',
+                link: '/docs/config-rsaKeys/',
+              },
+              {
+                text: 'Worker Process Count',
+                link: '/docs/config-workerProcessCount/',
+              },
+              {
+                text: 'Middleware',
+                link: '/docs/config-middleware/',
+              },
+              {
+                text: 'OIDC',
+                link: '/docs/config-oidc/',
+              },
+              {
+                text: 'TLS Certificates',
+                link: '/docs/config-certificates/',
+              },
+            ],
+          },
+          {
+            text: 'API',
+            collapsed: false,
+            children: [
+              {
+                text: 'API Overview',
+                link: '/docs/api-overview/',
+              },
+              {
+                text: 'Subscription',
+                link: '/docs/api-subscription/',
+              },
+              {
+                text: 'Notification',
+                link: '/docs/api-notification/',
+              },
+              {
+                text: 'Configuration',
+                link: '/docs/api-config/',
+              },
+              {
+                text: 'Administrator',
+                link: '/docs/api-administrator/',
+              },
+              {
+                text: 'Bounce',
+                link: '/docs/api-bounce/',
+              },
+            ],
+          },
+          {
+            text: 'Miscellaneous',
+            children: [
+              {
+                text: 'Benchmarks',
+                link: '/docs/benchmarks/',
+              },
+              {
+                text: 'Developer Notes',
+                link: '/docs/developer-notes/',
+              },
+              {
+                text: 'Upgrade Guide',
+                link: '/docs/upgrade/',
+              },
+            ],
+          },
+          {
+            text: 'Meta',
+            children: [
+              {
+                text: 'Code of Conduct',
+                link: '/docs/conduct/',
+              },
+              {
+                text: 'Acknowledgments',
+                link: '/docs/acknowledgments/',
+              },
+            ],
+          },
+        ],
         algolia: {
           apiKey: process.env.ALGOLIA_API_Key,
           indexName: 'notifybc',
