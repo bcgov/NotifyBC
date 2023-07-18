@@ -91,6 +91,7 @@
 
   csv({
     colParser: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       'confirmationRequest.sendRequest': (
         item: string,
         head: any,

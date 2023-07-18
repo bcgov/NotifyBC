@@ -27,7 +27,6 @@ import {Base} from './base.model';
         keys: {name: 1, serviceName: 1},
         options: {unique: true},
       },
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       '$**_text': {keys: {'$**': 'text'}},
     },
   },

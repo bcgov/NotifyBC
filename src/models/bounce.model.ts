@@ -27,7 +27,6 @@ import {BounceMessageItem} from './bounce-message-item.model';
       state_channel_userChannelId: {
         keys: {state: 1, channel: 1, userChannelId: 1},
       },
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       '$**_text': {keys: {'$**': 'text'}},
     },
   },

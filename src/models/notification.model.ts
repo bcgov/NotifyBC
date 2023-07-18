@@ -21,7 +21,6 @@ import {Base} from '.';
     strict: false,
     validateUpsert: true,
     idInjection: true,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     indexes: {'$**_text': {keys: {'$**': 'text'}}},
     hidden: [],
   },

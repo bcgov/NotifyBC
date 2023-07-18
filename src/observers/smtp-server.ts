@@ -235,7 +235,7 @@ module.exports.app = function (...argsArr: any[]) {
                 if (
                   incrementBounceCnt &&
                   bounceSubjectRegex &&
-                  (!parsed.subject || !parsed.subject.match(bounceSubjectRegex))
+                  !parsed.subject?.match(bounceSubjectRegex)
                 ) {
                   console.info(`subject doesn't match filter`);
                   incrementBounceCnt = false;
@@ -258,7 +258,7 @@ module.exports.app = function (...argsArr: any[]) {
                 }
                 if (
                   incrementBounceCnt &&
-                  (!smtpBody || !smtpBody.match(bounceSmtpStatusCodeRegex))
+                  !smtpBody?.match(bounceSmtpStatusCodeRegex)
                 ) {
                   console.info(`smtp status code doesn't match filter`);
                   incrementBounceCnt = false;
