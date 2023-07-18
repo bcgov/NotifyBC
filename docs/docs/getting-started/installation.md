@@ -30,12 +30,12 @@ installing from source code is preferred.
   - MongoDB, optional but recommended for production
   - A standard SMTP server to deliver outgoing email, optional but recommended for production.
   - A tcp proxy server such as [nginx stream proxy](http://nginx.org/en/docs/stream/ngx_stream_proxy_module.html) if list-unsubscribe by email is needed and _NotifyBC_ server cannot expose port 25 to internet
-  - A SMS service provider account if needs to enable SMS channel. The supported service providers are
+  - A SMS service provider if needs to enable SMS channel. The supported service providers are
     - Twilio (default)
     - Swift
   - Redis, optional but recommended if SMS is enabled
-  - SiteMinder, if need to allow SiteMinder authenticated user request
-  - OIDC provide, if need to allow OIDC authenticated user request
+  - SiteMinder, if needs SiteMinder authentication
+  - An OIDC provider, if needs OIDC authentication
 - Network and Permissions
   - Minimum runtime firewall requirements:
     - outbound to your ISP DNS server
