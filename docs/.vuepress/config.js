@@ -54,13 +54,7 @@ export default defineUserConfig({
       apiKey: process.env.ALGOLIA_API_KEY,
       appId: process.env.ALGOLIA_APP_ID,
       indexName: 'notifybc',
-      indexBase: '/NotifyBC/preview/',
-      // transformItems: items => {
-      //   return items.map(item => ({
-      //     ...item,
-      //     content: item.content.toUpperCase(),
-      //   }));
-      // },
+      indexBase: '/NotifyBC/',
     }),
     codeCopyPlugin(),
   ],
