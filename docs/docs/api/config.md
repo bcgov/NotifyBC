@@ -128,7 +128,7 @@ POST /configurations
 
 * example
 
-  see the cURL command on how to create a [Subscription Confirmation Request Template](../configuration/#subscription-confirmation-request-template)
+  see the cURL command on how to create a [dynamic subscription config](../config-subscription#subscription-confirmation-request-template)
 
 ## Update a Configuration
 

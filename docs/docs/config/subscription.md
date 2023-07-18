@@ -16,7 +16,7 @@ module.exports = {
 }
 ```
 
-to create a service-specific dynamic config, use REST [config api](../api-config/)
+<a id="subscription-confirmation-request-template"/> to create a service-specific dynamic subscription config, use REST [config api](../api-config/)
 
 ```sh
 curl -X POST http://localhost:3000/api/configurations \

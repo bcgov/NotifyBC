@@ -563,4 +563,4 @@ This API is intended to be only used by admin web console to modify a notificati
     - data type: object
 - outcome
 
-  _NotifyBC_ process the request same way as [Create/Send Notifications](#createsend-notifications) except that notification data is saved with _id_ supplied in the parameter, replacing existing one.
+  _NotifyBC_ process the request same way as [Create/Send Notifications](#create-send-notifications) except that notification data is saved with _id_ supplied in the parameter, replacing existing one.
