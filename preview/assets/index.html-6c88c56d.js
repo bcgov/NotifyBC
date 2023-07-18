@@ -1,0 +1,5 @@
+const data = JSON.parse('{"key":"v-255f131a","path":"/docs/installation/","title":"Installation","lang":"en-US","frontmatter":{"permalink":"/docs/installation/"},"headers":[{"level":2,"title":"Deploy locally from Source Code","slug":"deploy-locally-from-source-code","link":"#deploy-locally-from-source-code","children":[{"level":3,"title":"System Requirements","slug":"system-requirements","link":"#system-requirements","children":[]},{"level":3,"title":"Installation","slug":"installation-1","link":"#installation-1","children":[]}]},{"level":2,"title":"Deploy to Kubernetes","slug":"deploy-to-kubernetes","link":"#deploy-to-kubernetes","children":[{"level":3,"title":"Customizations","slug":"customizations","link":"#customizations","children":[]}]},{"level":2,"title":"Deploy Docker Container","slug":"deploy-docker-container","link":"#deploy-docker-container","children":[]}],"git":{},"filePathRelative":"docs/getting-started/installation.md"}');
+export {
+  data
+};
+//# sourceMappingURL=index.html-6c88c56d.js.map

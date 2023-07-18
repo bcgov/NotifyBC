@@ -1,0 +1,5 @@
+const data = JSON.parse('{"key":"v-6768263b","path":"/docs/overview/","title":"Overview","lang":"en-US","frontmatter":{"permalink":"/docs/overview/"},"headers":[{"level":2,"title":"Features","slug":"features","link":"#features","children":[{"level":3,"title":"notification","slug":"notification","link":"#notification","children":[]},{"level":3,"title":"subscription and un-subscription","slug":"subscription-and-un-subscription","link":"#subscription-and-un-subscription","children":[]},{"level":3,"title":"mail merge","slug":"mail-merge","link":"#mail-merge","children":[]}]},{"level":2,"title":"Architecture","slug":"architecture","link":"#architecture","children":[{"level":3,"title":"Request Types","slug":"request-types","link":"#request-types","children":[]},{"level":3,"title":"Authentication Strategies","slug":"authentication-strategies","link":"#authentication-strategies","children":[]}]},{"level":2,"title":"Application Framework","slug":"application-framework","link":"#application-framework","children":[]}],"git":{},"filePathRelative":"docs/getting-started/overview.md"}');
+export {
+  data
+};
+//# sourceMappingURL=index.html-f303c389.js.map
