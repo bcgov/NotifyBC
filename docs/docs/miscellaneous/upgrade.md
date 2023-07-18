@@ -1,5 +1,6 @@
 ---
 permalink: /docs/upgrade/
+next: /docs/conduct/
 ---
 
 # Upgrade Guide

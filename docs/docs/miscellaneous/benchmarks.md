@@ -1,5 +1,6 @@
 ---
 permalink: /docs/benchmarks/
+prev: /docs/api-bounce/
 ---
 
 # Benchmarks
@@ -70,7 +71,7 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
        broadcastCustomFilterFunctions: {
          /*jshint camelcase: false */
          contains_ci: {
-           _func: function(resolvedArgs) {
+           _func: function (resolvedArgs) {
              if (!resolvedArgs[0] || !resolvedArgs[1]) {
                return false;
              }
