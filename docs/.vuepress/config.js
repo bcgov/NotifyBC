@@ -6,8 +6,9 @@ import codeCopyPlugin from '@snippetors/vuepress-plugin-code-copy';
 
 const __dirname = getDirname(import.meta.url);
 
+const base = `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`;
 export default defineUserConfig({
-  base: `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`,
+  base,
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
    */
@@ -26,7 +27,7 @@ export default defineUserConfig({
     ['meta', {name: 'theme-color', content: '#3eaf7c'}],
     ['meta', {name: 'apple-mobile-web-app-capable', content: 'yes'}],
     ['meta', {name: 'apple-mobile-web-app-status-bar-style', content: 'black'}],
-    ['link', {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}],
+    ['link', {rel: 'icon', type: 'image/x-icon', href: `${base}favicon.ico`}],
     [
       'link',
       {
