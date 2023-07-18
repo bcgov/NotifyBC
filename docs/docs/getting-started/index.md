@@ -26,7 +26,7 @@ Be aware of these messages if you wish to avoid disaster.
 
 If you come across anything along the way that we haven’t covered, or if you
 know of a tip you think others would find handy, please <a target="_blank" rel="noopener noreferrer" :href="themeData.repo+'/issues/new'">file an
-issue</a> and we’ll see about
+issue<ExternalLinkIcon /></a> and we’ll see about
 including it in this guide.
 
 <script setup>
