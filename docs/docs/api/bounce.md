@@ -1,5 +1,6 @@
 ---
 permalink: /docs/api-bounce/
+next: /docs/benchmarks/
 ---
 
 # Bounce

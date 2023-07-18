@@ -1,5 +1,6 @@
 ---
 permalink: /docs/api-overview/
+prev: /docs/config-certificates/
 ---
 
 # API Overview

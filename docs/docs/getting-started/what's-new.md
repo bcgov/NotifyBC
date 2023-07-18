@@ -1,5 +1,6 @@
 ---
 permalink: /docs/what's-new/
+next: /docs/config-overview/
 ---
 
 # What's New

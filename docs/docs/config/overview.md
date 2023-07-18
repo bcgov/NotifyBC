@@ -1,5 +1,6 @@
 ---
 permalink: /docs/config-overview/
+prev: /docs/what's-new/
 ---
 
 # Configuration Overview

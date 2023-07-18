@@ -1,6 +1,7 @@
 ---
-permalink: '/docs/conduct/'
+permalink: /docs/conduct/
 editable: false
+prev: /docs/upgrade/
 ---
 
 # Code of Conduct
