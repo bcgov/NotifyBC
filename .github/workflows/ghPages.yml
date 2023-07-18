@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - node-18
   release:
     types:
       - published
