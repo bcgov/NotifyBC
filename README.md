@@ -2,7 +2,7 @@
 
 # NotifyBC
 
-A general purpose notification subscription API Server supporting multi-channel delivery. See **[full documentation](https://bcgov.github.io/NotifyBC/)**.
+A versatile notification API server. See **[full documentation](https://bcgov.github.io/NotifyBC/)**.
 
 ## License
 
