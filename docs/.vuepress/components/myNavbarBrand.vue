@@ -44,10 +44,24 @@ const NavbarBrandLogo: FunctionalComponent = () => {
 </script>
 
 <template>
-  <div>
+  <div class="nb-navbar-brand">
     <RouterLink :to="navbarBrandLink">
       <NavbarBrandLogo />
     </RouterLink>
     <Versions />
   </div>
 </template>
+
+<style>
+@media only screen and (max-width: 400px) {
+  .nb-navbar-brand .logo {
+    width: 70px;
+  }
+  .nb-navbar-brand span {
+    font-size: 0.8em;
+  }
+  .navbar .navbar-items-wrapper {
+    padding-left: 0 !important;
+  }
+}
+</style>
