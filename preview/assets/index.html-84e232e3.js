@@ -1,1 +1,0 @@
-const t=JSON.parse('{"key":"v-3cf0fa66","path":"/docs/conduct/","title":"Code of Conduct","lang":"en-US","frontmatter":{"permalink":"/docs/conduct/","editable":false},"headers":[],"git":{},"filePathRelative":"docs/meta/conduct.md"}');export{t as data};
