@@ -137,6 +137,7 @@ export default defineUserConfig({
         text: 'Miscellaneous',
         children: [
           '/docs/benchmarks/',
+          '/docs/bulk-import/',
           '/docs/developer-notes/',
           '/docs/upgrade/',
         ],
