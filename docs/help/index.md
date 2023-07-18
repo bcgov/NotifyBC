@@ -2,7 +2,7 @@
 
 Need help with NotifyBC? Try these resources.
 
-### [Documentation](/docs/)
+### [Documentation](../docs/)
 
 Our guide to NotifyBC covering installation, writing, customization, deployment, and more.
 
