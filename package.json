@@ -66,6 +66,7 @@
     "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
     "bottleneck": "^2.19.5",
+    "commander": "^11.0.0",
     "compression": "^1.0.3",
     "cors": "^2.5.2",
     "cron": "^1.2.1",
