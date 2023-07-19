@@ -28,6 +28,15 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "script",
+      "runtimeExecutable": "ts-node",
+      "cwd": "${workspaceFolder}/src/utils/bulk-import",
+      "args": ["subscription.ts", "-c", "1", "sample-subscription.csv"],
+      "outputCapture": "std"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Test",
       "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
       "args": ["--timeout", "999999", "dist/__tests__/"],

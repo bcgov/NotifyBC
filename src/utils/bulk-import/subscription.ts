@@ -12,56 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Command} from 'commander';
 (function () {
   const request = require('axios');
   const csv = require('csvtojson');
   const queue = require('async/queue');
-  const getOpt = require('node-getopt')
-    .create([
-      [
-        'a',
-        'api-url-prefix=<string>',
-        'api url prefix. default to http://localhost:3000/api',
-      ],
-      [
-        'c',
-        'concurrency=<int>',
-        'post request concurrency. positive integer. default to 10',
-      ],
-      ['h', 'help', 'display this help'],
-    ])
-    .bindHelp(
-      'Usage: node ' +
-        process.argv[1] +
-        ' [Options] <csv-file-path>\n[Options]:\n[[OPTIONS]]',
-    );
-  const args = getOpt.parseSystem();
-  if (args.argv.length !== 1) {
-    console.error('invalid arguments');
-    getOpt.showHelp();
-    process.exit(1);
-  }
+  const program = new Command();
+  program
+    .name(`node ${process.argv[1]}`)
+    .argument('<string>', 'csv file path')
+    .option(
+      '-a, --api-url-prefix <string>',
+      'api url prefix',
+      'http://127.0.0.1:3000/api',
+    )
+    .option(
+      '-c, --concurrency <int>',
+      'post request concurrency. positive integer.',
+      '10',
+    )
+    .showHelpAfterError();
+  program.parse();
+  const opts = program.opts();
+
   if (
-    args.options.concurrency &&
-    (isNaN(parseInt(args.options.concurrency)) ||
-      parseInt(args.options.concurrency) <= 0)
+    opts.concurrency &&
+    (isNaN(parseInt(opts.concurrency)) || parseInt(opts.concurrency) <= 0)
   ) {
-    console.error('invalid option concurrency');
-    getOpt.showHelp();
-    process.exit(1);
+    console.log('Error: invalid concurrency');
+    program.help();
   }
 
   let done = false,
     successCnt = 0;
+
   const q = queue(function (
     task: {jsonObj: any; rowIdx: string},
     cb: Function,
   ) {
     const options = {
       method: 'post',
-      url:
-        (args.options['api-url-prefix'] || 'http://localhost:3000/api') +
-        '/subscriptions',
+      url: opts.apiUrlPrefix + '/subscriptions',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -69,9 +60,9 @@
     };
     request
       .request(options)
-      .then((data: {statusCode: number}) => {
-        if (data.statusCode !== 200) {
-          throw data.statusCode;
+      .then((data: {status: number}) => {
+        if (data.status !== 200) {
+          throw data.status;
         }
         successCnt++;
         cb();
@@ -81,13 +72,13 @@
         cb(err);
       });
   },
-  parseInt(args.options.concurrency) || 10);
-  q.drain = function () {
+  parseInt(opts.concurrency));
+  q.drain(function () {
     if (done) {
       console.log('success row count = ' + successCnt);
       process.exit(0);
     }
-  };
+  });
 
   csv({
     colParser: {
@@ -107,7 +98,7 @@
       },
     },
   })
-    .fromFile(args.argv[0])
+    .fromFile(program.args[0])
     .on('json', (jsonObj: any, rowIdx: any) => {
       q.push({
         jsonObj: jsonObj,
