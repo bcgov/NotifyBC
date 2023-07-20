@@ -14,7 +14,6 @@
 
 import {Command} from 'commander';
 (function () {
-  const request = require('axios');
   const csv = require('csvtojson');
   const queue = require('async/queue');
   const program = new Command();
