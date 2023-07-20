@@ -30,8 +30,8 @@
       "request": "launch",
       "name": "script",
       "runtimeExecutable": "ts-node",
-      "cwd": "${workspaceFolder}/src/observers",
-      "args": ["smtp-server.ts", "-b"],
+      "cwd": "${workspaceFolder}/src/utils/bulk-import",
+      "args": ["subscription.ts", "sample-subscription.csv"],
       "outputCapture": "std"
     },
     {
