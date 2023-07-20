@@ -30,8 +30,8 @@
       "request": "launch",
       "name": "script",
       "runtimeExecutable": "ts-node",
-      "cwd": "${workspaceFolder}/src/utils/bulk-import",
-      "args": ["subscription.ts", "sample-subscription.csv"],
+      "cwd": "${workspaceFolder}/src/utils/load-testing",
+      "args": ["bulk-post-subs.ts", "-n", "10", "foo@bar.com"],
       "outputCapture": "std"
     },
     {

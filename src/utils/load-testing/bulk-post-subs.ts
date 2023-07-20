@@ -14,7 +14,6 @@
 
 import {Command} from 'commander';
 (function () {
-  const axios = require('axios');
   const queue = require('async/queue');
   const program = new Command();
   program
@@ -50,11 +49,10 @@ import {Command} from 'commander';
   const q = queue(function (index: any, cb: () => void) {
     const options = {
       method: 'post',
-      url: apiUrlPrefix + '/subscriptions',
       headers: {
         'Content-Type': 'application/json',
       },
-      data: {
+      body: JSON.stringify({
         serviceName: serviceName,
         channel: channel,
         state: 'confirmed',
@@ -64,12 +62,12 @@ import {Command} from 'commander';
         },
         userChannelId: userChannelId,
         broadcastPushNotificationFilter: broadcastPushNotificationFilter,
-      },
+      }),
     };
-    axios
-      .request(options)
-      .then((data: {data: {index: any}}) => {
-        console.log(data.data.index);
+    fetch(apiUrlPrefix + '/subscriptions', options)
+      .then(response => response.json())
+      .then((data: {index: any}) => {
+        console.log(data.index);
         successCnt++;
         cb();
       })
