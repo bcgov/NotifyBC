@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyObject, Filter} from '@loopback/repository';
+import {Command} from 'commander';
 
 let server: any;
 module.exports.request = require('axios');
@@ -90,78 +91,68 @@ module.exports.app = function (...argsArr: any[]) {
       }
     }
     if (require.main === module) {
-      const getOpt = require('node-getopt')
-        .create([
-          [
-            'a',
-            'api-url-prefix=<string>',
-            'NotifyBC api url prefix; default to http://localhost:3000/api',
-          ],
-          [
-            'd',
-            'allowed-smtp-domains=<string>+',
-            'allowed recipient email domains; if missing all are allowed; repeat the option to create multiple entries.',
-          ],
-          [
-            'p',
-            'listening-smtp-port=<integer>',
-            'if missing a random free port is chosen. Proxy is required if port is not 25.',
-          ],
-          [
-            'b',
-            'handle-bounce=<true|false>',
-            'whether to enable bounce handling or not.',
-          ],
-          [
-            'B',
-            'bounce-unsubscribe-threshold=<integer>',
-            'bounce count threshold above which unsubscribe all.',
-          ],
-          ['s', 'bounce-subject-regex=<string>', 'bounce email subject regex'],
-          [
-            'r',
-            'bounce-smtp-status-code-regex=<string>',
-            'bounce smtp status code regex',
-          ],
-          [
-            'R',
-            'bounce-failed-recipient-regex=<string>',
-            'bounce failed recipient regex',
-          ],
-          ['o', 'smtp-server-options', 'stringified json smtp server options'],
-          ['h', 'help', 'display this help'],
-        ])
-        .bindHelp(
-          'Usage: node ' +
-            process.argv[1] +
-            ' [Options]\n[Options]:\n[[OPTIONS]]',
+      const program = new Command();
+      program
+        .name(`node ${process.argv[1]}`)
+        .showHelpAfterError()
+        .option(
+          '-a, --api-url-prefix <string>',
+          'NotifyBC api url prefix',
+          'http://localhost:3000/api',
+        )
+        .option(
+          '-d, --allowed-smtp-domains <strings...>',
+          'allowed recipient email domains; if missing all are allowed; repeat the option to create multiple entries.',
+        )
+        .option(
+          '-p, --listening-smtp-port <integer>',
+          'if missing a random free port is chosen. Proxy is required if port is not 25.',
+        )
+        .option('-b, --handle-bounce', 'enable bounce handling.')
+        .option(
+          '-B, --bounce-unsubscribe-threshold <integer>',
+          'bounce count threshold above which unsubscribe all.',
+        )
+        .option(
+          '-s, --bounce-subject-regex <string>',
+          'bounce email subject regex',
+        )
+        .option(
+          '-r, --bounce-smtp-status-code-regex <string>',
+          'bounce smtp status code regex',
+        )
+        .option(
+          '-R, --bounce-failed-recipient-regex <string>',
+          'bounce failed recipient regex',
+        )
+        .option(
+          '-o, --smtp-server-options <string>',
+          'stringified json smtp server options',
         );
-      const args = getOpt.parseSystem();
-      args.options['api-url-prefix'] &&
-        (urlPrefix = args.options['api-url-prefix']);
-      args.options['listening-smtp-port'] &&
-        (port = args.options['listening-smtp-port']);
-      args.options['allowed-smtp-domains'] &&
-        (allowedSmtpDomains = args.options['allowed-smtp-domains'].map(
-          (e: string) => e.toLowerCase(),
+
+      program.parse();
+      const opts = program.opts();
+      opts['apiUrlPrefix'] && (urlPrefix = opts['apiUrlPrefix']);
+      opts['listeningSmtpPort'] && (port = opts['listeningSmtpPort']);
+      opts['allowedSmtpDomains'] &&
+        (allowedSmtpDomains = opts['allowedSmtpDomains'].map((e: string) =>
+          e.toLowerCase(),
         ));
-      args.options['bounce-unsubscribe-threshold'] &&
-        (bounceUnsubThreshold = parseInt(
-          args.options['bounce-unsubscribe-threshold'],
-        ));
-      args.options['smtp-server-options'] &&
-        (smtpOpts = JSON.parse(args.options['smtp-server-options']));
-      args.options['handle-bounce'] &&
-        (handleBounce = args.options['handle-bounce'] === 'true');
-      args.options['bounce-subject-regex'] &&
-        (bounceSubjectRegex = new RegExp(args.options['bounce-subject-regex']));
-      args.options['bounce-smtp-status-code-regex'] &&
+      opts['bounceUnsubscribeThreshold'] &&
+        (bounceUnsubThreshold = parseInt(opts['bounceUnsubscribeThreshold']));
+      opts['smtpServerOptions'] &&
+        (smtpOpts = JSON.parse(opts['smtpServerOptions']));
+      opts['handleBounce'] !== undefined &&
+        (handleBounce = opts['handleBounce']);
+      opts['bounceSubjectRegex'] &&
+        (bounceSubjectRegex = new RegExp(opts['bounceSubjectRegex']));
+      opts['bounceSmtpStatusCodeRegex'] &&
         (bounceSmtpStatusCodeRegex = new RegExp(
-          args.options['bounce-smtp-status-code-regex'],
+          opts['bounceSmtpStatusCodeRegex'],
         ));
-      args.options['bounce-failed-recipient-regex'] &&
+      opts['bounceFailedRecipientRegex'] &&
         (bounceFailedRecipientRegex = new RegExp(
-          args.options['bounce-failed-recipient-regex'],
+          opts['bounceFailedRecipientRegex'],
         ));
     }
     const SMTPServer = require('smtp-server').SMTPServer;
