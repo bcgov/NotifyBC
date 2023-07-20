@@ -52,14 +52,12 @@ import {Command} from 'commander';
   ) {
     const options = {
       method: 'post',
-      url: opts.apiUrlPrefix + '/subscriptions',
       headers: {
         'Content-Type': 'application/json',
       },
-      data: task.jsonObj,
+      body: JSON.stringify(task.jsonObj),
     };
-    request
-      .request(options)
+    fetch(opts.apiUrlPrefix + '/subscriptions', options)
       .then((data: {status: number}) => {
         if (data.status !== 200) {
           throw data.status;
