@@ -38,7 +38,6 @@ import {
   put,
   requestBody,
 } from '@loopback/rest';
-import request from 'axios';
 import _ from 'lodash';
 import {promisify} from 'util';
 import {ApplicationConfig} from '..';
@@ -50,7 +49,6 @@ import {
   SubscriptionRepository,
 } from '../repositories';
 import {BaseController} from './base.controller';
-export {request};
 const jmespath = require('jmespath');
 const queue = require('async/queue');
 const wait = promisify(setTimeout);
@@ -779,16 +777,14 @@ export class NotificationController extends BaseController {
               );
               if (typeof data.asyncBroadcastPushNotification === 'string') {
                 const options = {
+                  method: 'POST',
+                  body: JSON.stringify(data),
                   headers: {
                     'Content-Type': 'application/json',
                   },
                 };
                 try {
-                  await request.post(
-                    data.asyncBroadcastPushNotification,
-                    data,
-                    options,
-                  );
+                  await fetch(data.asyncBroadcastPushNotification, options);
                 } catch (ex) {}
               }
             }
@@ -854,9 +850,13 @@ export class NotificationController extends BaseController {
                 data.id +
                 '/broadcastToChunkSubscribers?start=' +
                 task.startIdx;
-              const response = await request.get(uri);
+              const response = await fetch(uri);
               if (response.status < 300) {
-                return response.data;
+                try {
+                  return await response.json();
+                } catch (ex) {
+                  return response.body;
+                }
               }
               throw HttpErrors(response.status);
             }, broadcastSubRequestBatchSize);

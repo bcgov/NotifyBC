@@ -42,7 +42,8 @@
       "args": ["--timeout", "999999", "dist/__tests__/"],
       "autoAttachChildProcesses": true,
       "console": "internalConsole",
-      "preLaunchTask": "Compile Project"
+      "preLaunchTask": "Compile Project",
+      "outputCapture": "std"
     },
 
     {
