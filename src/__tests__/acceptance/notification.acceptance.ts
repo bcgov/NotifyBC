@@ -19,10 +19,7 @@ import _ from 'lodash';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {BaseController} from '../../controllers/base.controller';
-import {
-  NotificationController,
-  request,
-} from '../../controllers/notification.controller';
+import {NotificationController} from '../../controllers/notification.controller';
 import {
   BounceRepository,
   NotificationRepository,
@@ -520,7 +517,6 @@ describe('POST /notifications', function () {
     });
     expect(data.length).equal(1);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
-    (fetch as sinon.SinonStub).restore();
   });
 
   it('should handle sms broadcast push notification failures', async function () {
@@ -551,7 +547,6 @@ describe('POST /notifications', function () {
     expect(data?.[0]?.dispatch?.failed?.[0]?.error?.message).equal(
       'Too Many Requests',
     );
-    (fetch as sinon.SinonStub).restore();
   });
 
   it('should not send future-dated notification', async function () {
@@ -687,7 +682,7 @@ describe('POST /notifications', function () {
           console.log('faking delayed sendEmail');
           await wait(1000);
         });
-      sinon.spy(request, 'post');
+      sinon.spy(global, 'fetch');
 
       const res = await client
         .post('/api/notifications')
@@ -722,9 +717,8 @@ describe('POST /notifications', function () {
       expect(data.length).equal(1);
       expect(data[0].state).equal('sent');
       expect(
-        (request.post as sinon.SinonStub).calledWith(
+        (fetch as sinon.SinonStub).calledWith(
           'http://foo.com',
-          sinon.match.object,
           sinon.match.object,
         ),
       ).true();
@@ -779,7 +773,7 @@ describe('POST /notifications', function () {
         },
       }),
     );
-    sinon.spy(request, 'post');
+    sinon.spy(global, 'fetch');
     (BaseController.prototype.sendEmail as sinon.SinonStub).restore();
     sinon
       .stub(BaseController.prototype, 'sendEmail')
@@ -826,9 +820,8 @@ describe('POST /notifications', function () {
     expect(data.length).equal(1);
     expect(data[0].state).equal('sent');
     expect(
-      (request.post as sinon.SinonStub).calledWith(
+      (fetch as sinon.SinonStub).calledWith(
         'http://foo.com',
-        sinon.match.object,
         sinon.match.object,
       ),
     ).true();
@@ -900,7 +893,7 @@ describe('POST /notifications', function () {
           },
         }),
       );
-      const reqStub = sinon.stub(request, 'get');
+      const reqStub = sinon.stub(global, 'fetch');
       reqStub.callThrough();
       reqStub.onFirstCall().throws({error: 'connection error'});
       const res = await client
@@ -1314,9 +1307,7 @@ describe('POST /notifications', function () {
           },
         }),
       );
-      sinon.stub(request, 'get').callsFake(async function () {
-        throw new Error('error');
-      });
+      sinon.stub(global, 'fetch').throws({});
 
       const res = await client
         .post('/api/notifications')
