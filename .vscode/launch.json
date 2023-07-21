@@ -31,7 +31,7 @@
       "name": "script",
       "runtimeExecutable": "ts-node",
       "cwd": "${workspaceFolder}/src/utils/load-testing",
-      "args": ["bulk-post-subs.ts", "-n", "10", "foo@bar.com"],
+      "args": ["post-notification.ts", "http://127.0.0.1:3000/api"],
       "outputCapture": "std"
     },
     {

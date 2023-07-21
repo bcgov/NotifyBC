@@ -13,18 +13,16 @@
 // limitations under the License.
 
 (function () {
-  const request = require('axios');
   if (process.argv.length < 2) {
     process.exit(1);
   }
 
   const options = {
     method: 'post',
-    url: process.argv[2] + '/notifications',
     headers: {
       'Content-Type': 'application/json',
     },
-    data: {
+    body: JSON.stringify({
       serviceName: process.argv[3] || 'load10',
       message: {
         from: process.argv[4] || 'no_reply@invlid.local',
@@ -43,13 +41,12 @@
         link: 'http://foo.com',
         guid: '12356',
       },
-    },
+    }),
   };
-  request
-    .request(options)
-    .then((response: {statusCode: string; data: any}) => {
-      console.log('response.statusCode=' + response.statusCode);
-      console.log(response.data);
+  fetch(process.argv[2] + '/notifications', options)
+    .then(async (response: Response) => {
+      console.log('response.statusCode=' + response.status);
+      console.log(await response.json());
       process.exit(0);
     })
     .catch((err: any) => {
