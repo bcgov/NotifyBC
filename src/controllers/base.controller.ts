@@ -16,7 +16,6 @@ import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/context';
 import {ApplicationConfig, CoreBindings} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import axios from 'axios';
 import Bottleneck from 'bottleneck';
 import dns from 'dns';
 import _ from 'lodash';
@@ -73,11 +72,13 @@ export class BaseController {
         if (subscription?.id) {
           body.Reference = subscription.id;
         }
-        let req: any = axios.post;
+        let req: any = fetch;
         if (BaseController.smsLimiter) {
           req = BaseController.smsLimiter.wrap(req);
         }
-        return req(url, body, {
+        return req(url, {
+          method: 'POST',
+          body: JSON.stringify(body),
           headers: {
             'Content-Type': 'application/json;charset=UTF-8',
           },
@@ -392,5 +393,3 @@ export class BaseController {
     return res;
   }
 }
-
-export {axios};
