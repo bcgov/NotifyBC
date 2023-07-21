@@ -20,7 +20,6 @@ import {
   LifeCycleObserver,
 } from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
-import axios from 'axios';
 
 /**
  * This class will be bound to the application as a `LifeCycleObserver` during
@@ -52,16 +51,16 @@ export class OidcDiscoveryObserver implements LifeCycleObserver {
       return;
     }
     try {
-      let res = await axios.get(this.appConfig.oidc?.discoveryUrl);
-      if (!res.data) {
+      let res = await (await fetch(this.appConfig.oidc?.discoveryUrl)).json();
+      if (!res) {
         throw new Error('no discovery data');
       }
-      OidcDiscoveryObserver.authorizationUrl = res.data.authorization_endpoint;
-      res = await axios.get(res.data.jwks_uri);
-      if (!res.data) {
+      OidcDiscoveryObserver.authorizationUrl = res.authorization_endpoint;
+      res = await (await fetch(res.jwks_uri)).json();
+      if (!res) {
         throw new Error('no cert data');
       }
-      OidcDiscoveryObserver.certs = res.data;
+      OidcDiscoveryObserver.certs = res;
     } catch (ex) {
       console.error(new Error(ex));
       this.retryCount++;
