@@ -492,7 +492,7 @@ describe('POST /notifications', function () {
       }),
     );
     (BaseController.prototype.sendSMS as sinon.SinonStub).restore();
-    sinon.stub(request, 'post').resolves(null);
+    sinon.stub(global, 'fetch').resolves(new Response());
     const res = await client
       .post('/api/notifications')
       .send({
@@ -509,9 +509,9 @@ describe('POST /notifications', function () {
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
     await wait(1000);
-    sinon.assert.calledOnce(request.post as sinon.SinonStub);
+    sinon.assert.calledOnce(fetch as sinon.SinonStub);
     await wait(3000);
-    sinon.assert.calledTwice(request.post as sinon.SinonStub);
+    sinon.assert.calledTwice(fetch as sinon.SinonStub);
     const data = await notificationRepository.find({
       where: {
         serviceName: 'smsThrottle',
@@ -520,12 +520,13 @@ describe('POST /notifications', function () {
     });
     expect(data.length).equal(1);
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
+    (fetch as sinon.SinonStub).restore();
   });
 
   it('should handle sms broadcast push notification failures', async function () {
     sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     (BaseController.prototype.sendSMS as sinon.SinonStub).restore();
-    sinon.stub(request, 'post').throws(new HttpErrors[429]());
+    sinon.stub(global, 'fetch').throws(new HttpErrors[429]());
     const res = await client
       .post('/api/notifications')
       .send({
@@ -540,7 +541,7 @@ describe('POST /notifications', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).equal(200);
-    sinon.assert.calledOnce(request.post as sinon.SinonStub);
+    sinon.assert.calledOnce(fetch as sinon.SinonStub);
     const data = await notificationRepository.find({
       where: {
         serviceName: 'myService',
@@ -550,6 +551,7 @@ describe('POST /notifications', function () {
     expect(data?.[0]?.dispatch?.failed?.[0]?.error?.message).equal(
       'Too Many Requests',
     );
+    (fetch as sinon.SinonStub).restore();
   });
 
   it('should not send future-dated notification', async function () {

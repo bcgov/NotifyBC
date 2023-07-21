@@ -486,8 +486,8 @@ describe('Administrator API', function () {
 
   describe('GET /administrator/whoami', function () {
     it('should handle oidc authn', async function () {
-      sinon
-        .stub(global, 'fetch')
+      const fetchStub = sinon.stub(global, 'fetch');
+      fetchStub
         .withArgs('https://invalid.local/discoveryUrl')
         .resolves(
           new Response(
@@ -555,6 +555,7 @@ gFP0pwOGzVZKj8+wUBuBDwNuQnlo+FThxA9kO7v5VnAbLHiOzR02E0TOoggXtQPs
       expect(res.status).equal(200);
       expect(res.body.email).equal('foo@invalid.local');
       expect(res.body.authnStrategy).equal('oidc');
+      fetchStub.restore();
     });
   });
 });

@@ -18,7 +18,7 @@ import {Client, expect} from '@loopback/testlab';
 import _ from 'lodash';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
-import {axios, BaseController} from '../../controllers/base.controller';
+import {BaseController} from '../../controllers/base.controller';
 import {Subscription} from '../../models';
 import {
   ConfigurationRepository,
@@ -315,10 +315,10 @@ describe('POST /subscriptions', function () {
   it('should allow non-admin user create sms subscription using swift provider', async function () {
     (BaseController.prototype.sendSMS as sinon.SinonStub).restore();
     sinon.stub(BaseController.prototype, 'sendSMS').callThrough();
-    const axiosStub = sinon.stub(axios, 'post').callsFake(async () => {
-      return;
+    const fetchStub = sinon.stub(global, 'fetch');
+    fetchStub.callsFake(async () => {
+      return new Response();
     });
-
     const res = await client
       .post('/api/subscriptions')
       .send({
@@ -332,12 +332,13 @@ describe('POST /subscriptions', function () {
       BaseController.prototype.sendSMS as sinon.SinonStub,
     );
     sinon.assert.calledWith(
-      axiosStub,
+      fetchStub,
       'https://secure.smsgateway.ca/services/message.svc/123/12345',
     );
-    expect((axiosStub.getCall(0).args[1] as any)['MessageBody']).match(
-      /Enter \d{5} on screen/,
-    );
+    expect(
+      JSON.parse((fetchStub.getCall(0).args[1] as any).body)['MessageBody'],
+    ).match(/Enter \d{5} on screen/);
+    fetchStub.restore();
     const data = await subscriptionRepository.find({
       where: {
         serviceName: 'myService',
