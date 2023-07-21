@@ -14,7 +14,6 @@
 
 import {CoreBindings} from '@loopback/core';
 import {Client, expect} from '@loopback/testlab';
-import axios from 'axios';
 import {compare} from 'bcryptjs';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
@@ -488,25 +487,28 @@ describe('Administrator API', function () {
   describe('GET /administrator/whoami', function () {
     it('should handle oidc authn', async function () {
       sinon
-        .stub(axios, 'get')
+        .stub(global, 'fetch')
         .withArgs('https://invalid.local/discoveryUrl')
-        .resolves({
-          data: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            authorization_endpoint:
-              'https://invalid.local/authorization_endpoint',
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            jwks_uri: 'https://invalid.local/jwks_uri',
-          },
-        })
+        .resolves(
+          new Response(
+            JSON.stringify({
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              authorization_endpoint:
+                'https://invalid.local/authorization_endpoint',
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              jwks_uri: 'https://invalid.local/jwks_uri',
+            }),
+          ),
+        )
         .withArgs('https://invalid.local/jwks_uri')
-        .resolves({
-          data: {
-            keys: [
-              {kid: 'foo'},
-              {
-                kid: 'vBpvjTmhaRrkcdPFYK1qwhAi7Mv6os8msKIusqO5DhU',
-                x5c: `MIIFCTCCAvGgAwIBAgIUJyw3mWnc3+ho9tLQYxnLhrC5H/wwDQYJKoZIhvcNAQEL
+        .resolves(
+          new Response(
+            JSON.stringify({
+              keys: [
+                {kid: 'foo'},
+                {
+                  kid: 'vBpvjTmhaRrkcdPFYK1qwhAi7Mv6os8msKIusqO5DhU',
+                  x5c: `MIIFCTCCAvGgAwIBAgIUJyw3mWnc3+ho9tLQYxnLhrC5H/wwDQYJKoZIhvcNAQEL
 BQAwEzERMA8GA1UEAwwITm90aWZ5QkMwIBcNMjEwNDI1MjA1OTA4WhgPNDc1OTAz
 MjIyMDU5MDhaMBMxETAPBgNVBAMMCE5vdGlmeUJDMIICIjANBgkqhkiG9w0BAQEF
 AAOCAg8AMIICCgKCAgEAwQpkaBhSCSEe3sYJBrV/90BOhShGiqhYoOnjEd8MFle2
@@ -533,10 +535,11 @@ baiKfN0oY0EPEGEgj0Jhte5hlC/VtVrA0f2brb3Z9ifyeHMt0RLdxPeL83u1cq/W
 7cST0aBbix1o/AcZYjF5mGPhkBodkMg6QpQl46mvuR2h1LdSUBbVo62N0CpabpDM
 gFP0pwOGzVZKj8+wUBuBDwNuQnlo+FThxA9kO7v5VnAbLHiOzR02E0TOoggXtQPs
 1bYAvnIYqWSYBwYWq98QZqiGlZ+RfsIki4IpyIoufEcVHR7O7hdBrG5IMYR7`,
-              },
-            ],
-          },
-        });
+                },
+              ],
+            }),
+          ),
+        );
 
       const {client: thisClient} = await setupApplication({
         oidc: {
