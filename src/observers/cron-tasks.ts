@@ -24,12 +24,11 @@ import {
   RssRepository,
   SubscriptionRepository,
 } from '../repositories';
+import {Readable} from 'node:stream';
 
 const FeedParser = require('feedparser');
-const request = require('axios');
 const _ = require('lodash');
 
-module.exports.request = request;
 module.exports.Bottleneck = Bottleneck;
 module.exports.purgeData = async (app: Application) => {
   const cronConfig: AnyObject =
@@ -240,12 +239,14 @@ module.exports.dispatchLiveNotifications = function (app: Application) {
           '/notifications/' +
           livePushNotification.id;
         const options = {
+          method: 'PUT',
+          body: JSON.stringify(livePushNotification),
           headers: {
             'Content-Type': 'application/json',
           },
         };
         try {
-          return module.exports.request.put(url, livePushNotification, options);
+          return await fetch(url, options);
         } catch (ex: any) {
           console.error(new Error(ex.message));
         }
@@ -320,17 +321,6 @@ module.exports.checkRssConfigUpdates = async (
         const feedparser = new FeedParser({
           addmeta: false,
         });
-        const res = await module.exports.request({
-          method: 'get',
-          url: rssNtfctnConfigItem.value.rss.url,
-          responseType: 'stream',
-        });
-        if (res.status !== 200) {
-          const err = new Error('Bad status code');
-          console.error(err);
-        } else {
-          res.data.pipe(feedparser);
-        }
 
         feedparser.on('error', function (error: any) {
           // always handle errors
@@ -430,16 +420,14 @@ module.exports.checkRssConfigUpdates = async (
                 )) +
                 '/notifications';
               const options = {
+                method: 'POST',
+                body: JSON.stringify(notificationObject),
                 headers: {
                   'Content-Type': 'application/json',
                 },
               };
               try {
-                await module.exports.request.post(
-                  url,
-                  notificationObject,
-                  options,
-                );
+                await fetch(url, options);
               } catch (ex: any) {
                 console.error(new Error(ex.message));
               }
@@ -452,6 +440,13 @@ module.exports.checkRssConfigUpdates = async (
           lastSavedRssData.lastPoll = ts.toISOString();
           await rssRepository.updateById(lastSavedRssData.id, lastSavedRssData);
         });
+        const res = await fetch(rssNtfctnConfigItem.value.rss.url);
+        if (res.status !== 200) {
+          const err = new Error('Bad status code');
+          console.error(err);
+        } else {
+          Readable.fromWeb(res.body as any).pipe(feedparser);
+        }
       },
       start: true,
       runOnInit: runOnInit,
@@ -554,16 +549,14 @@ module.exports.reDispatchBroadcastPushNotifications = (app: Application) => {
             '/notifications/' +
             staleBroadcastPushNotification.id;
           const options = {
+            method: 'PUT',
+            body: JSON.stringify(staleBroadcastPushNotification),
             headers: {
               'Content-Type': 'application/json',
             },
           };
           try {
-            await module.exports.request.put(
-              url,
-              staleBroadcastPushNotification,
-              options,
-            );
+            await fetch(url, options);
           } catch (ex: any) {
             console.error(new Error(ex.message));
           }
