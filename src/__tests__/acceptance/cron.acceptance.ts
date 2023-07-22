@@ -333,9 +333,15 @@ describe('CRON dispatchLiveNotifications', function () {
 
   it('should send all live push notifications', async function () {
     sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
-    sinon.stub(cronTasks.request, 'put').callsFake(async function (url, body) {
-      return client.put(url).send(body);
-    });
+    sinon
+      .stub(global, 'fetch')
+      .withArgs(sinon.match.string, sinon.match({method: 'PUT'}))
+      .callsFake(async function (url, options) {
+        const r = await client
+          .put(url.toString())
+          .send(JSON.parse(options?.body as string));
+        return new Response(r.body);
+      });
 
     try {
       const results = await cronTasks.dispatchLiveNotifications(app)();
@@ -376,14 +382,18 @@ describe('CRON dispatchLiveNotifications', function () {
 
 describe('CRON checkRssConfigUpdates', function () {
   beforeEach(async function () {
-    sinon.stub(cronTasks, 'request').callsFake(async function () {
-      const output = fs.createReadStream(__dirname + path.sep + 'rss.xml');
-      return {
-        status: 200,
-        data: output,
-      };
-    });
-    sinon.spy(cronTasks.request, 'post');
+    sinon
+      .stub(global, 'fetch')
+      .withArgs(sinon.match.string)
+      .callsFake(async function () {
+        const output = fs.createReadStream(__dirname + path.sep + 'rss.xml');
+        return new Response(output, {
+          status: 200,
+        });
+      });
+    // sinon
+    //   .spy(global, 'fetch')
+    //   .withArgs(sinon.match.any, sinon.match({method: 'POST'}));
     const res = await Promise.all([
       configurationRepository.create({
         name: 'notification',
@@ -435,13 +445,19 @@ describe('CRON checkRssConfigUpdates', function () {
       fail(err);
     }
     await wait(1000);
-    sinon.assert.calledOnce(cronTasks.request.post);
+    sinon.assert.calledOnce(
+      (fetch as sinon.SinonStub).withArgs(
+        sinon.match.string,
+        sinon.match({method: 'POST'}),
+      ),
+    );
     sinon.assert.calledOnceWithMatch(
-      cronTasks.request.post,
+      (fetch as sinon.SinonStub).withArgs(
+        sinon.match.string,
+        sinon.match({method: 'POST'}),
+      ),
       'http://foo/api/notifications',
-      {
-        httpHost: 'http://foo',
-      },
+      sinon.match({body: sinon.match('"httpHost":"http://foo"')}),
     );
     const results = (await rssRepository.find()) as AnyObject;
     expect(results[0].items[0].author).equal('foo');
@@ -477,7 +493,12 @@ describe('CRON checkRssConfigUpdates', function () {
     await rssRepository.create(data);
     await cronTasks.checkRssConfigUpdates(app, true);
     await wait(2000);
-    sinon.assert.notCalled(cronTasks.request.post);
+    sinon.assert.notCalled(
+      (fetch as sinon.SinonStub).withArgs(
+        sinon.match.string,
+        sinon.match({method: 'POST'}),
+      ),
+    );
     const results = (await rssRepository.find()) as AnyObject;
     expect(results[0].items[0].author).equal('foo');
   });
@@ -506,15 +527,24 @@ describe('CRON checkRssConfigUpdates', function () {
     await rssRepository.create(data);
     await cronTasks.checkRssConfigUpdates(app, true);
     await wait(2000);
-    sinon.assert.calledOnce(cronTasks.request.post);
+    sinon.assert.calledOnce(
+      (fetch as sinon.SinonStub).withArgs(
+        sinon.match.string,
+        sinon.match({method: 'POST'}),
+      ),
+    );
   });
 
   it('should handle error', async function () {
-    cronTasks.request = sinon.stub().callsFake(async function () {
-      return {
-        status: 300,
-      };
-    });
+    (fetch as sinon.SinonStub).restore();
+    sinon
+      .stub(global, 'fetch')
+      .withArgs(sinon.match.string)
+      .callsFake(async function () {
+        return new Response(null, {
+          status: 300,
+        });
+      });
     sinon.spy(console, 'error');
     await cronTasks.checkRssConfigUpdates(app, true);
     await wait(2000);
@@ -610,9 +640,15 @@ describe('CRON reDispatchBroadcastPushNotifications', function () {
 
   it('should reDispatch broadcast push notifications', async function () {
     sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
-    sinon.stub(cronTasks.request, 'put').callsFake(async function (url, body) {
-      return client.put(url).send(body);
-    });
+    sinon
+      .stub(global, 'fetch')
+      .withArgs(sinon.match.string, sinon.match({method: 'PUT'}))
+      .callsFake(async function (url, options) {
+        const r = await client
+          .put(url.toString())
+          .send(JSON.parse(options?.body as string));
+        return new Response(r.body);
+      });
 
     try {
       const results = await cronTasks.reDispatchBroadcastPushNotifications(

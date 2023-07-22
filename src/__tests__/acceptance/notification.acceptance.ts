@@ -989,7 +989,7 @@ describe('POST /notifications', function () {
       });
     const dns = require('dns');
     sinon.stub(dns, 'lookup').callsFake((...args) => {
-      const cb = args[args.length - 1];
+      const cb: any = args[args.length - 1];
       cb(null, [{address: '127.0.0.2'}, {address: '127.0.0.1'}]);
     });
     const res = await client
