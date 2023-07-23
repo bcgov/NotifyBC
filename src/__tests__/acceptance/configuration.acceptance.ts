@@ -17,6 +17,7 @@ import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {ConfigurationRepository} from '../../repositories/configuration.repository';
 import {setupApplication} from './test-helper';
+import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 
 describe('GET /configuration', function () {
   let app: NotifyBcApplication;
@@ -57,7 +58,7 @@ describe('GET /configuration', function () {
   });
   it('should be allowed by admin user', async function () {
     sinon
-      .stub(ConfigurationRepository.prototype, 'isAdminReq')
+      .stub(BaseCrudRepository.prototype, 'isAdminReq')
       .callsFake(async () => true);
     const res = await client.get('/api/configurations');
     expect(res.status).equal(200);
