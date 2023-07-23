@@ -2,7 +2,11 @@
   <span v-if="options && options.length > 0">
     Version:
     <select v-model="selected" @change="onChange">
-      <option v-for="option in options" :value="option.value">
+      <option
+        v-for="option in options"
+        :key="option.value"
+        :value="option.value"
+      >
         {{ option.text }}
       </option>
     </select>
@@ -10,7 +14,6 @@
 </template>
 
 <script>
-import Axios from 'axios';
 export default {
   data() {
     return {
@@ -28,14 +31,16 @@ export default {
         } catch (ex) {}
       }
       if (!versions) {
-        let res = await Axios.get(
-          'https://api.github.com/repos/bcgov/NotifyBC/git/trees/gh-pages',
-        );
-        const versionNode = res.data.tree.find(e => {
+        let res = await (
+          await fetch(
+            'https://api.github.com/repos/bcgov/NotifyBC/git/trees/gh-pages',
+          )
+        ).json();
+        const versionNode = res.tree.find(e => {
           return e.path.toLowerCase() === 'version';
         });
-        res = await Axios.get(versionNode.url);
-        versions = res.data.tree.map(e => {
+        res = await (await fetch(versionNode.url)).json();
+        versions = res.tree.map(e => {
           return {value: e.path, text: e.path};
         });
         versions.sort((e1, e2) => {
