@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {UserManager} from 'oidc-client';
 import {createStore} from 'vuex';
 
@@ -96,30 +95,33 @@ export default createStore({
   actions: {
     async setItem({state}, payload) {
       let id,
-        method = 'post',
+        method = 'POST',
         item = payload.item;
       if (item.id) {
         id = item.id;
-        method = 'put';
+        method = 'PUT';
         delete item.id;
         delete item.updated;
         delete item.created;
       }
       let req = {
-        method: method,
-        url: apiUrlPrefix + '/' + payload.model + (id ? '/' + id : ''),
-        data: item,
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(item),
       };
+      const url = apiUrlPrefix + '/' + payload.model + (id ? '/' + id : '');
       await setAuthorizationHeader(req, state);
-      await axios(req);
+      await fetch(url, req);
     },
     async deleteItem({state}, payload) {
+      const url = apiUrlPrefix + '/' + payload.model + '/' + payload.item.id;
       let req = {
-        method: 'delete',
-        url: apiUrlPrefix + '/' + payload.model + '/' + payload.item.id,
+        method: 'DELETE',
       };
       await setAuthorizationHeader(req, state);
-      await axios(req);
+      await fetch(url, req);
     },
     async fetchItems({commit, state}, payload) {
       let filter = payload.filter;
@@ -136,50 +138,42 @@ export default createStore({
       if (filter) {
         url += '?filter=' + encodeURIComponent(JSON.stringify(filter));
       }
-      let req = {
-        url: url,
-      };
+      let req = {};
       await setAuthorizationHeader(req, state);
       let items;
       try {
-        items = await axios(req);
+        items = await (await fetch(url, req)).json();
       } catch (ex) {
         commit('setLocalItems', {model: payload.model, items: []});
         commit('setTotalItemCount', {model: payload.model, cnt: undefined});
         throw ex;
       }
-      commit('setLocalItems', {model: payload.model, items: items.data});
+      commit('setLocalItems', {model: payload.model, items});
       url = apiUrlPrefix + '/' + payload.model + '/count';
       if (filter && filter.where) {
         url += '?where=' + encodeURIComponent(JSON.stringify(filter.where));
       }
-      req = {
-        url: url,
-      };
+      req = {};
       await setAuthorizationHeader(req, state);
-      let response = await axios(req);
+      let response = await (await fetch(url, req)).json();
       commit('setTotalItemCount', {
         model: payload.model,
-        cnt: response.data.count,
+        cnt: response.count,
       });
     },
     async getSubscribedServiceNames({state}) {
       let url = apiUrlPrefix + '/subscriptions/services';
-      let req = {
-        url: url,
-      };
+      let req = {};
       await setAuthorizationHeader(req, state);
-      let res = await axios(req);
-      return res.data;
+      let res = await fetch(url, req);
+      return res.json();
     },
     async getAuthenticationStrategy({state, commit}) {
       let url = apiUrlPrefix + '/administrators/whoami';
-      let req = {
-        url: url,
-      };
+      let req = {};
       await setAuthorizationHeader(req, state);
-      let res = await axios(req);
-      commit('setAuthnStrategy', res.data.authnStrategy);
+      let res = await (await fetch(url, req)).json();
+      commit('setAuthnStrategy', res.authnStrategy);
     },
     async login({state, commit}, payload) {
       let url = apiUrlPrefix + '/administrators/login';
@@ -187,13 +181,15 @@ export default createStore({
       //12 hr
       payload.ttl = 43200;
       let req = {
-        url: url,
-        method: 'post',
-        data: payload,
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       };
       await setAuthorizationHeader(req, state);
-      let res = await axios(req);
-      commit('setAccessToken', res.data.token);
+      let res = await (await fetch(url, req)).json();
+      commit('setAccessToken', res.token);
     },
   },
   strict: process.env.NODE_ENV !== 'production',
