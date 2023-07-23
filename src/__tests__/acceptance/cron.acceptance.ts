@@ -340,7 +340,7 @@ describe('CRON dispatchLiveNotifications', function () {
         const r = await client
           .put(url.toString())
           .send(JSON.parse(options?.body as string));
-        return new Response(r.body);
+        return new Response(JSON.stringify(r.body));
       });
 
     try {
@@ -647,7 +647,7 @@ describe('CRON reDispatchBroadcastPushNotifications', function () {
         const r = await client
           .put(url.toString())
           .send(JSON.parse(options?.body as string));
-        return new Response(r.body);
+        return new Response(JSON.stringify(r.body));
       });
 
     try {

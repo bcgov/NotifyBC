@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {AnyObject, Filter} from '@loopback/repository';
+import {HttpErrors} from '@loopback/rest';
 import {Command} from 'commander';
 
 let server: any;
-module.exports.request = require('axios');
 module.exports.mailParser = require('mailparser');
 module.exports.app = function (...argsArr: any[]) {
   return new Promise((resolve, reject) => {
@@ -193,7 +193,7 @@ module.exports.app = function (...argsArr: any[]) {
             const unsubscriptionCode = match[3];
             switch (type) {
               case 'un':
-                await exports.request.get(
+                await fetch(
                   urlPrefix +
                     '/subscriptions/' +
                     id +
@@ -204,7 +204,7 @@ module.exports.app = function (...argsArr: any[]) {
                   {
                     headers: {
                       // eslint-disable-next-line @typescript-eslint/naming-convention
-                      is_anonymous: true,
+                      is_anonymous: 'true',
                     },
                   },
                 );
@@ -277,12 +277,12 @@ module.exports.app = function (...argsArr: any[]) {
                 };
                 let body;
                 try {
-                  const res = await exports.request.get(
+                  const res = await fetch(
                     urlPrefix +
                       '/subscriptions?filter=' +
                       encodeURIComponent(JSON.stringify(filter)),
                   );
-                  body = res.data;
+                  body = await res.json();
                 } catch (err) {
                   console.error(err);
                   const error: any = new Error('processing error');
@@ -311,12 +311,12 @@ module.exports.app = function (...argsArr: any[]) {
                   },
                 };
                 try {
-                  const res = await exports.request.get(
+                  const res = await fetch(
                     urlPrefix +
                       '/bounces?filter=' +
                       encodeURIComponent(JSON.stringify(filter)),
                   );
-                  body = res.data;
+                  body = await res.json();
                 } catch (err) {
                   console.error(err);
                   const error: any = new Error('processing error');
@@ -335,25 +335,28 @@ module.exports.app = function (...argsArr: any[]) {
                 });
                 // upsert bounce
                 if (bncId) {
-                  await exports.request.patch(urlPrefix + '/bounces/' + bncId, {
-                    hardBounceCount: bncCnt,
-                    bounceMessages: bounceMessages,
+                  await fetch(urlPrefix + '/bounces/' + bncId, {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                      hardBounceCount: bncCnt,
+                      bounceMessages: bounceMessages,
+                    }),
                   });
                 } else {
-                  const res = await exports.request.post(
-                    urlPrefix + '/bounces',
-                    {
+                  const res = await fetch(urlPrefix + '/bounces', {
+                    method: 'POST',
+                    body: JSON.stringify({
                       channel: 'email',
                       userChannelId: userChannelId,
                       hardBounceCount: bncCnt,
                       bounceMessages: bounceMessages,
-                    },
-                  );
-                  bncId = res.data.id;
+                    }),
+                  });
+                  bncId = (await res.json()).id;
                 }
                 // unsub user
                 if (bncCnt > bounceUnsubThreshold) {
-                  await exports.request.get(
+                  const res = await fetch(
                     urlPrefix +
                       '/subscriptions/' +
                       id +
@@ -365,16 +368,19 @@ module.exports.app = function (...argsArr: any[]) {
                     {
                       headers: {
                         // eslint-disable-next-line @typescript-eslint/naming-convention
-                        is_anonymous: true,
+                        is_anonymous: 'true',
                       },
-                      maxRedirects: 0,
-                      validateStatus: function (status: number) {
-                        return status >= 200 && status < 400;
-                      },
+                      redirect: 'error',
                     },
                   );
-                  await exports.request.patch(urlPrefix + '/bounces/' + bncId, {
-                    state: 'deleted',
+                  if (res.status >= 400 || res.status < 200) {
+                    throw HttpErrors(res.status);
+                  }
+                  await fetch(urlPrefix + '/bounces/' + bncId, {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                      state: 'deleted',
+                    }),
                   });
                 }
                 break;

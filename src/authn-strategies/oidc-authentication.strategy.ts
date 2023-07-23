@@ -25,7 +25,7 @@ export class OidcAuthenticationStrategy implements AuthenticationStrategy {
   constructor() {}
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
-    if (!OidcDiscoveryObserver.certs.keys) {
+    if (!OidcDiscoveryObserver?.certs?.keys) {
       return;
     }
     const token = this.extractToken(request);
