@@ -1,5 +1,5 @@
 import {UserManager} from 'oidc-client';
-import {createStore} from 'vuex';
+import {defineStore} from 'pinia';
 
 const apiUrlPrefix = window.apiUrlPrefix || '/api';
 let accessToken;
@@ -8,8 +8,8 @@ try {
     .value;
   // eslint-disable-next-line no-empty
 } catch (ex) {}
-export default createStore({
-  state: {
+export const useDefaultStore = defineStore('default', {
+  state: () => ({
     notifications: {
       items: [],
       filter: undefined,
@@ -49,24 +49,24 @@ export default createStore({
       response_type: 'token id_token',
       automaticSilentRenew: true,
     },
-  },
-  mutations: {
-    setLocalItems(state, payload) {
-      state[payload.model].items = payload.items;
+  }),
+  actions: {
+    setLocalItems(payload) {
+      this.state[payload.model].items = payload.items;
     },
-    setTotalItemCount(state, payload) {
-      state[payload.model].totalCount = payload.cnt;
+    setTotalItemCount(payload) {
+      this.state[payload.model].totalCount = payload.cnt;
     },
-    setItemFilter(state, payload) {
-      state[payload.model].filter = payload.filter;
+    setItemFilter(payload) {
+      this.state[payload.model].filter = payload.filter;
     },
-    setItemSearch(state, payload) {
-      state[payload.model].search = payload.value;
+    setItemSearch(payload) {
+      this.state[payload.model].search = payload.value;
     },
-    setAuthnStrategy(state, payload) {
-      state.authnStrategy = payload;
+    setAuthnStrategy(payload) {
+      this.state.authnStrategy = payload;
     },
-    setAccessToken(state, payload) {
+    setAccessToken(payload) {
       let auth = JSON.parse(sessionStorage.getItem('authorized')) || {};
       if (payload && payload.length > 0) {
         auth.accessToken = {
@@ -88,12 +88,11 @@ export default createStore({
         }
         payload = undefined;
       }
-      state['accessToken'] = payload;
-      this.dispatch('getAuthenticationStrategy');
+      this.state['accessToken'] = payload;
+      this.getAuthenticationStrategy();
     },
-  },
-  actions: {
-    async setItem({state}, payload) {
+
+    async setItem(payload) {
       let id,
         method = 'POST',
         item = payload.item;
@@ -112,25 +111,27 @@ export default createStore({
         body: JSON.stringify(item),
       };
       const url = apiUrlPrefix + '/' + payload.model + (id ? '/' + id : '');
-      await setAuthorizationHeader(req, state);
+      await setAuthorizationHeader(req, this.state);
       await fetch(url, req);
     },
-    async deleteItem({state}, payload) {
+
+    async deleteItem(payload) {
       const url = apiUrlPrefix + '/' + payload.model + '/' + payload.item.id;
       let req = {
         method: 'DELETE',
       };
-      await setAuthorizationHeader(req, state);
+      await setAuthorizationHeader(req, this.state);
       await fetch(url, req);
     },
-    async fetchItems({commit, state}, payload) {
+
+    async fetchItems(payload) {
       let filter = payload.filter;
       if (filter) {
-        filter = Object.assign({}, state[payload.model].filter, filter);
+        filter = Object.assign({}, this.state[payload.model].filter, filter);
       } else {
-        commit('setItemSearch', {model: payload.model});
+        this.setItemSearch({model: payload.model});
       }
-      commit('setItemFilter', {
+      this.setItemFilter({
         model: payload.model,
         filter: filter,
       });
@@ -139,43 +140,43 @@ export default createStore({
         url += '?filter=' + encodeURIComponent(JSON.stringify(filter));
       }
       let req = {};
-      await setAuthorizationHeader(req, state);
+      await setAuthorizationHeader(req, this.state);
       let items;
       try {
         items = await (await fetch(url, req)).json();
       } catch (ex) {
-        commit('setLocalItems', {model: payload.model, items: []});
-        commit('setTotalItemCount', {model: payload.model, cnt: undefined});
+        this.setLocalItems({model: payload.model, items: []});
+        this.setTotalItemCount({model: payload.model, cnt: undefined});
         throw ex;
       }
-      commit('setLocalItems', {model: payload.model, items});
+      this.setLocalItems({model: payload.model, items});
       url = apiUrlPrefix + '/' + payload.model + '/count';
       if (filter && filter.where) {
         url += '?where=' + encodeURIComponent(JSON.stringify(filter.where));
       }
       req = {};
-      await setAuthorizationHeader(req, state);
+      await setAuthorizationHeader(req, this.state);
       let response = await (await fetch(url, req)).json();
-      commit('setTotalItemCount', {
+      this.setTotalItemCount({
         model: payload.model,
         cnt: response.count,
       });
     },
-    async getSubscribedServiceNames({state}) {
+    async getSubscribedServiceNames() {
       let url = apiUrlPrefix + '/subscriptions/services';
       let req = {};
-      await setAuthorizationHeader(req, state);
+      await setAuthorizationHeader(req, this.state);
       let res = await fetch(url, req);
       return res.json();
     },
-    async getAuthenticationStrategy({state, commit}) {
+    async getAuthenticationStrategy() {
       let url = apiUrlPrefix + '/administrators/whoami';
       let req = {};
-      await setAuthorizationHeader(req, state);
+      await setAuthorizationHeader(req, this.state);
       let res = await (await fetch(url, req)).json();
-      commit('setAuthnStrategy', res.authnStrategy);
+      this.setAuthnStrategy(res.authnStrategy);
     },
-    async login({state, commit}, payload) {
+    async login(payload) {
       let url = apiUrlPrefix + '/administrators/login';
       payload.tokenName = 'webConsole';
       //12 hr
@@ -187,12 +188,11 @@ export default createStore({
           'Content-Type': 'application/json',
         },
       };
-      await setAuthorizationHeader(req, state);
+      await setAuthorizationHeader(req, this.state);
       let res = await (await fetch(url, req)).json();
-      commit('setAccessToken', res.token);
+      this.setAccessToken(res.token);
     },
   },
-  strict: process.env.NODE_ENV !== 'production',
 });
 
 async function setAuthorizationHeader(req, state) {
