@@ -29,9 +29,9 @@
     </v-text-field>
     <v-data-table-server
       :headers="headers"
-      :items="$store.state[this.model].items"
+      :items="$store[this.model].items"
       class="elevation-1"
-      :items-length="$store.state[this.model].totalCount"
+      :items-length="$store[this.model].totalCount"
       :loading="loading"
       :no-data-text="noDataText"
       :options="options"
@@ -128,15 +128,15 @@ export default {
   computed: {
     accessToken: {
       get() {
-        return this.$store.state.accessToken;
+        return this.$store.accessToken;
       },
     },
     search: {
       get() {
-        return this.$store.state[this.model].search;
+        return this.$store[this.model].search;
       },
       set(value) {
-        this.$store.commit('setItemSearch', {
+        this.$store.setItemSearch({
           model: this.model,
           value: value,
         });
@@ -168,7 +168,7 @@ export default {
       this.loading = true;
       this.noDataText = NoDataText;
       try {
-        await this.$store.dispatch('fetchItems', {
+        await this.$store.fetchItems({
           model: this.model,
           filter: filter,
         });
@@ -214,7 +214,7 @@ export default {
     },
     submitEditPanel: function ({toggleExpand, item}) {
       toggleExpand(this.expanded.pop());
-      this.$store.dispatch('fetchItems', {
+      this.$store.fetchItems({
         model: this.model,
         filter: {},
       });
@@ -224,7 +224,7 @@ export default {
     },
     submitNewPanel: function () {
       this.newPanelExpanded = undefined;
-      this.$store.dispatch('fetchItems', {
+      this.$store.fetchItems({
         model: this.model,
         filter: {},
       });
@@ -233,11 +233,11 @@ export default {
       this.newPanelExpanded = undefined;
     },
     deleteItem: async function (props) {
-      await this.$store.dispatch('deleteItem', {
+      await this.$store.deleteItem({
         model: this.model,
         item: props.item.raw,
       });
-      await this.$store.dispatch('fetchItems', {
+      await this.$store.fetchItems({
         model: this.model,
         filter: {},
       });
@@ -272,7 +272,7 @@ export default {
       }
     },
     accessToken: async function () {
-      await this.fetchItems(this.$store.state[this.model].filter);
+      await this.fetchItems(this.$store[this.model].filter);
     },
   },
   data: function () {
