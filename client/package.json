@@ -34,8 +34,7 @@
     "oidc-client": "^1.11.4",
     "pinia": "^2.1.4",
     "vite": "^4.2.0",
-    "vite-plugin-vuetify": "^1.0.0",
-    "vuex": "^4.0.2"
+    "vite-plugin-vuetify": "^1.0.0"
   },
   "eslintConfig": {
     "root": true,
