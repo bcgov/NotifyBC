@@ -58,7 +58,8 @@
 <script>
 import ComboTable from './shared/combo-table';
 import 'jquery-ui-bundle';
-import {mapActions} from 'vuex';
+import {mapActions} from 'pinia';
+import {useDefaultStore} from '../store';
 // one-time definition of custom jquery-ui widget
 $.widget('custom.annotatedAutoComplete', $.ui.autocomplete, {
   _create: function () {
@@ -80,7 +81,7 @@ export default {
     ComboTable,
   },
   methods: {
-    ...mapActions(['getSubscribedServiceNames']),
+    ...mapActions(useDefaultStore, ['getSubscribedServiceNames']),
     createAutoCompleteServiceNameWidget: async function () {
       try {
         let items = await this.getSubscribedServiceNames();
