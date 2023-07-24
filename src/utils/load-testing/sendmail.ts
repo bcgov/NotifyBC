@@ -55,7 +55,7 @@
 
   const tasks = [];
   let i = 0;
-  while (i < (process.argv[4] || 1000)) {
+  while (i < (parseInt(process.argv[4]) || 1000)) {
     tasks.push({});
     i++;
   }
