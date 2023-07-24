@@ -42,7 +42,7 @@ export default {
       try {
         this.errorMessage = undefined;
         let item = this.jsonEditor.getValue();
-        await this.$store.dispatch('setItem', {
+        await this.$store.setItem({
           model: this.model,
           item: item,
         });
