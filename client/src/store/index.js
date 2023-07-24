@@ -52,19 +52,19 @@ export const useDefaultStore = defineStore('default', {
   }),
   actions: {
     setLocalItems(payload) {
-      this.state[payload.model].items = payload.items;
+      this[payload.model].items = payload.items;
     },
     setTotalItemCount(payload) {
-      this.state[payload.model].totalCount = payload.cnt;
+      this[payload.model].totalCount = payload.cnt;
     },
     setItemFilter(payload) {
-      this.state[payload.model].filter = payload.filter;
+      this[payload.model].filter = payload.filter;
     },
     setItemSearch(payload) {
-      this.state[payload.model].search = payload.value;
+      this[payload.model].search = payload.value;
     },
     setAuthnStrategy(payload) {
-      this.state.authnStrategy = payload;
+      this.authnStrategy = payload;
     },
     setAccessToken(payload) {
       let auth = JSON.parse(sessionStorage.getItem('authorized')) || {};
@@ -88,7 +88,7 @@ export const useDefaultStore = defineStore('default', {
         }
         payload = undefined;
       }
-      this.state['accessToken'] = payload;
+      this['accessToken'] = payload;
       this.getAuthenticationStrategy();
     },
 
@@ -111,7 +111,7 @@ export const useDefaultStore = defineStore('default', {
         body: JSON.stringify(item),
       };
       const url = apiUrlPrefix + '/' + payload.model + (id ? '/' + id : '');
-      await setAuthorizationHeader(req, this.state);
+      await setAuthorizationHeader(req, this);
       await fetch(url, req);
     },
 
@@ -120,14 +120,14 @@ export const useDefaultStore = defineStore('default', {
       let req = {
         method: 'DELETE',
       };
-      await setAuthorizationHeader(req, this.state);
+      await setAuthorizationHeader(req, this);
       await fetch(url, req);
     },
 
     async fetchItems(payload) {
       let filter = payload.filter;
       if (filter) {
-        filter = Object.assign({}, this.state[payload.model].filter, filter);
+        filter = Object.assign({}, this[payload.model].filter, filter);
       } else {
         this.setItemSearch({model: payload.model});
       }
@@ -140,7 +140,7 @@ export const useDefaultStore = defineStore('default', {
         url += '?filter=' + encodeURIComponent(JSON.stringify(filter));
       }
       let req = {};
-      await setAuthorizationHeader(req, this.state);
+      await setAuthorizationHeader(req, this);
       let items;
       try {
         items = await (await fetch(url, req)).json();
@@ -155,7 +155,7 @@ export const useDefaultStore = defineStore('default', {
         url += '?where=' + encodeURIComponent(JSON.stringify(filter.where));
       }
       req = {};
-      await setAuthorizationHeader(req, this.state);
+      await setAuthorizationHeader(req, this);
       let response = await (await fetch(url, req)).json();
       this.setTotalItemCount({
         model: payload.model,
@@ -165,14 +165,14 @@ export const useDefaultStore = defineStore('default', {
     async getSubscribedServiceNames() {
       let url = apiUrlPrefix + '/subscriptions/services';
       let req = {};
-      await setAuthorizationHeader(req, this.state);
+      await setAuthorizationHeader(req, this);
       let res = await fetch(url, req);
       return res.json();
     },
     async getAuthenticationStrategy() {
       let url = apiUrlPrefix + '/administrators/whoami';
       let req = {};
-      await setAuthorizationHeader(req, this.state);
+      await setAuthorizationHeader(req, this);
       let res = await (await fetch(url, req)).json();
       this.setAuthnStrategy(res.authnStrategy);
     },
@@ -188,7 +188,7 @@ export const useDefaultStore = defineStore('default', {
           'Content-Type': 'application/json',
         },
       };
-      await setAuthorizationHeader(req, this.state);
+      await setAuthorizationHeader(req, this);
       let res = await (await fetch(url, req)).json();
       this.setAccessToken(res.token);
     },
