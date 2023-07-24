@@ -15,7 +15,7 @@
  -->
 <template>
   <v-toolbar-items class="center-text">
-    <div v-if="$store.state.authnStrategy === 'clientCertificate'">
+    <div v-if="$store.authnStrategy === 'clientCertificate'">
       <v-tooltip bottom>
         <template v-slot:activator="{props}">
           <v-icon v-bind="props">verified</v-icon>
@@ -24,7 +24,7 @@
       </v-tooltip>
     </div>
     <template v-else>
-      <div v-if="$store.state.authnStrategy === 'ipWhitelist'">
+      <div v-if="$store.authnStrategy === 'ipWhitelist'">
         <v-tooltip bottom>
           <template v-slot:activator="{props}">
             <v-icon v-bind="props" icon="verified_user"></v-icon>
@@ -34,7 +34,7 @@
       </div>
       <template v-else>
         <template v-if="!oidcUserManager">
-          <template v-if="$store.state.authnStrategy === 'accessToken'">
+          <template v-if="$store.authnStrategy === 'accessToken'">
             <div class="mr-1">Access Token</div>
             <v-text-field
               style="min-width: 200px"
@@ -48,7 +48,7 @@
           <v-dialog
             v-model="dialog"
             max-width="500px"
-            v-if="$store.state.authnStrategy === 'anonymous'"
+            v-if="$store.authnStrategy === 'anonymous'"
           >
             <template v-slot:activator="{props}">
               <v-btn plain v-bind="props"> Login<v-icon>login</v-icon> </v-btn>
@@ -124,20 +124,20 @@ export default {
       password: undefined,
       loginError: undefined,
       oidcUserManager:
-        window.oidcAuthority && new UserManager(this.$store.state.oidcConfig),
+        window.oidcAuthority && new UserManager(this.$store.oidcConfig),
       oidcUser: undefined,
-      accessToken: this.$store.state.accessToken,
+      accessToken: this.$store.accessToken,
     };
   },
   computed: {
     authnStrategy: {
       get() {
-        return this.$store.state.authnStrategy;
+        return this.$store.authnStrategy;
       },
     },
   },
   beforeMount: async function () {
-    await this.$store.dispatch('getAuthenticationStrategy');
+    await this.$store.getAuthenticationStrategy();
   },
   mounted: async function () {
     if (!window.oidcAuthority) {
@@ -161,10 +161,10 @@ export default {
   },
   methods: {
     setAccessToken(evt) {
-      this.$store.commit('setAccessToken', evt.target.value);
+      this.$store.setAccessToken(evt.target.value);
     },
     oidclogin: async function () {
-      let config = this.$store.state.oidcConfig;
+      let config = this.$store.oidcConfig;
       config = Object.assign({}, config, {
         redirect_uri: window.location.href,
       });
@@ -172,7 +172,7 @@ export default {
       await um.signinRedirect();
     },
     oidcLogout: async function () {
-      let config = this.$store.state.oidcConfig;
+      let config = this.$store.oidcConfig;
       config = Object.assign({}, config, {
         post_logout_redirect_uri: window.location.href,
       });
@@ -182,7 +182,7 @@ export default {
     login: async function () {
       try {
         this.loginError = undefined;
-        await this.$store.dispatch('login', {
+        await this.$store.login({
           email: this.email,
           password: this.password,
         });

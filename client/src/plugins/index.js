@@ -6,11 +6,13 @@
 
 // Plugins
 import router from '../router';
-import store from '../store';
+import {useDefaultStore} from '../store';
 import vuetify from './vuetify';
 import {loadFonts} from './webfontloader';
-
+import {createPinia} from 'pinia';
 export function registerPlugins(app) {
   loadFonts();
-  app.use(vuetify).use(router).use(store);
+  const pinia = createPinia();
+  app.use(vuetify).use(router).use(pinia);
+  app.config.globalProperties.$store = useDefaultStore();
 }
