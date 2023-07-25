@@ -31,7 +31,6 @@
     "jquery-ui-bundle": "^1.12.1",
     "less": "^4.1.1",
     "lodash": "^4.17.21",
-    "oidc-client": "^1.11.4",
     "oidc-client-ts": "^2.2.4",
     "pinia": "^2.1.4",
     "vite": "^4.2.0",
