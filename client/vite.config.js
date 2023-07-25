@@ -71,7 +71,9 @@ export default ({mode}) => {
         transformIndexHtml(html) {
           return ejs.render(html, {
             apiUrlPrefix: app.options.restApiRoot,
-            oidcAuthority: app.options.oidc && app.options.oidc.discoveryUrl,
+            oidcAuthority: app.options.oidc?.discoveryUrl?.split(
+              /\/\.well-known\/openid-configuration$/,
+            )[0],
             oidcClientId: app.options.oidc && app.options.oidc.clientId,
           });
         },

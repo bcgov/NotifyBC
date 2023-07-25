@@ -27,7 +27,9 @@ export default (server: ExpressServer) => {
     const appConfig = server.lbApp.getSync(CoreBindings.APPLICATION_CONFIG);
     response.render('index.html', {
       apiUrlPrefix: appConfig.restApiRoot,
-      oidcAuthority: appConfig.oidc?.discoveryUrl,
+      oidcAuthority: appConfig.oidc?.discoveryUrl?.split(
+        /\/\.well-known\/openid-configuration$/,
+      )[0],
       oidcClientId: appConfig.oidc?.clientId,
     });
   });
