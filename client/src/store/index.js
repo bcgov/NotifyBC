@@ -1,4 +1,4 @@
-import {UserManager} from 'oidc-client';
+import {UserManager} from 'oidc-client-ts';
 import {defineStore} from 'pinia';
 
 const apiUrlPrefix = window.apiUrlPrefix || '/api';
@@ -46,7 +46,6 @@ export const useDefaultStore = defineStore('default', {
       authority: window.oidcAuthority,
       client_id: window.oidcClientId,
       silent_redirect_uri: window.location.origin + '/oidc/callback',
-      response_type: 'token id_token',
       automaticSilentRenew: true,
     },
   }),

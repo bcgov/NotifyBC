@@ -1,6 +1,6 @@
 <template><div>Ok</div></template>
 <script>
-import {UserManager} from 'oidc-client';
+import {UserManager} from 'oidc-client-ts';
 
 export default {
   mounted: async function () {
