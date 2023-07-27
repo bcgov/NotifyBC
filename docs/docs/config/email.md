@@ -31,7 +31,7 @@ _NotifyBC_ can throttle email requests if SMTP server imposes rate limit. To ena
 
 ```js
 module.exports = {
-  throttle: {
+  email: {
     throttle: {
       enabled: true,
       // minimum request interval in ms
