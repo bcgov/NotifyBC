@@ -43,8 +43,8 @@ head:
 ---
 
 <style>
-.hero img {
-  height: fit-content;
+.home .hero img {
   margin-top: 0;
+  height: 100%;
 }
 </style>
