@@ -16,7 +16,7 @@
 <template>
   <div>
     <div id="nb-item-editor"></div>
-    <v-alert color="red" dense type="error" v-if="errorMessage">
+    <v-alert closable color="red" dense type="error" v-if="errorMessage">
       {{ errorMessage }}
     </v-alert>
     <v-btn color="primary" @click="setCurrentlyEditedItem">save</v-btn>
