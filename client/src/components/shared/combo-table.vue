@@ -111,6 +111,28 @@
           </tr>
         </tfoot>
       </template>
+      <template #top>
+        <v-dialog v-model="dialogDelete" width="auto">
+          <v-card>
+            <v-card-text
+              >Are you sure you want to delete this item?</v-card-text
+            >
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="red darken-2"
+                variant="text"
+                @click="deleteItemConfirm"
+                >OK</v-btn
+              >
+              <v-btn color="primary" variant="text" @click="deleteItemCancel"
+                >Cancel</v-btn
+              >
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </template>
     </v-data-table-server>
   </div>
 </template>
@@ -232,15 +254,24 @@ export default {
     cancelNewPanel: function () {
       this.newPanelExpanded = undefined;
     },
-    deleteItem: async function (props) {
+    deleteItem: function (props) {
+      this.deletingItem = props.item;
+      this.dialogDelete = true;
+    },
+    deleteItemCancel: function () {
+      this.deletingItem = undefined;
+      this.dialogDelete = false;
+    },
+    deleteItemConfirm: async function () {
       await this.$store.deleteItem({
         model: this.model,
-        item: props.item.raw,
+        item: this.deletingItem.raw,
       });
       await this.$store.fetchItems({
         model: this.model,
         filter: {},
       });
+      this.deleteItemCancel();
     },
     updateOptions: async function (newOptions) {
       let filter;
@@ -283,6 +314,8 @@ export default {
       loading: true,
       expanded: [],
       noDataText: NoDataText,
+      dialogDelete: false,
+      deletingItem: undefined,
     };
   },
 };
