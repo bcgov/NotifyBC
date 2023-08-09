@@ -123,10 +123,10 @@
                 color="red darken-2"
                 variant="text"
                 @click="deleteItemConfirm"
-                >OK</v-btn
+                >Yes</v-btn
               >
               <v-btn color="primary" variant="text" @click="deleteItemCancel"
-                >Cancel</v-btn
+                >No</v-btn
               >
               <v-spacer></v-spacer>
             </v-card-actions>

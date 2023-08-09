@@ -51,7 +51,7 @@ export const useDefaultStore = defineStore('default', {
   }),
   actions: {
     setLocalItems(payload) {
-      this[payload.model].items = payload.items;
+      this[payload.model].items = payload?.items;
     },
     setTotalItemCount(payload) {
       this[payload.model].totalCount = payload.cnt;
@@ -111,7 +111,10 @@ export const useDefaultStore = defineStore('default', {
       };
       const url = apiUrlPrefix + '/' + payload.model + (id ? '/' + id : '');
       await setAuthorizationHeader(req, this);
-      await fetch(url, req);
+      const res = await fetch(url, req);
+      if (!res?.ok) {
+        throw `${res.status}: ${res.statusText}`;
+      }
     },
 
     async deleteItem(payload) {
@@ -120,7 +123,10 @@ export const useDefaultStore = defineStore('default', {
         method: 'DELETE',
       };
       await setAuthorizationHeader(req, this);
-      await fetch(url, req);
+      const res = await fetch(url, req);
+      if (!res?.ok) {
+        throw `${res.status}: ${res.statusText}`;
+      }
     },
 
     async fetchItems(payload) {
@@ -142,7 +148,11 @@ export const useDefaultStore = defineStore('default', {
       await setAuthorizationHeader(req, this);
       let items;
       try {
-        items = await (await fetch(url, req)).json();
+        const res = await fetch(url, req);
+        if (!res?.ok) {
+          throw `${res.status}: ${res.statusText}`;
+        }
+        items = await res.json();
       } catch (ex) {
         this.setLocalItems({model: payload.model, items: []});
         this.setTotalItemCount({model: payload.model, cnt: undefined});
@@ -155,7 +165,11 @@ export const useDefaultStore = defineStore('default', {
       }
       req = {};
       await setAuthorizationHeader(req, this);
-      let response = await (await fetch(url, req)).json();
+      const res = await fetch(url, req);
+      if (!res?.ok) {
+        throw `${res.status}: ${res.statusText}`;
+      }
+      let response = await res.json();
       this.setTotalItemCount({
         model: payload.model,
         cnt: response.count,
@@ -165,14 +179,21 @@ export const useDefaultStore = defineStore('default', {
       let url = apiUrlPrefix + '/subscriptions/services';
       let req = {};
       await setAuthorizationHeader(req, this);
-      let res = await fetch(url, req);
+      const res = await fetch(url, req);
+      if (!res?.ok) {
+        throw `${res.status}: ${res.statusText}`;
+      }
       return res.json();
     },
     async getAuthenticationStrategy() {
       let url = apiUrlPrefix + '/administrators/whoami';
       let req = {};
       await setAuthorizationHeader(req, this);
-      let res = await (await fetch(url, req)).json();
+      let res = await fetch(url, req);
+      if (!res?.ok) {
+        throw `${res.status}: ${res.statusText}`;
+      }
+      res = await res.json();
       this.setAuthnStrategy(res.authnStrategy);
     },
     async login(payload) {
@@ -188,7 +209,11 @@ export const useDefaultStore = defineStore('default', {
         },
       };
       await setAuthorizationHeader(req, this);
-      let res = await (await fetch(url, req)).json();
+      let res = await fetch(url, req);
+      if (!res?.ok) {
+        throw `${res.status}: ${res.statusText}`;
+      }
+      res = await res.json();
       this.setAccessToken(res.token);
     },
   },
