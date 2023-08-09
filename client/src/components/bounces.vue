@@ -46,16 +46,10 @@
             @click="props.deleteItem(props.props)"
             density="compact"
             variant="plain"
-            icon="delete_forever"
+            icon="delete"
           >
-            <v-icon color="red darken-2">delete_forever</v-icon>
-            <v-tooltip
-              activator="parent"
-              location="bottom"
-              color="red darken-2"
-            >
-              Caution: delete immediately without confirmation
-            </v-tooltip>
+            <v-icon>delete</v-icon>
+            <v-tooltip activator="parent" location="bottom">delete</v-tooltip>
           </v-btn>
         </td>
       </tr>
