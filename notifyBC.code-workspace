@@ -7,7 +7,7 @@
       "path": "../jmespath.js"
     },
     {
-      "path": "../json-editor"
+      "path": "../nest-test"
     }
   ],
   "settings": {
