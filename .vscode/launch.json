@@ -5,6 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Server",
+      "request": "launch",
+      "runtimeArgs": ["start:debug"],
+      "runtimeExecutable": "yarn",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "outputCapture": "std",
+      "env": {
+        "NEST_DEBUG": "true"
+      }
+    },
+    {
       "name": "Launch Docs",
       "request": "launch",
       "type": "pwa-chrome",
@@ -14,7 +26,7 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "Server",
+      "name": "Server-lb",
       "runtimeExecutable": "yarn",
       "autoAttachChildProcesses": true,
       "runtimeArgs": ["run", "nodemon"],
