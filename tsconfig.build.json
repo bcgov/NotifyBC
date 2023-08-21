@@ -1,5 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  // TODO: remove "notify-bc-lb" when the folder is deleted
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "notify-bc-lb"]
+  "include": ["src"]
 }
