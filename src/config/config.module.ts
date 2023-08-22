@@ -1,8 +1,13 @@
 import { Global, Module } from '@nestjs/common';
-import { ConfigService } from './config.service';
+import { configFactory } from './config.factory';
+import { ConfigType } from './constants';
 
 @Global()
 @Module({
-  providers: [ConfigService],
+  providers: [
+    configFactory(ConfigType.AppConfig),
+    configFactory(ConfigType.MiddlewareConfig),
+    configFactory(ConfigType.DbConfig),
+  ],
 })
 export class ConfigModule {}
