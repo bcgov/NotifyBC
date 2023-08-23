@@ -1,0 +1,9 @@
+/client*/
+/node_modules/
+/docs/
+/coverage/
+/dist/
+**/*.local.*
+/server/
+# js in root
+/*.js
