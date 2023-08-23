@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import * as _ from 'lodash';
-import { ConfigType } from './constants';
+import {ConfigType} from './constants';
+import mergeWith from 'lodash-es/mergeWith';
+import isArray from 'lodash-es/isArray';
 
 const config: Record<ConfigType, any> = {
   [ConfigType.AppConfig]: undefined,
@@ -31,15 +32,15 @@ function init() {
   const options: Record<string, any> = {};
   const middlewareConfigs: Record<string, any> = {};
   for (const e of [
-    { files: middlewareFiles, configs: middlewareConfigs },
-    { files: configFiles, configs: options },
+    {files: middlewareFiles, configs: middlewareConfigs},
+    {files: configFiles, configs: options},
   ]) {
     for (const configFile of e.files) {
       const f = path.join(__dirname, '..', configFile);
       if (fs.existsSync(f)) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        _.mergeWith(e.configs, require(f), (t, s) => {
-          if (_.isArray(t)) {
+        mergeWith(e.configs, require(f), (t, s) => {
+          if (isArray(t)) {
             return s;
           }
         });
