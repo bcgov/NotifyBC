@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import _ from 'lodash';
+import toLower from 'lodash-es/toLower';
 module.exports = {
   rest: {
     basePath: '/api',
@@ -65,9 +65,7 @@ module.exports = {
           return new Promise(resolve => {
             setTimeout(() => {
               resolve(
-                _.toLower(resolvedArgs[0]).indexOf(
-                  _.toLower(resolvedArgs[1]),
-                ) >= 0,
+                toLower(resolvedArgs[0]).indexOf(toLower(resolvedArgs[1])) >= 0,
               );
             }, 1000);
           });

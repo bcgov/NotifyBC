@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from './constants';
-import * as _ from 'lodash';
+import {Inject, Injectable} from '@nestjs/common';
+import {ConfigType} from './constants';
+import get from 'lodash-es/get';
 
 @Injectable()
 export class DbConfigService {
@@ -8,6 +8,6 @@ export class DbConfigService {
 
   get(propName?: string, defaultVal?: any) {
     if (!propName) return this.config;
-    return _.get(this.config, propName, defaultVal);
+    return get(this.config, propName, defaultVal);
   }
 }
