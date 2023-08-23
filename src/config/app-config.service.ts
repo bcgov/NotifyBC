@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@nestjs/common';
 import {ConfigType} from './constants';
-import get from 'lodash-es/get';
+import {get} from 'lodash';
 
 @Injectable()
 export class AppConfigService {

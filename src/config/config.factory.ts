@@ -1,8 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import {ConfigType} from './constants';
-import mergeWith from 'lodash-es/mergeWith';
-import isArray from 'lodash-es/isArray';
+import {isArray, mergeWith} from 'lodash';
 
 const config: Record<ConfigType, any> = {
   [ConfigType.AppConfig]: undefined,
