@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import {ConfigType} from './constants';
-import {isArray, mergeWith} from 'lodash';
+import { ConfigType } from './constants';
+import { isArray, mergeWith } from 'lodash';
 
 const config: Record<ConfigType, any> = {
   [ConfigType.AppConfig]: undefined,
@@ -31,8 +31,8 @@ function init() {
   const options: Record<string, any> = {};
   const middlewareConfigs: Record<string, any> = {};
   for (const e of [
-    {files: middlewareFiles, configs: middlewareConfigs},
-    {files: configFiles, configs: options},
+    { files: middlewareFiles, configs: middlewareConfigs },
+    { files: configFiles, configs: options },
   ]) {
     for (const configFile of e.files) {
       const f = path.join(__dirname, '..', configFile);

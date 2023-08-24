@@ -47,6 +47,7 @@ const config = {
   },
 };
 
+// start: ported
 if (require.main === module) {
   let numWorkers = parseInt(process.env.NOTIFYBC_WORKER_PROCESS_COUNT ?? '');
   if (isNaN(numWorkers)) {
@@ -98,3 +99,4 @@ if (require.main === module) {
     }
   }
 }
+// end: ported
