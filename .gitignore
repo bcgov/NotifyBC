@@ -39,3 +39,4 @@ lerna-debug.log*
 /server/database/data.json
 /server/certs/**
 !/server/certs/.keep
+tsconfig.build.tsbuildinfo
