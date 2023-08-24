@@ -1,10 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+const packageJson = require('../package.json');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const appConfig = app.get(AppConfigService).get();
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('NotifyBC')
+    .setDescription(packageJson.description)
+    .setVersion(packageJson.version)
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document);
   app.setGlobalPrefix(appConfig.restApiRoot);
   await app.listen(appConfig.port, appConfig.host);
   console.info(
