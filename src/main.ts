@@ -1,9 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { AppConfigService } from './config/app-config.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  const appConfig = app.get(AppConfigService).get();
+  app.setGlobalPrefix(appConfig.restApiRoot);
+  await app.listen(appConfig.port, appConfig.host);
+  console.info(
+    `Server is running at http://${appConfig.host}:${appConfig.port}${appConfig.restApiRoot}`,
+  );
 }
 
 if (require.main === module) {
