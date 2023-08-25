@@ -347,7 +347,7 @@ The above settings assume you have setup secret \<docker-pull-secret\> to access
   --archive=/export/<mongodb-backup-YYMMDD-hhmmss.gz>
   ```
 
-- _NotifyBC_ image tag defaults to latest published version. To change to _latest_, i.e. tip of the _main branch_,
+- _NotifyBC_ image tag defaults to _appVersion_ in file _helm/Chart.yaml_. To change to _latest_, i.e. tip of the _main_ branch,
 
   ```yaml
   # in file helm/values.local.yaml
