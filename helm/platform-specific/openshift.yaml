@@ -1,36 +1,3 @@
 service:
   smtp:
     type: ClusterIP
-mongodb:
-  podSecurityContext:
-    enabled: false
-  containerSecurityContext:
-    enabled: true
-    runAsUser: 1004000000
-    runAsNonRoot: true
-  arbiter:
-    podSecurityContext:
-      enabled: false
-    containerSecurityContext:
-      enabled: true
-      runAsUser: 1004000000
-      runAsNonRoot: true
-redis:
-  master:
-    podSecurityContext:
-      enabled: false
-    containerSecurityContext:
-      enabled: true
-      runAsUser: 1004000000
-  replica:
-    podSecurityContext:
-      enabled: false
-    containerSecurityContext:
-      enabled: true
-      runAsUser: 1004000000
-  sentinel:
-    podSecurityContext:
-      enabled: false
-    containerSecurityContext:
-      enabled: true
-      runAsUser: 1004000000
