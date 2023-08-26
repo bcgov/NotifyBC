@@ -5,9 +5,10 @@ import { ConfigModule } from './config/config.module';
 import { ConfigurationsModule } from './api/configurations/configurations.module';
 import { NotificationsModule } from './api/notifications/notifications.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
+import { AdministratorsModule } from './api/administrators/administrators.module';
 
 @Module({
-  imports: [ConfigModule, ConfigurationsModule, NotificationsModule, SubscriptionsModule],
+  imports: [ConfigModule, ConfigurationsModule, NotificationsModule, SubscriptionsModule, AdministratorsModule],
   controllers: [AppController],
   providers: [AppService],
 })
