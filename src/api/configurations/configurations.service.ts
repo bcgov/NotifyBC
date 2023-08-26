@@ -1,15 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
+import { Configuration } from './entities/configuration.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ConfigurationsService {
+  constructor(
+    @InjectModel(Configuration.name)
+    private configurationModel: Model<Configuration>,
+  ) {}
+
   create(createConfigurationDto: CreateConfigurationDto) {
     return 'This action adds a new configuration';
   }
 
   findAll() {
-    return `This action returns all configurations`;
+    const res = this.configurationModel.find().exec();
+    return res;
   }
 
   findOne(id: number) {

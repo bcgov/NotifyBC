@@ -264,3 +264,29 @@ helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/va
 ```
 
 Replace _v4.x.x_ with a v4 release, preferably latest, found in GitHub such as _v4.0.0_.
+
+## v4 to v5
+
+1. Update file _src/datasources/db.datasource.(local|<env>).(json|js|ts)_
+
+   1. remove _name_ property
+   2. remove _connector_ property
+   3. rename _url_ property to _uri_
+
+   For example, change
+
+   ```json
+   {
+     "name": "db",
+     "connector": "mongodb",
+     "url": "mongodb://127.0.0.1:27017/notifyBC"
+   }
+   ```
+
+   to
+
+   ```json
+   {
+     "uri": "mongodb://127.0.0.1:27017/notifyBC"
+   }
+   ```

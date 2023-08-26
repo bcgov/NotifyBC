@@ -5,7 +5,7 @@
   "editor.trimAutoWhitespace": true,
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.organizeImports": false,
+    "source.organizeImports": true,
     "source.fixAll.eslint": true
   },
 
