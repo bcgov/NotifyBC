@@ -27,6 +27,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.8",
     "lodash": "^4.17.21",
+    "mongodb-memory-server": "^8.15.1",
     "mongoose": "^7.4.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
