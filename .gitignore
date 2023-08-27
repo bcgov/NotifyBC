@@ -36,7 +36,8 @@ lerna-debug.log*
 
 # NotifyBC
 **/*.local.*
-/server/database/data.json
+/server/database/**
+!/server/database/.keep
 /server/certs/**
 !/server/certs/.keep
 tsconfig.build.tsbuildinfo

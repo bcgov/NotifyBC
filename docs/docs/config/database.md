@@ -4,16 +4,14 @@ permalink: /docs/config-database/
 
 # Database
 
-By default _NotifyBC_ uses in-memory database backed up by file in _/server/database/data.json_ for local and docker deployment and MongoDB for Kubernetes deployment. To use MongoDB for non-Kubernetes deployment, add file _/src/datasources/db.datasource.local.json_ with MongoDB connection information such as following:
+By default _NotifyBC_ uses in-memory database backed up by folder _/server/database/_ for local and docker deployment and MongoDB for Kubernetes deployment. To use MongoDB for non-Kubernetes deployment, add file _/src/datasources/db.datasource.(local|\<env\>).(json|js|ts)_ with MongoDB connection information such as following:
 
-```json
-{
-  "name": "db",
-  "connector": "mongodb",
-  "host": "127.0.0.1",
-  "database": "notifyBC",
-  "port": 27017
-}
+```js
+module.exports = {
+  uri: 'mongodb://127.0.0.1:27017/notifyBC',
+  user: process.env.MONGODB_USER,
+  pass: process.env.MONGODB_PASSWORD,
+};
 ```
 
-See [LoopBack MongoDB data source](https://loopback.io/doc/en/lb4/MongoDB-connector.html#creating-a-mongodb-data-source) for more configurable properties.
+See [Mongoose connection options](https://mongoosejs.com/docs/connections.html#options) for more configurable properties.
