@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { Configuration } from './entities/configuration.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 
 @Injectable()
 export class ConfigurationsService {
@@ -13,7 +13,10 @@ export class ConfigurationsService {
   ) {}
 
   create(createConfigurationDto: CreateConfigurationDto) {
-    return 'This action adds a new configuration';
+    const createdConfiguration = new this.configurationModel(
+      createConfigurationDto,
+    );
+    return createdConfiguration.save();
   }
 
   findAll() {
