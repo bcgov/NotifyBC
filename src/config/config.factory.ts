@@ -1,7 +1,7 @@
-import * as path from 'path';
-import * as fs from 'fs';
-import { ConfigType } from './constants';
+import fs from 'fs';
 import { isArray, mergeWith } from 'lodash';
+import path from 'path';
+import { ConfigType } from './constants';
 
 const config: Record<ConfigType, any> = {
   [ConfigType.AppConfig]: undefined,
@@ -53,12 +53,12 @@ function init() {
   config[ConfigType.AppConfig] = options;
   config[ConfigType.MiddlewareConfig] = middlewareConfigs;
 
-  let dsFiles: string[] = ['db.datasource.js'];
+  let dsFiles: string[] = ['db.datasource.json', 'db.datasource.js'];
   if (process.env.NODE_ENV) {
-    dsFiles = [
+    dsFiles = dsFiles.concat([
       `db.datasource.${process.env.NODE_ENV}.json`,
       `db.datasource.${process.env.NODE_ENV}.js`,
-    ];
+    ]);
   }
   if (process.env.NODE_ENV !== 'test') {
     dsFiles = dsFiles.concat([

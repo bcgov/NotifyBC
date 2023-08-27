@@ -267,11 +267,13 @@ Replace _v4.x.x_ with a v4 release, preferably latest, found in GitHub such as _
 
 ## v4 to v5
 
-1. Update file _src/datasources/db.datasource.(local|<env>).(json|js|ts)_
+v5 introduced following backward incompatible changes that need to be addressed in this order
 
-   1. remove _name_ property
-   2. remove _connector_ property
-   3. rename _url_ property to _uri_
+1. If you use default in-memory database, data in _server/database/data.json_ will not be migrated automatically. Manually migrate if necessary.
+2. Update file _src/datasources/db.datasource.local.json_
+
+   1. rename _url_ property to _uri_
+   2. for other properties, instead of following [LoopBack MongoDB data source](https://loopback.io/doc/en/lb4/MongoDB-connector.html#creating-a-mongodb-data-source), follow [Mongoose connection options](https://mongoosejs.com/docs/connections.html#options)
 
    For example, change
 
@@ -290,3 +292,21 @@ Replace _v4.x.x_ with a v4 release, preferably latest, found in GitHub such as _
      "uri": "mongodb://127.0.0.1:27017/notifyBC"
    }
    ```
+
+After above changes are addressed, upgrading to v5 is as simple as
+
+```sh
+git pull
+git checkout tags/v5.x.x -b <branch_name>
+yarn install && yarn build
+```
+
+or, if _NotifyBC_ is deployed to Kubernetes using Helm.
+
+```sh
+git pull
+git checkout tags/v5.x.x -b <branch_name>
+helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+```
+
+Replace _v5.x.x_ with a v5 release, preferably latest, found in GitHub such as _v5.0.0_.
