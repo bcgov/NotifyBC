@@ -1,10 +1,26 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { BaseEntity } from 'src/api/base.entity';
 
 export type ConfigurationDocument = HydratedDocument<Configuration>;
 
 @Schema({ collection: 'configuration' })
-export class Configuration extends BaseEntity {}
+export class Configuration extends BaseEntity {
+  @Prop({
+    required: true,
+  })
+  name: string;
 
-export const ConfigurationSchema = SchemaFactory.createForClass(Configuration);
+  @Prop({ type: mongoose.Schema.Types.Mixed })
+  value?: any;
+
+  @Prop()
+  serviceName?: string;
+}
+
+export const ConfigurationSchema = SchemaFactory.createForClass(Configuration)
+  .index(
+    { name: 1, serviceName: 1 },
+    { unique: true, name: 'unique_name_serviceName' },
+  )
+  .index({ '$**': 'text' }, { name: '$**_text' });
