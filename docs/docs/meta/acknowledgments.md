@@ -8,7 +8,7 @@ _NotifyBC_ is built on a myriad of open source software. At runtime it also depe
 few services. Credit goes to their contributors. Notably
 
 - [Node.js](https://nodejs.org/)
-- [Loopback](https://loopback.io/)
+- [Nest](https://nestjs.com/)
 - [MongoDB](https://www.mongodb.com/)
 - [NodeMailer](https://nodemailer.com/)
 - [JMESPath](https://jmespath.org/)
