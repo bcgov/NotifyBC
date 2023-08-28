@@ -3,9 +3,18 @@
   "version": "5.0.0",
   "dbSchemaVersion": "0.8.0",
   "description": "A versatile notification API server",
-  "author": "",
+  "author": "f-w",
   "private": true,
-  "license": "UNLICENSED",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bcgov/notifybc"
+  },
+  "license": "Apache-2.0",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
