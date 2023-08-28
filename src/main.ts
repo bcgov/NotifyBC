@@ -1,7 +1,8 @@
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 const packageJson = require('../package.json');
 
 async function bootstrap() {
@@ -16,8 +17,9 @@ async function bootstrap() {
   SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document);
   app.setGlobalPrefix(appConfig.restApiRoot);
   await app.listen(appConfig.port, appConfig.host);
-  console.info(
+  Logger.log(
     `Server is running at http://${appConfig.host}:${appConfig.port}${appConfig.restApiRoot}`,
+    'bootstrap',
   );
 }
 

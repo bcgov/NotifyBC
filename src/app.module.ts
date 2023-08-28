@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdministratorsModule } from './api/administrators/administrators.module';
 import { BouncesModule } from './api/bounces/bounces.module';
@@ -28,7 +28,7 @@ import { DbConfigService } from './config/db-config.service';
             instance: dbConfig,
           });
         const uri = mongod.getUri();
-        console.info(`mongodb-memory-server started at ${uri}`);
+        Logger.log(`mongodb-memory-server started at ${uri}`, AppModule.name);
         return {
           uri,
         };
