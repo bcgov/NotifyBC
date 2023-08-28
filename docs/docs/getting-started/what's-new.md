@@ -7,6 +7,27 @@ next: /docs/config-overview/
 
 _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
+## v5.0.0
+
+See [Upgrade Guide](../upgrade/#v4-to-v5) for more information.
+
+- Runs on _Nest_
+
+::: tip Why v5?
+_NotifyBC_ was built on Node.js [LoopBack](https://loopback.io/) in the beginning. While _Loopback_ is an awesome framework, it is evident by 2022 _Loopback_ is no longer actively maintained
+
+1. features such as GraphQL have been in experimental state for years
+2. recent commits are mostly chores rather than enhancements
+3. core developers have ceased to contribute
+
+To pave the way for future growth, switching platform becomes necessary. Nest was chosen because
+
+1. both _Nest_ and _Loopback_ are server-side Node.js frameworks
+2. _Nest_ has the closest feature set as _Loopback_. To a large extent _Nest_ is a superset of _Loopback_.
+3. _Nest_ incorporates more technologies
+
+:::
+
 ## v4.1.0
 
 - Issue [#50](https://github.com/bcgov/NotifyBC/issues/50): Email message throttle
@@ -84,15 +105,15 @@ See [v2 to v3 upgrade guide](../upgrade/#v2-to-v3) for more information.
 - misc web console adjustments
 - docs updates
 
-::: tip Why v2?
-_NotifyBC_ has been built on Node.js [LoopBack](https://loopback.io/) framework since 2017. LoopBack v4, which was released in 2019, is backward incompatible. To keep software stack up-to-date, unless rewriting from scratch, it is necessary to port _NotifyBC_ to LoopBack v4. Great care has been taken to minimize upgrade effort.
-:::
-
 ## v2.0.0
 
-See [Upgrade Guide](../upgrade/) for more information.
+See [Upgrade Guide](../upgrade/#v1-to-v2) for more information.
 
 - Runs on LoopBack v4
 - All code is converted to TypeScript
 - Upgraded [OAS](https://swagger.io/specification/) from v2 to v3
 - Docs is converted from Jekyll to VuePress
+
+::: tip Why v2?
+_NotifyBC_ has been built on Node.js [LoopBack](https://loopback.io/) framework since 2016. LoopBack v4, which was released in 2019, is backward incompatible. To keep software stack up-to-date, unless rewriting from scratch, it is necessary to port _NotifyBC_ to LoopBack v4. Great care has been taken to minimize upgrade effort.
+:::

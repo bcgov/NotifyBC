@@ -267,7 +267,7 @@ Replace _v4.x.x_ with a v4 release, preferably latest, found in GitHub such as _
 
 ## v4 to v5
 
-v5 introduced following backward incompatible changes that need to be addressed in this order
+v5 introduced following backward incompatible changes
 
 1. If you use default in-memory database, data in _server/database/data.json_ will not be migrated automatically. Manually migrate if necessary.
 2. Update file _src/datasources/db.datasource.local.json_
@@ -292,6 +292,23 @@ v5 introduced following backward incompatible changes that need to be addressed 
      "uri": "mongodb://127.0.0.1:27017/notifyBC"
    }
    ```
+
+3. API querying operators have changed. Replace following [Loopback operators](https://loopback.io/doc/en/lb4/Where-filter.html#operators) with corresponding [MongoDB operators](https://www.mongodb.com/docs/manual/reference/operator/query/) at client-side API call.
+
+| Loopback operators      | MongoDB operators                               |
+| ----------------------- | ----------------------------------------------- |
+| eq                      | $eq                                             |
+| and                     | $and                                            |
+| or                      | $or                                             |
+| gt, gte                 | $gt, $gte                                       |
+| lt, lte                 | $lt, $lte                                       |
+| between                 | (no equivalent, replace with $gt, $and and $lt) |
+| inq, nin                | $in, $nin                                       |
+| near                    | $near                                           |
+| neq                     | $ne                                             |
+| like, nlike             | (replace with $regexp)                          |
+| like, nlike, options: i | (replace with $regexp)                          |
+| regexp                  | $regexp                                         |
 
 After above changes are addressed, upgrading to v5 is as simple as
 
