@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -16,6 +16,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document);
   app.setGlobalPrefix(appConfig.restApiRoot);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      validateCustomDecorators: true,
+    }),
+  );
   await app.listen(appConfig.port, appConfig.host);
   Logger.log(
     `Server is running at http://${appConfig.host}:${appConfig.port}${appConfig.restApiRoot}`,
