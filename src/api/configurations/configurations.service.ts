@@ -19,9 +19,9 @@ export class ConfigurationsService {
     return createdConfiguration.save();
   }
 
-  findAll() {
-    const res = this.configurationModel.find().exec();
-    return res;
+  findAll(filter: any = {}) {
+    const { where, fields, include, ...rest } = filter;
+    return this.configurationModel.find(where, fields, rest).exec();
   }
 
   findOne(id: number) {
