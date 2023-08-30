@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { LoopbackFilterDto } from '../common/dto/loopback-filter.dto';
 import { JsonQuery } from '../common/json-query.decorator';
 import { ConfigurationsService } from './configurations.service';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
@@ -22,7 +23,10 @@ export class ConfigurationsController {
   }
 
   @Get()
-  findAll(@JsonQuery('filter') filter) {
+  findAll(
+    @JsonQuery('filter')
+    filter: LoopbackFilterDto,
+  ) {
     return this.configurationsService.findAll(filter);
   }
 
