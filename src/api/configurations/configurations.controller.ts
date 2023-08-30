@@ -23,7 +23,7 @@ export class ConfigurationsController {
 
   @Get()
   findAll(@JsonQuery('filter') filter) {
-    return this.configurationsService.findAll();
+    return this.configurationsService.findAll(filter);
   }
 
   @Get(':id')
