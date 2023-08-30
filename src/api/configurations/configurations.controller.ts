@@ -1,12 +1,13 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
 } from '@nestjs/common';
+import { JsonQuery } from '../common/json-query.decorator';
 import { ConfigurationsService } from './configurations.service';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
@@ -21,7 +22,7 @@ export class ConfigurationsController {
   }
 
   @Get()
-  findAll() {
+  findAll(@JsonQuery('filter') filter) {
     return this.configurationsService.findAll();
   }
 
