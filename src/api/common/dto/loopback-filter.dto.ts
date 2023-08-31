@@ -1,14 +1,14 @@
-import { AnyObject } from 'mongoose';
+import { FilterQuery } from 'mongoose';
 
-export class LoopbackFilterDto {
+export class LoopbackFilterDto<T> {
   /**
    * The matching criteria
    */
-  where?: AnyObject;
+  where?: FilterQuery<T>;
   /**
    * To include/exclude fields
    */
-  fields?: [];
+  fields?: Object | string | string[];
   /**
    * Sorting order for matched entities. Each item should be formatted as
    * `fieldName ASC` or `fieldName DESC`.
