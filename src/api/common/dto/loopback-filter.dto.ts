@@ -1,4 +1,11 @@
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, SortOrder } from 'mongoose';
+
+export type Sort =
+  | string
+  | { [key: string]: SortOrder | { $meta: any } }
+  | [string, SortOrder][]
+  | undefined
+  | null;
 
 export class LoopbackFilterDto<T> {
   /**
@@ -17,7 +24,7 @@ export class LoopbackFilterDto<T> {
    * We might want to use `Order` in the future. Keep it as `string[]` for now
    * for compatibility with LoopBack 3.x.
    */
-  order?: string[];
+  order?: Sort;
   /**
    * Maximum number of entities
    */

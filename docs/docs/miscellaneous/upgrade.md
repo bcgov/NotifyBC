@@ -310,6 +310,19 @@ v5 introduced following backward incompatible changes
 | like, nlike, options: i | (replace with $regexp)                          |
 | regexp                  | $regexp                                         |
 
+4. API _order_ filter syntax has changed. Replace syntax from [Loopback](https://loopback.io/doc/en/lb4/Order-filter.html) to [Mongoose](<https://mongoosejs.com/docs/api/query.html#Query.prototype.sort()>) at client-side API call. For example, if your client-side code generates following API call
+   ```
+   GET http://localhost:3000/api/configurations?filter={"order":["serviceName asc"]}
+   ```
+   change to either
+   ```
+   GET http://localhost:3000/api/configurations?filter={"order":[["serviceName","asc"]]}
+   ```
+   or
+   ```
+   GET http://localhost:3000/api/configurations?filter={"order":"serviceName"}
+   ```
+
 After above changes are addressed, upgrading to v5 is as simple as
 
 ```sh
