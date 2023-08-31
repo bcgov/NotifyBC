@@ -20,8 +20,8 @@ export class ConfigurationsService {
   }
 
   findAll(filter: any = {}) {
-    const { where, fields, include, ...rest } = filter;
-    return this.configurationModel.find(where, fields, rest).exec();
+    const { where, fields, include, order, ...rest } = filter;
+    return this.configurationModel.find(where, fields, rest).sort(order).exec();
   }
 
   count(filter?: FilterQuery<Configuration>) {
