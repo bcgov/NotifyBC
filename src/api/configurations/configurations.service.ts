@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { Configuration } from './entities/configuration.entity';
@@ -22,6 +22,10 @@ export class ConfigurationsService {
   findAll(filter: any = {}) {
     const { where, fields, include, ...rest } = filter;
     return this.configurationModel.find(where, fields, rest).exec();
+  }
+
+  count(filter?: FilterQuery<Configuration>) {
+    return this.configurationModel.count(filter).exec();
   }
 
   findOne(id: number) {
