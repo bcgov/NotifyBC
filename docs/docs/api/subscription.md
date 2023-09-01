@@ -266,12 +266,11 @@ GET /subscriptions
   - admin
   - authenticated user
 - inputs
-  - a filter defining fields, where, include, order, offset, and limit. See [Loopback Querying Data](https://loopback.io/doc/en/lb4/Querying-data.html) for valid syntax and examples
-    - parameter name: filter
-    - required: false
-    - parameter type: query
-    - data type: object
+
+  - !!!include(./docs/shared/filterQueryParam.md)!!!
+
 - outcome
+
   - for admin requests, returns unabridged array of subscription data matching the filter
   - for authenticated user requests, in addition to filter, following constraints are imposed on the returned array
     - only non-deleted subscriptions
@@ -279,10 +278,20 @@ GET /subscriptions
     - the _confirmationRequest_ field is removed.
   - forbidden for anonymous user requests
 
+- example
+
+  to retrieve subscriptions created in year 2023, run
+
+  ```sh
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/subscriptions!!!include(./docs/shared/filterQueryParamCode.md)!!!'
+  ```
+
+  !!!include(./docs/shared/filterQueryParamExample.md)!!!
+
 ## Get Subscription Count
 
 ```
-GET /subscriptions/count?where[property]=value
+GET /subscriptions/count
 ```
 
 - permissions required, one of
@@ -290,11 +299,7 @@ GET /subscriptions/count?where[property]=value
   - admin
   - authenticated user
 - inputs
-  - a [where filter](https://loopback.io/doc/en/lb4/Where-filter.html)
-    - parameter name: where
-    - required: false
-    - parameter type: query
-    - data type: object
+  - !!!include(./docs/shared/whereQueryParam.md)!!!
 - outcome
 
   Validations rules are the same as _GET /subscriptions_. If passed, the output is a count of subscriptions matching the query
@@ -305,9 +310,15 @@ GET /subscriptions/count?where[property]=value
   }
   ```
 
-- examples
+- example
 
-  See LoopBack [Get instance count](http://loopback.io/doc/en/lb3/PersistedModel-REST-API.html#get-instance-count) for examples.
+  to retrieve the count of subscriptions created in year 2023, run
+
+  ```sh
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/subscriptions/count!!!include(./docs/shared/whereQueryParamCode.md)!!!'
+  ```
+
+  !!!include(./docs/shared/whereQueryParamExample.md)!!!
 
 ## Create a Subscription
 

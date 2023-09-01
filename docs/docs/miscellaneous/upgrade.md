@@ -273,7 +273,7 @@ v5 introduced following backward incompatible changes
 2. Update file _src/datasources/db.datasource.local.json_
 
    1. rename _url_ property to _uri_
-   2. for other properties, instead of following [LoopBack MongoDB data source](https://loopback.io/doc/en/lb4/MongoDB-connector.html#creating-a-mongodb-data-source), follow [Mongoose connection options](https://mongoosejs.com/docs/connections.html#options)
+   2. for other properties, instead of following [LoopBack MongoDB data source](https://loopback.io/doc/en/lb4/MongoDB-connector.html#creating-a-mongodb-data-source), follow [Mongoose connection options](https://mongoosejs.com/docs/connections.html#options). In particular, _host_, _port_ and _database_ properties are no longer supported. Use _uri_ instead.
 
    For example, change
 
@@ -295,20 +295,20 @@ v5 introduced following backward incompatible changes
 
 3. API querying operators have changed. Replace following [Loopback operators](https://loopback.io/doc/en/lb4/Where-filter.html#operators) with corresponding [MongoDB operators](https://www.mongodb.com/docs/manual/reference/operator/query/) at client-side API call.
 
-| Loopback operators      | MongoDB operators                               |
-| ----------------------- | ----------------------------------------------- |
-| eq                      | $eq                                             |
-| and                     | $and                                            |
-| or                      | $or                                             |
-| gt, gte                 | $gt, $gte                                       |
-| lt, lte                 | $lt, $lte                                       |
-| between                 | (no equivalent, replace with $gt, $and and $lt) |
-| inq, nin                | $in, $nin                                       |
-| near                    | $near                                           |
-| neq                     | $ne                                             |
-| like, nlike             | (replace with $regexp)                          |
-| like, nlike, options: i | (replace with $regexp)                          |
-| regexp                  | $regexp                                         |
+   | Loopback operators      | MongoDB operators                               |
+   | ----------------------- | ----------------------------------------------- |
+   | eq                      | $eq                                             |
+   | and                     | $and                                            |
+   | or                      | $or                                             |
+   | gt, gte                 | $gt, $gte                                       |
+   | lt, lte                 | $lt, $lte                                       |
+   | between                 | (no equivalent, replace with $gt, $and and $lt) |
+   | inq, nin                | $in, $nin                                       |
+   | near                    | $near                                           |
+   | neq                     | $ne                                             |
+   | like, nlike             | (replace with $regexp)                          |
+   | like, nlike, options: i | (replace with $regexp)                          |
+   | regexp                  | $regexp                                         |
 
 4. API _order_ filter syntax has changed. Replace syntax from [Loopback](https://loopback.io/doc/en/lb4/Order-filter.html) to [Mongoose](<https://mongoosejs.com/docs/api/query.html#Query.prototype.sort()>) at client-side API call. For example, if your client-side code generates following API call
    ```

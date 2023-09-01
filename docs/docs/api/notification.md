@@ -359,12 +359,11 @@ GET /notifications
   - admin
   - authenticated user
 - inputs
-  - a filter defining fields, where, include, order, offset, and limit. See [Loopback Querying Data](https://loopback.io/doc/en/lb4/Querying-data.html#filters) for valid syntax and examples
-    - parameter name: filter
-    - required: false
-    - parameter type: query
-    - data type: object
+
+  - !!!include(./docs/shared/filterQueryParam.md)!!!
+
 - outcome
+
   - for admin requests, returns unabridged array of notification data matching the filter
   - for authenticated user requests, in addition to filter, following constraints are imposed on the returned array
     - only inApp notifications
@@ -374,6 +373,16 @@ GET /notifications
     - if current user is in _readBy_, then the _state_ is changed to _read_
     - the internal field _readBy_ and _deletedBy_ are removed
   - forbidden to anonymous user requests
+
+- example
+
+  to retrieve notifications created in year 2023, run
+
+  ```sh
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/notifications!!!include(./docs/shared/filterQueryParamCode.md)!!!'
+  ```
+
+  !!!include(./docs/shared/filterQueryParamExample.md)!!!
 
 ## Get Notification Count
 
@@ -386,11 +395,7 @@ GET /notifications/count
   - admin
   - authenticated user
 - inputs
-  - a [where filter](https://loopback.io/doc/en/lb4/Where-filter.html)
-    - parameter name: filter
-    - required: false
-    - parameter type: query
-    - data type: object
+  - !!!include(./docs/shared/whereQueryParam.md)!!!
 - outcome
 
   Validations rules are the same as _GET /notifications_. If passed, the output is a count of notifications matching the query
@@ -400,6 +405,16 @@ GET /notifications/count
     "count": <number>
   }
   ```
+
+- example
+
+  to retrieve the count of notifications created in year 2023, run
+
+  ```sh
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/notifications/count!!!include(./docs/shared/whereQueryParamCode.md)!!!'
+  ```
+
+  !!!include(./docs/shared/whereQueryParamExample.md)!!!
 
 ## Create/Send Notifications
 
