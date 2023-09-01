@@ -331,52 +331,26 @@ This API allows a super-admin or admin to search for administrators. An admin ca
   - super admin
   - admin
 - inputs
-  - a filter defining fields, where, include, order, offset, and limit. See [Loopback Querying Data](https://loopback.io/doc/en/lb4/Querying-data.html) for valid syntax and examples
-    - parameter name: filter
-    - required: false
-    - parameter type: query
-    - data type: object
+
+  - !!!include(./docs/shared/filterQueryParam.md)!!!
+
 - outcome
+
   - for super-admins, returns an array of _Administrators_ matching the filter
   - for admins, returns an array of one element - own record if the record matches the filter; empty array otherwise
   - forbidden otherwise
 
-## Update Administrators
+- example
 
-```
-PATCH /administrators
-```
+  to retrieve administrators created in year 2023, run
 
-This API allows a super-admin or admin to update administrators. An admin can only update own record
+  ```sh
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/administrators!!!include(./docs/shared/filterQueryParamCode.md)!!!'
+  ```
 
-- permissions required, one of
-  - super admin
-  - admin
-- inputs
+  !!!include(./docs/shared/filterQueryParamExample.md)!!!
 
-  - a [where filter](https://loopback.io/doc/en/lb4/Where-filter.html)
-    - parameter name: where
-    - required: false
-    - parameter type: query
-    - data type: object
-  - user information
-
-    ```json
-    {
-      "username": "string",
-      "email": "string"
-    }
-    ```
-
-    - required: true
-    - parameter type: request body
-    - data type: object
-
-- outcome
-  - for super-admins or admin, successful count
-  - forbidden otherwise
-
-## Count Administrators
+## Get Administrator Count
 
 ```
 GET /administrators/count
@@ -388,16 +362,19 @@ This API allows a super-admin or admin to count administrators by filter. An adm
   - super admin
   - admin
 - inputs
-
-  - a [where filter](https://loopback.io/doc/en/lb4/Where-filter.html)
-    - parameter name: where
-    - required: false
-    - parameter type: query
-    - data type: object
-
+  - !!!include(./docs/shared/whereQueryParam.md)!!!
 - outcome
   - for super-admins or admin, a count matching the filter
   - forbidden otherwise
+- example
+
+  to retrieve the count of administrators created in year 2023 , run
+
+  ```sh
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/administrators/count!!!include(./docs/shared/whereQueryParamCode.md)!!!'
+  ```
+
+  !!!include(./docs/shared/whereQueryParamExample.md)!!!
 
 ## Delete an Administrator
 
@@ -531,15 +508,23 @@ This API allows a super-admin or admin to get access tokens by _Administrator_ i
     - required: true
     - parameter type: path
     - data type: string
-  - a _AccessToken_ filter defining fields, where, include, order, offset, and limit. See [Loopback Querying Data](https://loopback.io/doc/en/lb4/Querying-data.html) for valid syntax and examples
-    - parameter name: filter
-    - required: false
-    - parameter type: query
-    - data type: object
+  - !!!include(./docs/shared/filterQueryParam.md)!!!
 
-* outcome
+- outcome
+
   - for super-admins or admin, a list of *AccessToken*s matching the filter
   - forbidden otherwise
+
+- example
+
+  to retrieve access tokens created in year 2023 for administrator with _id_
+  of _1_, run
+
+  ```sh
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/administrators/1/access-tokens!!!include(./docs/shared/filterQueryParamCode.md)!!!'
+  ```
+
+  !!!include(./docs/shared/filterQueryParamExample.md)!!!
 
 ## Update an Administrator's AccessTokens
 
@@ -558,11 +543,7 @@ This API allows a super-admin or admin to update access tokens by _Administrator
     - required: true
     - parameter type: path
     - data type: string
-  - a [where filter](https://loopback.io/doc/en/lb4/Where-filter.html)
-    - parameter name: where
-    - required: false
-    - parameter type: query
-    - data type: object
+  - !!!include(./docs/shared/whereQueryParam.md)!!!
   - _AccessToken_ information
 
     ```json
@@ -576,9 +557,20 @@ This API allows a super-admin or admin to update access tokens by _Administrator
     - parameter type: request body
     - data type: object
 
-* outcome
+- outcome
+
   - for super-admins or admin, success count
   - forbidden otherwise
+
+- example
+
+  to set _ttl_ token to _0_ for all access tokens created in year 2023 for administrator with id 1, run
+
+  ```sh
+  curl -X PATCH --header 'Accept: application/json' 'http://localhost:3000/api/administrators/1/access-tokens!!!include(./docs/shared/whereQueryParamCode.md)!!!' -d '{"ttl":0}'
+  ```
+
+  !!!include(./docs/shared/whereQueryParamExample.md)!!!
 
 ## Create an Administrator's AccessToken
 
@@ -633,14 +625,21 @@ This API allows a super-admin or admin to delete access tokens by _Administrator
     - required: true
     - parameter type: path
     - data type: string
-  - an _AccessToken_ [where filter](https://loopback.io/doc/en/lb4/Where-filter.html)
-    - parameter name: where
-    - required: false
-    - parameter type: query
-    - data type: object
+  - !!!include(./docs/shared/whereQueryParam.md)!!!
 
-* outcome
+- outcome
+
   - for super-admins or admin
     - delete all _AccessToken_ under the _Administrator_ matching the filter
     - return success count
   - forbidden otherwise
+
+- example
+
+  to delete all access tokens created in year 2023 for administrator with id 1, run
+
+  ```sh
+  curl -X DELETE --header 'Accept: application/json' 'http://localhost:3000/api/administrators/1/access-tokens!!!include(./docs/shared/whereQueryParamCode.md)!!!'
+  ```
+
+  !!!include(./docs/shared/whereQueryParamExample.md)!!!

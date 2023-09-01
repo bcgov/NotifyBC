@@ -79,28 +79,22 @@ GET /configurations
   - super admin
   - admin
 - inputs
-  - a [filter](https://loopback.io/doc/en/lb4/Querying-data.html#filters) defining fields, where, include, order, offset, and limit
-    - parameter name: filter
-    - required: false
-    - parameter type: query
-    - data type: object
+
+  - !!!include(./docs/shared/filterQueryParam.md)!!!
+
 - outcome
 
   For admin request, a list of config items matching the filter; forbidden for user request
 
 - example
 
-  to retrieve config items with name _rsa_, run
+  to retrieve configs created in year 2023, run
 
   ```sh
-  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/configurations?filter=%7B%22where%22%3A%20%7B%22name%22%3A%22rsa%22%7D%7D'
+  curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/configurations!!!include(./docs/shared/filterQueryParamCode.md)!!!'
   ```
 
-  the value of filter query parameter is the [stringified JSON](https://loopback.io/doc/en/lb4/Querying-data.html#using-stringified-json-in-rest-queries)
-
-  ```json
-  {"where": {"name": "rsa"}}
-  ```
+  !!!include(./docs/shared/filterQueryParamExample.md)!!!
 
 ## Create a Configuration
 

@@ -1,8 +1,9 @@
-import packageJson, {description} from '../../package';
-import {defineUserConfig, defaultTheme} from 'vuepress';
-import {getDirname, path} from '@vuepress/utils';
-import {docsearchPlugin} from '@vuepress/plugin-docsearch';
 import codeCopyPlugin from '@snippetors/vuepress-plugin-code-copy';
+import { docsearchPlugin } from '@vuepress/plugin-docsearch';
+import { getDirname, path } from '@vuepress/utils';
+import markdownItInclude from 'markdown-it-include';
+import { defaultTheme, defineUserConfig } from 'vuepress';
+import packageJson, { description } from '../../package';
 
 const __dirname = getDirname(import.meta.url);
 
@@ -24,10 +25,13 @@ export default defineUserConfig({
    * ref：https://v1.vuepress.vuejs.org/config/#head
    */
   head: [
-    ['meta', {name: 'theme-color', content: '#3eaf7c'}],
-    ['meta', {name: 'apple-mobile-web-app-capable', content: 'yes'}],
-    ['meta', {name: 'apple-mobile-web-app-status-bar-style', content: 'black'}],
-    ['link', {rel: 'icon', type: 'image/x-icon', href: `${base}favicon.ico`}],
+    ['meta', { name: 'theme-color', content: '#3eaf7c' }],
+    ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
+    [
+      'meta',
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black' },
+    ],
+    ['link', { rel: 'icon', type: 'image/x-icon', href: `${base}favicon.ico` }],
     [
       'link',
       {
@@ -59,6 +63,11 @@ export default defineUserConfig({
     }),
     codeCopyPlugin(),
   ],
+
+  extendsMarkdown: (md) => {
+    // use more markdown-it plugins!
+    md.use(markdownItInclude);
+  },
 
   /**
    * Theme configuration, here is the default theme configuration for VuePress.
