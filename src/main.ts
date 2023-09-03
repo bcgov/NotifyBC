@@ -8,6 +8,11 @@ const packageJson = require('../package.json');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const appConfig = app.get(AppConfigService).get();
+
+  // app.setGlobalPrefix has to be called before SwaggerModule.setup
+  // otherwise swagger doesn't honor GlobalPrefix
+  app.setGlobalPrefix(appConfig.restApiRoot);
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('NotifyBC')
     .setDescription(packageJson.description)
@@ -15,7 +20,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document);
-  app.setGlobalPrefix(appConfig.restApiRoot);
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

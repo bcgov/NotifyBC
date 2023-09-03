@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, ObjectId } from 'mongoose';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { Configuration } from './entities/configuration.entity';
@@ -19,24 +19,41 @@ export class ConfigurationsService {
     return createdConfiguration.save();
   }
 
+  count(filter?: FilterQuery<Configuration>) {
+    return this.configurationModel.count(filter).exec();
+  }
+
   findAll(filter: any = {}) {
     const { where, fields, include, order, ...rest } = filter;
     return this.configurationModel.find(where, fields, rest).sort(order).exec();
   }
 
-  count(filter?: FilterQuery<Configuration>) {
-    return this.configurationModel.count(filter).exec();
+  updateAll(
+    updateConfigurationDto: UpdateConfigurationDto,
+    filter?: FilterQuery<Configuration>,
+  ) {
+    return this.configurationModel
+      .updateMany(filter, updateConfigurationDto)
+      .exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} configuration`;
+  findOne(id: ObjectId) {
+    return this.configurationModel.findById(id).exec();
   }
 
-  update(id: number, updateConfigurationDto: UpdateConfigurationDto) {
-    return `This action updates a #${id} configuration`;
+  update(id: ObjectId, updateConfigurationDto: UpdateConfigurationDto) {
+    return this.configurationModel
+      .findByIdAndDelete(id, updateConfigurationDto)
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} configuration`;
+  replaceById(_id: ObjectId, updateConfigurationDto: UpdateConfigurationDto) {
+    return this.configurationModel
+      .findOneAndReplace({ _id }, updateConfigurationDto)
+      .exec();
+  }
+
+  remove(id: ObjectId) {
+    return this.configurationModel.findByIdAndRemove(id).exec();
   }
 }

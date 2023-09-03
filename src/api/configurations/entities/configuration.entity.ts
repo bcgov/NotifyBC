@@ -4,15 +4,15 @@ import { BaseEntity } from 'src/api/common/base.entity';
 
 export type ConfigurationDocument = HydratedDocument<Configuration>;
 
-@Schema({ collection: 'configuration' })
+@Schema({ collection: 'configuration', strict: false })
 export class Configuration extends BaseEntity {
   @Prop({
     required: true,
   })
   name: string;
 
-  @Prop({ type: mongoose.Schema.Types.Mixed })
-  value?: any;
+  @Prop({ type: mongoose.Schema.Types.Mixed, required: true })
+  value: any;
 
   @Prop()
   serviceName?: string;
