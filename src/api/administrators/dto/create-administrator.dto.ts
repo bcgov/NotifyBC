@@ -1,1 +1,3 @@
-export class CreateAdministratorDto {}
+import { Administrator } from '../entities/administrator.entity';
+
+export class CreateAdministratorDto extends Administrator {}
