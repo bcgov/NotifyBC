@@ -1,10 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { BaseEntity } from 'src/api/common/base.entity';
+import { BaseEntity, BaseSchemaOptions } from 'src/api/common/base.entity';
 
 export type ConfigurationDocument = HydratedDocument<Configuration>;
 
-@Schema({ collection: 'configuration', strict: false })
+@Schema({
+  collection: 'configuration',
+  ...BaseSchemaOptions,
+})
 export class Configuration extends BaseEntity {
   @Prop({
     required: true,
