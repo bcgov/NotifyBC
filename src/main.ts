@@ -27,7 +27,12 @@ async function bootstrap() {
   });
   SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document, {
     patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
-      const url = `${req.protocol}://${req.host}:${req.connection.localPort}`;
+      let colonPort = ':' + req.connection.localPort;
+      if (req.connection.localPort === 80 && req.protocol === 'http')
+        colonPort = '';
+      if (req.connection.localPort === 443 && req.protocol === 'https')
+        colonPort = '';
+      const url = `${req.protocol}://${req.host}${colonPort}`;
       if (!document.servers.find((v: any) => v.url === url)) {
         document.servers.push({
           url,
