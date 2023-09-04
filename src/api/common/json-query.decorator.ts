@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { ApiQuery, getSchemaPath } from '@nestjs/swagger';
 import { Request } from 'express';
-import { LoopbackFilterDto } from './dto/loopback-filter.dto';
+import { FilterDto } from './dto/filter.dto';
 export const JsonQuery = createParamDecorator<string>(
   (data, ctx: ExecutionContext) => {
     const req = ctx.switchToHttp().getRequest<Request>();
@@ -21,7 +21,7 @@ export function ApiFilterJsonQuery() {
       name: 'filter',
       content: {
         'application/json': {
-          schema: { $ref: getSchemaPath(LoopbackFilterDto) },
+          schema: { $ref: getSchemaPath(FilterDto) },
         },
       },
     }),

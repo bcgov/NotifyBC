@@ -7,7 +7,7 @@ export type Sort =
   | undefined
   | null;
 
-export class LoopbackFilterDto<T> {
+export class FilterDto<T> {
   /**
    * The matching criteria
    */

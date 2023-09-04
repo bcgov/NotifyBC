@@ -17,7 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
-import { LoopbackFilterDto } from '../common/dto/loopback-filter.dto';
+import { FilterDto } from '../common/dto/filter.dto';
 import { UpdateManyResultDto } from '../common/dto/update-many-result.dto';
 import {
   ApiFilterJsonQuery,
@@ -56,7 +56,7 @@ export class ConfigurationsController {
   })
   findAll(
     @JsonQuery('filter')
-    filter: LoopbackFilterDto<Configuration>,
+    filter: FilterDto<Configuration>,
   ) {
     return this.configurationsService.findAll(filter);
   }
