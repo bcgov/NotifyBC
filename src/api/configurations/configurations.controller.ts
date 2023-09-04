@@ -11,7 +11,11 @@ import {
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { FilterQuery, ObjectId } from 'mongoose';
 import { LoopbackFilterDto } from '../common/dto/loopback-filter.dto';
-import { JsonQuery } from '../common/json-query.decorator';
+import {
+  ApiFilterJsonQuery,
+  ApiWhereJsonQuery,
+  JsonQuery,
+} from '../common/json-query.decorator';
 import { ConfigurationsService } from './configurations.service';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
@@ -29,11 +33,13 @@ export class ConfigurationsController {
   }
 
   @Get('count')
+  @ApiWhereJsonQuery()
   count(@JsonQuery('where') where?: FilterQuery<Configuration>) {
     return this.configurationsService.count(where);
   }
 
   @Get()
+  @ApiFilterJsonQuery()
   findAll(
     @JsonQuery('filter')
     filter: LoopbackFilterDto<Configuration>,
@@ -42,6 +48,7 @@ export class ConfigurationsController {
   }
 
   @Patch()
+  @ApiWhereJsonQuery()
   updateAll(
     @Body() updateConfigurationDto: UpdateConfigurationDto,
     @JsonQuery('where') where?: FilterQuery<Configuration>,
