@@ -1,7 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
-import { LoopbackFilterDto } from './api/common/dto/loopback-filter.dto';
+import { FilterDto } from './api/common/dto/filter.dto';
 import { UpdateManyResultDto } from './api/common/dto/update-many-result.dto';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
@@ -23,7 +23,7 @@ async function bootstrap() {
     .setVersion(packageJson.version)
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig, {
-    extraModels: [LoopbackFilterDto, UpdateManyResultDto],
+    extraModels: [FilterDto, UpdateManyResultDto],
   });
   SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document, {
     patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
