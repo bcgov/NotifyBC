@@ -97,7 +97,7 @@ export class ConfigurationsController {
   @ApiNoContentResponse({ description: 'Configuration PUT success' })
   replaceById(
     @Param('id') id: string,
-    @Body() updateConfigurationDto: UpdateConfigurationDto,
+    @Body() updateConfigurationDto: CreateConfigurationDto,
   ) {
     return this.configurationsService.replaceById(id, updateConfigurationDto);
   }

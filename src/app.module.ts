@@ -13,11 +13,11 @@ import { DbConfigService } from './config/db-config.service';
 @Module({
   imports: [
     ConfigModule,
+    AdministratorsModule,
+    BouncesModule,
     ConfigurationsModule,
     NotificationsModule,
     SubscriptionsModule,
-    AdministratorsModule,
-    BouncesModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (dbConfigService: DbConfigService) => {

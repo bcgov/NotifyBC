@@ -43,7 +43,7 @@ export class ConfigurationsService {
 
   update(id: string, updateConfigurationDto: UpdateConfigurationDto) {
     return this.configurationModel
-      .findByIdAndDelete(id, updateConfigurationDto)
+      .findByIdAndUpdate(id, updateConfigurationDto)
       .exec();
   }
 

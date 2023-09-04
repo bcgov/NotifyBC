@@ -34,6 +34,7 @@
       "autoAttachChildProcesses": true,
       "runtimeArgs": ["run", "nodemon"],
       "outputCapture": "std",
+      "cwd": "${workspaceFolder}/notify-bc-lb",
       "env": {
         "NODE_ENV": "dev",
         "NOTIFYBC_WORKER_PROCESS_COUNT": "1",
