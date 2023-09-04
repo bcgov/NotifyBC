@@ -1,8 +1,10 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { LoopbackFilterDto } from './api/common/dto/loopback-filter.dto';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
+
 const packageJson = require('../package.json');
 
 async function bootstrap() {
@@ -18,8 +20,20 @@ async function bootstrap() {
     .setDescription(packageJson.description)
     .setVersion(packageJson.version)
     .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document);
+  const document = SwaggerModule.createDocument(app, swaggerConfig, {
+    extraModels: [LoopbackFilterDto],
+  });
+  SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document, {
+    patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
+      const url = `${req.protocol}://${req.host}:${req.connection.localPort}`;
+      if (!document.servers.find((v: any) => v.url === url)) {
+        document.servers.push({
+          url,
+        });
+      }
+      return document;
+    },
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
