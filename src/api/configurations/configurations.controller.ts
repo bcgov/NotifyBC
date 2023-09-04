@@ -3,14 +3,22 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
-import { FilterQuery, ObjectId } from 'mongoose';
+import {
+  ApiCreatedResponse,
+  ApiExtraModels,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { FilterQuery } from 'mongoose';
 import { LoopbackFilterDto } from '../common/dto/loopback-filter.dto';
+import { UpdateManyResultDto } from '../common/dto/update-many-result.dto';
 import {
   ApiFilterJsonQuery,
   ApiWhereJsonQuery,
@@ -28,6 +36,9 @@ export class ConfigurationsController {
   constructor(private readonly configurationsService: ConfigurationsService) {}
 
   @Post()
+  @ApiCreatedResponse({
+    type: Configuration,
+  })
   create(@Body() createConfigurationDto: CreateConfigurationDto) {
     return this.configurationsService.create(createConfigurationDto);
   }
@@ -40,6 +51,9 @@ export class ConfigurationsController {
 
   @Get()
   @ApiFilterJsonQuery()
+  @ApiOkResponse({
+    type: [Configuration],
+  })
   findAll(
     @JsonQuery('filter')
     filter: LoopbackFilterDto<Configuration>,
@@ -49,6 +63,10 @@ export class ConfigurationsController {
 
   @Patch()
   @ApiWhereJsonQuery()
+  @ApiOkResponse({
+    description: 'Configuration PATCH success count',
+    type: UpdateManyResultDto,
+  })
   updateAll(
     @Body() updateConfigurationDto: UpdateConfigurationDto,
     @JsonQuery('where') where?: FilterQuery<Configuration>,
@@ -57,28 +75,34 @@ export class ConfigurationsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: ObjectId) {
+  findOne(@Param('id') id: string) {
     return this.configurationsService.findOne(id);
   }
 
   @Patch(':id')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Configuration PATCH success' })
   update(
-    @Param('id') id: ObjectId,
+    @Param('id') id: string,
     @Body() updateConfigurationDto: UpdateConfigurationDto,
   ) {
-    return this.configurationsService.update(id, updateConfigurationDto);
+    this.configurationsService.update(id, updateConfigurationDto);
   }
 
   @Put(':id')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Configuration PUT success' })
   replaceById(
-    @Param('id') id: ObjectId,
+    @Param('id') id: string,
     @Body() updateConfigurationDto: UpdateConfigurationDto,
   ) {
-    return this.configurationsService.replaceById(id, updateConfigurationDto);
+    this.configurationsService.replaceById(id, updateConfigurationDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: ObjectId) {
-    return this.configurationsService.remove(id);
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Configuration DELETE success' })
+  remove(@Param('id') id: string) {
+    this.configurationsService.remove(id);
   }
 }
