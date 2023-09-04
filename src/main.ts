@@ -18,6 +18,7 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('NotifyBC')
+    .setExternalDoc('./openapi.json', `${appConfig.restApiRoot}/explorer-json`)
     .setDescription(packageJson.description)
     .setVersion(packageJson.version)
     .build();

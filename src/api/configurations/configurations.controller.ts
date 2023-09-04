@@ -75,6 +75,9 @@ export class ConfigurationsController {
   }
 
   @Get(':id')
+  @ApiOkResponse({
+    type: [Configuration],
+  })
   findOne(@Param('id') id: string) {
     return this.configurationsService.findOne(id);
   }
