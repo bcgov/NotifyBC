@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, ObjectId } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { Configuration } from './entities/configuration.entity';
@@ -37,23 +37,23 @@ export class ConfigurationsService {
       .exec();
   }
 
-  findOne(id: ObjectId) {
+  findOne(id: string) {
     return this.configurationModel.findById(id).exec();
   }
 
-  update(id: ObjectId, updateConfigurationDto: UpdateConfigurationDto) {
+  update(id: string, updateConfigurationDto: UpdateConfigurationDto) {
     return this.configurationModel
       .findByIdAndDelete(id, updateConfigurationDto)
       .exec();
   }
 
-  replaceById(_id: ObjectId, updateConfigurationDto: UpdateConfigurationDto) {
+  replaceById(_id: string, updateConfigurationDto: UpdateConfigurationDto) {
     return this.configurationModel
       .findOneAndReplace({ _id }, updateConfigurationDto)
       .exec();
   }
 
-  remove(id: ObjectId) {
-    return this.configurationModel.findByIdAndRemove(id).exec();
+  remove(id: string) {
+    this.configurationModel.findByIdAndRemove(id).exec();
   }
 }
