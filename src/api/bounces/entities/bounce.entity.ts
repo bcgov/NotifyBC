@@ -1,6 +1,10 @@
-import { Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { BaseEntity, BaseSchemaOptions } from 'src/api/common/base.entity';
+import {
+  BounceMessageItem,
+  BounceMessageItemSchema,
+} from './bounce-message-item.entity';
 
 export type BounceDocument = HydratedDocument<Bounce>;
 
@@ -8,7 +12,41 @@ export type BounceDocument = HydratedDocument<Bounce>;
   collection: 'bounce',
   ...BaseSchemaOptions,
 })
-export class Bounce extends BaseEntity {}
+export class Bounce extends BaseEntity {
+  @Prop({
+    required: true,
+  })
+  channel: string;
+
+  @Prop({
+    required: true,
+  })
+  userChannelId: string;
+
+  @Prop({
+    default: 0,
+  })
+  hardBounceCount: number;
+
+  @Prop({
+    default: 'active',
+  })
+  state: string;
+
+  // @Prop({
+  //   type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BounceMessageItem' }],
+  // })
+  @Prop({ type: [BounceMessageItemSchema] })
+  bounceMessages?: BounceMessageItem[];
+
+  @Prop({
+    default: null,
+  })
+  latestNotificationStarted?: Date;
+
+  @Prop()
+  latestNotificationEnded?: Date;
+}
 
 export const BounceSchema = SchemaFactory.createForClass(Bounce)
   .index(

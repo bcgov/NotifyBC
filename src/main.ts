@@ -35,7 +35,7 @@ async function bootstrap() {
         colonPort = '';
       if (req.connection.localPort === 443 && req.protocol === 'https')
         colonPort = '';
-      const url = `${req.protocol}://${req.host}${colonPort}`;
+      const url = `${req.protocol}://${req.hostname}${colonPort}`;
       if (!document.servers.find((v: any) => v.url === url)) {
         document.servers.push({
           url,
