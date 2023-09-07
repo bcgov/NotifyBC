@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { FilterDto } from './api/common/dto/filter.dto';
 import { UpdateManyResultDto } from './api/common/dto/update-many-result.dto';
+import { ErrorsInterceptor } from './api/common/errors.interceptor';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
 
@@ -10,6 +11,8 @@ const packageJson = require('../package.json');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalInterceptors(new ErrorsInterceptor());
+
   const appConfig = app.get(AppConfigService).get();
 
   // app.setGlobalPrefix has to be called before SwaggerModule.setup

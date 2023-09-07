@@ -89,7 +89,7 @@ export class ConfigurationsController {
     @Param('id') id: string,
     @Body() updateConfigurationDto: UpdateConfigurationDto,
   ) {
-    this.configurationsService.update(id, updateConfigurationDto);
+    return this.configurationsService.update(id, updateConfigurationDto);
   }
 
   @Put(':id')
@@ -99,13 +99,13 @@ export class ConfigurationsController {
     @Param('id') id: string,
     @Body() updateConfigurationDto: UpdateConfigurationDto,
   ) {
-    this.configurationsService.replaceById(id, updateConfigurationDto);
+    return this.configurationsService.replaceById(id, updateConfigurationDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
   @ApiNoContentResponse({ description: 'Configuration DELETE success' })
   remove(@Param('id') id: string) {
-    this.configurationsService.remove(id);
+    return this.configurationsService.remove(id);
   }
 }
