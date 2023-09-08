@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -10,14 +11,18 @@ import {
 } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
-import { Role } from 'src/auth/constants';
+import { AuthnStrategy, Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
+import { AccessTokenService } from './access-token.service';
 import { AdministratorsService } from './administrators.service';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
+import { LoginDto } from './dto/login.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
+import { AccessToken } from './entities/access-token.entity';
 import { Administrator } from './entities/administrator.entity';
+import { UserCredential } from './entities/user-credential.entity';
 
 @Controller('administrators')
 @ApiTags('administrator')
@@ -28,7 +33,10 @@ import { Administrator } from './entities/administrator.entity';
 @ApiExtraModels(UserProfile)
 @Roles(Role.SuperAdmin, Role.Admin)
 export class AdministratorsController {
-  constructor(private readonly administratorsService: AdministratorsService) {}
+  constructor(
+    private readonly administratorsService: AdministratorsService,
+    private readonly accessTokenService: AccessTokenService,
+  ) {}
 
   @Get('count')
   @ApiWhereJsonQuery()

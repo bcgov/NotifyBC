@@ -11,6 +11,12 @@ export class BaseEntity {
 
   @Prop()
   updated?: Date;
+
+  @Prop({ type: mongoose.Schema.Types.Mixed })
+  createdBy?: any;
+
+  @Prop({ type: mongoose.Schema.Types.Mixed })
+  updatedBy?: any;
 }
 
 export const BaseSchemaOptions = {

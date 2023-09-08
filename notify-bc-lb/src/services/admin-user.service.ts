@@ -34,6 +34,8 @@ export class AdminUserService
     @repository(AdministratorRepository)
     public userRepository: AdministratorRepository,
   ) {}
+
+  // start: ported
   async verifyCredentials(credentials: Credentials): Promise<Administrator> {
     const invalidCredentialsError = 'Invalid email or password.';
 
@@ -65,4 +67,5 @@ export class AdminUserService
       email: user.email,
     };
   }
+  // end: ported
 }

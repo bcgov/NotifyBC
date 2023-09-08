@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { compact } from 'lodash';
 import { FilterQuery, Model } from 'mongoose';
 export class BaseService<T> {
-  constructor(private model: Model<T>) {}
+  constructor(protected model: Model<T>) {}
 
   create(createDto, req: (Request & { user?: any }) | null) {
     if (req?.user) {

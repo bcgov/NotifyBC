@@ -26,6 +26,7 @@ import cryptoRandomString from 'crypto-random-string';
  * This class will be bound to the application as an `Interceptor` during
  * `boot`
  */
+// file ported
 @injectable({tags: {key: AccessTokenBeforeCreateInterceptor.BINDING_KEY}})
 export class AccessTokenBeforeCreateInterceptor
   implements Provider<Interceptor>

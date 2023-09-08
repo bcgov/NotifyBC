@@ -38,6 +38,7 @@
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "crypto-random-string": "^3.3.0",
     "ip-range-check": "^0.2.0",
     "lodash": "^4.17.21",
     "mongodb-memory-server": "^8.15.1",

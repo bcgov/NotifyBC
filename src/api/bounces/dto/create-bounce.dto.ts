@@ -5,4 +5,6 @@ export class CreateBounceDto extends OmitType(Bounce, [
   'id',
   'created',
   'updated',
+  'createdBy',
+  'updatedBy',
 ] as const) {}
