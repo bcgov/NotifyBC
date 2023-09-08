@@ -19,25 +19,25 @@ import {
   CountSchema,
   Filter,
   FilterExcludingWhere,
+  Where,
   model,
   property,
   repository,
-  Where,
 } from '@loopback/repository';
 import {
+  HttpErrors,
+  SchemaObject,
   del,
   get,
   getModelSchemaRef,
-  HttpErrors,
   oas,
   param,
   patch,
   post,
   put,
   requestBody,
-  SchemaObject,
 } from '@loopback/rest';
-import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {SecurityBindings, UserProfile, securityId} from '@loopback/security';
 import _ from 'lodash';
 import {AdministratorUserCredentialController} from '.';
 import {Administrator, PASSWORD_COMPLEXITY_REGEX} from '../models';
@@ -178,6 +178,7 @@ export class AdministratorController extends BaseController {
   }
 
   @authenticate('anonymous')
+  // start: ported
   @post('/administrators/login', {
     responses: {
       '200': {
@@ -212,6 +213,7 @@ export class AdministratorController extends BaseController {
     });
     return {token};
   }
+  // end: ported
 
   @authenticate(
     'ipWhitelist',
@@ -237,6 +239,7 @@ export class AdministratorController extends BaseController {
     return this.user;
   }
 
+  // start: ported
   @get('/administrators/count', {
     responses: {
       '200': {
@@ -253,6 +256,7 @@ export class AdministratorController extends BaseController {
     }
     return this.administratorRepository.count(where, undefined);
   }
+  // end: ported
 
   @get('/administrators', {
     responses: {

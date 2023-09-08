@@ -5,4 +5,6 @@ export class CreateConfigurationDto extends OmitType(Configuration, [
   'id',
   'created',
   'updated',
+  'createdBy',
+  'updatedBy',
 ] as const) {}
