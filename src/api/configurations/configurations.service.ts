@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { compact } from 'lodash';
 import { FilterQuery, Model } from 'mongoose';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { Configuration } from './entities/configuration.entity';
-
 @Injectable()
 export class ConfigurationsService {
   constructor(
@@ -24,8 +24,31 @@ export class ConfigurationsService {
   }
 
   findAll(filter: any = {}) {
-    const { where, fields, include, order, ...rest } = filter;
-    return this.configurationModel.find(where, fields, rest).sort(order).exec();
+    const { where, fields, include, order, skip, limit, ...rest } = filter;
+    return this.configurationModel
+      .aggregate(
+        compact([
+          {
+            $addFields: {
+              id: { $toString: '$_id' },
+            },
+          },
+          where && {
+            $match: where,
+          },
+          order && {
+            $sort: order,
+          },
+          skip && {
+            $skip: skip,
+          },
+          limit && { $limit: limit },
+          {
+            $project: { ...fields, _id: false },
+          },
+        ]),
+      )
+      .exec();
   }
 
   updateAll(
