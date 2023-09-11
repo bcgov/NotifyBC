@@ -8,22 +8,41 @@ export class BaseService<T> {
     return createdConfiguration.save();
   }
 
-  count(filter?: FilterQuery<T>) {
-    return this.model.count(filter).exec();
+  async count(filter?: FilterQuery<T>) {
+    const castedFilter = this.model.countDocuments(filter).cast();
+    const res = await this.model
+      .aggregate(
+        compact([
+          {
+            $addFields: {
+              id: '$_id',
+            },
+          },
+          filter && {
+            $match: castedFilter,
+          },
+          {
+            $count: 'count',
+          },
+        ]),
+      )
+      .exec();
+    return res[0]?.count || 0;
   }
 
   findAll(filter: any = {}) {
     const { where, fields, order, skip, limit } = filter;
+    const castedWhere = this.model.find(where).cast();
     return this.model
       .aggregate(
         compact([
           {
             $addFields: {
-              id: { $toString: '$_id' },
+              id: '$_id',
             },
           },
           where && {
-            $match: where,
+            $match: castedWhere,
           },
           order && {
             $sort: order,
