@@ -1,9 +1,9 @@
 import { Prop, Schema } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import mongoose from 'mongoose';
 
 @Schema()
 export class BaseEntity {
-  @Prop(Types.ObjectId)
+  @Prop(mongoose.Schema.Types.ObjectId)
   id?: string;
 
   @Prop({ default: Date.now })
