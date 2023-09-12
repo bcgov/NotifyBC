@@ -60,7 +60,33 @@ export class BaseService<T> {
   }
 
   updateAll(updateDto, filter?: FilterQuery<T>) {
-    return this.model.updateMany(filter, updateDto).exec();
+    const castedFilter = this.model.find(filter).cast();
+    return this.model
+      .aggregate(
+        compact([
+          {
+            $addFields: {
+              id: '$_id',
+            },
+          },
+          filter && {
+            $match: castedFilter,
+          },
+          {
+            $addFields: updateDto,
+          },
+          { $unset: 'id' },
+          {
+            $merge: {
+              into: this.model.collection.name,
+              on: '_id',
+              whenMatched: 'replace',
+              whenNotMatched: 'fail',
+            },
+          },
+        ]),
+      )
+      .exec();
   }
 
   findOne(id: string) {
