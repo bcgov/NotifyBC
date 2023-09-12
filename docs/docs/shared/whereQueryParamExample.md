@@ -1,4 +1,4 @@
-the value of the filter query parameter is URL-encoded stringified JSON object
+the value of the _where_ query parameter is URL-encoded stringified JSON object
 
     ```json
     {

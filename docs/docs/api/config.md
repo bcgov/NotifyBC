@@ -150,6 +150,41 @@ PATCH /configurations/{id}
 
   Similar to _POST_ except field _update_ is always updated with current timestamp.
 
+## Update Configurations
+
+```
+PATCH /configurations
+```
+
+- permissions required, one of
+  - super admin
+  - admin
+- inputs
+
+  - !!!include(./docs/shared/whereQueryParam.md)!!!
+  - an object containing fields to be updated.
+    - required: true
+    - parameter type: body
+    - data type: object
+
+- outcome
+
+  Similar to _POST_ except field _update_ is always updated with current timestamp.
+
+- example
+
+  to set _serviceName_ to _myService_ for all configs created in year 2023 , run
+
+  ```sh
+  curl -X PATCH --header 'Content-Type: application/json' 'http://localhost:3000/api/configurations!!!include(./docs/shared/whereQueryParamCode.md)!!!' -d @- << EOF
+  {
+    "serviceName": "myService",
+  }
+  EOF
+  ```
+
+  !!!include(./docs/shared/whereQueryParamExample.md)!!!
+
 ## Delete a Configuration
 
 ```
