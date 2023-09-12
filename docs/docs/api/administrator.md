@@ -567,7 +567,7 @@ This API allows a super-admin or admin to update access tokens by _Administrator
   to set _ttl_ token to _0_ for all access tokens created in year 2023 for administrator with id 1, run
 
   ```sh
-  curl -X PATCH --header 'Accept: application/json' 'http://localhost:3000/api/administrators/1/access-tokens!!!include(./docs/shared/whereQueryParamCode.md)!!!' -d '{"ttl":0}'
+  curl -X PATCH --header 'Content-Type: application/json' 'http://localhost:3000/api/administrators/1/access-tokens!!!include(./docs/shared/whereQueryParamCode.md)!!!' -d '{"ttl":0}'
   ```
 
   !!!include(./docs/shared/whereQueryParamExample.md)!!!
