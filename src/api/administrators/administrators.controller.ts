@@ -43,7 +43,7 @@ export class AdministratorsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.administratorsService.findOne(+id);
+    return this.administratorsService.findOne(id);
   }
 
   @Patch(':id')
@@ -51,11 +51,11 @@ export class AdministratorsController {
     @Param('id') id: string,
     @Body() updateAdministratorDto: UpdateAdministratorDto,
   ) {
-    return this.administratorsService.update(+id, updateAdministratorDto);
+    return this.administratorsService.update(id, updateAdministratorDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.administratorsService.remove(+id);
+    return this.administratorsService.remove(id);
   }
 }

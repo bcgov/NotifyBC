@@ -18,7 +18,6 @@ import {
 } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
 import { FilterDto } from '../common/dto/filter.dto';
-import { UpdateManyResultDto } from '../common/dto/update-many-result.dto';
 import {
   ApiFilterJsonQuery,
   ApiWhereJsonQuery,
@@ -63,10 +62,8 @@ export class ConfigurationsController {
 
   @Patch()
   @ApiWhereJsonQuery()
-  @ApiOkResponse({
-    description: 'Configuration PATCH success count',
-    type: UpdateManyResultDto,
-  })
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Configuration PATCH success' })
   updateAll(
     @Body() updateConfigurationDto: UpdateConfigurationDto,
     @JsonQuery('where') where?: FilterQuery<Configuration>,

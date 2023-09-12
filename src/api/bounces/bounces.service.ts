@@ -5,7 +5,7 @@ import { BaseService } from '../common/base.service';
 import { Bounce } from './entities/bounce.entity';
 
 @Injectable()
-export class ConfigurationsService extends BaseService<Bounce> {
+export class BouncesService extends BaseService<Bounce> {
   constructor(
     @InjectModel(Bounce.name)
     model: Model<Bounce>,

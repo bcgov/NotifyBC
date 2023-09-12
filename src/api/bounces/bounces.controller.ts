@@ -18,7 +18,6 @@ import {
 } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
 import { FilterDto } from '../common/dto/filter.dto';
-import { UpdateManyResultDto } from '../common/dto/update-many-result.dto';
 import {
   ApiFilterJsonQuery,
   ApiWhereJsonQuery,
@@ -92,10 +91,8 @@ export class BouncesController {
 
   @Patch()
   @ApiWhereJsonQuery()
-  @ApiOkResponse({
-    description: 'Bounce PATCH result',
-    type: UpdateManyResultDto,
-  })
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Bounce PATCH success' })
   updateAll(
     @Body() updateConfigurationDto: UpdateBounceDto,
     @JsonQuery('where') where?: FilterQuery<Bounce>,
