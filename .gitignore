@@ -65,6 +65,7 @@ typings/
 
 # NotifyBC
 **/*.local.*
-/server/database/data.json
+/server/database/
 /server/certs/**
 !/server/certs/.keep
+notify-bc-lb/
