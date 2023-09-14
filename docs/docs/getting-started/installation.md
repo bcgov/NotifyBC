@@ -369,7 +369,7 @@ The above settings assume you have setup secret \<docker-pull-secret\> to access
 If you have git and Docker installed, you can run following command to deploy _NotifyBC_ Docker container:
 
 ```sh
-docker run --rm -dp 3000:3000 ghcr.io/bcgov/notify-bc
+docker run --platform linux/amd64 --rm -dp 3000:3000 ghcr.io/bcgov/notify-bc
 # open http://localhost:3000
 ```
 
