@@ -136,14 +136,15 @@ To install,
 
    The above commands create following artifacts:
 
-   - A MongoDB cluster with 2 nodes and 1 arbiter, each implemented as a stateful set
-   - Two deployments - _notify-bc-app_ and _notify-bc-cron_
-   - One HPA - _notify-bc-cron_
-   - Four services - _notify-bc_, _notify-bc-smtp_, _mongodb-headless_ and _mongodb-arbiter-headless_
-   - Two PVCs each for one MongoDB node
-   - Two config maps - _notify-bc_ and _mongodb-scripts_
-   - Two service accounts - _notify-bc_ and _mongodb_
-   - One more more secrets, with the most important one being _mongodb_, containing MongoDB connection credentials
+   - 1 stateful set of 3 pods running a MongoDB replicaset
+   - 1 stateful set of 3 pods running a Redis sentinel
+   - 2 deployments - _notify-bc-app_ and _notify-bc-cron_
+   - 1 HPA - _notify-bc-cron_
+   - 5 services - _notify-bc_, _notify-bc-smtp_, _mongodb-headless_, _redis_ and _redis-headless_
+   - 3 PVCs each for one MongoDB pod
+   - 3 service accounts - _notify-bc_, _mongodb_ and _redis_
+   - a few config maps, most importantly _notify-bc_
+   - a few secrets, most importantly _mongodb_ and _redis_, containing credentials for Mongodb and Redis respectively
    - On AKS,
      - a _notify-bc_ ingress
    - On OpenShift,

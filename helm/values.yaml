@@ -86,6 +86,7 @@ affinity: {}
 
 mongodb:
   architecture: replicaset
+  replicaCount: 3
   auth:
     username: notify-bc
     database: notify-bc
@@ -97,10 +98,7 @@ mongodb:
   containerSecurityContext:
     enabled: false
   arbiter:
-    podSecurityContext:
-      enabled: false
-    containerSecurityContext:
-      enabled: false
+    enabled: false
 
 configMap:
   config.local.js: |-
