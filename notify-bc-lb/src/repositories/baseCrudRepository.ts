@@ -15,7 +15,7 @@
 import {ApplicationConfig, CoreBindings, Getter, inject} from '@loopback/core';
 import {DefaultCrudRepository, Entity, juggler} from '@loopback/repository';
 import {MiddlewareBindings, MiddlewareContext} from '@loopback/rest';
-import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {SecurityBindings, UserProfile, securityId} from '@loopback/security';
 const ipRangeCheck = require('ip-range-check');
 
 export class BaseCrudRepository<
@@ -82,12 +82,15 @@ export class BaseCrudRepository<
       return true;
     }
 
+    // start: ported
     const adminIps = this.appConfig.adminIps || this.appConfig.defaultAdminIps;
     if (adminIps && adminIps.length > 0) {
       return adminIps.some(function (e: string) {
         return ipRangeCheck(request.ip, e);
       });
     }
+    // end: ported
+
     return false;
   }
 
