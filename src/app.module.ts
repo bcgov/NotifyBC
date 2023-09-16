@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { DbConfigService } from './config/db-config.service';
       },
       inject: [DbConfigService],
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
