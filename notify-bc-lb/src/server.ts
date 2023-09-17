@@ -46,8 +46,10 @@ export class ExpressServer {
     // Mount the LB4 REST API
     this.app.use(this.lbApp.options.restApiRoot, this.lbApp.requestHandler);
 
+    // start: ported
     this.lbApp.options.trustedReverseProxyIps &&
       this.app.set('trust proxy', this.lbApp.options.trustedReverseProxyIps);
+    // end: ported
 
     // Custom Express routes
     webAdminConsole(this);
