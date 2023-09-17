@@ -1,5 +1,6 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { FilterDto } from './api/common/dto/filter.dto';
 import { ErrorsInterceptor } from './api/common/errors.interceptor';
@@ -9,7 +10,7 @@ import { AppConfigService } from './config/app-config.service';
 const packageJson = require('../package.json');
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
   const appConfig = app.get(AppConfigService).get();
@@ -50,6 +51,8 @@ async function bootstrap() {
       validateCustomDecorators: true,
     }),
   );
+  appConfig.trustedReverseProxyIps &&
+    app.set('trust proxy', appConfig.trustedReverseProxyIps);
   await app.listen(appConfig.port, appConfig.host);
   Logger.log(
     `Server is running at http://${appConfig.host}:${appConfig.port}${appConfig.restApiRoot}`,
