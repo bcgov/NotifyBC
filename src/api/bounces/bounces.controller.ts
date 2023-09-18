@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Req,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -50,8 +51,9 @@ export class BouncesController {
   replaceById(
     @Param('id') id: string,
     @Body() updateBounceDto: CreateBounceDto,
+    @Req() req,
   ) {
-    return this.bouncesService.replaceById(id, updateBounceDto);
+    return this.bouncesService.replaceById(id, updateBounceDto, req);
   }
 
   @Patch(':id')
@@ -60,8 +62,9 @@ export class BouncesController {
   update(
     @Param('id') id: string,
     @Body() updateConfigurationDto: UpdateBounceDto,
+    @Req() req,
   ) {
-    return this.bouncesService.update(id, updateConfigurationDto);
+    return this.bouncesService.update(id, updateConfigurationDto, req);
   }
 
   @Post()
@@ -69,8 +72,8 @@ export class BouncesController {
     description: 'Bounce model instance',
     type: Bounce,
   })
-  create(@Body() createBounceDto: CreateBounceDto) {
-    return this.bouncesService.create(createBounceDto);
+  create(@Body() createBounceDto: CreateBounceDto, @Req() req) {
+    return this.bouncesService.create(createBounceDto, req);
   }
 
   @Get(':id')
@@ -95,9 +98,10 @@ export class BouncesController {
   @ApiNoContentResponse({ description: 'Bounce PATCH success' })
   updateAll(
     @Body() updateConfigurationDto: UpdateBounceDto,
+    @Req() req,
     @JsonQuery('where') where?: FilterQuery<Bounce>,
   ) {
-    return this.bouncesService.updateAll(updateConfigurationDto, where);
+    return this.bouncesService.updateAll(updateConfigurationDto, where, req);
   }
 
   @Get()

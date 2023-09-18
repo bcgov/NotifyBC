@@ -133,6 +133,7 @@ export class BaseCrudRepository<
     return isFromSM ? currUser : null;
   }
 
+  // start: ported
   async updateTimestamp(ctx: any) {
     let req;
     try {
@@ -165,4 +166,5 @@ export class BaseCrudRepository<
       }
     } catch (ex) {}
   }
+  // end: ported
 }

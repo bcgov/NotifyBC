@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
@@ -75,8 +76,8 @@ export class AdministratorsController {
   }
 
   @Post()
-  create(@Body() createAdministratorDto: CreateAdministratorDto) {
-    return this.administratorsService.create(createAdministratorDto);
+  create(@Body() createAdministratorDto: CreateAdministratorDto, @Req() req) {
+    return this.administratorsService.create(createAdministratorDto, req);
   }
 
   @Get()
@@ -93,8 +94,9 @@ export class AdministratorsController {
   update(
     @Param('id') id: string,
     @Body() updateAdministratorDto: UpdateAdministratorDto,
+    @Req() req,
   ) {
-    return this.administratorsService.update(id, updateAdministratorDto);
+    return this.administratorsService.update(id, updateAdministratorDto, req);
   }
 
   @Delete(':id')

@@ -1,9 +1,13 @@
+import { Request } from 'express';
 import { compact } from 'lodash';
 import { FilterQuery, Model } from 'mongoose';
 export class BaseService<T> {
   constructor(private model: Model<T>) {}
 
-  create(createDto) {
+  create(createDto, req: (Request & { user?: any }) | null) {
+    if (req?.user) {
+      createDto.createdBy = req.user;
+    }
     const createdConfiguration = new this.model(createDto);
     return createdConfiguration.save();
   }
@@ -59,7 +63,16 @@ export class BaseService<T> {
       .exec();
   }
 
-  updateAll(updateDto, filter?: FilterQuery<T>) {
+  updateAll(
+    updateDto,
+    filter: FilterQuery<T> | null,
+    req: (Request & { user?: any }) | null,
+  ) {
+    if (req?.user) {
+      updateDto.updatedBy = req.user;
+      updateDto.updated = new Date();
+    }
+
     const castedFilter = this.model.find(filter).cast();
     return this.model
       .aggregate(
@@ -93,11 +106,19 @@ export class BaseService<T> {
     return this.model.findById(id).exec();
   }
 
-  update(id: string, updateDto) {
+  update(id: string, updateDto, req: (Request & { user?: any }) | null) {
+    if (req?.user) {
+      updateDto.updatedBy = req.user;
+      updateDto.updated = new Date();
+    }
     return this.model.findByIdAndUpdate(id, updateDto).exec();
   }
 
-  replaceById(_id: string, updateDto) {
+  replaceById(_id: string, updateDto, req: (Request & { user?: any }) | null) {
+    if (req?.user) {
+      updateDto.updatedBy = req.user;
+      updateDto.updated = new Date();
+    }
     return this.model.findOneAndReplace({ _id }, updateDto).exec();
   }
 
