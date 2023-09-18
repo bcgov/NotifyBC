@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Req,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -38,8 +39,8 @@ export class ConfigurationsController {
   @ApiCreatedResponse({
     type: Configuration,
   })
-  create(@Body() createConfigurationDto: CreateConfigurationDto) {
-    return this.configurationsService.create(createConfigurationDto);
+  create(@Body() createConfigurationDto: CreateConfigurationDto, @Req() req) {
+    return this.configurationsService.create(createConfigurationDto, req);
   }
 
   @Get('count')
@@ -66,9 +67,14 @@ export class ConfigurationsController {
   @ApiNoContentResponse({ description: 'Configuration PATCH success' })
   updateAll(
     @Body() updateConfigurationDto: UpdateConfigurationDto,
+    @Req() req,
     @JsonQuery('where') where?: FilterQuery<Configuration>,
   ) {
-    return this.configurationsService.updateAll(updateConfigurationDto, where);
+    return this.configurationsService.updateAll(
+      updateConfigurationDto,
+      where,
+      req,
+    );
   }
 
   @Get(':id')
@@ -85,8 +91,9 @@ export class ConfigurationsController {
   update(
     @Param('id') id: string,
     @Body() updateConfigurationDto: UpdateConfigurationDto,
+    @Req() req,
   ) {
-    return this.configurationsService.update(id, updateConfigurationDto);
+    return this.configurationsService.update(id, updateConfigurationDto, req);
   }
 
   @Put(':id')
@@ -95,8 +102,13 @@ export class ConfigurationsController {
   replaceById(
     @Param('id') id: string,
     @Body() updateConfigurationDto: CreateConfigurationDto,
+    @Req() req,
   ) {
-    return this.configurationsService.replaceById(id, updateConfigurationDto);
+    return this.configurationsService.replaceById(
+      id,
+      updateConfigurationDto,
+      req,
+    );
   }
 
   @Delete(':id')

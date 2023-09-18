@@ -9,7 +9,7 @@ export class BaseEntity {
   @Prop({ default: Date.now })
   created?: Date;
 
-  @Prop({ default: Date.now })
+  @Prop()
   updated?: Date;
 }
 

@@ -8,7 +8,18 @@ export type AdministratorDocument = HydratedDocument<Administrator>;
   collection: 'administrator',
   ...BaseSchemaOptions,
 })
-export class Administrator extends BaseEntity {}
+export class Administrator extends BaseEntity {
+  @Prop()
+  username?: string;
+
+  @Prop({
+    required: true,
+  })
+  email: string;
+
+  userCredential: AnyObject;
+  // accessTokens?: [];
+}
 
 export const AdministratorSchema = SchemaFactory.createForClass(Administrator)
   .index({ '$**': 'text' }, { name: '$**_text' })
