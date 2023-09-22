@@ -18,6 +18,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
+import { Role } from 'src/auth/constants';
+import { Roles } from 'src/auth/roles.decorator';
 import { FilterDto } from '../common/dto/filter.dto';
 import {
   ApiFilterJsonQuery,
@@ -32,6 +34,7 @@ import { Configuration } from './entities/configuration.entity';
 @Controller('configurations')
 @ApiTags('configuration')
 @ApiExtraModels(Configuration)
+@Roles(Role.SuperAdmin)
 export class ConfigurationsController {
   constructor(private readonly configurationsService: ConfigurationsService) {}
 

@@ -10,7 +10,9 @@ import {
 } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
+import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
+import { Roles } from 'src/auth/roles.decorator';
 import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
 import { AdministratorsService } from './administrators.service';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
@@ -24,6 +26,7 @@ import { Administrator } from './entities/administrator.entity';
 @ApiExtraModels(AccessToken)
 @ApiExtraModels(LoginDto)
 @ApiExtraModels(UserProfile)
+@Roles(Role.SuperAdmin, Role.Admin)
 export class AdministratorsController {
   constructor(private readonly administratorsService: AdministratorsService) {}
 
@@ -33,7 +36,10 @@ export class AdministratorsController {
     description: 'Administrator count',
     type: Number,
   })
-  count(@JsonQuery('where') where?: FilterQuery<Administrator>) {
+  count(@Req() req, @JsonQuery('where') where?: FilterQuery<Administrator>) {
+    if (req?.user?.authnStrategy === AuthnStrategy.AccessToken) {
+      where = { and: [where ?? {}, { id: req.user.securityId }] };
+    }
     return this.administratorsService.count(where);
   }
 
@@ -54,6 +60,7 @@ export class AdministratorsController {
       },
     },
   })
+  @Roles(Role.Anonymous, Role.AuthenticatedUser)
   async login(@Body() credentials: LoginDto): Promise<{ token: string }> {
     // ensure the user exists, and the password is correct
     const user = await this.administratorsService.verifyCredentials(
@@ -71,11 +78,13 @@ export class AdministratorsController {
   }
 
   @Get('whoami')
+  @Roles()
   whoAmI(@Req() req): UserProfile {
     return req.user;
   }
 
   @Post()
+  @Roles(Role.SuperAdmin)
   create(@Body() createAdministratorDto: CreateAdministratorDto, @Req() req) {
     return this.administratorsService.create(createAdministratorDto, req);
   }

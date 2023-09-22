@@ -6,9 +6,12 @@ export enum Role {
   SuperAdmin = 'SuperAdmin',
   Admin = 'Admin',
   AuthenticatedUser = 'AuthenticatedUser',
+  Anonymous = 'Anonymous',
 }
 
 export enum AuthnStrategy {
   Ip = 'Ip',
   AccessToken = 'accessToken',
 }
+
+export const ROLES_KEY = 'roles';
