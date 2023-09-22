@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AccessTokenService } from './access-token.service';
 import { AdministratorsController } from './administrators.controller';
 import { AdministratorsService } from './administrators.service';
 import {
@@ -14,6 +15,7 @@ import {
     ]),
   ],
   controllers: [AdministratorsController],
-  providers: [AdministratorsService],
+  providers: [AdministratorsService, AccessTokenService],
+  exports: [AdministratorsService, AccessTokenService],
 })
 export class AdministratorsModule {}

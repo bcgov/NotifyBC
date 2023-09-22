@@ -10,4 +10,5 @@ export enum Role {
 
 export enum AuthnStrategy {
   Ip = 'Ip',
+  AccessToken = 'accessToken',
 }
