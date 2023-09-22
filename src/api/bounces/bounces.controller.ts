@@ -18,6 +18,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
+import { Role } from 'src/auth/constants';
+import { Roles } from 'src/auth/roles.decorator';
 import { FilterDto } from '../common/dto/filter.dto';
 import {
   ApiFilterJsonQuery,
@@ -32,6 +34,7 @@ import { Bounce } from './entities/bounce.entity';
 @Controller('bounces')
 @ApiTags('bounce')
 @ApiExtraModels(Bounce)
+@Roles(Role.SuperAdmin)
 export class BouncesController {
   constructor(private readonly bouncesService: BouncesService) {}
 
