@@ -4,6 +4,8 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -17,6 +19,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
 import { AccessTokenService } from './access-token.service';
 import { AdministratorsService } from './administrators.service';
+import { CreateAccessTokenDto } from './dto/create-access-token.dto';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
@@ -69,7 +72,10 @@ export class AdministratorsController {
     },
   })
   @Roles(Role.Anonymous, Role.AuthenticatedUser)
-  async login(@Body() credentials: LoginDto): Promise<{ token: string }> {
+  async login(
+    @Body() credentials: LoginDto,
+    @Req() req,
+  ): Promise<{ token: string }> {
     // ensure the user exists, and the password is correct
     const user = await this.administratorsService.verifyCredentials(
       credentials,
@@ -78,17 +84,43 @@ export class AdministratorsController {
     const userProfile = this.administratorsService.convertToUserProfile(user);
 
     // create a JSON Web Token based on the user profile
-    const token = await this.accessTokenService.generateToken(userProfile, {
-      name: credentials.tokenName,
-      ttl: credentials.ttl,
-    });
-    return { token };
+    const accessToken = await this.accessTokenService.generateToken(
+      userProfile,
+      req,
+      {
+        name: credentials.tokenName,
+        ttl: credentials.ttl,
+      },
+    );
+    return { token: accessToken.id };
   }
 
   @Get('whoami')
   @Roles()
   whoAmI(@Req() req): UserProfile {
     return req.user;
+  }
+
+  @Post(':id/access-tokens')
+  @Roles(Role.SuperAdmin, Role.Admin)
+  async createAccessToken(
+    @Param('id') id: string,
+    @Req() req,
+    @Body() accessToken: CreateAccessTokenDto,
+  ): Promise<AccessToken> {
+    if (
+      req.user.authnStrategy === AuthnStrategy.AccessToken &&
+      req.user.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
+    return (
+      await this.accessTokenService.generateToken(
+        { securityId: id },
+        req,
+        accessToken,
+      )
+    ).toJSON();
   }
 
   @Post()
