@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import cryptoRandomString from 'crypto-random-string';
+import { Request } from 'express';
 import { AnyObject, Model } from 'mongoose';
 import { BaseService } from '../common/base.service';
 import { AdministratorsService } from './administrators.service';
 import { AdminUserProfile } from './constants';
 import { AccessToken } from './entities/access-token.entity';
 import { Administrator } from './entities/administrator.entity';
-
 @Injectable()
 export class AccessTokenService extends BaseService<AccessToken> {
   constructor(
@@ -51,32 +51,24 @@ export class AccessTokenService extends BaseService<AccessToken> {
 
   async generateToken(
     userProfile: AdminUserProfile,
+    req: (Request & { user?: any }) | null,
     options?: AnyObject,
-  ): Promise<string> {
+  ) {
     if (!userProfile) {
       throw new HttpException(
         'Error generating token : userProfile is null',
         HttpStatus.UNAUTHORIZED,
       );
     }
-    let _id: string;
     try {
       const opts = options ?? {};
-      _id = cryptoRandomString({ length: 64, type: 'alphanumeric' });
-
-      const accessToken = new this.model(
-        Object.assign({}, opts, {
-          userId: userProfile.securityId,
-          _id,
-        }),
-      );
-      await accessToken.save();
+      const _id = cryptoRandomString({ length: 64, type: 'alphanumeric' });
+      return this.create({ ...opts, userId: userProfile.securityId, _id }, req);
     } catch (error) {
       throw new HttpException(
         `Error encoding token : ${error}`,
         HttpStatus.UNAUTHORIZED,
       );
     }
-    return _id;
   }
 }

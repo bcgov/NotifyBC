@@ -1,5 +1,6 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { UserProfile } from 'src/auth/dto/user-profile.dto';
 
 @Schema()
 export class BaseEntity {
@@ -13,10 +14,10 @@ export class BaseEntity {
   updated?: Date;
 
   @Prop({ type: mongoose.Schema.Types.Mixed })
-  createdBy?: any;
+  createdBy?: UserProfile;
 
   @Prop({ type: mongoose.Schema.Types.Mixed })
-  updatedBy?: any;
+  updatedBy?: UserProfile;
 }
 
 export const BaseSchemaOptions = {

@@ -8,8 +8,7 @@ export class BaseService<T> {
     if (req?.user) {
       createDto.createdBy = req.user;
     }
-    const createdConfiguration = new this.model(createDto);
-    return createdConfiguration.save();
+    return new this.model(createDto).save();
   }
 
   async count(filter?: FilterQuery<T>) {
