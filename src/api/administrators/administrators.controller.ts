@@ -11,7 +11,12 @@ import {
   Post,
   Req,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExtraModels,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
 import { AuthnStrategy, Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
@@ -22,6 +27,7 @@ import { AdministratorsService } from './administrators.service';
 import { CreateAccessTokenDto } from './dto/create-access-token.dto';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateAccessTokenDto } from './dto/update-access-token.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import { AccessToken } from './entities/access-token.entity';
 import { Administrator } from './entities/administrator.entity';
@@ -121,6 +127,40 @@ export class AdministratorsController {
         accessToken,
       )
     ).toJSON();
+  }
+
+  @Patch(':id/access-tokens')
+  @ApiWhereJsonQuery()
+  @Roles(Role.SuperAdmin, Role.Admin)
+  @HttpCode(204)
+  @ApiNoContentResponse({
+    description: 'Administrator.AccessToken PATCH success',
+  })
+  async patch(
+    @Param('id') id: string,
+    @Req() req,
+    @Body()
+    accessToken: UpdateAccessTokenDto,
+    @JsonQuery('where') where?: FilterQuery<AccessToken>,
+  ) {
+    if (
+      req.user.authnStrategy === AuthnStrategy.AccessToken &&
+      req.user.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
+    // updating userId is not allowed.
+    if ((<any>accessToken).userId) {
+      throw new HttpException(
+        'Updating userId is not allowed.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    return this.accessTokenService.updateAll(
+      accessToken,
+      { ...where, userId: id },
+      req,
+    );
   }
 
   @Post()
