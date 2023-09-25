@@ -124,4 +124,28 @@ export class BaseService<T> {
   remove(id: string) {
     this.model.findByIdAndRemove(id).exec();
   }
+
+  async removeAll(filter?: FilterQuery<T>) {
+    const castedFilter = this.model.countDocuments(filter).cast();
+    const res = await this.model
+      .aggregate(
+        compact([
+          {
+            $addFields: {
+              id: '$_id',
+            },
+          },
+          filter && {
+            $match: castedFilter,
+          },
+          {
+            $project: { _id: true },
+          },
+        ]),
+      )
+      .exec();
+    const ids = res.map((e) => e._id);
+    await this.model.deleteMany({ _id: { $in: ids } }).exec();
+    return { count: ids.length };
+  }
 }

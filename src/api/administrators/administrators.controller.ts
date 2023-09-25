@@ -21,6 +21,7 @@ import { FilterQuery } from 'mongoose';
 import { AuthnStrategy, Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
+import { CountDto } from '../common/dto/count.dto';
 import { FilterDto } from '../common/dto/filter.dto';
 import {
   ApiFilterJsonQuery,
@@ -189,6 +190,23 @@ export class AdministratorsController {
       userId: id,
     };
     return this.accessTokenService.findAll(modifiedFilter);
+  }
+
+  @Delete(':id/access-tokens')
+  @Roles(Role.SuperAdmin, Role.Admin)
+  @ApiWhereJsonQuery()
+  async delete(
+    @Param('id') id: string,
+    @Req() req,
+    @JsonQuery('where') where?: FilterQuery<AccessToken>,
+  ): Promise<CountDto> {
+    if (
+      req.user.authnStrategy === AuthnStrategy.AccessToken &&
+      req.user.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
+    return this.accessTokenService.removeAll({ ...where, userId: id });
   }
 
   @Post()
