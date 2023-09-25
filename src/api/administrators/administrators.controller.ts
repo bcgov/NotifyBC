@@ -21,7 +21,12 @@ import { FilterQuery } from 'mongoose';
 import { AuthnStrategy, Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
-import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
+import { FilterDto } from '../common/dto/filter.dto';
+import {
+  ApiFilterJsonQuery,
+  ApiWhereJsonQuery,
+  JsonQuery,
+} from '../common/json-query.decorator';
 import { AccessTokenService } from './access-token.service';
 import { AdministratorsService } from './administrators.service';
 import { CreateAccessTokenDto } from './dto/create-access-token.dto';
@@ -161,6 +166,29 @@ export class AdministratorsController {
       { ...where, userId: id },
       req,
     );
+  }
+
+  @Get(':id/access-tokens')
+  @Roles(Role.SuperAdmin, Role.Admin)
+  @ApiFilterJsonQuery()
+  async find(
+    @Param('id') id: string,
+    @Req() req,
+    @JsonQuery('filter')
+    filter?: FilterDto<AccessToken>,
+  ): Promise<AccessToken[]> {
+    if (
+      req.user.authnStrategy === AuthnStrategy.AccessToken &&
+      req.user.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
+    const modifiedFilter = filter ?? { where: {} };
+    modifiedFilter.where = {
+      ...modifiedFilter.where,
+      userId: id,
+    };
+    return this.accessTokenService.findAll(modifiedFilter);
   }
 
   @Post()
