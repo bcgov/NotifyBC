@@ -322,7 +322,8 @@ v5 introduced following backward incompatible changes
    ```
    GET http://localhost:3000/api/configurations?filter={"order":"serviceName"}
    ```
-5. For successful operation, API bulk patch response code has changed from 200 to 204. No success count is returned. For example, `PATCH http://localhost:3000/api/configurations?where...` returns 204 with empty body upon success. If success count matters, do a `GET .../count` API call first with same _where_ filter.
+5. Response code of successful bulk patch operation has changed from 200 to 204. No success count is returned. For example, `PATCH http://localhost:3000/api/configurations?where...` returns 204 with empty body upon success. If success count matters, do a `GET .../count` API call first with same _where_ filter.
+6. Response code of successful post operation has changed from 200 to 201. For example, `POST http://localhost:3000/api/configurations` returns 201 upon success.
 
 After above changes are addressed, upgrading to v5 is as simple as
 

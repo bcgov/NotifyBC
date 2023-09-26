@@ -17,6 +17,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { genSalt, hash } from 'bcryptjs';
 import { FilterQuery } from 'mongoose';
 import { AuthnStrategy, Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
@@ -32,12 +33,18 @@ import { AccessTokenService } from './access-token.service';
 import { AdministratorsService } from './administrators.service';
 import { CreateAccessTokenDto } from './dto/create-access-token.dto';
 import { CreateAdministratorDto } from './dto/create-administrator.dto';
+import { CreateUserCredentialReturnDto } from './dto/create-user-credential-return.dto';
+import { CreateUserCredentialDto } from './dto/create-user-credential.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateAccessTokenDto } from './dto/update-access-token.dto';
 import { UpdateAdministratorDto } from './dto/update-administrator.dto';
 import { AccessToken } from './entities/access-token.entity';
 import { Administrator } from './entities/administrator.entity';
-import { UserCredential } from './entities/user-credential.entity';
+import {
+  PASSWORD_COMPLEXITY_REGEX,
+  UserCredential,
+} from './entities/user-credential.entity';
+import { UserCredentialService } from './user-credential.service';
 
 @Controller('administrators')
 @ApiTags('administrator')
@@ -51,6 +58,7 @@ export class AdministratorsController {
   constructor(
     private readonly administratorsService: AdministratorsService,
     private readonly accessTokenService: AccessTokenService,
+    private readonly userCredentialService: UserCredentialService,
   ) {}
 
   @Get('count')
@@ -121,8 +129,8 @@ export class AdministratorsController {
     @Body() accessToken: CreateAccessTokenDto,
   ): Promise<AccessToken> {
     if (
-      req.user.authnStrategy === AuthnStrategy.AccessToken &&
-      req.user.securityId !== id
+      req?.user?.authnStrategy === AuthnStrategy.AccessToken &&
+      req?.user?.securityId !== id
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
@@ -150,8 +158,8 @@ export class AdministratorsController {
     @JsonQuery('where') where?: FilterQuery<AccessToken>,
   ) {
     if (
-      req.user.authnStrategy === AuthnStrategy.AccessToken &&
-      req.user.securityId !== id
+      req?.user?.authnStrategy === AuthnStrategy.AccessToken &&
+      req?.user?.securityId !== id
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
@@ -179,8 +187,8 @@ export class AdministratorsController {
     filter?: FilterDto<AccessToken>,
   ): Promise<AccessToken[]> {
     if (
-      req.user.authnStrategy === AuthnStrategy.AccessToken &&
-      req.user.securityId !== id
+      req?.user?.authnStrategy === AuthnStrategy.AccessToken &&
+      req?.user?.securityId !== id
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
@@ -201,12 +209,43 @@ export class AdministratorsController {
     @JsonQuery('where') where?: FilterQuery<AccessToken>,
   ): Promise<CountDto> {
     if (
-      req.user.authnStrategy === AuthnStrategy.AccessToken &&
-      req.user.securityId !== id
+      req?.user?.authnStrategy === AuthnStrategy.AccessToken &&
+      req?.user?.securityId !== id
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
     return this.accessTokenService.removeAll({ ...where, userId: id });
+  }
+
+  @Post(':id/user-credential')
+  async createCredential(
+    @Param('id') id: string,
+    @Req() req,
+    @Body()
+    userCredential: CreateUserCredentialDto,
+  ): Promise<CreateUserCredentialReturnDto> {
+    if (
+      req?.user?.authnStrategy === AuthnStrategy.AccessToken &&
+      req?.user?.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
+    const pwdRegEx = new RegExp(PASSWORD_COMPLEXITY_REGEX);
+    if (!pwdRegEx.test(userCredential.password)) {
+      throw new HttpException(undefined, HttpStatus.BAD_REQUEST);
+    }
+    userCredential.password = await hash(
+      userCredential.password,
+      await genSalt(),
+    );
+
+    await this.userCredentialService.removeAll({ userId: id });
+    return (
+      await this.userCredentialService.create(
+        { ...userCredential, userId: id },
+        req,
+      )
+    ).toJSON();
   }
 
   @Post()

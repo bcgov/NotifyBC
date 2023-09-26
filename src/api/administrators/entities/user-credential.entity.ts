@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { BaseEntity, BaseSchemaOptions } from 'src/api/common/base.entity';
-import { Administrator } from './administrator.entity';
 
 export const PASSWORD_COMPLEXITY_REGEX =
   '^(?=.*[A-Z])(?=.*[!_@#&$*])(?=.*[0-9])(?=.*[a-z]).{10,}$';
@@ -27,7 +26,7 @@ export class UserCredential extends BaseEntity {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Administrator',
   })
-  userId: Administrator;
+  userId: string;
 }
 
 export const UserCredentialSchema = SchemaFactory.createForClass(
