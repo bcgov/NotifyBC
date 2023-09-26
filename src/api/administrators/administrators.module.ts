@@ -12,6 +12,7 @@ import {
   UserCredential,
   UserCredentialSchema,
 } from './entities/user-credential.entity';
+import { UserCredentialService } from './user-credential.service';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import {
     ]),
   ],
   controllers: [AdministratorsController],
-  providers: [AdministratorsService, AccessTokenService],
-  exports: [AdministratorsService, AccessTokenService],
+  providers: [AdministratorsService, AccessTokenService, UserCredentialService],
+  exports: [AdministratorsService, AccessTokenService, UserCredentialService],
 })
 export class AdministratorsModule {}
