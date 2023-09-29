@@ -213,7 +213,6 @@ export class AdministratorController extends BaseController {
     });
     return {token};
   }
-  // end: ported
 
   @authenticate(
     'ipWhitelist',
@@ -239,7 +238,6 @@ export class AdministratorController extends BaseController {
     return this.user;
   }
 
-  // start: ported
   @get('/administrators/count', {
     responses: {
       '200': {
@@ -340,6 +338,7 @@ export class AdministratorController extends BaseController {
     await this.administratorRepository.updateById(id, administrator, undefined);
   }
 
+  // start: ported
   @put('/administrators/{id}', {
     responses: {
       '204': {
@@ -369,6 +368,7 @@ export class AdministratorController extends BaseController {
       undefined,
     );
   }
+  // end: ported
 
   @del('/administrators/{id}', {
     responses: {
