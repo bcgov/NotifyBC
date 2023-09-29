@@ -9,6 +9,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Req,
 } from '@nestjs/common';
 import {
@@ -239,13 +240,36 @@ export class AdministratorsController {
       await genSalt(),
     );
 
-    await this.userCredentialService.removeAll({ userId: id });
-    return (
-      await this.userCredentialService.create(
-        { ...userCredential, userId: id },
-        req,
-      )
-    ).toJSON();
+    return await this.userCredentialService.findOneAndReplace(
+      userCredential,
+      { userId: id },
+      req,
+      true,
+    );
+  }
+
+  @Put(':id')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Administrator PUT success' })
+  async replaceById(
+    @Param('id') id: string,
+    @Req() req,
+    @Body()
+    administrator: UpdateAdministratorDto,
+  ): Promise<void> {
+    if (
+      req.user.authnStrategy === AuthnStrategy.AccessToken &&
+      req.user.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
+    if (administrator.password) {
+      await this.createCredential(id, req, {
+        password: administrator.password,
+      });
+      delete administrator.password;
+    }
+    await this.administratorsService.replaceById(id, administrator, req);
   }
 
   @Post()

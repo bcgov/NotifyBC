@@ -113,12 +113,31 @@ export class BaseService<T> {
     return this.model.findByIdAndUpdate(id, updateDto).exec();
   }
 
-  replaceById(_id: string, updateDto, req: (Request & { user?: any }) | null) {
+  replaceById(
+    _id: string,
+    updateDto,
+    req: (Request & { user?: any }) | null,
+    upsert: boolean = false,
+  ) {
+    return this.findOneAndReplace(updateDto, { _id }, req, upsert);
+  }
+
+  findOneAndReplace(
+    updateDto,
+    filter: FilterQuery<T> | null,
+    req: (Request & { user?: any }) | null,
+    upsert: boolean = false,
+  ) {
     if (req?.user) {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
     }
-    return this.model.findOneAndReplace({ _id }, updateDto).exec();
+    return this.model
+      .findOneAndUpdate(filter, updateDto, {
+        upsert,
+        new: true,
+      })
+      .exec();
   }
 
   remove(id: string) {
