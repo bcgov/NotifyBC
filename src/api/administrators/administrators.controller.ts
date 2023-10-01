@@ -19,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { genSalt, hash } from 'bcryptjs';
+import { omit } from 'lodash';
 import { FilterQuery } from 'mongoose';
 import { AuthnStrategy, Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
@@ -70,7 +71,7 @@ export class AdministratorsController {
   })
   count(@Req() req, @JsonQuery('where') where?: FilterQuery<Administrator>) {
     if (req?.user?.authnStrategy === AuthnStrategy.AccessToken) {
-      where = { and: [where ?? {}, { id: req.user.securityId }] };
+      where = { $and: [where ?? {}, { id: req.user.securityId }] };
     }
     return this.administratorsService.count(where);
   }
@@ -295,24 +296,65 @@ export class AdministratorsController {
     return this.administratorsService.update(id, updateAdministratorDto, req);
   }
 
-  @Post()
-  @Roles(Role.SuperAdmin)
-  create(@Body() createAdministratorDto: CreateAdministratorDto, @Req() req) {
-    return this.administratorsService.create(createAdministratorDto, req);
-  }
-
-  @Get()
-  findAll() {
-    return this.administratorsService.findAll();
-  }
-
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @Req() req): Promise<Administrator> {
+    if (
+      req.user.authnStrategy === AuthnStrategy.AccessToken &&
+      req.user.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
     return this.administratorsService.findOne(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.administratorsService.remove(id);
+  async remove(@Param('id') id: string, @Req() req) {
+    if (
+      req.user.authnStrategy === AuthnStrategy.AccessToken &&
+      req.user.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
+    await this.accessTokenService.removeAll({ userId: id });
+    await this.userCredentialService.removeAll({ userId: id });
+    this.administratorsService.remove(id);
+  }
+
+  @Post()
+  @Roles(Role.SuperAdmin)
+  async signUp(
+    @Body() createAdministratorDto: CreateAdministratorDto,
+    @Req() req,
+  ): Promise<Administrator> {
+    const savedUser = (
+      await this.administratorsService.create(
+        omit(createAdministratorDto, 'password'),
+        req,
+      )
+    ).toJSON();
+    await this.createCredential(savedUser.id, req, {
+      password: createAdministratorDto.password,
+    });
+    return savedUser;
+  }
+
+  @Get()
+  @ApiFilterJsonQuery()
+  @ApiOkResponse({
+    description: 'Array of Administrator model instances',
+    type: [Administrator],
+  })
+  findAll(
+    @JsonQuery('filter')
+    filter: FilterDto<Administrator>,
+    @Req() req,
+  ) {
+    if (req.user.authnStrategy === AuthnStrategy.AccessToken) {
+      filter = filter ?? {};
+      filter.where = {
+        $and: [filter.where ?? {}, { id: req.user.securityId }],
+      };
+    }
+    return this.administratorsService.findAll(filter);
   }
 }

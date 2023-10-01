@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {authenticate} from '@loopback/authentication';
 import {ApplicationConfig, CoreBindings, inject, service} from '@loopback/core';
 import {
@@ -178,7 +179,6 @@ export class AdministratorController extends BaseController {
   }
 
   @authenticate('anonymous')
-  // start: ported
   @post('/administrators/login', {
     responses: {
       '200': {
@@ -254,7 +254,6 @@ export class AdministratorController extends BaseController {
     }
     return this.administratorRepository.count(where, undefined);
   }
-  // end: ported
 
   @get('/administrators', {
     responses: {
@@ -311,7 +310,6 @@ export class AdministratorController extends BaseController {
     );
   }
 
-  // start: ported
   @patch('/administrators/{id}', {
     responses: {
       '204': {
@@ -368,7 +366,6 @@ export class AdministratorController extends BaseController {
       undefined,
     );
   }
-  // end: ported
 
   @del('/administrators/{id}', {
     responses: {
