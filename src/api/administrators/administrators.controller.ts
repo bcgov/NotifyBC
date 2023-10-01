@@ -272,6 +272,29 @@ export class AdministratorsController {
     await this.administratorsService.replaceById(id, administrator, req);
   }
 
+  @Patch(':id')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Administrator Patch success' })
+  async update(
+    @Param('id') id: string,
+    @Body() updateAdministratorDto: UpdateAdministratorDto,
+    @Req() req,
+  ) {
+    if (
+      req.user.authnStrategy === AuthnStrategy.AccessToken &&
+      req.user.securityId !== id
+    ) {
+      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+    }
+    if (updateAdministratorDto.password) {
+      await this.createCredential(id, req, {
+        password: updateAdministratorDto.password,
+      });
+      delete updateAdministratorDto.password;
+    }
+    return this.administratorsService.update(id, updateAdministratorDto, req);
+  }
+
   @Post()
   @Roles(Role.SuperAdmin)
   create(@Body() createAdministratorDto: CreateAdministratorDto, @Req() req) {
@@ -286,15 +309,6 @@ export class AdministratorsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.administratorsService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateAdministratorDto: UpdateAdministratorDto,
-    @Req() req,
-  ) {
-    return this.administratorsService.update(id, updateAdministratorDto, req);
   }
 
   @Delete(':id')
