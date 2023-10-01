@@ -122,7 +122,7 @@ export class BaseService<T> {
     return this.findOneAndReplace(updateDto, { _id }, req, upsert);
   }
 
-  findOneAndReplace(
+  async findOneAndReplace(
     updateDto,
     filter: FilterQuery<T> | null,
     req: (Request & { user?: any }) | null,
@@ -132,12 +132,19 @@ export class BaseService<T> {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
     }
-    return this.model
+    const res = await this.model
       .findOneAndUpdate(filter, updateDto, {
         upsert,
         new: true,
+        includeResultMetadata: true,
       })
       .exec();
+    if (upsert && !res.lastErrorObject.updatedExisting) {
+      await this.model.findByIdAndUpdate(res.value._id, {
+        createdBy: req.user,
+      });
+    }
+    return res.value;
   }
 
   remove(id: string) {
