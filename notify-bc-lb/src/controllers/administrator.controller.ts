@@ -311,6 +311,7 @@ export class AdministratorController extends BaseController {
     );
   }
 
+  // start: ported
   @patch('/administrators/{id}', {
     responses: {
       '204': {
@@ -338,7 +339,6 @@ export class AdministratorController extends BaseController {
     await this.administratorRepository.updateById(id, administrator, undefined);
   }
 
-  // start: ported
   @put('/administrators/{id}', {
     responses: {
       '204': {
