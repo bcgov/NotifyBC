@@ -7,7 +7,7 @@ permalink: /docs/config-reverseProxyIpLists/
 SiteMinder, being a gateway approached SSO solution, expects the backend HTTP access point of the web sites it protests to be firewall restricted, otherwise the SiteMinder injected HTTP headers can be easily spoofed. However, the restriction cannot be easily implemented on PAAS such as OpenShift. To mitigate, two configuration objects are introduced to create an application-level firewall, both are arrays of ip addresses in the format of [dot-decimal](https://en.wikipedia.org/wiki/Dot-decimal_notation) or [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation) notation
 
 - _siteMinderReverseProxyIps_ contains a list of ips or ranges of SiteMinder Web Agents. If set, then the SiteMinder HTTP headers are trusted only if the request is routed from the listed nodes.
-- _trustedReverseProxyIps_ contains a list of ips or ranges of trusted reverse proxies between the SiteMinder Web Agents and _NotifyBC_ application. When running on OpenShift, this is usually the OpenShift router. Express.js [trust proxy](https://expressjs.com/en/guide/behind-proxies.html) is set to this config object.
+- _trustedReverseProxyIps_ contains a list of ips or ranges of trusted reverse proxies. If _NotifyBC_ is placed behind SiteMinder Web Agents, then trusted reverse proxies should include only those between SiteMinder Web Agents and _NotifyBC_ application. When running on OpenShift, this is usually the OpenShift router. Express.js [trust proxy](https://expressjs.com/en/guide/behind-proxies.html) is set to this config object.
 
 By default _trustedReverseProxyIps_ is empty and _siteMinderReverseProxyIps_ contains only localhost as defined in _/src/config.ts_
 

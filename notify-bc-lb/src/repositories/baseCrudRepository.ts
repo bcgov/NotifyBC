@@ -109,6 +109,7 @@ export class BaseCrudRepository<
     }
     // internal requests
     if (!httpCtx) return null;
+    // start: ported
     const request = httpCtx.req || httpCtx.request;
     if (!request) return null;
     const currUser =
@@ -131,6 +132,7 @@ export class BaseCrudRepository<
       return ipRangeCheck(realIp, e);
     });
     return isFromSM ? currUser : null;
+    // end: ported
   }
 
   // start: ported

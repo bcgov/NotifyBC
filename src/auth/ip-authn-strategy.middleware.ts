@@ -1,13 +1,15 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request } from 'express';
 import ipRangeCheck from 'ip-range-check';
 import { AppConfigService } from 'src/config/app-config.service';
 import { AuthnStrategy, Role } from './constants';
+import { UserProfile } from './dto/user-profile.dto';
 
 @Injectable()
 export class IpAuthnStrategyMiddleware implements NestMiddleware {
   constructor(private readonly appConfigService: AppConfigService) {}
 
-  use(req: any, res: any, next: () => void) {
+  use(req: Request & { user: UserProfile }, res: any, next: () => void) {
     const adminIps: [] =
       this.appConfigService.get('adminIps') ||
       this.appConfigService.get('defaultAdminIps');

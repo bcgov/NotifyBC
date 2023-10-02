@@ -1,9 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { SubscriptionsService } from './subscriptions.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
+import { SubscriptionsService } from './subscriptions.service';
 
 @Controller('subscriptions')
+@ApiTags('subscription')
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
@@ -23,7 +33,10 @@ export class SubscriptionsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSubscriptionDto: UpdateSubscriptionDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSubscriptionDto: UpdateSubscriptionDto,
+  ) {
     return this.subscriptionsService.update(+id, updateSubscriptionDto);
   }
 

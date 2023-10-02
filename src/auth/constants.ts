@@ -12,6 +12,7 @@ export enum Role {
 export enum AuthnStrategy {
   Ip = 'Ip',
   AccessToken = 'accessToken',
+  SiteMinder = 'siteMinder',
 }
 
 export const ROLES_KEY = 'roles';

@@ -4,6 +4,7 @@ import { AdministratorsModule } from 'src/api/administrators/administrators.modu
 import { AccessTokenAuthnStrategyMiddleware } from './access-token-authn-strategy.middleware';
 import { IpAuthnStrategyMiddleware } from './ip-authn-strategy.middleware';
 import { RolesGuard } from './roles.guard';
+import { SiteminderAuthnStrategyMiddleware } from './siteminder-authn-strategy.middleware';
 
 @Module({
   imports: [AdministratorsModule],
@@ -17,7 +18,11 @@ import { RolesGuard } from './roles.guard';
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(AccessTokenAuthnStrategyMiddleware, IpAuthnStrategyMiddleware)
+      .apply(
+        AccessTokenAuthnStrategyMiddleware,
+        SiteminderAuthnStrategyMiddleware,
+        IpAuthnStrategyMiddleware,
+      )
       .forRoutes('*');
   }
 }
