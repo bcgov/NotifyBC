@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { compact } from 'lodash';
 import { FilterQuery, Model } from 'mongoose';
+import { CountDto } from './dto/count.dto';
 export class BaseService<T> {
   constructor(protected model: Model<T>) {}
 
@@ -11,7 +12,7 @@ export class BaseService<T> {
     return new this.model(createDto).save();
   }
 
-  async count(filter?: FilterQuery<T>) {
+  async count(filter?: FilterQuery<T>): Promise<CountDto> {
     const castedFilter = this.model.countDocuments(filter).cast();
     const res = await this.model
       .aggregate(
@@ -30,7 +31,7 @@ export class BaseService<T> {
         ]),
       )
       .exec();
-    return res[0]?.count || 0;
+    return res[0];
   }
 
   findAll(filter: any = {}) {
