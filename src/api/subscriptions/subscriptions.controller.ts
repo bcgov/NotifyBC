@@ -1,5 +1,10 @@
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Req, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { FilterQuery } from 'mongoose';
+import { Role } from 'src/auth/constants';
+import { Roles } from 'src/auth/roles.decorator';
+import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
+import { Subscription } from './entities/subscription.entity';
 import { SubscriptionAfterRemoteInterceptor } from './subscription-after-remote.interceptor';
 import { SubscriptionsService } from './subscriptions.service';
 
@@ -8,6 +13,16 @@ import { SubscriptionsService } from './subscriptions.service';
 @UseInterceptors(SubscriptionAfterRemoteInterceptor)
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
+
+  @Get('count')
+  @ApiWhereJsonQuery()
+  @Roles(Role.SuperAdmin, Role.Admin, Role.AuthenticatedUser)
+  async count(
+    @Req() req,
+    @JsonQuery('where') where?: FilterQuery<Subscription>,
+  ) {
+    return this.subscriptionsService.count(where);
+  }
 
   // @Post()
   // create(@Body() createSubscriptionDto: CreateSubscriptionDto) {

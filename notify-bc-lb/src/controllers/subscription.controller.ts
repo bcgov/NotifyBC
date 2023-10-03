@@ -104,6 +104,7 @@ export class SubscriptionController extends BaseController {
     return result;
   }
 
+  // start: ported
   @authenticate(
     'ipWhitelist',
     'clientCertificate',
@@ -125,6 +126,7 @@ export class SubscriptionController extends BaseController {
   ): Promise<Count> {
     return this.subscriptionRepository.count(where, undefined);
   }
+  // end: ported
 
   @authenticate(
     'ipWhitelist',
