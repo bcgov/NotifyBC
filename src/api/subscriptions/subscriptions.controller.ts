@@ -6,7 +6,10 @@ import { Roles } from 'src/auth/roles.decorator';
 import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
 import { Subscription } from './entities/subscription.entity';
 import { SubscriptionAfterRemoteInterceptor } from './subscription-after-remote.interceptor';
+import { SubscriptionsQueryTransformPipe } from './subscriptions-query-transform.pipe';
 import { SubscriptionsService } from './subscriptions.service';
+
+// todo: apply SubscriptionsQueryTransformPipe for find, findOne, updateAll, deleteAll
 
 @Controller('subscriptions')
 @ApiTags('subscription')
@@ -19,7 +22,8 @@ export class SubscriptionsController {
   @Roles(Role.SuperAdmin, Role.Admin, Role.AuthenticatedUser)
   async count(
     @Req() req,
-    @JsonQuery('where') where?: FilterQuery<Subscription>,
+    @JsonQuery('where', SubscriptionsQueryTransformPipe)
+    where?: FilterQuery<Subscription>,
   ) {
     return this.subscriptionsService.count(where);
   }

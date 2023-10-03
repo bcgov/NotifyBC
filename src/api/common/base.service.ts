@@ -31,7 +31,7 @@ export class BaseService<T> {
         ]),
       )
       .exec();
-    return res[0];
+    return res[0] ?? { count: 0 };
   }
 
   findAll(filter: any = {}) {
