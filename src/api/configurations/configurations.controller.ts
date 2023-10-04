@@ -13,6 +13,7 @@ import {
 import {
   ApiCreatedResponse,
   ApiExtraModels,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
@@ -35,6 +36,7 @@ import { Configuration } from './entities/configuration.entity';
 @ApiTags('configuration')
 @ApiExtraModels(Configuration)
 @Roles(Role.SuperAdmin)
+@ApiForbiddenResponse({ description: 'Forbidden' })
 export class ConfigurationsController {
   constructor(private readonly configurationsService: ConfigurationsService) {}
 
