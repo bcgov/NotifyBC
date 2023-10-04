@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiExtraModels,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
@@ -56,6 +57,7 @@ import { UserCredentialService } from './user-credential.service';
 @ApiExtraModels(LoginDto)
 @ApiExtraModels(UserProfile)
 @Roles(Role.SuperAdmin, Role.Admin)
+@ApiForbiddenResponse({ description: 'Forbidden' })
 export class AdministratorsController {
   constructor(
     private readonly administratorsService: AdministratorsService,

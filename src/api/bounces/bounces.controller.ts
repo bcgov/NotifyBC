@@ -13,6 +13,7 @@ import {
 import {
   ApiCreatedResponse,
   ApiExtraModels,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
@@ -35,6 +36,7 @@ import { Bounce } from './entities/bounce.entity';
 @ApiTags('bounce')
 @ApiExtraModels(Bounce)
 @Roles(Role.SuperAdmin)
+@ApiForbiddenResponse({ description: 'Forbidden' })
 export class BouncesController {
   constructor(private readonly bouncesService: BouncesService) {}
 

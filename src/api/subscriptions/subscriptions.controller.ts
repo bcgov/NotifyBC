@@ -1,5 +1,5 @@
 import { Controller, Get, Req, UseInterceptors } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiForbiddenResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FilterQuery } from 'mongoose';
 import { Role } from 'src/auth/constants';
 import { Roles } from 'src/auth/roles.decorator';
@@ -18,6 +18,9 @@ export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
   @Get('count')
+  @ApiOperation({
+    summary: 'count subscriptions',
+  })
   @ApiWhereJsonQuery()
   @Roles(Role.SuperAdmin, Role.Admin, Role.AuthenticatedUser)
   async count(
@@ -26,6 +29,18 @@ export class SubscriptionsController {
     where?: FilterQuery<Subscription>,
   ) {
     return this.subscriptionsService.count(where);
+  }
+
+  @Roles(Role.SuperAdmin, Role.Admin, Role.AuthenticatedUser)
+  @ApiOperation({
+    summary: 'unique list of subscribed service names',
+  })
+  @Get('services')
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  getSubscribedServiceNames(): Promise<string[]> {
+    return this.subscriptionsService.distinct('serviceName', {
+      state: 'confirmed',
+    });
   }
 
   // @Post()

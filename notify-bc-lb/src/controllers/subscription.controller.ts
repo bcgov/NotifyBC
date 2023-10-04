@@ -768,6 +768,7 @@ export class SubscriptionController extends BaseController {
     }
   }
 
+  // start: ported
   @authenticate('ipWhitelist', 'clientCertificate', 'accessToken', 'oidc')
   @get('/subscriptions/services', {
     summary: 'unique list of subscribed service names',
@@ -830,6 +831,7 @@ export class SubscriptionController extends BaseController {
       return a;
     }, []);
   }
+  // end: ported
 
   @post('/subscriptions/swift', {
     summary: 'handle unsubscription from Swift keyword redirect',
