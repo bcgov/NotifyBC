@@ -362,6 +362,7 @@ export class BaseController {
     return output;
   }
 
+  // start: ported
   async getMergedConfig(
     configName: string,
     serviceName: string,
@@ -392,4 +393,5 @@ export class BaseController {
     next?.(null, res);
     return res;
   }
+  // end: ported
 }
