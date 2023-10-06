@@ -63,6 +63,11 @@ export class BaseService<T> {
       .exec();
   }
 
+  async findOne(filter: any = {}) {
+    const res = this.findAll({ ...filter, limit: 1 });
+    return res && res[0];
+  }
+
   updateAll(
     updateDto,
     filter: FilterQuery<T> | null,
@@ -102,7 +107,7 @@ export class BaseService<T> {
       .exec();
   }
 
-  findOne(id: string) {
+  findById(id: string) {
     return this.model.findById(id).exec();
   }
 

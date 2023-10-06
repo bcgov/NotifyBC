@@ -87,7 +87,7 @@ export class BouncesController {
     type: [Bounce],
   })
   findOne(@Param('id') id: string) {
-    return this.bouncesService.findOne(id);
+    return this.bouncesService.findById(id);
   }
 
   @Delete(':id')
