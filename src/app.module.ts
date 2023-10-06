@@ -10,6 +10,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
 import { AuthModule } from './auth/auth.module';
+import { BaseController } from './api/common/base.controller';
 
 @Module({
   imports: [
@@ -38,7 +39,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, BaseController],
   providers: [AppService],
 })
 export class AppModule {}
