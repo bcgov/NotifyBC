@@ -87,7 +87,7 @@ export class ConfigurationsController {
     type: [Configuration],
   })
   findOne(@Param('id') id: string) {
-    return this.configurationsService.findOne(id);
+    return this.configurationsService.findById(id);
   }
 
   @Patch(':id')

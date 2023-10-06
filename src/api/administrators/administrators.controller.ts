@@ -306,7 +306,7 @@ export class AdministratorsController {
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
-    return this.administratorsService.findOne(id);
+    return this.administratorsService.findById(id);
   }
 
   @Delete(':id')
