@@ -181,6 +181,7 @@ export class BaseController {
     return info;
   }
 
+  // start: ported
   mailMerge(
     srcTxt: any,
     subscription: Partial<Subscription>,
@@ -362,7 +363,6 @@ export class BaseController {
     return output;
   }
 
-  // start: ported
   async getMergedConfig(
     configName: string,
     serviceName: string,
