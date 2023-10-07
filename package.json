@@ -43,8 +43,10 @@
     "lodash": "^4.17.21",
     "mongodb-memory-server": "^8.15.1",
     "mongoose": "^7.4.5",
+    "pluralize": "^8.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "underscore.string": "^3.3.6"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
