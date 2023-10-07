@@ -1,5 +1,5 @@
-import { Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { AnyObject, HydratedDocument } from 'mongoose';
 import { BaseEntity, BaseSchemaOptions } from 'src/api/common/base.entity';
 
 export type SubscriptionDocument = HydratedDocument<Subscription>;
@@ -8,7 +8,44 @@ export type SubscriptionDocument = HydratedDocument<Subscription>;
   collection: 'subscription',
   ...BaseSchemaOptions,
 })
-export class Subscription extends BaseEntity {}
+export class Subscription extends BaseEntity {
+  @Prop({
+    required: true,
+  })
+  serviceName: string;
+
+  @Prop({
+    required: true,
+    default: 'email',
+  })
+  channel: string;
+
+  @Prop({
+    required: true,
+  })
+  userChannelId: string;
+
+  @Prop({
+    default: 'unconfirmed',
+  })
+  state?: string;
+
+  @Prop({
+    type: mongoose.Schema.Types.Mixed,
+    description:
+      'Contains email template, a boolean field to indicate whether to send confirmation message, confirmation code regex or encrypted confirmation code',
+  })
+  confirmationRequest?: AnyObject;
+
+  @Prop()
+  userId?: string;
+
+  @Prop()
+  broadcastPushNotificationFilter?: string;
+
+  @Prop()
+  data?: AnyObject;
+}
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription)
   .index({ '$**': 'text' }, { name: '$**_text' })
