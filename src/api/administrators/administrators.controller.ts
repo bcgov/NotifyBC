@@ -295,7 +295,11 @@ export class AdministratorsController {
       });
       delete updateAdministratorDto.password;
     }
-    return this.administratorsService.update(id, updateAdministratorDto, req);
+    return this.administratorsService.updateById(
+      id,
+      updateAdministratorDto,
+      req,
+    );
   }
 
   @Get(':id')

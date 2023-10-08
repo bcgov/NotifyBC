@@ -69,7 +69,7 @@ export class BouncesController {
     @Body() updateConfigurationDto: UpdateBounceDto,
     @Req() req,
   ) {
-    return this.bouncesService.update(id, updateConfigurationDto, req);
+    return this.bouncesService.updateById(id, updateConfigurationDto, req);
   }
 
   @Post()

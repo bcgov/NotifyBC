@@ -63,7 +63,7 @@ export class BaseService<T> {
       .exec();
   }
 
-  async findOne(filter: any = {}) {
+  async findOne(filter: any = {}): Promise<T> {
     const res = this.findAll({ ...filter, limit: 1 });
     return res && res[0];
   }
@@ -111,7 +111,7 @@ export class BaseService<T> {
     return this.model.findById(id).exec();
   }
 
-  update(id: string, updateDto, req: (Request & { user?: any }) | null) {
+  updateById(id: string, updateDto, req: (Request & { user?: any }) | null) {
     if (req?.user) {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
