@@ -220,6 +220,7 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.findOne({where: {id}}, undefined);
   }
 
+  // start: ported
   static readonly additionalServicesParamSpec: ParameterObject = {
     name: 'additionalServices',
     in: 'query',
@@ -498,6 +499,7 @@ export class SubscriptionController extends BaseController {
       }
     }
   }
+  // end: ported
 
   @get('/subscriptions/{id}/unsubscribe', {
     summary: 'unsubscribe by id',
@@ -831,7 +833,6 @@ export class SubscriptionController extends BaseController {
       return a;
     }, []);
   }
-  // end: ported
 
   @post('/subscriptions/swift', {
     summary: 'handle unsubscription from Swift keyword redirect',
@@ -919,6 +920,7 @@ export class SubscriptionController extends BaseController {
       subscription.unsubscriptionCode,
     );
   }
+  // end: ported
 
   // use private modifier to avoid class level interceptor
   private async handleConfirmationRequest(ctx: any, data: any) {

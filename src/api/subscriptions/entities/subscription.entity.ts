@@ -43,8 +43,14 @@ export class Subscription extends BaseEntity {
   @Prop()
   broadcastPushNotificationFilter?: string;
 
-  @Prop()
+  @Prop({ type: mongoose.Schema.Types.Mixed })
   data?: AnyObject;
+
+  @Prop()
+  unsubscriptionCode?: string;
+
+  // Indexer property to allow additional data
+  [prop: string]: any;
 }
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription)

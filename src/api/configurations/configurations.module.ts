@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigurationsService } from './configurations.service';
-import { ConfigurationsController } from './configurations.controller';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigurationsController } from './configurations.controller';
+import { ConfigurationsService } from './configurations.service';
 import {
   Configuration,
   ConfigurationSchema,
@@ -15,5 +15,6 @@ import {
   ],
   controllers: [ConfigurationsController],
   providers: [ConfigurationsService],
+  exports: [ConfigurationsService],
 })
 export class ConfigurationsModule {}

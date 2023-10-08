@@ -2,15 +2,15 @@ import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdministratorsModule } from './api/administrators/administrators.module';
 import { BouncesModule } from './api/bounces/bounces.module';
+import { BaseController } from './api/common/base.controller';
 import { ConfigurationsModule } from './api/configurations/configurations.module';
 import { NotificationsModule } from './api/notifications/notifications.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
-import { AuthModule } from './auth/auth.module';
-import { BaseController } from './api/common/base.controller';
 
 @Module({
   imports: [
