@@ -1,9 +1,12 @@
 import { Controller } from '@nestjs/common';
 import Bottleneck from 'bottleneck';
-import { merge } from 'lodash';
+import dns from 'dns';
+import { get, merge, union } from 'lodash';
+import net from 'net';
 import pluralize from 'pluralize';
 import { AppConfigService } from 'src/config/app-config.service';
 import toSentence from 'underscore.string/toSentence';
+import util from 'util';
 import { ConfigurationsService } from '../configurations/configurations.service';
 import { Configuration } from '../configurations/entities/configuration.entity';
 import { Subscription } from '../subscriptions/entities/subscription.entity';
@@ -80,6 +83,85 @@ export class BaseController {
     }
   }
 
+  nodemailer = require('nodemailer');
+  directTransport = require('nodemailer-direct-transport');
+  transport: any;
+  static emailLimiter: Bottleneck;
+  async sendEmail(mailOptions: any) {
+    const smtpCfg =
+      this.appConfig.email.smtp || this.appConfig.email.defaultSmtp;
+    if (!this.transport) {
+      if (smtpCfg.direct) {
+        this.transport = this.nodemailer.createTransport(
+          this.directTransport(smtpCfg),
+        );
+      } else {
+        this.transport = this.nodemailer.createTransport(smtpCfg);
+      }
+    }
+    if (
+      !BaseController.emailLimiter &&
+      this.appConfig?.email?.throttle?.enabled
+    ) {
+      const emailThrottleCfg = Object.assign({}, this.appConfig.email.throttle);
+      delete emailThrottleCfg.enabled;
+      BaseController.emailLimiter = new Bottleneck(emailThrottleCfg);
+    }
+    let info;
+    try {
+      let sendMail = this.transport.sendMail;
+      if (BaseController.emailLimiter) {
+        sendMail = BaseController.emailLimiter.wrap(sendMail);
+      }
+      info = await sendMail.call(this.transport, mailOptions);
+      if (info?.accepted?.length < 1) {
+        throw new Error('delivery failed');
+      }
+    } catch (ex: any) {
+      if (
+        smtpCfg.direct ||
+        net.isIP(smtpCfg.host) ||
+        ex.command !== 'CONN' ||
+        ['ECONNECTION', 'ETIMEDOUT'].indexOf(ex.code) === -1
+      ) {
+        throw ex;
+      }
+      const dnsLookupAsync = util.promisify(dns.lookup);
+      const addresses = await dnsLookupAsync(smtpCfg.host, { all: true });
+      if (!(addresses instanceof Array)) {
+        throw ex;
+      }
+      // do client retry if there are multiple addresses
+      for (const [index, address] of addresses.entries()) {
+        const newSmtpCfg = Object.assign({}, smtpCfg, {
+          host: address.address,
+        });
+        const transport = this.nodemailer.createTransport(newSmtpCfg);
+        let sendMail = transport.sendMail;
+        if (BaseController.emailLimiter) {
+          sendMail = BaseController.emailLimiter.wrap(sendMail);
+        }
+        try {
+          info = await sendMail.call(transport, mailOptions);
+          if (info?.accepted?.length < 1) {
+            throw new Error('delivery failed');
+          }
+        } catch (newEx: any) {
+          if (
+            index < addresses.length - 1 &&
+            newEx.command === 'CONN' &&
+            ['ECONNECTION', 'ETIMEDOUT'].indexOf(newEx.code) >= 0
+          ) {
+            continue;
+          }
+          throw newEx;
+        }
+        break;
+      }
+    }
+    return info;
+  }
+
   mailMerge(
     srcTxt: any,
     subscription: Partial<Subscription>,
@@ -101,7 +183,7 @@ export class BaseController {
     } catch (ex) {}
     try {
       if (output.match(/(?<!\\){unsubscription_service_names(?<!\\)}/i)) {
-        const serviceNames = _.union(
+        const serviceNames = union(
           [subscription.serviceName],
           subscription.unsubscribedAdditionalServices
             ? subscription.unsubscribedAdditionalServices.names
@@ -241,13 +323,13 @@ export class BaseController {
           let val: string;
           switch (tokenParts[0]) {
             case 'subscription':
-              val = _.get(subscription.data ?? {}, tokenParts[1]);
+              val = get(subscription.data ?? {}, tokenParts[1]);
               break;
             case 'notification':
-              val = _.get(notification.data ?? {}, tokenParts[1]);
+              val = get(notification.data ?? {}, tokenParts[1]);
               break;
             default:
-              val = _.get(notification.data ?? subscription.data ?? {}, token);
+              val = get(notification.data ?? subscription.data ?? {}, token);
           }
           if (val) {
             output = output.replace(e, val);

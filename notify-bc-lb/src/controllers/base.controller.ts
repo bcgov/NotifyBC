@@ -26,12 +26,11 @@ import {ConfigurationRepository} from '../repositories';
 const toSentence = require('underscore.string/toSentence');
 const pluralize = require('pluralize');
 
-// start: ported
+// file ported
 interface SMSBody {
   MessageBody: string;
   [key: string]: string;
 }
-// end: ported
 
 @authenticate(
   'ipWhitelist',
@@ -49,7 +48,6 @@ export class BaseController {
     public configurationRepository: ConfigurationRepository,
   ) {}
 
-  // start: ported
   static smsClient: any;
   static smsLimiter: Bottleneck;
   async sendSMS(
@@ -106,7 +104,6 @@ export class BaseController {
       }
     }
   }
-  // end: ported
 
   nodemailer = require('nodemailer');
   directTransport = require('nodemailer-direct-transport');
@@ -185,7 +182,6 @@ export class BaseController {
     return info;
   }
 
-  // start: ported
   mailMerge(
     srcTxt: any,
     subscription: Partial<Subscription>,
@@ -397,5 +393,4 @@ export class BaseController {
     next?.(null, res);
     return res;
   }
-  // end: ported
 }
