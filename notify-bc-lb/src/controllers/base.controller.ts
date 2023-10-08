@@ -26,10 +26,12 @@ import {ConfigurationRepository} from '../repositories';
 const toSentence = require('underscore.string/toSentence');
 const pluralize = require('pluralize');
 
+// start: ported
 interface SMSBody {
   MessageBody: string;
   [key: string]: string;
 }
+// end: ported
 
 @authenticate(
   'ipWhitelist',
@@ -47,6 +49,7 @@ export class BaseController {
     public configurationRepository: ConfigurationRepository,
   ) {}
 
+  // start: ported
   static smsClient: any;
   static smsLimiter: Bottleneck;
   async sendSMS(
@@ -103,6 +106,7 @@ export class BaseController {
       }
     }
   }
+  // end: ported
 
   nodemailer = require('nodemailer');
   directTransport = require('nodemailer-direct-transport');

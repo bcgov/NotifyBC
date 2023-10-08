@@ -1,4 +1,5 @@
 import { Controller } from '@nestjs/common';
+import Bottleneck from 'bottleneck';
 import { merge } from 'lodash';
 import pluralize from 'pluralize';
 import { AppConfigService } from 'src/config/app-config.service';
@@ -7,12 +8,77 @@ import { ConfigurationsService } from '../configurations/configurations.service'
 import { Configuration } from '../configurations/entities/configuration.entity';
 import { Subscription } from '../subscriptions/entities/subscription.entity';
 
+interface SMSBody {
+  MessageBody: string;
+  [key: string]: string;
+}
+
 @Controller()
 export class BaseController {
+  readonly appConfig;
   constructor(
     readonly appConfigService: AppConfigService,
     readonly configurationsService: ConfigurationsService,
-  ) {}
+  ) {
+    this.appConfig = appConfigService.get();
+  }
+
+  static smsClient: any;
+  static smsLimiter: Bottleneck;
+  async sendSMS(
+    to: string,
+    textBody: string,
+    subscription: Partial<Subscription>,
+  ) {
+    if (!BaseController.smsLimiter && this.appConfig?.sms?.throttle?.enabled) {
+      const smsThrottleCfg = Object.assign({}, this.appConfig.sms.throttle);
+      delete smsThrottleCfg.enabled;
+      BaseController.smsLimiter = new Bottleneck(smsThrottleCfg);
+    }
+    const smsProvider = this.appConfig.sms.provider;
+    const smsConfig = this.appConfig.sms.providerSettings[smsProvider];
+    switch (smsProvider) {
+      case 'swift': {
+        const url = `${smsConfig['apiUrlPrefix']}${
+          smsConfig['accountKey']
+        }/${encodeURIComponent(to)}`;
+        const body: SMSBody = {
+          MessageBody: textBody,
+        };
+        if (subscription?.id) {
+          body.Reference = subscription.id;
+        }
+        let req: any = fetch;
+        if (BaseController.smsLimiter) {
+          req = BaseController.smsLimiter.wrap(req);
+        }
+        return req(url, {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+          },
+        });
+      }
+      default: {
+        // Twilio Credentials
+        const accountSid = smsConfig.accountSid;
+        const authToken = smsConfig.authToken;
+        //require the Twilio module and create a REST client
+        BaseController.smsClient =
+          BaseController.smsClient || require('twilio')(accountSid, authToken);
+        let req = BaseController.smsClient.messages.create;
+        if (BaseController.smsLimiter) {
+          req = BaseController.smsLimiter.wrap(req);
+        }
+        return req.call(BaseController.smsClient.messages, {
+          to: to,
+          from: smsConfig.fromNumber,
+          body: textBody,
+        });
+      }
+    }
+  }
 
   mailMerge(
     srcTxt: any,
