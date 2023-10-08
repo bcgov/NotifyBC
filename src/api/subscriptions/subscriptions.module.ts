@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigurationsModule } from '../configurations/configurations.module';
 import {
   Subscription,
   SubscriptionSchema,
@@ -9,6 +10,7 @@ import { SubscriptionsService } from './subscriptions.service';
 
 @Module({
   imports: [
+    ConfigurationsModule,
     MongooseModule.forFeature([
       { name: Subscription.name, schema: SubscriptionSchema },
     ]),

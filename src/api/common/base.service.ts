@@ -64,7 +64,7 @@ export class BaseService<T> {
   }
 
   async findOne(filter: any = {}): Promise<T> {
-    const res = this.findAll({ ...filter, limit: 1 });
+    const res = await this.findAll({ ...filter, limit: 1 });
     return res && res[0];
   }
 

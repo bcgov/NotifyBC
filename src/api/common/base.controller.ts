@@ -202,8 +202,8 @@ export class BaseController {
       if (req) {
         httpHost = req.protocol + '://' + req.get('host');
       }
-      if (this.appConfigService.get('httpHost')) {
-        httpHost = this.appConfigService.get('httpHost');
+      if (this.appConfig.httpHost) {
+        httpHost = this.appConfig.httpHost;
       }
       let args: any;
       try {
@@ -221,7 +221,7 @@ export class BaseController {
     try {
       output = output.replace(
         /(?<!\\){rest_api_root(?<!\\)}/gi,
-        this.appConfigService.get('restApiRoot'),
+        this.appConfig.restApiRoot,
       );
     } catch (ex) {}
     try {
@@ -240,7 +240,7 @@ export class BaseController {
       output = output.replace(
         /(?<!\\){unsubscription_url(?<!\\)}/gi,
         httpHost +
-          this.appConfigService.get('restApiRoot') +
+          this.appConfig.restApiRoot +
           '/subscriptions/' +
           subscription.id +
           '/unsubscribe?unsubscriptionCode=' +
@@ -251,7 +251,7 @@ export class BaseController {
       output = output.replace(
         /(?<!\\){unsubscription_all_url(?<!\\)}/gi,
         httpHost +
-          this.appConfigService.get('restApiRoot') +
+          this.appConfig.restApiRoot +
           '/subscriptions/' +
           subscription.id +
           '/unsubscribe?unsubscriptionCode=' +
@@ -263,7 +263,7 @@ export class BaseController {
       output = output.replace(
         /(?<!\\){subscription_confirmation_url(?<!\\)}/gi,
         httpHost +
-          this.appConfigService.get('restApiRoot') +
+          this.appConfig.restApiRoot +
           '/subscriptions/' +
           subscription.id +
           '/verify?confirmationCode=' +
@@ -274,7 +274,7 @@ export class BaseController {
       output = output.replace(
         /(?<!\\){unsubscription_reversion_url(?<!\\)}/gi,
         httpHost +
-          this.appConfigService.get('restApiRoot') +
+          this.appConfig.restApiRoot +
           '/subscriptions/' +
           subscription.id +
           '/unsubscribe/undo?unsubscriptionCode=' +
@@ -298,7 +298,7 @@ export class BaseController {
     try {
       output = output.replace(
         /(?<!\\){restApiRoot(?<!\\)}/gi,
-        this.appConfigService.get('restApiRoot'),
+        this.appConfig.restApiRoot,
       );
     } catch (ex) {}
     try {
@@ -364,7 +364,7 @@ export class BaseController {
     }
     let res;
     try {
-      res = merge({}, this.appConfigService.get(configName));
+      res = merge({}, this.appConfig[configName]);
     } catch (ex) {}
     try {
       res = merge({}, res, (data as Configuration).value);
