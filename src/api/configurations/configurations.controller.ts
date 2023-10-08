@@ -98,7 +98,11 @@ export class ConfigurationsController {
     @Body() updateConfigurationDto: UpdateConfigurationDto,
     @Req() req,
   ) {
-    return this.configurationsService.update(id, updateConfigurationDto, req);
+    return this.configurationsService.updateById(
+      id,
+      updateConfigurationDto,
+      req,
+    );
   }
 
   @Put(':id')
