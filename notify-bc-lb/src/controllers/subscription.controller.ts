@@ -499,7 +499,6 @@ export class SubscriptionController extends BaseController {
       }
     }
   }
-  // end: ported
 
   @get('/subscriptions/{id}/unsubscribe', {
     summary: 'unsubscribe by id',
@@ -531,6 +530,7 @@ export class SubscriptionController extends BaseController {
       additionalServices,
     );
   }
+  // end: ported
 
   @get('/subscriptions/{id}/verify', {
     summary: 'verify confirmation code',
