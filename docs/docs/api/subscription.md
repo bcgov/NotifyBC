@@ -405,7 +405,7 @@ POST /subscriptions
 
      As a result, _NotifyBC_ will decrypt the confirmation code using the private RSA key, replace placeholder _{confirmation_code}_ in the email template with the confirmation code, and send confirmation request to _foo@bar.com_.
 
-## Verify a Confirmation Code
+## Verify a Subscription
 
 ```
 GET /subscriptions/{id}/verify
@@ -438,6 +438,14 @@ GET /subscriptions/{id}/verify
   5. _state_ is set to _confirmed_
   6. the subscription is saved back to database
   7. displays acknowledgement message according to [configuration](../config-subscription#confirmation-verification-acknowledgement-messages)
+
+- example
+
+  to verify a subscription with id _abc_, confirmation code _12345_, and delete existing confirmed subscriptions once verified, run
+
+  ```
+  curl 'http://localhost:3000/api/subscriptions/abc/verify?confirmationCode=12345&replace=true'
+  ```
 
 ## Update a Subscription
 

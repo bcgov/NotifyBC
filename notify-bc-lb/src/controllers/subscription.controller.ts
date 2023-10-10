@@ -530,7 +530,6 @@ export class SubscriptionController extends BaseController {
       additionalServices,
     );
   }
-  // end: ported
 
   @get('/subscriptions/{id}/verify', {
     summary: 'verify confirmation code',
@@ -654,7 +653,6 @@ export class SubscriptionController extends BaseController {
     return;
   }
 
-  // start: ported
   @get('/subscriptions/{id}/unsubscribe/undo', {
     summary: 'revert anonymous unsubscription by id',
     responses: {

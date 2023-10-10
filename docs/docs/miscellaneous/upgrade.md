@@ -308,7 +308,7 @@ v5 introduced following backward incompatible changes
    | neq                     | $ne                                             |
    | like, nlike             | (replace with $regexp)                          |
    | like, nlike, options: i | (replace with $regexp)                          |
-   | regexp                  | $regexp                                         |
+   | regexp                  | $regex                                          |
 
 4. API _order_ filter syntax has changed. Replace syntax from [Loopback](https://loopback.io/doc/en/lb4/Order-filter.html) to [Mongoose](<https://mongoosejs.com/docs/api/query.html#Query.prototype.sort()>) at client-side API call. For example, if your client-side code generates following API call
    ```
