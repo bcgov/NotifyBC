@@ -247,6 +247,40 @@ export class SubscriptionsController extends BaseController {
     }
   }
 
+  @Get(':id/unsubscribe')
+  @ApiOperation({ summary: 'unsubscribe by id' })
+  @ApiOkResponse({
+    description: 'Request was successful',
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Request was successful. Redirect.',
+  })
+  @ApiParam(SubscriptionsController.idParamSpec)
+  @ApiQuery(SubscriptionsController.additionalServicesParamSpec)
+  @ApiQuery(SubscriptionsController.unsubscriptionCodeParamSpec)
+  @ApiQuery(SubscriptionsController.userChannelIdParamSpec)
+  async deleteByIdAlias(
+    @Req() req: Request & { user: UserProfile },
+    @Res() response: Response,
+    @Param('id') id: string,
+    @Query('unsubscriptionCode')
+    unsubscriptionCode?: string,
+    @Query('userChannelId')
+    userChannelId?: string,
+    @Query('additionalServices', ParseArrayPipe)
+    additionalServices?: string[],
+  ): Promise<void> {
+    await this.deleteById(
+      req,
+      response,
+      id,
+      unsubscriptionCode,
+      userChannelId,
+      additionalServices,
+    );
+  }
+
   static readonly additionalServicesParamSpec: ApiQueryOptions = {
     name: 'additionalServices',
     schema: {
