@@ -151,6 +151,102 @@ export class SubscriptionsController extends BaseController {
     );
   }
 
+  @Get(':id/unsubscribe/undo')
+  @ApiOperation({
+    summary: 'revert anonymous unsubscription by id',
+  })
+  @ApiOkResponse({
+    description: 'Request was successful',
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+  })
+  @ApiParam(SubscriptionsController.idParamSpec)
+  @ApiQuery(SubscriptionsController.unsubscriptionCodeParamSpec)
+  async unDeleteItemById(
+    @Req() req: Request & { user: UserProfile },
+    @Res() response: Response,
+    @Param('id') id: string,
+    @Query('unsubscriptionCode')
+    unsubscriptionCode?: string,
+  ): Promise<void> {
+    const instance = await this.subscriptionsService.findOne({ where: { id } });
+    if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
+    const mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      instance.serviceName,
+    );
+    const anonymousUndoUnsubscription =
+      mergedSubscriptionConfig.anonymousUndoUnsubscription;
+    try {
+      if (![Role.SuperAdmin, Role.Admin].includes(req.user.role)) {
+        if (
+          instance.unsubscriptionCode &&
+          unsubscriptionCode !== instance.unsubscriptionCode
+        ) {
+          throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+        }
+        if (
+          req.user.role === Role.AuthenticatedUser ||
+          instance.state !== 'deleted'
+        ) {
+          throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+        }
+      }
+      const revertItems = async (query: FilterQuery<Subscription>) => {
+        await this.subscriptionsService.updateAll(
+          {
+            state: 'confirmed',
+          },
+          query,
+          req,
+        );
+        response.setHeader('Content-Type', 'text/plain');
+        if (anonymousUndoUnsubscription.redirectUrl) {
+          let redirectUrl = anonymousUndoUnsubscription.redirectUrl;
+          redirectUrl += `?channel=${instance.channel}`;
+          return response.redirect(redirectUrl);
+        } else {
+          return response.end(anonymousUndoUnsubscription.successMessage);
+        }
+      };
+      if (!instance.unsubscribedAdditionalServices) {
+        await revertItems({
+          id: instance.id,
+        });
+        return;
+      }
+      const unsubscribedAdditionalServicesIds =
+        instance.unsubscribedAdditionalServices.ids.slice();
+      delete instance.unsubscribedAdditionalServices;
+      await this.subscriptionsService.replaceById(instance.id, instance, req);
+      await revertItems({
+        $or: [
+          {
+            id: {
+              $in: unsubscribedAdditionalServicesIds,
+            },
+          },
+          {
+            id: instance.id,
+          },
+        ],
+      });
+    } catch (err: any) {
+      response.setHeader('Content-Type', 'text/plain');
+      if (anonymousUndoUnsubscription.redirectUrl) {
+        let redirectUrl = anonymousUndoUnsubscription.redirectUrl;
+        redirectUrl += `?channel=${instance.channel}`;
+        redirectUrl += '&err=' + encodeURIComponent(err.message || err);
+        return response.redirect(redirectUrl);
+      } else {
+        response.status(err.status || 500);
+        response.end(anonymousUndoUnsubscription.failureMessage);
+        return;
+      }
+    }
+  }
+
   static readonly additionalServicesParamSpec: ApiQueryOptions = {
     name: 'additionalServices',
     schema: {

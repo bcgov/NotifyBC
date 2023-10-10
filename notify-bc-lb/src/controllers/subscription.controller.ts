@@ -654,6 +654,7 @@ export class SubscriptionController extends BaseController {
     return;
   }
 
+  // start: ported
   @get('/subscriptions/{id}/unsubscribe/undo', {
     summary: 'revert anonymous unsubscription by id',
     responses: {
@@ -770,7 +771,6 @@ export class SubscriptionController extends BaseController {
     }
   }
 
-  // start: ported
   @authenticate('ipWhitelist', 'clientCertificate', 'accessToken', 'oidc')
   @get('/subscriptions/services', {
     summary: 'unique list of subscribed service names',

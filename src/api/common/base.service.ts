@@ -139,7 +139,7 @@ export class BaseService<T> {
       updateDto.updated = new Date();
     }
     const res = await this.model
-      .findOneAndUpdate(filter, updateDto, {
+      .findOneAndReplace(filter, updateDto, {
         upsert,
         new: true,
         includeResultMetadata: true,
