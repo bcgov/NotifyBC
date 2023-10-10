@@ -281,6 +281,133 @@ export class SubscriptionsController extends BaseController {
     );
   }
 
+  @Get(':id/verify')
+  @ApiOperation({ summary: 'verify confirmation code' })
+  @ApiOkResponse({
+    description: 'Request was successful',
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+  })
+  @ApiParam(SubscriptionsController.idParamSpec)
+  @ApiQuery({
+    name: 'confirmationCode',
+    description: 'confirmation code',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'replace',
+    description: 'whether or not replacing existing subscriptions',
+    required: false,
+  })
+  async verify(
+    @Req() req: Request & { user: UserProfile },
+    @Res() response: Response,
+    @Param('id') id: string,
+    @Query('confirmationCode')
+    confirmationCode: string,
+    @Query('replace')
+    replace?: boolean,
+  ): Promise<void> {
+    let instance = (await this.subscriptionsService.findOne({
+      where: { id },
+    })) as Subscription;
+    if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
+    const mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      instance.serviceName,
+    );
+
+    const handleConfirmationAcknowledgement = async (
+      err: any,
+      message?: string,
+    ) => {
+      if (!mergedSubscriptionConfig.confirmationAcknowledgements) {
+        if (err) {
+          throw err;
+        }
+        return response.end(message);
+      }
+      let redirectUrl =
+        mergedSubscriptionConfig.confirmationAcknowledgements.redirectUrl;
+      response.setHeader('Content-Type', 'text/plain');
+      if (redirectUrl) {
+        redirectUrl += `?channel=${instance.channel}`;
+        if (err) {
+          redirectUrl += '&err=' + encodeURIComponent(err.toString());
+        }
+        return response.redirect(redirectUrl);
+      } else {
+        if (err) {
+          if (err.status) {
+            response.status(err.status);
+          }
+          return response.end(
+            mergedSubscriptionConfig.confirmationAcknowledgements
+              .failureMessage,
+          );
+        }
+        return response.end(
+          mergedSubscriptionConfig.confirmationAcknowledgements.successMessage,
+        );
+      }
+    };
+
+    if (
+      (instance.state !== 'unconfirmed' && instance.state !== 'confirmed') ||
+      (instance.confirmationRequest &&
+        confirmationCode !== instance.confirmationRequest.confirmationCode)
+    ) {
+      await handleConfirmationAcknowledgement(
+        new HttpException(undefined, HttpStatus.FORBIDDEN),
+      );
+      return;
+    }
+    try {
+      if (replace && instance.userChannelId) {
+        const whereClause: FilterQuery<Subscription> = {
+          serviceName: instance.serviceName,
+          state: 'confirmed',
+          channel: instance.channel,
+        };
+        // email address check should be case insensitive
+        const escapedUserChannelId = instance.userChannelId.replace(
+          /[-[\]{}()*+?.,\\^$|#\s]/g,
+          '\\$&',
+        );
+        const escapedUserChannelIdRegExp = new RegExp(
+          escapedUserChannelId,
+          'i',
+        );
+        whereClause.userChannelId = {
+          $regex: escapedUserChannelIdRegExp,
+        };
+        await this.subscriptionsService.updateAll(
+          {
+            state: 'deleted',
+          },
+          whereClause,
+          req,
+        );
+      }
+      await this.subscriptionsService.updateById(
+        instance.id,
+        {
+          state: 'confirmed',
+        },
+        req,
+      );
+      instance = (await this.subscriptionsService.findOne({
+        where: { id },
+      })) as Subscription;
+    } catch (err) {
+      await handleConfirmationAcknowledgement(err);
+      return;
+    }
+    await handleConfirmationAcknowledgement(null, 'OK');
+    return;
+  }
+
   static readonly additionalServicesParamSpec: ApiQueryOptions = {
     name: 'additionalServices',
     schema: {
