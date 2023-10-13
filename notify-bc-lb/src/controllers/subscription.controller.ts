@@ -202,6 +202,7 @@ export class SubscriptionController extends BaseController {
     return filteredData;
   }
 
+  // start: ported
   @authenticate('ipWhitelist', 'clientCertificate', 'accessToken', 'oidc')
   @put('/subscriptions/{id}', {
     summary: 'replace a subscription',
@@ -220,7 +221,6 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.findOne({where: {id}}, undefined);
   }
 
-  // start: ported
   static readonly additionalServicesParamSpec: ParameterObject = {
     name: 'additionalServices',
     in: 'query',

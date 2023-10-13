@@ -9,6 +9,7 @@ import {
   Param,
   ParseArrayPipe,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -34,6 +35,7 @@ import { AppConfigService } from 'src/config/app-config.service';
 import { BaseController } from '../common/base.controller';
 import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
 import { ConfigurationsService } from '../configurations/configurations.service';
+import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { Subscription } from './entities/subscription.entity';
 import { SubscriptionAfterRemoteInterceptor } from './subscription-after-remote.interceptor';
 import { SubscriptionsQueryTransformPipe } from './subscriptions-query-transform.pipe';
@@ -406,6 +408,23 @@ export class SubscriptionsController extends BaseController {
     }
     await handleConfirmationAcknowledgement(null, 'OK');
     return;
+  }
+
+  @Roles(Role.SuperAdmin, Role.Admin)
+  @Put(':id')
+  @ApiOperation({
+    summary: 'replace a subscription',
+  })
+  @ApiOkResponse({
+    description: 'Subscription model instance',
+    type: Subscription,
+  })
+  async replaceById(
+    @Req() req: Request & { user: UserProfile },
+    @Param('id') id: string,
+    @Body() subscription: CreateSubscriptionDto,
+  ): Promise<Subscription> {
+    return this.subscriptionsService.replaceById(id, subscription, req);
   }
 
   static readonly additionalServicesParamSpec: ApiQueryOptions = {

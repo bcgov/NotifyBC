@@ -5,4 +5,6 @@ export class CreateNotificationDto extends OmitType(Notification, [
   'id',
   'created',
   'updated',
+  'createdBy',
+  'updatedBy',
 ] as const) {}

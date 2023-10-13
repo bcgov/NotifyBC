@@ -5,4 +5,6 @@ export class CreateSubscriptionDto extends OmitType(Subscription, [
   'id',
   'created',
   'updated',
+  'createdBy',
+  'updatedBy',
 ] as const) {}
