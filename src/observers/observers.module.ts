@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { RsaService } from './rsa.service';
 
-@Module({})
+@Module({
+  providers: [RsaService]
+})
 export class ObserversModule {}
