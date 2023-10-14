@@ -27,10 +27,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import crypto from 'crypto';
 import { Request, Response } from 'express';
 import { merge } from 'lodash';
 import { AnyObject, FilterQuery } from 'mongoose';
-import path from 'path';
 import RandExp from 'randexp';
 import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
@@ -742,7 +742,6 @@ export class SubscriptionsController extends BaseController {
   //   return this.subscriptionsService.remove(+id);
   // }
 
-  // use private modifier to avoid class level interceptor
   private async handleConfirmationRequest(
     req: Request & { user: UserProfile },
     data: any,
@@ -875,13 +874,22 @@ export class SubscriptionsController extends BaseController {
       }
     }
     if (data.confirmationRequest?.confirmationCodeEncrypted) {
-      const rsaPath = path.resolve(__dirname, '../../observers/rsa.service');
-      const rsa = require(rsaPath);
-      const key = rsa.key;
-      const decrypted = key.decrypt(
-        data.confirmationRequest.confirmationCodeEncrypted,
-        'utf8',
-      );
+      const rsaConfig = await this.configurationsService.findOne({
+        where: {
+          name: 'rsa',
+        },
+      });
+      const decrypted = crypto
+        .privateDecrypt(
+          {
+            key: rsaConfig.value.private,
+          },
+          Buffer.from(
+            data.confirmationRequest.confirmationCodeEncrypted,
+            'base64',
+          ),
+        )
+        .toString('utf8');
       const decryptedData = decrypted.split(' ');
       data.userChannelId = decryptedData[0];
       data.confirmationRequest.confirmationCode = decryptedData[1];
