@@ -155,6 +155,7 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.find(filter, undefined);
   }
 
+  // start: ported
   @authenticate(
     'ipWhitelist',
     'clientCertificate',
@@ -202,7 +203,6 @@ export class SubscriptionController extends BaseController {
     return filteredData;
   }
 
-  // start: ported
   @authenticate('ipWhitelist', 'clientCertificate', 'accessToken', 'oidc')
   @put('/subscriptions/{id}', {
     summary: 'replace a subscription',
@@ -918,7 +918,6 @@ export class SubscriptionController extends BaseController {
       subscription.unsubscriptionCode,
     );
   }
-  // end: ported
 
   // use private modifier to avoid class level interceptor
   private async handleConfirmationRequest(ctx: any, data: any) {
@@ -1085,4 +1084,5 @@ export class SubscriptionController extends BaseController {
     }
     return;
   }
+  // end: ported
 }

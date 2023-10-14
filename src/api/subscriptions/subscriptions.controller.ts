@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   ParseArrayPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -27,7 +28,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { merge } from 'lodash';
 import { AnyObject, FilterQuery } from 'mongoose';
+import path from 'path';
+import RandExp from 'randexp';
 import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
@@ -36,6 +40,7 @@ import { BaseController } from '../common/base.controller';
 import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
 import { ConfigurationsService } from '../configurations/configurations.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
+import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { Subscription } from './entities/subscription.entity';
 import { SubscriptionAfterRemoteInterceptor } from './subscription-after-remote.interceptor';
 import { SubscriptionsQueryTransformPipe } from './subscriptions-query-transform.pipe';
@@ -412,9 +417,7 @@ export class SubscriptionsController extends BaseController {
 
   @Roles(Role.SuperAdmin, Role.Admin)
   @Put(':id')
-  @ApiOperation({
-    summary: 'replace a subscription',
-  })
+  @ApiOperation({ summary: 'replace a subscription' })
   @ApiOkResponse({
     description: 'Subscription model instance',
     type: Subscription,
@@ -425,6 +428,40 @@ export class SubscriptionsController extends BaseController {
     @Body() subscription: CreateSubscriptionDto,
   ): Promise<Subscription> {
     return this.subscriptionsService.replaceById(id, subscription, req);
+  }
+
+  @Roles(Role.SuperAdmin, Role.Admin, Role.AuthenticatedUser)
+  @Patch(':id')
+  @ApiOperation({ summary: 'update a subscription' })
+  @ApiOkResponse({
+    description: 'Subscription model instance',
+    type: Subscription,
+  })
+  async updateById(
+    @Req() req: Request & { user: UserProfile },
+    @Param('id') id: string,
+    @Body() subscription: UpdateSubscriptionDto,
+  ): Promise<Subscription> {
+    const instance = await this.subscriptionsService.findOne({ where: { id } });
+    if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
+    const filteredData = merge({}, instance);
+    if (
+      subscription.userChannelId &&
+      filteredData.userChannelId !== subscription.userChannelId
+    ) {
+      filteredData.state = 'unconfirmed';
+      filteredData.userChannelId = subscription.userChannelId;
+    }
+    if (subscription.data) {
+      filteredData.data = subscription.data;
+    }
+    await this.beforeUpsert(req, filteredData);
+    await this.subscriptionsService.updateById(id, filteredData, req);
+    if (!filteredData.confirmationRequest) {
+      return filteredData;
+    }
+    await this.handleConfirmationRequest(req, filteredData);
+    return filteredData;
   }
 
   static readonly additionalServicesParamSpec: ApiQueryOptions = {
@@ -704,4 +741,178 @@ export class SubscriptionsController extends BaseController {
   // remove(@Param('id') id: string) {
   //   return this.subscriptionsService.remove(+id);
   // }
+
+  // use private modifier to avoid class level interceptor
+  private async handleConfirmationRequest(
+    req: Request & { user: UserProfile },
+    data: any,
+  ) {
+    if (
+      data.state !== 'unconfirmed' ||
+      !data.confirmationRequest?.sendRequest
+    ) {
+      return;
+    }
+    let textBody =
+      data.confirmationRequest.textBody &&
+      this.mailMerge(data.confirmationRequest.textBody, data, {}, req);
+    let mailSubject =
+      data.confirmationRequest.subject &&
+      this.mailMerge(data.confirmationRequest.subject, data, {}, req);
+    let mailHtmlBody =
+      data.confirmationRequest.htmlBody &&
+      this.mailMerge(data.confirmationRequest.htmlBody, data, {}, req);
+    let mailFrom = data.confirmationRequest.from;
+
+    // handle duplicated request
+    const mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      data.serviceName,
+    );
+    if (mergedSubscriptionConfig.detectDuplicatedSubscription) {
+      const whereClause: any = {
+        serviceName: data.serviceName,
+        state: 'confirmed',
+        channel: data.channel,
+      };
+      if (data.userChannelId) {
+        // email address check should be case insensitive
+        const escapedUserChannelId = data.userChannelId.replace(
+          /[-[\]{}()*+?.,\\^$|#\s]/g,
+          '\\$&',
+        );
+        const escapedUserChannelIdRegExp = new RegExp(
+          escapedUserChannelId,
+          'i',
+        );
+        whereClause.userChannelId = {
+          $regex: escapedUserChannelIdRegExp,
+        };
+      }
+      const subCnt = await this.count(req, whereClause);
+      if (subCnt.count > 0) {
+        mailFrom =
+          mergedSubscriptionConfig.duplicatedSubscriptionNotification[
+            data.channel
+          ].from;
+        textBody =
+          mergedSubscriptionConfig.duplicatedSubscriptionNotification[
+            data.channel
+          ].textBody &&
+          this.mailMerge(
+            mergedSubscriptionConfig.duplicatedSubscriptionNotification[
+              data.channel
+            ].textBody,
+            data,
+            {},
+            req,
+          );
+        mailSubject =
+          mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
+            .subject &&
+          this.mailMerge(
+            mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
+              .subject,
+            data,
+            {},
+            req,
+          );
+        mailHtmlBody =
+          mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
+            .htmlBody &&
+          this.mailMerge(
+            mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
+              .htmlBody,
+            data,
+            {},
+            req,
+          );
+      }
+    }
+    switch (data.channel) {
+      case 'sms':
+        await this.sendSMS(data.userChannelId, textBody, data);
+        break;
+      default: {
+        const mailOptions = {
+          from: mailFrom,
+          to: data.userChannelId,
+          subject: mailSubject,
+          text: textBody,
+          html: mailHtmlBody,
+        };
+        await this.sendEmail(mailOptions);
+      }
+    }
+  }
+
+  private async beforeUpsert(
+    req: Request & { user: UserProfile },
+    data: Subscription,
+  ) {
+    const mergedSubscriptionConfig = await this.getMergedConfig(
+      'subscription',
+      data.serviceName,
+    );
+    const userId =
+      req.user?.role === Role.AuthenticatedUser
+        ? req.user.securityId
+        : undefined;
+    if (userId) {
+      data.userId = userId;
+    } else if (
+      ![Role.Admin, Role.SuperAdmin].includes(req.user?.role) ||
+      !data.unsubscriptionCode
+    ) {
+      // generate unsubscription code
+      const anonymousUnsubscription =
+        mergedSubscriptionConfig.anonymousUnsubscription;
+      if (anonymousUnsubscription.code?.required) {
+        const unsubscriptionCodeRegex = new RegExp(
+          anonymousUnsubscription.code.regex,
+        );
+        data.unsubscriptionCode = new RandExp(unsubscriptionCodeRegex).gen();
+      }
+    }
+    if (data.confirmationRequest?.confirmationCodeEncrypted) {
+      const rsaPath = path.resolve(__dirname, '../../observers/rsa.service');
+      const rsa = require(rsaPath);
+      const key = rsa.key;
+      const decrypted = key.decrypt(
+        data.confirmationRequest.confirmationCodeEncrypted,
+        'utf8',
+      );
+      const decryptedData = decrypted.split(' ');
+      data.userChannelId = decryptedData[0];
+      data.confirmationRequest.confirmationCode = decryptedData[1];
+      return;
+    }
+    // use request without encrypted payload
+    if (
+      ![Role.Admin, Role.SuperAdmin].includes(req.user?.role) ||
+      !data.confirmationRequest
+    ) {
+      try {
+        data.confirmationRequest =
+          mergedSubscriptionConfig.confirmationRequest[data.channel];
+      } catch (ex) {}
+      data.confirmationRequest &&
+        (data.confirmationRequest.confirmationCode = undefined);
+    }
+    if (!data.confirmationRequest) {
+      return;
+    }
+    if (
+      !data.confirmationRequest.confirmationCode &&
+      data.confirmationRequest.confirmationCodeRegex
+    ) {
+      const confirmationCodeRegex = new RegExp(
+        data.confirmationRequest.confirmationCodeRegex,
+      );
+      data.confirmationRequest.confirmationCode = new RandExp(
+        confirmationCodeRegex,
+      ).gen();
+    }
+    return;
+  }
 }
