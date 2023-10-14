@@ -714,10 +714,40 @@ export class SubscriptionsController extends BaseController {
     }
   }
 
-  // @Post()
-  // create(@Body() createSubscriptionDto: CreateSubscriptionDto) {
-  //   return this.subscriptionsService.create(createSubscriptionDto);
-  // }
+  @Post()
+  @ApiOperation({ summary: 'create a subscription' })
+  @ApiOkResponse({
+    description: 'Subscription model instance',
+    type: Subscription,
+  })
+  @HttpCode(200)
+  async create(
+    @Req() req: Request & { user: UserProfile },
+    @Body() subscription: CreateSubscriptionDto,
+  ): Promise<Subscription> {
+    if (![Role.SuperAdmin, Role.Admin].includes(req.user?.role)) {
+      delete subscription.state;
+      const userId =
+        req.user?.role === Role.AuthenticatedUser
+          ? req.user.securityId
+          : undefined;
+      if (!userId) {
+        // anonymous user is not allowed to supply data,
+        // which could be used in mail merge
+        delete subscription.data;
+      }
+    }
+    delete subscription.id;
+    await this.beforeUpsert(req, subscription);
+    const result = (
+      await this.subscriptionsService.create(subscription, req)
+    ).toJSON();
+    if (!subscription.confirmationRequest) {
+      return result;
+    }
+    await this.handleConfirmationRequest(req, result);
+    return result;
+  }
 
   @Get()
   findAll() {
@@ -847,7 +877,7 @@ export class SubscriptionsController extends BaseController {
 
   private async beforeUpsert(
     req: Request & { user: UserProfile },
-    data: Subscription,
+    data: CreateSubscriptionDto,
   ) {
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',

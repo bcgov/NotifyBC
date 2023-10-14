@@ -68,6 +68,7 @@ export class SubscriptionController extends BaseController {
     super(appConfig, configurationRepository);
   }
 
+  // start: ported
   @post('/subscriptions', {
     summary: 'create a subscription',
     responses: {
@@ -104,7 +105,6 @@ export class SubscriptionController extends BaseController {
     return result;
   }
 
-  // start: ported
   @authenticate(
     'ipWhitelist',
     'clientCertificate',
