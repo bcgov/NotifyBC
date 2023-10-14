@@ -126,7 +126,12 @@ export class AdministratorsController {
   }
 
   @Post(':id/access-tokens')
+  @HttpCode(200)
   @Roles(Role.SuperAdmin, Role.Admin)
+  @ApiOkResponse({
+    description: 'Administrator model instance',
+    type: AccessToken,
+  })
   async createAccessToken(
     @Param('id') id: string,
     @Req() req,
@@ -222,6 +227,11 @@ export class AdministratorsController {
   }
 
   @Post(':id/user-credential')
+  @HttpCode(200)
+  @ApiOkResponse({
+    description: 'UserCredential model instance',
+    type: CreateUserCredentialReturnDto,
+  })
   async createCredential(
     @Param('id') id: string,
     @Req() req,
@@ -327,7 +337,12 @@ export class AdministratorsController {
   }
 
   @Post()
+  @HttpCode(200)
   @Roles(Role.SuperAdmin)
+  @ApiOkResponse({
+    description: 'User',
+    type: Administrator,
+  })
   async signUp(
     @Body() createAdministratorDto: CreateAdministratorDto,
     @Req() req,

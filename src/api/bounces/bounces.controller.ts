@@ -11,7 +11,6 @@ import {
   Req,
 } from '@nestjs/common';
 import {
-  ApiCreatedResponse,
   ApiExtraModels,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -73,10 +72,11 @@ export class BouncesController {
   }
 
   @Post()
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'Bounce model instance',
     type: Bounce,
   })
+  @HttpCode(200)
   create(@Body() createBounceDto: CreateBounceDto, @Req() req) {
     return this.bouncesService.create(createBounceDto, req);
   }

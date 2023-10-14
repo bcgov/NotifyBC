@@ -11,7 +11,6 @@ import {
   Req,
 } from '@nestjs/common';
 import {
-  ApiCreatedResponse,
   ApiExtraModels,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -41,9 +40,11 @@ export class ConfigurationsController {
   constructor(private readonly configurationsService: ConfigurationsService) {}
 
   @Post()
-  @ApiCreatedResponse({
+  @ApiOkResponse({
+    description: 'Configuration model instance',
     type: Configuration,
   })
+  @HttpCode(200)
   create(@Body() createConfigurationDto: CreateConfigurationDto, @Req() req) {
     return this.configurationsService.create(createConfigurationDto, req);
   }
