@@ -44,6 +44,7 @@ import {
   JsonQuery,
 } from '../common/json-query.decorator';
 import { ConfigurationsService } from '../configurations/configurations.service';
+import { BroadcastPushNotificationFilterPipe } from './broadcast-push-notification-filter.pipe';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { Subscription } from './entities/subscription.entity';
@@ -430,7 +431,8 @@ export class SubscriptionsController extends BaseController {
   async replaceById(
     @Req() req: Request & { user: UserProfile },
     @Param('id') id: string,
-    @Body() subscription: CreateSubscriptionDto,
+    @Body(BroadcastPushNotificationFilterPipe)
+    subscription: CreateSubscriptionDto,
   ): Promise<Subscription> {
     return this.subscriptionsService.replaceById(id, subscription, req);
   }
@@ -445,7 +447,8 @@ export class SubscriptionsController extends BaseController {
   async updateById(
     @Req() req: Request & { user: UserProfile },
     @Param('id') id: string,
-    @Body() subscription: UpdateSubscriptionDto,
+    @Body(BroadcastPushNotificationFilterPipe)
+    subscription: UpdateSubscriptionDto,
   ): Promise<Subscription> {
     const instance = await this.subscriptionsService.findOne(req, {
       where: { id },
@@ -730,7 +733,8 @@ export class SubscriptionsController extends BaseController {
   @HttpCode(200)
   async create(
     @Req() req: Request & { user: UserProfile },
-    @Body() subscription: CreateSubscriptionDto,
+    @Body(BroadcastPushNotificationFilterPipe)
+    subscription: CreateSubscriptionDto,
   ): Promise<Subscription> {
     if (![Role.SuperAdmin, Role.Admin].includes(req.user?.role)) {
       delete subscription.state;
