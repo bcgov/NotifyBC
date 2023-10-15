@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {authenticate} from '@loopback/authentication';
 import {
   ApplicationConfig,
@@ -68,7 +69,6 @@ export class SubscriptionController extends BaseController {
     super(appConfig, configurationRepository);
   }
 
-  // start: ported
   @post('/subscriptions', {
     summary: 'create a subscription',
     responses: {
@@ -126,7 +126,6 @@ export class SubscriptionController extends BaseController {
   ): Promise<Count> {
     return this.subscriptionRepository.count(where, undefined);
   }
-  // end: ported
 
   @authenticate(
     'ipWhitelist',
@@ -155,7 +154,6 @@ export class SubscriptionController extends BaseController {
     return this.subscriptionRepository.find(filter, undefined);
   }
 
-  // start: ported
   @authenticate(
     'ipWhitelist',
     'clientCertificate',
@@ -1084,5 +1082,4 @@ export class SubscriptionController extends BaseController {
     }
     return;
   }
-  // end: ported
 }
