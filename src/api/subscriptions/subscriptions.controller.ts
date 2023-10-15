@@ -48,9 +48,7 @@ import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { Subscription } from './entities/subscription.entity';
 import { SubscriptionAfterRemoteInterceptor } from './subscription-after-remote.interceptor';
-import { SubscriptionsQueryTransformPipe } from './subscriptions-query-transform.pipe';
 import { SubscriptionsService } from './subscriptions.service';
-// todo: apply SubscriptionsQueryTransformPipe for find, findOne, updateAll, deleteAll
 
 @Controller('subscriptions')
 @ApiTags('subscription')
@@ -72,10 +70,10 @@ export class SubscriptionsController extends BaseController {
   @Roles(Role.SuperAdmin, Role.Admin, Role.AuthenticatedUser)
   async count(
     @Req() req,
-    @JsonQuery('where', SubscriptionsQueryTransformPipe)
+    @JsonQuery('where')
     where?: FilterQuery<Subscription>,
   ) {
-    return this.subscriptionsService.count(where);
+    return this.subscriptionsService.count(req, where);
   }
 
   @Roles(Role.SuperAdmin, Role.Admin, Role.AuthenticatedUser)
@@ -148,7 +146,7 @@ export class SubscriptionsController extends BaseController {
       const phoneNumberRegex = new RegExp(phoneNumberArr.join('-?'));
       where.userChannelId = phoneNumberRegex;
     }
-    const subscription = await this.subscriptionsService.findOne({
+    const subscription = await this.subscriptionsService.findOne(req, {
       where,
     });
     if (!subscription) {
@@ -182,7 +180,9 @@ export class SubscriptionsController extends BaseController {
     @Query('unsubscriptionCode')
     unsubscriptionCode?: string,
   ): Promise<void> {
-    const instance = await this.subscriptionsService.findOne({ where: { id } });
+    const instance = await this.subscriptionsService.findOne(req, {
+      where: { id },
+    });
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
@@ -321,7 +321,7 @@ export class SubscriptionsController extends BaseController {
     @Query('replace')
     replace?: boolean,
   ): Promise<void> {
-    let instance = (await this.subscriptionsService.findOne({
+    let instance = (await this.subscriptionsService.findOne(req, {
       where: { id },
     })) as Subscription;
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
@@ -409,7 +409,7 @@ export class SubscriptionsController extends BaseController {
         },
         req,
       );
-      instance = (await this.subscriptionsService.findOne({
+      instance = (await this.subscriptionsService.findOne(req, {
         where: { id },
       })) as Subscription;
     } catch (err) {
@@ -447,7 +447,9 @@ export class SubscriptionsController extends BaseController {
     @Param('id') id: string,
     @Body() subscription: UpdateSubscriptionDto,
   ): Promise<Subscription> {
-    const instance = await this.subscriptionsService.findOne({ where: { id } });
+    const instance = await this.subscriptionsService.findOne(req, {
+      where: { id },
+    });
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     const filteredData = merge({}, instance);
     if (
@@ -516,7 +518,7 @@ export class SubscriptionsController extends BaseController {
     @Query('additionalServices', ParseArrayPipe)
     additionalServices?: string[],
   ): Promise<void> {
-    let instance = await this.subscriptionsService.findOne({
+    let instance = await this.subscriptionsService.findOne(req, {
       where: { id },
     });
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
@@ -624,7 +626,7 @@ export class SubscriptionsController extends BaseController {
           },
           undefined,
         );
-        instance = (await this.subscriptionsService.findOne({
+        instance = (await this.subscriptionsService.findOne(req, {
           where: { id },
         })) as Subscription;
         if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
@@ -642,7 +644,7 @@ export class SubscriptionsController extends BaseController {
       }
       const getAdditionalServiceIds = async (): Promise<AdditionalServices> => {
         if (additionalServices.length > 1) {
-          const res = await this.subscriptionsService.findAll({
+          const res = await this.subscriptionsService.findAll(req, {
             fields: { id: true, serviceName: true },
             where: {
               serviceName: {
@@ -659,7 +661,7 @@ export class SubscriptionsController extends BaseController {
         }
         if (additionalServices.length === 1) {
           if (additionalServices[0] !== '_all') {
-            const res = await this.subscriptionsService.findAll({
+            const res = await this.subscriptionsService.findAll(req, {
               fields: { id: true, serviceName: true },
               where: {
                 serviceName: additionalServices[0],
@@ -673,7 +675,7 @@ export class SubscriptionsController extends BaseController {
             };
           }
           // get all subscribed services
-          const res = await this.subscriptionsService.findAll({
+          const res = await this.subscriptionsService.findAll(req, {
             fields: { id: true, serviceName: true },
             where: {
               userChannelId: instance.userChannelId,
@@ -763,10 +765,11 @@ export class SubscriptionsController extends BaseController {
   })
   @ApiFilterJsonQuery()
   async find(
-    @JsonQuery('filter', SubscriptionsQueryTransformPipe)
+    @Req() req,
+    @JsonQuery('filter')
     filter: FilterDto<Subscription>,
   ): Promise<Subscription[]> {
-    return this.subscriptionsService.findAll(filter);
+    return this.subscriptionsService.findAll(req, filter);
   }
 
   private async handleConfirmationRequest(
