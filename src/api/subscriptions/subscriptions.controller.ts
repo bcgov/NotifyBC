@@ -37,7 +37,12 @@ import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { AppConfigService } from 'src/config/app-config.service';
 import { BaseController } from '../common/base.controller';
-import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
+import { FilterDto } from '../common/dto/filter.dto';
+import {
+  ApiFilterJsonQuery,
+  ApiWhereJsonQuery,
+  JsonQuery,
+} from '../common/json-query.decorator';
 import { ConfigurationsService } from '../configurations/configurations.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
@@ -749,28 +754,20 @@ export class SubscriptionsController extends BaseController {
     return result;
   }
 
+  @Roles(Role.SuperAdmin, Role.Admin, Role.AuthenticatedUser)
   @Get()
-  findAll() {
-    return this.subscriptionsService.findAll();
+  @ApiOperation({ summary: 'get subscriptions' })
+  @ApiOkResponse({
+    description: 'Array of Subscription model instances',
+    type: [Subscription],
+  })
+  @ApiFilterJsonQuery()
+  async find(
+    @JsonQuery('filter', SubscriptionsQueryTransformPipe)
+    filter: FilterDto<Subscription>,
+  ): Promise<Subscription[]> {
+    return this.subscriptionsService.findAll(filter);
   }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.subscriptionsService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateSubscriptionDto: UpdateSubscriptionDto,
-  // ) {
-  //   return this.subscriptionsService.update(+id, updateSubscriptionDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.subscriptionsService.remove(+id);
-  // }
 
   private async handleConfirmationRequest(
     req: Request & { user: UserProfile },

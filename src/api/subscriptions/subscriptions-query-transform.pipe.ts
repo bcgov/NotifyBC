@@ -23,7 +23,7 @@ export class SubscriptionsQueryTransformPipe implements PipeTransform {
     let whereClause = metadata.data === 'where' ? value : value?.where;
     whereClause = {
       $and: [
-        whereClause,
+        whereClause || {},
         { userId: this.request.user.securityId },
         {
           state: {
