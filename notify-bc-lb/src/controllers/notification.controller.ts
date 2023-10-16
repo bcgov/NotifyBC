@@ -118,6 +118,7 @@ export class NotificationController extends BaseController {
     return this.dispatchNotification(res);
   }
 
+  // start: ported
   @get('/notifications/count', {
     responses: {
       '200': {
@@ -131,6 +132,7 @@ export class NotificationController extends BaseController {
   ): Promise<Count> {
     return this.notificationRepository.count(where, undefined);
   }
+  // end: ported
 
   @get('/notifications', {
     responses: {
