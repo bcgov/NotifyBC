@@ -146,9 +146,11 @@ export class BaseService<T> {
       })
       .exec();
     if (upsert && !res.lastErrorObject.updatedExisting) {
-      await this.model.findByIdAndUpdate(res.value._id, {
-        createdBy: req.user,
-      });
+      return this.model
+        .findByIdAndUpdate(res.value._id, {
+          createdBy: req.user,
+        })
+        .exec();
     }
     return res.value;
   }

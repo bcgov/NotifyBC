@@ -231,14 +231,14 @@ export class AdministratorsController {
     type: CreateUserCredentialReturnDto,
   })
   async createCredential(
-    @Param('id') id: string,
+    @Param('id') userId: string,
     @Req() req,
     @Body()
     userCredential: CreateUserCredentialDto,
   ): Promise<CreateUserCredentialReturnDto> {
     if (
       req?.user?.authnStrategy === AuthnStrategy.AccessToken &&
-      req?.user?.securityId !== id
+      req?.user?.securityId !== userId
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
@@ -252,8 +252,8 @@ export class AdministratorsController {
     );
 
     return await this.userCredentialService.findOneAndReplace(
-      userCredential,
-      { userId: id },
+      { ...userCredential, userId },
+      { userId },
       req,
       true,
     );
