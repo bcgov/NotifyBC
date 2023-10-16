@@ -25,7 +25,7 @@ import { ObserversModule } from './observers/observers.module';
       imports: [ConfigModule],
       useFactory: async (dbConfigService: DbConfigService) => {
         const dbConfig = dbConfigService.get();
-        if (dbConfig.uri) return dbConfig;
+        if (dbConfig.uri) return { ...dbConfig, autoIndex: false };
         const mongod =
           await require('mongodb-memory-server').MongoMemoryServer.create({
             instance: dbConfig,

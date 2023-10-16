@@ -143,13 +143,11 @@ export class AdministratorsController {
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
-    return (
-      await this.accessTokenService.generateToken(
-        { securityId: id },
-        req,
-        accessToken,
-      )
-    ).toJSON();
+    return await this.accessTokenService.generateToken(
+      { securityId: id },
+      req,
+      accessToken,
+    );
   }
 
   @Patch(':id/access-tokens')
@@ -347,12 +345,10 @@ export class AdministratorsController {
     @Body() createAdministratorDto: CreateAdministratorDto,
     @Req() req,
   ): Promise<Administrator> {
-    const savedUser = (
-      await this.administratorsService.create(
-        omit(createAdministratorDto, 'password'),
-        req,
-      )
-    ).toJSON();
+    const savedUser = await this.administratorsService.create(
+      omit(createAdministratorDto, 'password'),
+      req,
+    );
     await this.createCredential(savedUser.id, req, {
       password: createAdministratorDto.password,
     });
