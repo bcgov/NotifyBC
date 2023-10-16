@@ -12,8 +12,8 @@ export class BaseService<T> {
     return (await new this.model(createDto).save()).toJSON();
   }
 
-  async count(filter?: FilterQuery<T>): Promise<CountDto> {
-    const castedFilter = this.model.countDocuments(filter).cast();
+  async count(where?: FilterQuery<T>): Promise<CountDto> {
+    const castedFilter = this.model.countDocuments(where).cast();
     const res = await this.model
       .aggregate(
         compact([
@@ -22,7 +22,7 @@ export class BaseService<T> {
               id: '$_id',
             },
           },
-          filter && {
+          where && {
             $match: castedFilter,
           },
           {
