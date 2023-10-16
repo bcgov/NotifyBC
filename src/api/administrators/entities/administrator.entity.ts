@@ -29,7 +29,14 @@ export class Administrator extends BaseEntity {
 
 export const AdministratorSchema = SchemaFactory.createForClass(Administrator)
   .index({ '$**': 'text' }, { name: '$**_text' })
-  .index({ email: 1 }, { unique: true, name: 'unique_email' });
+  .index(
+    { email: 1 },
+    {
+      unique: true,
+      name: 'unique_email_ci',
+      collation: { locale: 'en_US', strength: 1 },
+    },
+  );
 
 AdministratorSchema.virtual('userCredential', {
   ref: 'UserCredential',

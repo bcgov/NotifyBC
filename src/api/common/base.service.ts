@@ -5,11 +5,11 @@ import { CountDto } from './dto/count.dto';
 export class BaseService<T> {
   constructor(protected model: Model<T>) {}
 
-  create(createDto, req: (Request & { user?: any }) | null) {
+  async create(createDto, req?: (Request & { user?: any }) | null): Promise<T> {
     if (req?.user) {
       createDto.createdBy = req.user;
     }
-    return new this.model(createDto).save();
+    return (await new this.model(createDto).save()).toJSON();
   }
 
   async count(filter?: FilterQuery<T>): Promise<CountDto> {
@@ -111,7 +111,7 @@ export class BaseService<T> {
     return this.model.findById(id).exec();
   }
 
-  updateById(id: string, updateDto, req: (Request & { user?: any }) | null) {
+  updateById(id: string, updateDto, req?: (Request & { user?: any }) | null) {
     if (req?.user) {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
