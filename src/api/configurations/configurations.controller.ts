@@ -30,6 +30,7 @@ import { ConfigurationsService } from './configurations.service';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { Configuration } from './entities/configuration.entity';
+import { RssHttpHostPipe } from './rss-http-host.pipe';
 
 @Controller('configurations')
 @ApiTags('configuration')
@@ -45,7 +46,10 @@ export class ConfigurationsController {
     type: Configuration,
   })
   @HttpCode(200)
-  create(@Body() createConfigurationDto: CreateConfigurationDto, @Req() req) {
+  create(
+    @Body(RssHttpHostPipe) createConfigurationDto: CreateConfigurationDto,
+    @Req() req,
+  ) {
     return this.configurationsService.create(createConfigurationDto, req);
   }
 
@@ -111,7 +115,7 @@ export class ConfigurationsController {
   @ApiNoContentResponse({ description: 'Configuration PUT success' })
   replaceById(
     @Param('id') id: string,
-    @Body() updateConfigurationDto: CreateConfigurationDto,
+    @Body(RssHttpHostPipe) updateConfigurationDto: CreateConfigurationDto,
     @Req() req,
   ) {
     return this.configurationsService.replaceById(
