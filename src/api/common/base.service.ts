@@ -34,7 +34,7 @@ export class BaseService<T> {
     return res[0] ?? { count: 0 };
   }
 
-  findAll(filter: any = {}) {
+  findAll(filter: any = {}): Promise<T[]> {
     const { where, fields, order, skip, limit } = filter;
     const castedWhere = this.model.find(where).cast();
     return this.model
@@ -107,7 +107,7 @@ export class BaseService<T> {
       .exec();
   }
 
-  findById(id: string) {
+  findById(id: string): Promise<T> {
     return this.model.findById(id).exec();
   }
 
@@ -124,7 +124,7 @@ export class BaseService<T> {
     updateDto,
     req: (Request & { user?: any }) | null,
     upsert: boolean = false,
-  ) {
+  ): Promise<T> {
     return this.findOneAndReplace(updateDto, { _id }, req, upsert);
   }
 
@@ -133,7 +133,7 @@ export class BaseService<T> {
     filter: FilterQuery<T> | null,
     req: (Request & { user?: any }) | null,
     upsert: boolean = false,
-  ) {
+  ): Promise<T> {
     if (req?.user) {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
