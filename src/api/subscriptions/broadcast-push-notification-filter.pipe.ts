@@ -1,5 +1,4 @@
 import {
-  ArgumentMetadata,
   HttpException,
   HttpStatus,
   Injectable,
@@ -9,7 +8,7 @@ import jmespath from 'jmespath';
 
 @Injectable()
 export class BroadcastPushNotificationFilterPipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata) {
+  transform(value: any) {
     let filter = value.broadcastPushNotificationFilter;
     if (!filter) {
       return value;
