@@ -35,7 +35,13 @@ export class BaseService<T> {
   }
 
   findAll(filter: any = {}): Promise<T[]> {
-    const { where, fields, order, skip, limit } = filter;
+    let { where, fields, order, skip, limit } = filter;
+    if (fields instanceof Array) {
+      fields = fields.reduce((p, c) => {
+        p[c] = true;
+        return p;
+      }, {});
+    }
     const castedWhere = this.model.find(where).cast();
     return this.model
       .aggregate(
@@ -107,8 +113,8 @@ export class BaseService<T> {
       .exec();
   }
 
-  findById(id: string): Promise<T> {
-    return this.model.findById(id).exec();
+  async findById(id: string): Promise<T> {
+    return (await this.model.findById(id).exec()).toJSON();
   }
 
   updateById(id: string, updateDto, req?: (Request & { user?: any }) | null) {

@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { BouncesModule } from '../bounces/bounces.module';
+import { ConfigurationsModule } from '../configurations/configurations.module';
+import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import {
   Notification,
   NotificationSchema,
@@ -9,6 +12,9 @@ import { NotificationsService } from './notifications.service';
 
 @Module({
   imports: [
+    SubscriptionsModule,
+    ConfigurationsModule,
+    BouncesModule,
     MongooseModule.forFeature([
       { name: Notification.name, schema: NotificationSchema },
     ]),
