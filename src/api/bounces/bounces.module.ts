@@ -17,5 +17,6 @@ import { Bounce, BounceSchema } from './entities/bounce.entity';
   ],
   controllers: [BouncesController],
   providers: [BouncesService],
+  exports: [BouncesService],
 })
 export class BouncesModule {}

@@ -206,10 +206,7 @@ export class BaseController {
       if (this.appConfig.httpHost) {
         httpHost = this.appConfig.httpHost;
       }
-      let args: any;
-      try {
-        args = req.getSync('args');
-      } catch (ex) {}
+      let args: any = req.args;
       if (args?.data?.httpHost) {
         httpHost = args.data.httpHost;
       } else if (req.instance?.httpHost) {

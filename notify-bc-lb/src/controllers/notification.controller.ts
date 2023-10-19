@@ -282,6 +282,7 @@ export class NotificationController extends BaseController {
     await this.notificationRepository.updateById(id, notification, undefined);
   }
 
+  // start: ported
   @put('/notifications/{id}', {
     responses: {
       '204': {
@@ -303,6 +304,7 @@ export class NotificationController extends BaseController {
     this.httpContext.bind('args').to({data: notification});
     await this.dispatchNotification(notification);
   }
+  // end: ported
 
   @del('/notifications/{id}', {
     responses: {
@@ -353,6 +355,7 @@ export class NotificationController extends BaseController {
     return this.sendPushNotification(notification);
   }
 
+  // start: ported
   async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain =
       this.appConfig.email.inboundSmtpServer?.domain;
@@ -1022,4 +1025,5 @@ export class NotificationController extends BaseController {
       throw new HttpErrors[403]('invalid user');
     }
   }
+  // end: ported
 }
