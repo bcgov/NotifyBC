@@ -167,6 +167,7 @@ export class BaseController {
     subscription: Partial<Subscription>,
     notification: Partial<Notification>,
     req: any,
+    ignoreSubscriptionData: boolean = false,
   ): any {
     let output = srcTxt;
     try {
@@ -321,15 +322,17 @@ export class BaseController {
           const token = (e.match(/(?<!\\){(.+)(?<!\\)}/) ?? [])[1];
           const tokenParts = token.split('::');
           let val: string;
+          let subData = subscription.data;
+          if (ignoreSubscriptionData || !subData) subData = {};
           switch (tokenParts[0]) {
             case 'subscription':
-              val = get(subscription.data ?? {}, tokenParts[1]);
+              val = get(subData, tokenParts[1]);
               break;
             case 'notification':
               val = get(notification.data ?? {}, tokenParts[1]);
               break;
             default:
-              val = get(notification.data ?? subscription.data ?? {}, token);
+              val = get(notification.data ?? subData, token);
           }
           if (val) {
             output = output.replace(e, val);

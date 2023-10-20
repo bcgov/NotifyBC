@@ -72,10 +72,12 @@ Dynamic tokens are replaced with correspondingly named sub-field of _data_ field
 
 Examples
 
-- _{notification::description}_ is replaced with field _data.description_ of the notification request if exist
+- _{notification::description}_ is replaced with field _data.description_ of the notification if exist
 - _{subscription::gender}_ is replaced with field _data.gender_ of the subscription if exist
 - _{addresses[0].city}_ is replaced with field _data.addresses[0].city_ of the notification if exist; otherwise is replaced with field _data.addresses[0].city_ of the subscription if exist
 - _{nonexistingDataField}_ is unreplaced if neither notification nor subscription contains _data.nonexistingDataField_
+
+As exception, in order to prevent spamming by unconfirmed subscribers, dynamic tokens in subscription [confirmation request message](../config-subscription/#confirmation-request-message) and [duplicated subscription](../config-subscription/#duplicated-subscription) message are not replaced with subscription data, for example _{subscription::...}_ tokens are left unchanged.
 
 ::: tip Notification by RSS feeds relies on dynamic token
 A notification created by RSS feeds relies on dynamic token to supply the context to message template. In this case the <i>data</i> field contains the RSS item.
