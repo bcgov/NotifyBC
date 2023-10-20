@@ -742,11 +742,6 @@ export class SubscriptionsController extends BaseController {
         req.user?.role === Role.AuthenticatedUser
           ? req.user.securityId
           : undefined;
-      if (!userId) {
-        // anonymous user is not allowed to supply data,
-        // which could be used in mail merge
-        delete subscription.data;
-      }
     }
     delete subscription.id;
     await this.beforeUpsert(req, subscription);
@@ -788,13 +783,13 @@ export class SubscriptionsController extends BaseController {
     }
     let textBody =
       data.confirmationRequest.textBody &&
-      this.mailMerge(data.confirmationRequest.textBody, data, {}, req);
+      this.mailMerge(data.confirmationRequest.textBody, data, {}, req, true);
     let mailSubject =
       data.confirmationRequest.subject &&
-      this.mailMerge(data.confirmationRequest.subject, data, {}, req);
+      this.mailMerge(data.confirmationRequest.subject, data, {}, req, true);
     let mailHtmlBody =
       data.confirmationRequest.htmlBody &&
-      this.mailMerge(data.confirmationRequest.htmlBody, data, {}, req);
+      this.mailMerge(data.confirmationRequest.htmlBody, data, {}, req, true);
     let mailFrom = data.confirmationRequest.from;
 
     // handle duplicated request
@@ -839,6 +834,7 @@ export class SubscriptionsController extends BaseController {
             data,
             {},
             req,
+            true,
           );
         mailSubject =
           mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
@@ -849,6 +845,7 @@ export class SubscriptionsController extends BaseController {
             data,
             {},
             req,
+            true,
           );
         mailHtmlBody =
           mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
@@ -859,6 +856,7 @@ export class SubscriptionsController extends BaseController {
             data,
             {},
             req,
+            true,
           );
       }
     }
