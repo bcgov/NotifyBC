@@ -326,6 +326,7 @@ export class NotificationController extends BaseController {
     await this.updateById(id, data);
   }
 
+  // start: ported
   @oas.visibility(OperationVisibility.UNDOCUMENTED)
   @get('/notifications/{id}/broadcastToChunkSubscribers', {
     responses: {
@@ -355,7 +356,6 @@ export class NotificationController extends BaseController {
     return this.sendPushNotification(notification);
   }
 
-  // start: ported
   async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain =
       this.appConfig.email.inboundSmtpServer?.domain;
