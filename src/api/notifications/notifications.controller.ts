@@ -7,11 +7,18 @@ import {
   HttpStatus,
   Inject,
   Param,
+  ParseIntPipe,
   Put,
+  Query,
   Scope,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExcludeEndpoint,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { queue } from 'async';
 import { Request } from 'express';
 import jmespath from 'jmespath';
@@ -85,6 +92,28 @@ export class NotificationsController extends BaseController {
     notification = await this.notificationsService.findById(id);
     this.req['args'] = { data: notification };
     await this.dispatchNotification(notification as Notification);
+  }
+
+  @Get(':id/broadcastToChunkSubscribers')
+  @ApiExcludeEndpoint()
+  async broadcastToChunkSubscribers(
+    @Param('id') id: string,
+    @Query('start', ParseIntPipe) startIdx: number,
+  ) {
+    if (
+      this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing
+    ) {
+      this.req.on('close', () => {
+        this.chunkRequestAborted = true;
+      });
+    }
+    const notification = await this.notificationsService.findOne({
+      where: { id },
+    });
+    if (!notification) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
+    this.req['args'] = { data: notification };
+    this.req['NotifyBC.startIdx'] = startIdx;
+    return this.sendPushNotification(notification);
   }
 
   async sendPushNotification(data: Notification) {
