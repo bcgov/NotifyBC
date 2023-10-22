@@ -22,7 +22,7 @@ import {
 import { queue } from 'async';
 import { Request } from 'express';
 import jmespath from 'jmespath';
-import { pullAll } from 'lodash';
+import { pullAll, pullAllWith } from 'lodash';
 import { AnyObject, FilterQuery } from 'mongoose';
 import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
@@ -62,8 +62,13 @@ export class NotificationsController extends BaseController {
     @Inject(REQUEST) private readonly req: Request & { user: UserProfile },
   ) {
     super(appConfigService, configurationsService);
+    const ft = this.appConfig.notification?.broadcastCustomFilterFunctions;
+    if (ft) {
+      this.jmespathSearchOpts.functionTable = ft;
+    }
   }
   chunkRequestAborted = false;
+  readonly jmespathSearchOpts: AnyObject = {};
 
   @Get('count')
   @ApiOkResponse({
@@ -264,15 +269,18 @@ export class NotificationsController extends BaseController {
             startIdx,
             startIdx + broadcastSubscriberChunkSize,
           );
-          pullAll(
-            pullAll(
-              pullAll(
+          pullAllWith(
+            pullAllWith(
+              pullAllWith(
                 subChunk,
                 (data.dispatch?.failed ?? []).map((e: any) => e.subscriptionId),
+                NotificationsController.idComparator,
               ),
               data.dispatch?.successful ?? [],
+              NotificationsController.idComparator,
             ),
             data.dispatch?.skipped ?? [],
+            NotificationsController.idComparator,
           );
           const subscribers = await this.subscriptionsService.findAll(
             this.req,
@@ -282,12 +290,6 @@ export class NotificationsController extends BaseController {
               },
             },
           );
-          const jmespathSearchOpts: AnyObject = {};
-          const ft =
-            this.appConfig.notification?.broadcastCustomFilterFunctions;
-          if (ft) {
-            jmespathSearchOpts.functionTable = ft;
-          }
           const notificationMsgCB = async (err: any, e: Subscription) => {
             if (err) {
               return updateBroadcastPushNotificationStatus(
@@ -311,12 +313,12 @@ export class NotificationsController extends BaseController {
           await Promise.all(
             subscribers.map(async (e) => {
               if (e.broadcastPushNotificationFilter && data.data) {
-                let match;
+                let match: [];
                 try {
                   match = await jmespath.search(
                     [data.data],
                     '[?' + e.broadcastPushNotificationFilter + ']',
-                    jmespathSearchOpts,
+                    this.jmespathSearchOpts,
                   );
                 } catch (ex) {}
                 if (!match || match.length === 0) {
@@ -332,14 +334,14 @@ export class NotificationsController extends BaseController {
                 }
               }
               if (e.data && data.broadcastPushNotificationSubscriptionFilter) {
-                let match;
+                let match: [];
                 try {
                   match = await jmespath.search(
                     [e.data],
                     '[?' +
                       data.broadcastPushNotificationSubscriptionFilter +
                       ']',
-                    jmespathSearchOpts,
+                    this.jmespathSearchOpts,
                   );
                 } catch (ex) {}
                 if (!match || match.length === 0) {
@@ -702,5 +704,8 @@ export class NotificationsController extends BaseController {
     } catch (ex) {
       throw new HttpException('invalid user', HttpStatus.FORBIDDEN);
     }
+  }
+  static idComparator(s, t) {
+    return s.toString() === t.toString();
   }
 }
