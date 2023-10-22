@@ -27,13 +27,13 @@ installing from source code is preferred.
   - [Node.js](https://nodejs.org)@{{themeData.packageJson.engines.node}}
   - openssl (if enable HTTPS)
 - Services
-  - MongoDB, optional but recommended for production
-  - A standard SMTP server to deliver outgoing email, optional but recommended for production.
+  - MongoDB, required for production
+  - A standard SMTP server to deliver outgoing email, required for production if email is enabled.
   - A tcp proxy server such as [nginx stream proxy](http://nginx.org/en/docs/stream/ngx_stream_proxy_module.html) if list-unsubscribe by email is needed and _NotifyBC_ server cannot expose port 25 to internet
   - A SMS service provider if needs to enable SMS channel. The supported service providers are
     - Twilio (default)
     - Swift
-  - Redis, optional but recommended if SMS is enabled
+  - Redis, required if email or sms throttling is enabled
   - SiteMinder, if needs SiteMinder authentication
   - An OIDC provider, if needs OIDC authentication
 - Network and Permissions

@@ -29,6 +29,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
+  "//": [
+    "todo: compare dependencies"
+  ],
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
@@ -41,6 +44,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "crypto-random-string": "^3.3.0",
+    "ioredis": "^5.3.2",
     "ip-range-check": "^0.2.0",
     "jmespath": "f-w/jmespath.js#semver:^1.0",
     "lodash": "^4.17.21",
