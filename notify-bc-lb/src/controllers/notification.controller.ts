@@ -191,6 +191,7 @@ export class NotificationController extends BaseController {
     }, []);
   }
 
+  // start: ported
   @get('/notifications/{id}', {
     responses: {
       '200': {
@@ -214,7 +215,6 @@ export class NotificationController extends BaseController {
     );
   }
 
-  // start: ported
   @patch('/notifications/{id}', {
     responses: {
       '204': {

@@ -20,6 +20,7 @@ import {
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { queue } from 'async';
@@ -35,6 +36,7 @@ import { promisify } from 'util';
 import { BouncesService } from '../bounces/bounces.service';
 import { BaseController } from '../common/base.controller';
 import { CountDto } from '../common/dto/count.dto';
+import { FilterDto } from '../common/dto/filter.dto';
 import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
 import { ConfigurationsService } from '../configurations/configurations.service';
 import { Subscription } from '../subscriptions/entities/subscription.entity';
@@ -153,6 +155,33 @@ export class NotificationsController extends BaseController {
       }
     }
     await this.notificationsService.updateById(id, notification, undefined);
+  }
+
+  @Get(':id')
+  @ApiQuery({
+    name: 'filter',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            fields: {
+              type: 'object',
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: 'Notification model instance',
+  })
+  async findById(
+    @Param('id') id: string,
+    @JsonQuery('filter')
+    filter: Omit<FilterDto<Notification>, 'where'>,
+  ): Promise<Notification | null> {
+    return this.notificationsService.findOne({ ...filter, where: { id } });
   }
 
   @Get(':id/broadcastToChunkSubscribers')
