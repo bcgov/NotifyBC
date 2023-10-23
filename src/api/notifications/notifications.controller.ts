@@ -25,7 +25,7 @@ import {
 import { queue } from 'async';
 import { Request } from 'express';
 import jmespath from 'jmespath';
-import { pullAll, pullAllWith } from 'lodash';
+import { pullAll } from 'lodash';
 import { AnyObject, FilterQuery } from 'mongoose';
 import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
@@ -325,18 +325,15 @@ export class NotificationsController extends BaseController {
             startIdx,
             startIdx + broadcastSubscriberChunkSize,
           );
-          pullAllWith(
-            pullAllWith(
-              pullAllWith(
+          pullAll(
+            pullAll(
+              pullAll(
                 subChunk,
                 (data.dispatch?.failed ?? []).map((e: any) => e.subscriptionId),
-                NotificationsController.idComparator,
               ),
               data.dispatch?.successful ?? [],
-              NotificationsController.idComparator,
             ),
             data.dispatch?.skipped ?? [],
-            NotificationsController.idComparator,
           );
           const subscribers = await this.subscriptionsService.findAll(
             this.req,
@@ -760,8 +757,5 @@ export class NotificationsController extends BaseController {
     } catch (ex) {
       throw new HttpException('invalid user', HttpStatus.FORBIDDEN);
     }
-  }
-  static idComparator(s, t) {
-    return s.toString() === t.toString();
   }
 }
