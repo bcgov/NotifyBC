@@ -4,7 +4,6 @@ import { UserProfile } from 'src/auth/dto/user-profile.dto';
 
 @Schema()
 export class BaseEntity {
-  @Prop(mongoose.Schema.Types.ObjectId)
   id?: string;
 
   @Prop({ default: Date.now })
@@ -25,7 +24,7 @@ export const BaseSchemaOptions = {
   versionKey: false,
   toJSON: {
     transform: (doc: unknown, ret: any) => {
-      ret.id = ret._id;
+      ret.id = ret._id.toString();
       delete ret._id;
     },
   },

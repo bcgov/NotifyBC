@@ -19,7 +19,7 @@ export class BaseService<T> {
         compact([
           {
             $addFields: {
-              id: '$_id',
+              id: { $toString: '$_id' },
             },
           },
           where && {
@@ -48,7 +48,7 @@ export class BaseService<T> {
         compact([
           {
             $addFields: {
-              id: '$_id',
+              id: { $toString: '$_id' },
             },
           },
           where && {
@@ -90,7 +90,7 @@ export class BaseService<T> {
         compact([
           {
             $addFields: {
-              id: '$_id',
+              id: { $toString: '$_id' },
             },
           },
           filter && {
@@ -172,7 +172,7 @@ export class BaseService<T> {
         compact([
           {
             $addFields: {
-              id: '$_id',
+              id: { $toString: '$_id' },
             },
           },
           filter && {
