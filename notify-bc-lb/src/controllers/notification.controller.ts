@@ -214,6 +214,7 @@ export class NotificationController extends BaseController {
     );
   }
 
+  // start: ported
   @patch('/notifications/{id}', {
     responses: {
       '204': {
@@ -282,7 +283,6 @@ export class NotificationController extends BaseController {
     await this.notificationRepository.updateById(id, notification, undefined);
   }
 
-  // start: ported
   @put('/notifications/{id}', {
     responses: {
       '204': {
