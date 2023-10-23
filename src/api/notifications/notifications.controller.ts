@@ -8,13 +8,16 @@ import {
   Inject,
   Param,
   ParseIntPipe,
+  Patch,
   Put,
   Query,
   Scope,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import {
+  ApiBadRequestResponse,
   ApiExcludeEndpoint,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
@@ -37,6 +40,7 @@ import { ConfigurationsService } from '../configurations/configurations.service'
 import { Subscription } from '../subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { NotificationsService } from './notifications.service';
 const wait = promisify(setTimeout);
@@ -97,6 +101,58 @@ export class NotificationsController extends BaseController {
     notification = await this.notificationsService.findById(id);
     this.req['args'] = { data: notification };
     await this.dispatchNotification(notification as Notification);
+  }
+
+  @Patch(':id')
+  @ApiNoContentResponse({
+    description: 'Notification PATCH success',
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @HttpCode(204)
+  async updateById(
+    @Param('id') id: string,
+    @Body() notification: UpdateNotificationDto,
+  ): Promise<void> {
+    // only allow changing inApp state for non-admin requests
+    if (![Role.Admin, Role.SuperAdmin].includes(this.req.user.role)) {
+      const currUser =
+        this.req.user.role === Role.AuthenticatedUser &&
+        this.req.user.securityId;
+      if (!currUser) {
+        throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+      }
+      const instance = await this.notificationsService.findOne({
+        where: { id },
+      });
+      if (instance?.channel !== 'inApp') {
+        throw new HttpException(undefined, HttpStatus.FORBIDDEN);
+      }
+      if (!notification.state) {
+        throw new HttpException(undefined, HttpStatus.NOT_FOUND);
+      }
+      notification = {
+        state: notification.state,
+      };
+      if (instance.isBroadcast) {
+        switch (notification.state) {
+          case 'read':
+            notification.readBy = instance.readBy || [];
+            if (notification.readBy.indexOf(currUser) < 0) {
+              notification.readBy.push(currUser);
+            }
+            break;
+          case 'deleted':
+            notification.deletedBy = instance.deletedBy || [];
+            if (notification.deletedBy.indexOf(currUser) < 0) {
+              notification.deletedBy.push(currUser);
+            }
+            break;
+        }
+        delete notification.state;
+      }
+    }
+    await this.notificationsService.updateById(id, notification, undefined);
   }
 
   @Get(':id/broadcastToChunkSubscribers')
