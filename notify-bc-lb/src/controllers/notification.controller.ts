@@ -86,6 +86,7 @@ export class NotificationController extends BaseController {
     super(appConfig, configurationRepository);
   }
 
+  // start: ported
   @post('/notifications', {
     responses: {
       '200': {
@@ -118,7 +119,6 @@ export class NotificationController extends BaseController {
     return this.dispatchNotification(res);
   }
 
-  // start: ported
   @get('/notifications/count', {
     responses: {
       '200': {
