@@ -10,6 +10,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Put,
   Query,
   Scope,
@@ -194,6 +195,20 @@ export class NotificationsController extends BaseController {
     if (!data) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     data.state = 'deleted';
     await this.updateById(id, data);
+  }
+
+  @Post()
+  @ApiOkResponse({
+    description: 'Notification model instance',
+    type: Notification,
+  })
+  async create(
+    @Body() notification: CreateNotificationDto,
+  ): Promise<Notification> {
+    await this.preCreationValidation(notification);
+    const res = await this.notificationsService.create(notification, this.req);
+    this.req['args'] = { data: res };
+    return this.dispatchNotification(res);
   }
 
   @Get(':id/broadcastToChunkSubscribers')
