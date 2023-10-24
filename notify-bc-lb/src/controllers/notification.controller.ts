@@ -304,7 +304,6 @@ export class NotificationController extends BaseController {
     this.httpContext.bind('args').to({data: notification});
     await this.dispatchNotification(notification);
   }
-  // end: ported
 
   @del('/notifications/{id}', {
     responses: {
@@ -326,7 +325,6 @@ export class NotificationController extends BaseController {
     await this.updateById(id, data);
   }
 
-  // start: ported
   @oas.visibility(OperationVisibility.UNDOCUMENTED)
   @get('/notifications/{id}/broadcastToChunkSubscribers', {
     responses: {

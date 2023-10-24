@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpException,
@@ -154,7 +155,7 @@ export class NotificationsController extends BaseController {
         delete notification.state;
       }
     }
-    await this.notificationsService.updateById(id, notification, undefined);
+    await this.notificationsService.updateById(id, notification, this.req);
   }
 
   @Get(':id')
@@ -182,6 +183,17 @@ export class NotificationsController extends BaseController {
     filter: Omit<FilterDto<Notification>, 'where'>,
   ): Promise<Notification | null> {
     return this.notificationsService.findOne({ ...filter, where: { id } });
+  }
+
+  @Delete(':id')
+  @ApiNoContentResponse({ description: 'Notification DELETE success' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @HttpCode(204)
+  async deleteById(@Param('id') id: string): Promise<void> {
+    const data = await this.notificationsService.findOne({ where: { id } });
+    if (!data) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
+    data.state = 'deleted';
+    await this.updateById(id, data);
   }
 
   @Get(':id/broadcastToChunkSubscribers')
