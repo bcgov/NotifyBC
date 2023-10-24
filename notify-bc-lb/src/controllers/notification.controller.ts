@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {authenticate} from '@loopback/authentication';
 import {CoreBindings, inject} from '@loopback/core';
 import {
@@ -86,7 +87,6 @@ export class NotificationController extends BaseController {
     super(appConfig, configurationRepository);
   }
 
-  // start: ported
   @post('/notifications', {
     responses: {
       '200': {
@@ -132,7 +132,6 @@ export class NotificationController extends BaseController {
   ): Promise<Count> {
     return this.notificationRepository.count(where, undefined);
   }
-  // end: ported
 
   @get('/notifications', {
     responses: {
@@ -191,7 +190,6 @@ export class NotificationController extends BaseController {
     }, []);
   }
 
-  // start: ported
   @get('/notifications/{id}', {
     responses: {
       '200': {
@@ -1023,5 +1021,4 @@ export class NotificationController extends BaseController {
       throw new HttpErrors[403]('invalid user');
     }
   }
-  // end: ported
 }
