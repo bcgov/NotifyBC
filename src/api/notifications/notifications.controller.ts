@@ -39,7 +39,11 @@ import { BouncesService } from '../bounces/bounces.service';
 import { BaseController } from '../common/base.controller';
 import { CountDto } from '../common/dto/count.dto';
 import { FilterDto } from '../common/dto/filter.dto';
-import { ApiWhereJsonQuery, JsonQuery } from '../common/json-query.decorator';
+import {
+  ApiFilterJsonQuery,
+  ApiWhereJsonQuery,
+  JsonQuery,
+} from '../common/json-query.decorator';
 import { ConfigurationsService } from '../configurations/configurations.service';
 import { Subscription } from '../subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
@@ -209,6 +213,50 @@ export class NotificationsController extends BaseController {
     const res = await this.notificationsService.create(notification, this.req);
     this.req['args'] = { data: res };
     return this.dispatchNotification(res);
+  }
+
+  @Get()
+  @ApiOkResponse({
+    description: 'Array of Notification model instances',
+    type: [Notification],
+  })
+  @ApiFilterJsonQuery()
+  async find(
+    @JsonQuery('filter')
+    filter: FilterDto<Notification>,
+  ): Promise<Notification[]> {
+    const res = await this.notificationsService.findAll(filter);
+    if (res.length === 0) {
+      return res;
+    }
+    if ([Role.Admin, Role.SuperAdmin].includes(this.req.user.role)) return res;
+    const currUser =
+      this.req.user.role === Role.AuthenticatedUser && this.req.user.securityId;
+    if (!currUser) {
+      return res;
+    }
+    return res.reduce((p: Notification[], e: Notification) => {
+      if (e.validTill && e.validTill < new Date()) {
+        return p;
+      }
+      if (e.invalidBefore && e.invalidBefore > new Date()) {
+        return p;
+      }
+      if (e.isBroadcast && e.deletedBy && e.deletedBy.indexOf(currUser) >= 0) {
+        return p;
+      }
+      if (e.isBroadcast && e.readBy && e.readBy.indexOf(currUser) >= 0) {
+        e.state = 'read';
+      }
+      if (e.isBroadcast) {
+        e.readBy = null;
+        e.deletedBy = null;
+      }
+      delete e.updatedBy;
+      delete e.createdBy;
+      p.push(e);
+      return p;
+    }, []);
   }
 
   @Get(':id/broadcastToChunkSubscribers')
