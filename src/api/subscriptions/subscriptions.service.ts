@@ -28,7 +28,15 @@ export class SubscriptionsService extends BaseService<Subscription> {
   ): FilterQuery<Subscription> {
     if (req.user?.role !== Role.AuthenticatedUser) return where;
     return {
-      $and: [where || {}, { userId: req.user.securityId }],
+      $and: [
+        where || {},
+        { userId: req.user.securityId },
+        {
+          state: {
+            $ne: 'deleted',
+          },
+        },
+      ],
     };
   }
 

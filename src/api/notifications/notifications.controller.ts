@@ -130,7 +130,7 @@ export class NotificationsController extends BaseController {
       if (!currUser) {
         throw new HttpException(undefined, HttpStatus.FORBIDDEN);
       }
-      const instance = await this.notificationsService.findOne({
+      const instance = await this.notificationsService.findOne(this.req, {
         where: { id },
       });
       if (instance?.channel !== 'inApp') {
@@ -187,7 +187,10 @@ export class NotificationsController extends BaseController {
     @JsonQuery('filter')
     filter: Omit<FilterDto<Notification>, 'where'>,
   ): Promise<Notification | null> {
-    return this.notificationsService.findOne({ ...filter, where: { id } });
+    return this.notificationsService.findOne(this.req, {
+      ...filter,
+      where: { id },
+    });
   }
 
   @Delete(':id')
@@ -195,7 +198,9 @@ export class NotificationsController extends BaseController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @HttpCode(204)
   async deleteById(@Param('id') id: string): Promise<void> {
-    const data = await this.notificationsService.findOne({ where: { id } });
+    const data = await this.notificationsService.findOne(this.req, {
+      where: { id },
+    });
     if (!data) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     data.state = 'deleted';
     await this.updateById(id, data);
@@ -225,7 +230,7 @@ export class NotificationsController extends BaseController {
     @JsonQuery('filter')
     filter: FilterDto<Notification>,
   ): Promise<Notification[]> {
-    const res = await this.notificationsService.findAll(filter);
+    const res = await this.notificationsService.findAll(this.req, filter);
     if (res.length === 0) {
       return res;
     }
@@ -272,7 +277,7 @@ export class NotificationsController extends BaseController {
         this.chunkRequestAborted = true;
       });
     }
-    const notification = await this.notificationsService.findOne({
+    const notification = await this.notificationsService.findOne(this.req, {
       where: { id },
     });
     if (!notification) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
