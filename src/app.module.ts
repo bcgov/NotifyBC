@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
 import { ObserversModule } from './observers/observers.module';
+import { RssModule } from './rss/rss.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ObserversModule } from './observers/observers.module';
     }),
     AuthModule,
     ObserversModule,
+    RssModule,
   ],
   controllers: [BaseController],
   providers: [AppService],
