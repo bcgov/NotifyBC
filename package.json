@@ -44,6 +44,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "crypto-random-string": "^3.3.0",
+    "feedparser": "^2.2.10",
     "ioredis": "^5.3.2",
     "ip-range-check": "^0.2.0",
     "jmespath": "f-w/jmespath.js#semver:^1.0",

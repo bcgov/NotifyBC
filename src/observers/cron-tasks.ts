@@ -12,35 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// file ported
-import {Application, CoreBindings} from '@loopback/core';
-import {AnyObject} from '@loopback/repository';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import Bottleneck from 'bottleneck';
-import {Readable} from 'node:stream';
-import {Rss, RssItem, RssRelations} from '../models';
-import {
-  AccessTokenRepository,
-  BounceRepository,
-  ConfigurationRepository,
-  NotificationRepository,
-  RssRepository,
-  SubscriptionRepository,
-} from '../repositories';
-
-const FeedParser = require('feedparser');
-const _ = require('lodash');
+import FeedParser from 'feedparser';
+import { differenceWith } from 'lodash';
+import { AnyObject } from 'mongoose';
+import { Readable } from 'node:stream';
+import { AccessTokenService } from 'src/api/administrators/access-token.service';
+import { BouncesService } from 'src/api/bounces/bounces.service';
+import { ConfigurationsService } from 'src/api/configurations/configurations.service';
+import { NotificationsService } from 'src/api/notifications/notifications.service';
+import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
+import { AppConfigService } from 'src/config/app-config.service';
+import { RssItem } from 'src/rss/entities/rss-item.entity';
+import { Rss } from 'src/rss/entities/rss.entity';
+import { RssService } from 'src/rss/rss.service';
 
 module.exports.Bottleneck = Bottleneck;
-module.exports.purgeData = async (app: Application) => {
-  const cronConfig: AnyObject =
-    (await app.getConfig(
-      CoreBindings.APPLICATION_INSTANCE,
-      'cron.purgeData',
-    )) ?? {};
-
+module.exports.purgeData = async (app: NestExpressApplication) => {
+  const cronConfig = app.get(AppConfigService).get('cron.purgeData') ?? {};
   return async () => {
-    const notificationRepository: NotificationRepository = await app.get(
-      'repositories.NotificationRepository',
+    const notificationsService: NotificationsService = await app.get(
+      NotificationsService,
     );
     try {
       const res = await Promise.all([
@@ -49,12 +42,12 @@ module.exports.purgeData = async (app: Application) => {
           const retentionDays =
             cronConfig.pushNotificationRetentionDays ??
             cronConfig.defaultRetentionDays;
-          const data = await notificationRepository.deleteAll({
+          const data = await notificationsService.removeAll(undefined, {
             channel: {
-              neq: 'inApp',
+              $ne: 'inApp',
             },
             created: {
-              lt: Date.now() - retentionDays * 86400000,
+              $lt: Date.now() - retentionDays * 86400000,
             },
           });
           if (data?.count > 0) {
@@ -72,10 +65,10 @@ module.exports.purgeData = async (app: Application) => {
           const retentionDays =
             cronConfig.expiredInAppNotificationRetentionDays ??
             cronConfig.defaultRetentionDays;
-          const data = await notificationRepository.deleteAll({
+          const data = await notificationsService.removeAll(undefined, {
             channel: 'inApp',
             validTill: {
-              lt: Date.now() - retentionDays * 86400000,
+              $lt: Date.now() - retentionDays * 86400000,
             },
           });
           if (data?.count > 0) {
@@ -90,7 +83,7 @@ module.exports.purgeData = async (app: Application) => {
         })(),
         (async () => {
           // delete all deleted inApp notifications
-          const data = await notificationRepository.deleteAll({
+          const data = await notificationsService.removeAll(undefined, {
             channel: 'inApp',
             state: 'deleted',
           });
@@ -109,15 +102,15 @@ module.exports.purgeData = async (app: Application) => {
           const retentionDays =
             cronConfig.nonConfirmedSubscriptionRetentionDays ??
             cronConfig.defaultRetentionDays;
-          const subscriptionRepository: SubscriptionRepository = await app.get(
-            'repositories.SubscriptionRepository',
+          const subscriptionsService: SubscriptionsService = await app.get(
+            SubscriptionsService,
           );
-          const data = await subscriptionRepository.deleteAll({
+          const data = await subscriptionsService.removeAll(undefined, {
             state: {
-              neq: 'confirmed',
+              $ne: 'confirmed',
             },
             updated: {
-              lt: Date.now() - retentionDays * 86400000,
+              $lt: Date.now() - retentionDays * 86400000,
             },
           });
           if (data?.count > 0) {
@@ -135,13 +128,11 @@ module.exports.purgeData = async (app: Application) => {
           const retentionDays =
             cronConfig.deletedBounceRetentionDays ??
             cronConfig.defaultRetentionDays;
-          const bounceRepository: BounceRepository = await app.get(
-            'repositories.BounceRepository',
-          );
-          const data = await bounceRepository.deleteAll({
+          const bouncesService: BouncesService = await app.get(BouncesService);
+          const data = await bouncesService.removeAll({
             state: 'deleted',
             updated: {
-              lt: Date.now() - retentionDays * 86400000,
+              $lt: Date.now() - retentionDays * 86400000,
             },
           });
           if (data?.count > 0) {
@@ -159,15 +150,14 @@ module.exports.purgeData = async (app: Application) => {
           const retentionDays =
             cronConfig.expiredAccessTokenRetentionDays ??
             cronConfig.defaultRetentionDays;
-          const accessTokenRepository: AccessTokenRepository = await app.get(
-            'repositories.AccessTokenRepository',
+          const accessTokenService: AccessTokenService = await app.get(
+            AccessTokenService,
           );
-
-          const data = await accessTokenRepository.find({
+          const data = await accessTokenService.findAll({
             where: {
-              ttl: {gte: 0},
+              ttl: { $gte: 0 },
               created: {
-                lt: Date.now() - retentionDays * 86400000,
+                $lt: Date.now() - retentionDays * 86400000,
               },
             },
           });
@@ -177,10 +167,10 @@ module.exports.purgeData = async (app: Application) => {
           let count = 0;
           for (const e of data) {
             if (
-              Date.parse(e.created as string) <
+              e.created.valueOf() <
               Date.now() - retentionDays * 86400000 - (e.ttl as number) * 1000
             ) {
-              await accessTokenRepository.deleteById(e.id);
+              await accessTokenService.remove(e.id);
               count++;
             }
           }
@@ -199,44 +189,42 @@ module.exports.purgeData = async (app: Application) => {
   };
 };
 
-module.exports.dispatchLiveNotifications = function (app: Application) {
+module.exports.dispatchLiveNotifications = function (
+  app: NestExpressApplication,
+) {
   return async () => {
-    const notificationRepo: NotificationRepository = await app.get(
-      'repositories.NotificationRepository',
+    const notificationsService: NotificationsService = await app.get(
+      NotificationsService,
     );
-
-    const livePushNotifications = await notificationRepo.find({
-      where: {
-        state: 'new',
-        channel: {
-          neq: 'inApp',
-        },
-        invalidBefore: {
-          lt: Date.now(),
+    const livePushNotifications = await notificationsService.findAll(
+      undefined,
+      {
+        where: {
+          state: 'new',
+          channel: {
+            $ne: 'inApp',
+          },
+          invalidBefore: {
+            $lt: Date.now(),
+          },
         },
       },
-    });
+    );
     if (livePushNotifications && livePushNotifications.length === 0) {
       return livePushNotifications;
     }
     return Promise.all(
-      livePushNotifications.map(async livePushNotification => {
+      livePushNotifications.map(async (livePushNotification) => {
         livePushNotification.asyncBroadcastPushNotification =
           livePushNotification.asyncBroadcastPushNotification || true;
         livePushNotification.state = 'sending';
         const httpHost =
-          (await app.getConfig(
-            CoreBindings.APPLICATION_INSTANCE,
-            'internalHttpHost',
-          )) ??
+          app.get(AppConfigService).get('internalHttpHost') ??
           livePushNotification.httpHost ??
-          (await app.getConfig(CoreBindings.APPLICATION_INSTANCE, 'httpHost'));
+          app.get(AppConfigService).get('httpHost');
         const url =
           httpHost +
-          (await app.getConfig(
-            CoreBindings.APPLICATION_INSTANCE,
-            'restApiRoot',
-          )) +
+          app.get(AppConfigService).get('restApiRoot') +
           '/notifications/' +
           livePushNotification.id;
         const options = {
@@ -262,21 +250,19 @@ module.exports.getRssTasks = () => {
   return rssTasks;
 };
 module.exports.checkRssConfigUpdates = async (
-  app: Application,
+  app: NestExpressApplication,
   runOnInit = false,
 ) => {
   const CronJob = require('cron').CronJob;
-  const configurationRepository: ConfigurationRepository = await app.get(
-    'repositories.ConfigurationRepository',
+  const configurationsService: ConfigurationsService = await app.get(
+    ConfigurationsService,
   );
-  const rssRepository: RssRepository = await app.get(
-    'repositories.RssRepository',
-  );
-  const rssNtfctnConfigItems = await configurationRepository.find({
+  const rssService: RssService = await app.get(RssService);
+  const rssNtfctnConfigItems = await configurationsService.findAll({
     where: {
       name: 'notification',
       'value.rss': {
-        neq: null,
+        $ne: null,
       },
     },
   });
@@ -288,7 +274,7 @@ module.exports.checkRssConfigUpdates = async (
 
     if (
       !rssNtfctnConfigItem ||
-      Date.parse(rssNtfctnConfigItem.updated ?? '') > lastConfigCheck
+      rssNtfctnConfigItem.updated?.valueOf() > lastConfigCheck
     ) {
       rssTask.stop();
       delete rssTasks[key];
@@ -301,16 +287,16 @@ module.exports.checkRssConfigUpdates = async (
     rssTasks[rssNtfctnConfigItem.id as string] = new CronJob({
       cronTime: rssNtfctnConfigItem.value.rss.timeSpec,
       onTick: async () => {
-        let lastSavedRssData: (Rss & RssRelations) | null = null;
+        let lastSavedRssData: Rss = null;
         try {
-          lastSavedRssData = await rssRepository.findOne({
+          lastSavedRssData = await rssService.findOne({
             where: {
               serviceName: rssNtfctnConfigItem.serviceName,
             },
           });
         } catch (ex) {}
         if (!lastSavedRssData) {
-          lastSavedRssData = await rssRepository.create({
+          lastSavedRssData = await rssService.create({
             serviceName: rssNtfctnConfigItem.serviceName as string,
             items: [],
           });
@@ -344,7 +330,7 @@ module.exports.checkRssConfigUpdates = async (
             rssNtfctnConfigItem.value.rss.itemKeyField || 'guid';
           const fieldsToCheckForUpdate = rssNtfctnConfigItem.value.rss
             .fieldsToCheckForUpdate || ['pubDate'];
-          const newOrUpdatedItems = _.differenceWith(
+          const newOrUpdatedItems = differenceWith(
             items,
             lastSavedRssItems,
             function (arrVal: RssItem, othVal: RssItem) {
@@ -371,17 +357,17 @@ module.exports.checkRssConfigUpdates = async (
           let lastPollInterval = ts.getTime();
           try {
             lastPollInterval =
-              ts.getTime() - Date.parse(lastSavedRssData?.lastPoll ?? '0');
+              ts.getTime() - lastSavedRssData?.lastPoll.valueOf();
           } catch (ex) {}
-          const retainedOutdatedItems = _.differenceWith(
+          const retainedOutdatedItems = differenceWith(
             lastSavedRssItems,
             items,
             function (
               arrVal: {
                 [x: string]: any;
-                _notifyBCLastPoll: {getTime: () => number};
+                _notifyBCLastPoll: { getTime: () => number };
               },
-              othVal: {[x: string]: any},
+              othVal: { [x: string]: any },
             ) {
               try {
                 const age = ts.getTime() - arrVal._notifyBCLastPoll.getTime();
@@ -409,16 +395,11 @@ module.exports.checkRssConfigUpdates = async (
                 httpHost: rssNtfctnConfigItem.value.httpHost,
               };
               const httpHost =
-                (await app.getConfig(
-                  CoreBindings.APPLICATION_INSTANCE,
-                  'internalHttpHost',
-                )) || rssNtfctnConfigItem.value.httpHost;
+                app.get(AppConfigService).get('internalHttpHost') ||
+                rssNtfctnConfigItem.value.httpHost;
               const url =
                 httpHost +
-                (await app.getConfig(
-                  CoreBindings.APPLICATION_INSTANCE,
-                  'restApiRoot',
-                )) +
+                app.get(AppConfigService).get('restApiRoot') +
                 '/notifications';
               const options = {
                 method: 'POST',
@@ -438,8 +419,8 @@ module.exports.checkRssConfigUpdates = async (
             return;
           }
           lastSavedRssData.items = items.concat(retainedOutdatedItems);
-          lastSavedRssData.lastPoll = ts.toISOString();
-          await rssRepository.updateById(lastSavedRssData.id, lastSavedRssData);
+          lastSavedRssData.lastPoll = ts;
+          await rssService.updateById(lastSavedRssData.id, lastSavedRssData);
         });
         const res = await fetch(rssNtfctnConfigItem.value.rss.url);
         if (res.status !== 200) {
@@ -457,68 +438,70 @@ module.exports.checkRssConfigUpdates = async (
   return rssTasks;
 };
 
-module.exports.deleteBounces = async (app: Application) => {
+module.exports.deleteBounces = async (app: NestExpressApplication) => {
   return async () => {
-    const bounceRepository: BounceRepository = await app.get(
-      'repositories.BounceRepository',
-    );
+    const bouncesService: BouncesService = await app.get(BouncesService);
 
     const minHrs: number = parseInt(
-      (await app.getConfig(
-        CoreBindings.APPLICATION_INSTANCE,
-        'cron.deleteBounces.minLapsedHoursSinceLatestNotificationEnded',
-      )) ?? '0',
+      app
+        .get(AppConfigService)
+        .get('cron.deleteBounces.minLapsedHoursSinceLatestNotificationEnded') ??
+        '0',
     );
-    const activeBounces = await bounceRepository.find({
+    const activeBounces = await bouncesService.findAll({
       where: {
         state: 'active',
         latestNotificationEnded: {
-          lt: Date.now() - minHrs * 3600000,
+          $lt: Date.now() - minHrs * 3600000,
         },
         latestNotificationStarted: {
-          neq: null,
+          $ne: null,
         },
         bounceMessages: {
-          neq: null,
+          $ne: null,
         },
       },
     });
     return Promise.all(
-      activeBounces.map(async activeBounce => {
+      activeBounces.map(async (activeBounce) => {
         const latestBounceMessageDate = activeBounce.bounceMessages?.[0].date;
         if (
           !activeBounce.latestNotificationStarted ||
           !latestBounceMessageDate ||
-          Date.parse(latestBounceMessageDate) >
-            Date.parse(activeBounce.latestNotificationStarted)
+          latestBounceMessageDate > activeBounce.latestNotificationStarted
         ) {
           return;
         }
         activeBounce.state = 'deleted';
-        await bounceRepository.updateById(activeBounce.id, activeBounce);
+        await bouncesService.updateById(activeBounce.id, activeBounce);
       }),
     );
   };
 };
 
-module.exports.reDispatchBroadcastPushNotifications = (app: Application) => {
+module.exports.reDispatchBroadcastPushNotifications = (
+  app: NestExpressApplication,
+) => {
   return async () => {
-    const notificationRepo: NotificationRepository = await app.get(
-      'repositories.NotificationRepository',
+    const notificationsService: NotificationsService = await app.get(
+      NotificationsService,
     );
 
-    const staleBroadcastPushNotifications = await notificationRepo.find({
-      where: {
-        state: 'sending',
-        channel: {
-          neq: 'inApp',
-        },
-        isBroadcast: true,
-        updated: {
-          lt: Date.now() - 600000,
+    const staleBroadcastPushNotifications = await notificationsService.findAll(
+      undefined,
+      {
+        where: {
+          state: 'sending',
+          channel: {
+            $ne: 'inApp',
+          },
+          isBroadcast: true,
+          updated: {
+            $lt: Date.now() - 600000,
+          },
         },
       },
-    });
+    );
     if (
       staleBroadcastPushNotifications &&
       staleBroadcastPushNotifications.length === 0
@@ -527,26 +510,17 @@ module.exports.reDispatchBroadcastPushNotifications = (app: Application) => {
     }
     return Promise.all(
       staleBroadcastPushNotifications.map(
-        async staleBroadcastPushNotification => {
+        async (staleBroadcastPushNotification) => {
           staleBroadcastPushNotification.asyncBroadcastPushNotification =
             staleBroadcastPushNotification.asyncBroadcastPushNotification ||
             true;
           const httpHost =
-            (await app.getConfig(
-              CoreBindings.APPLICATION_INSTANCE,
-              'internalHttpHost',
-            )) ??
+            app.get(AppConfigService).get('internalHttpHost') ??
             staleBroadcastPushNotification.httpHost ??
-            (await app.getConfig(
-              CoreBindings.APPLICATION_INSTANCE,
-              'httpHost',
-            ));
+            app.get(AppConfigService).get('httpHost');
           const url =
             httpHost +
-            (await app.getConfig(
-              CoreBindings.APPLICATION_INSTANCE,
-              'restApiRoot',
-            )) +
+            app.get(AppConfigService).get('restApiRoot') +
             '/notifications/' +
             staleBroadcastPushNotification.id;
           const options = {
@@ -567,17 +541,14 @@ module.exports.reDispatchBroadcastPushNotifications = (app: Application) => {
   };
 };
 
-module.exports.clearRedisDatastore = (app: Application) => {
+module.exports.clearRedisDatastore = (app: NestExpressApplication) => {
   return async () => {
-    const notificationRepository: NotificationRepository = await app.get(
-      'repositories.NotificationRepository',
+    const notificationsService: NotificationsService = await app.get(
+      NotificationsService,
     );
     for (const channel of ['sms', 'email']) {
       const throttleConfig = <Bottleneck.ConstructorOptions>(
-        await app.getConfig(
-          CoreBindings.APPLICATION_INSTANCE,
-          channel + '.throttle',
-        )
+        app.get(AppConfigService).get(channel + '.throttle')
       );
       if (
         !throttleConfig.enabled ||
@@ -585,7 +556,8 @@ module.exports.clearRedisDatastore = (app: Application) => {
         throttleConfig.datastore !== 'ioredis'
       )
         continue;
-      const sendingNotification = await notificationRepository.findOne(
+      const sendingNotification = await notificationsService.findOne(
+        undefined,
         {
           where: {
             state: 'sending',
@@ -593,7 +565,6 @@ module.exports.clearRedisDatastore = (app: Application) => {
             isBroadcast: true,
           },
         },
-        undefined,
       );
       if (sendingNotification) continue;
       const newThrottleConfig = Object.assign({}, throttleConfig, {
