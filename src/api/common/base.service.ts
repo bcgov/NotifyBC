@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { compact } from 'lodash';
 import { FilterQuery, Model } from 'mongoose';
+import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { CountDto } from './dto/count.dto';
 export class BaseService<T> {
   constructor(protected model: Model<T>) {}
@@ -34,7 +35,10 @@ export class BaseService<T> {
     return res[0] ?? { count: 0 };
   }
 
-  findAll(filter: any = {}): Promise<T[]> {
+  findAll(
+    filter: any = {},
+    req?: Request & { user: UserProfile },
+  ): Promise<T[]> {
     let { where, fields, order, skip, limit } = filter;
     if (fields instanceof Array) {
       fields = fields.reduce((p, c) => {
@@ -69,7 +73,10 @@ export class BaseService<T> {
       .exec();
   }
 
-  async findOne(filter: any = {}): Promise<T> {
+  async findOne(
+    filter: any = {},
+    req?: Request & { user: UserProfile },
+  ): Promise<T> {
     const res = await this.findAll({ ...filter, limit: 1 });
     return res && res[0];
   }
@@ -165,7 +172,10 @@ export class BaseService<T> {
     this.model.findByIdAndRemove(id).exec();
   }
 
-  async removeAll(filter?: FilterQuery<T>) {
+  async removeAll(
+    filter?: FilterQuery<T>,
+    req?: Request & { user: UserProfile },
+  ) {
     const castedFilter = this.model.countDocuments(filter).cast();
     const res = await this.model
       .aggregate(

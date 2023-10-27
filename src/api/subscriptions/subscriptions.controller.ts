@@ -147,9 +147,12 @@ export class SubscriptionsController extends BaseController {
       const phoneNumberRegex = new RegExp(phoneNumberArr.join('-?'));
       where.userChannelId = phoneNumberRegex;
     }
-    const subscription = await this.subscriptionsService.findOne(req, {
-      where,
-    });
+    const subscription = await this.subscriptionsService.findOne(
+      {
+        where,
+      },
+      req,
+    );
     if (!subscription) {
       response.send('ok');
       return;
@@ -181,9 +184,12 @@ export class SubscriptionsController extends BaseController {
     @Query('unsubscriptionCode')
     unsubscriptionCode?: string,
   ): Promise<void> {
-    const instance = await this.subscriptionsService.findOne(req, {
-      where: { id },
-    });
+    const instance = await this.subscriptionsService.findOne(
+      {
+        where: { id },
+      },
+      req,
+    );
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
@@ -322,9 +328,12 @@ export class SubscriptionsController extends BaseController {
     @Query('replace')
     replace?: boolean,
   ): Promise<void> {
-    let instance = (await this.subscriptionsService.findOne(req, {
-      where: { id },
-    })) as Subscription;
+    let instance = (await this.subscriptionsService.findOne(
+      {
+        where: { id },
+      },
+      req,
+    )) as Subscription;
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
@@ -410,9 +419,12 @@ export class SubscriptionsController extends BaseController {
         },
         req,
       );
-      instance = (await this.subscriptionsService.findOne(req, {
-        where: { id },
-      })) as Subscription;
+      instance = (await this.subscriptionsService.findOne(
+        {
+          where: { id },
+        },
+        req,
+      )) as Subscription;
     } catch (err) {
       await handleConfirmationAcknowledgement(err);
       return;
@@ -450,9 +462,12 @@ export class SubscriptionsController extends BaseController {
     @Body(BroadcastPushNotificationFilterPipe)
     subscription: UpdateSubscriptionDto,
   ): Promise<Subscription> {
-    const instance = await this.subscriptionsService.findOne(req, {
-      where: { id },
-    });
+    const instance = await this.subscriptionsService.findOne(
+      {
+        where: { id },
+      },
+      req,
+    );
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     const filteredData = merge({}, instance);
     if (
@@ -521,9 +536,12 @@ export class SubscriptionsController extends BaseController {
     @Query('additionalServices', ParseArrayPipe)
     additionalServices?: string[],
   ): Promise<void> {
-    let instance = await this.subscriptionsService.findOne(req, {
-      where: { id },
-    });
+    let instance = await this.subscriptionsService.findOne(
+      {
+        where: { id },
+      },
+      req,
+    );
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     const mergedSubscriptionConfig = await this.getMergedConfig(
       'subscription',
@@ -629,9 +647,12 @@ export class SubscriptionsController extends BaseController {
           },
           undefined,
         );
-        instance = (await this.subscriptionsService.findOne(req, {
-          where: { id },
-        })) as Subscription;
+        instance = (await this.subscriptionsService.findOne(
+          {
+            where: { id },
+          },
+          req,
+        )) as Subscription;
         if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
         await handleUnsubscriptionResponse();
       };
@@ -647,16 +668,19 @@ export class SubscriptionsController extends BaseController {
       }
       const getAdditionalServiceIds = async (): Promise<AdditionalServices> => {
         if (additionalServices.length > 1) {
-          const res = await this.subscriptionsService.findAll(req, {
-            fields: { id: true, serviceName: true },
-            where: {
-              serviceName: {
-                $in: additionalServices,
+          const res = await this.subscriptionsService.findAll(
+            {
+              fields: { id: true, serviceName: true },
+              where: {
+                serviceName: {
+                  $in: additionalServices,
+                },
+                channel: instance.channel,
+                userChannelId: instance.userChannelId,
               },
-              channel: instance.channel,
-              userChannelId: instance.userChannelId,
             },
-          });
+            req,
+          );
           return {
             names: res.map((e) => e.serviceName),
             ids: res.map((e) => e.id) as string[],
@@ -664,28 +688,34 @@ export class SubscriptionsController extends BaseController {
         }
         if (additionalServices.length === 1) {
           if (additionalServices[0] !== '_all') {
-            const res = await this.subscriptionsService.findAll(req, {
-              fields: { id: true, serviceName: true },
-              where: {
-                serviceName: additionalServices[0],
-                channel: instance.channel,
-                userChannelId: instance.userChannelId,
+            const res = await this.subscriptionsService.findAll(
+              {
+                fields: { id: true, serviceName: true },
+                where: {
+                  serviceName: additionalServices[0],
+                  channel: instance.channel,
+                  userChannelId: instance.userChannelId,
+                },
               },
-            });
+              req,
+            );
             return {
               names: res.map((e) => e.serviceName),
               ids: res.map((e) => e.id) as string[],
             };
           }
           // get all subscribed services
-          const res = await this.subscriptionsService.findAll(req, {
-            fields: { id: true, serviceName: true },
-            where: {
-              userChannelId: instance.userChannelId,
-              channel: instance.channel,
-              state: 'confirmed',
+          const res = await this.subscriptionsService.findAll(
+            {
+              fields: { id: true, serviceName: true },
+              where: {
+                userChannelId: instance.userChannelId,
+                channel: instance.channel,
+                state: 'confirmed',
+              },
             },
-          });
+            req,
+          );
           return {
             names: res.map((e) => e.serviceName),
             ids: res.map((e) => e.id) as string[],
@@ -768,7 +798,7 @@ export class SubscriptionsController extends BaseController {
     @JsonQuery('filter')
     filter: FilterDto<Subscription>,
   ): Promise<Subscription[]> {
-    return this.subscriptionsService.findAll(req, filter);
+    return this.subscriptionsService.findAll(filter, req);
   }
 
   private async handleConfirmationRequest(

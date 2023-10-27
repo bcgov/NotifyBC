@@ -52,14 +52,17 @@ export class CronTasksService {
             const retentionDays =
               cronConfig.pushNotificationRetentionDays ??
               cronConfig.defaultRetentionDays;
-            const data = await this.notificationsService.removeAll(undefined, {
-              channel: {
-                $ne: 'inApp',
+            const data = await this.notificationsService.removeAll(
+              {
+                channel: {
+                  $ne: 'inApp',
+                },
+                created: {
+                  $lt: Date.now() - retentionDays * 86400000,
+                },
               },
-              created: {
-                $lt: Date.now() - retentionDays * 86400000,
-              },
-            });
+              undefined,
+            );
             if (data?.count > 0) {
               console.info(
                 new Date().toLocaleString() +
@@ -75,12 +78,15 @@ export class CronTasksService {
             const retentionDays =
               cronConfig.expiredInAppNotificationRetentionDays ??
               cronConfig.defaultRetentionDays;
-            const data = await this.notificationsService.removeAll(undefined, {
-              channel: 'inApp',
-              validTill: {
-                $lt: Date.now() - retentionDays * 86400000,
+            const data = await this.notificationsService.removeAll(
+              {
+                channel: 'inApp',
+                validTill: {
+                  $lt: Date.now() - retentionDays * 86400000,
+                },
               },
-            });
+              undefined,
+            );
             if (data?.count > 0) {
               console.info(
                 new Date().toLocaleString() +
@@ -93,10 +99,13 @@ export class CronTasksService {
           })(),
           (async () => {
             // delete all deleted inApp notifications
-            const data = await this.notificationsService.removeAll(undefined, {
-              channel: 'inApp',
-              state: 'deleted',
-            });
+            const data = await this.notificationsService.removeAll(
+              {
+                channel: 'inApp',
+                state: 'deleted',
+              },
+              undefined,
+            );
             if (data?.count > 0) {
               console.info(
                 new Date().toLocaleString() +
@@ -112,14 +121,17 @@ export class CronTasksService {
             const retentionDays =
               cronConfig.nonConfirmedSubscriptionRetentionDays ??
               cronConfig.defaultRetentionDays;
-            const data = await this.subscriptionsService.removeAll(undefined, {
-              state: {
-                $ne: 'confirmed',
+            const data = await this.subscriptionsService.removeAll(
+              {
+                state: {
+                  $ne: 'confirmed',
+                },
+                updated: {
+                  $lt: Date.now() - retentionDays * 86400000,
+                },
               },
-              updated: {
-                $lt: Date.now() - retentionDays * 86400000,
-              },
-            });
+              undefined,
+            );
             if (data?.count > 0) {
               console.info(
                 new Date().toLocaleString() +
@@ -194,7 +206,6 @@ export class CronTasksService {
   dispatchLiveNotifications() {
     return async (): Promise<void> => {
       const livePushNotifications = await this.notificationsService.findAll(
-        undefined,
         {
           where: {
             state: 'new',
@@ -206,6 +217,7 @@ export class CronTasksService {
             },
           },
         },
+        undefined,
       );
       if (livePushNotifications && livePushNotifications.length === 0) {
         return;
@@ -473,18 +485,21 @@ export class CronTasksService {
   reDispatchBroadcastPushNotifications() {
     return async (): Promise<void> => {
       const staleBroadcastPushNotifications =
-        await this.notificationsService.findAll(undefined, {
-          where: {
-            state: 'sending',
-            channel: {
-              $ne: 'inApp',
-            },
-            isBroadcast: true,
-            updated: {
-              $lt: Date.now() - 600000,
+        await this.notificationsService.findAll(
+          {
+            where: {
+              state: 'sending',
+              channel: {
+                $ne: 'inApp',
+              },
+              isBroadcast: true,
+              updated: {
+                $lt: Date.now() - 600000,
+              },
             },
           },
-        });
+          undefined,
+        );
       if (
         staleBroadcastPushNotifications &&
         staleBroadcastPushNotifications.length === 0
@@ -537,7 +552,6 @@ export class CronTasksService {
         )
           continue;
         const sendingNotification = await this.notificationsService.findOne(
-          undefined,
           {
             where: {
               state: 'sending',
@@ -545,6 +559,7 @@ export class CronTasksService {
               isBroadcast: true,
             },
           },
+          undefined,
         );
         if (sendingNotification) continue;
         const newThrottleConfig = Object.assign({}, throttleConfig, {
