@@ -43,6 +43,7 @@
     "bottleneck": "^2.19.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "cron": "^3.1.5",
     "crypto-random-string": "^3.3.0",
     "feedparser": "^2.2.10",
     "ioredis": "^5.3.2",
