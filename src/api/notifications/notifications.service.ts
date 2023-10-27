@@ -45,16 +45,16 @@ export class NotificationsService extends BaseService<Notification> {
   }
 
   findAll(
-    req: Request & { user: UserProfile },
     filter: FilterDto<Notification> = {},
+    req: Request & { user: UserProfile },
   ) {
     filter.where = this.accessInterceptor(req, filter.where);
     return super.findAll(filter);
   }
 
   async findOne(
-    req: Request & { user: UserProfile },
     filter: FilterDto<Notification> = {},
+    req: Request & { user: UserProfile },
   ): Promise<Notification> {
     filter.where = this.accessInterceptor(req, filter.where);
     return super.findOne(filter);
@@ -70,8 +70,8 @@ export class NotificationsService extends BaseService<Notification> {
   }
 
   async removeAll(
-    req: Request & { user: UserProfile },
-    where?: FilterQuery<Notification>,
+    where: FilterQuery<Notification>,
+    req?: Request & { user: UserProfile },
   ) {
     where = this.accessInterceptor(req, where);
     return super.removeAll(where);

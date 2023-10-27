@@ -49,16 +49,16 @@ export class SubscriptionsService extends BaseService<Subscription> {
   }
 
   findAll(
-    req: Request & { user: UserProfile },
     filter: FilterDto<Subscription> = {},
+    req: Request & { user: UserProfile },
   ) {
     filter.where = this.accessInterceptor(req, filter.where);
     return super.findAll(filter);
   }
 
   async findOne(
-    req: Request & { user: UserProfile },
     filter: FilterDto<Subscription> = {},
+    req: Request & { user: UserProfile },
   ): Promise<Subscription> {
     filter.where = this.accessInterceptor(req, filter.where);
     return super.findOne(filter);
@@ -74,8 +74,8 @@ export class SubscriptionsService extends BaseService<Subscription> {
   }
 
   async removeAll(
-    req: Request & { user: UserProfile },
-    where?: FilterQuery<Subscription>,
+    where: FilterQuery<Subscription>,
+    req?: Request & { user: UserProfile },
   ) {
     where = this.accessInterceptor(req, where);
     return super.removeAll(where);

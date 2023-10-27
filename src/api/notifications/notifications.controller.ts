@@ -130,9 +130,12 @@ export class NotificationsController extends BaseController {
       if (!currUser) {
         throw new HttpException(undefined, HttpStatus.FORBIDDEN);
       }
-      const instance = await this.notificationsService.findOne(this.req, {
-        where: { id },
-      });
+      const instance = await this.notificationsService.findOne(
+        {
+          where: { id },
+        },
+        this.req,
+      );
       if (instance?.channel !== 'inApp') {
         throw new HttpException(undefined, HttpStatus.FORBIDDEN);
       }
@@ -187,10 +190,13 @@ export class NotificationsController extends BaseController {
     @JsonQuery('filter')
     filter: Omit<FilterDto<Notification>, 'where'>,
   ): Promise<Notification | null> {
-    return this.notificationsService.findOne(this.req, {
-      ...filter,
-      where: { id },
-    });
+    return this.notificationsService.findOne(
+      {
+        ...filter,
+        where: { id },
+      },
+      this.req,
+    );
   }
 
   @Delete(':id')
@@ -198,9 +204,12 @@ export class NotificationsController extends BaseController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @HttpCode(204)
   async deleteById(@Param('id') id: string): Promise<void> {
-    const data = await this.notificationsService.findOne(this.req, {
-      where: { id },
-    });
+    const data = await this.notificationsService.findOne(
+      {
+        where: { id },
+      },
+      this.req,
+    );
     if (!data) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     data.state = 'deleted';
     await this.updateById(id, data);
@@ -230,7 +239,7 @@ export class NotificationsController extends BaseController {
     @JsonQuery('filter')
     filter: FilterDto<Notification>,
   ): Promise<Notification[]> {
-    const res = await this.notificationsService.findAll(this.req, filter);
+    const res = await this.notificationsService.findAll(filter, this.req);
     if (res.length === 0) {
       return res;
     }
@@ -277,9 +286,12 @@ export class NotificationsController extends BaseController {
         this.chunkRequestAborted = true;
       });
     }
-    const notification = await this.notificationsService.findOne(this.req, {
-      where: { id },
-    });
+    const notification = await this.notificationsService.findOne(
+      {
+        where: { id },
+      },
+      this.req,
+    );
     if (!notification) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
     this.req['args'] = { data: notification };
     this.req['NotifyBC.startIdx'] = startIdx;
@@ -445,12 +457,12 @@ export class NotificationsController extends BaseController {
             data.dispatch?.skipped ?? [],
           );
           const subscribers = await this.subscriptionsService.findAll(
-            this.req,
             {
               where: {
                 id: { $in: subChunk },
               },
             },
+            this.req,
           );
           const notificationMsgCB = async (err: any, e: Subscription) => {
             if (err) {
@@ -605,16 +617,19 @@ export class NotificationsController extends BaseController {
           // main request
           const postBroadcastProcessing = async () => {
             data = await this.notificationsService.findById(data.id);
-            const res = await this.subscriptionsService.findAll(this.req, {
-              fields: {
-                userChannelId: true,
-              },
-              where: {
-                id: {
-                  $in: data.dispatch?.successful,
+            const res = await this.subscriptionsService.findAll(
+              {
+                fields: {
+                  userChannelId: true,
+                },
+                where: {
+                  id: {
+                    $in: data.dispatch?.successful,
+                  },
                 },
               },
-            });
+              this.req,
+            );
             const userChannelIds = res.map((e) => e.userChannelId);
             const errUserChannelIds = (data.dispatch?.failed || []).map(
               (e: { userChannelId: any }) => e.userChannelId,
@@ -649,7 +664,6 @@ export class NotificationsController extends BaseController {
           };
 
           const subCandidates = await this.subscriptionsService.findAll(
-            this.req,
             {
               where: {
                 serviceName: data.serviceName,
@@ -658,6 +672,7 @@ export class NotificationsController extends BaseController {
               },
               fields: ['id'],
             },
+            this.req,
           );
           data.dispatch = data.dispatch ?? {};
           data.dispatch.candidates =
@@ -854,9 +869,12 @@ export class NotificationsController extends BaseController {
     }
 
     try {
-      const subscription = await this.subscriptionsService.findOne(this.req, {
-        where: whereClause,
-      });
+      const subscription = await this.subscriptionsService.findOne(
+        {
+          where: whereClause,
+        },
+        this.req,
+      );
       if (!subscription) {
         throw new HttpException('invalid user', HttpStatus.FORBIDDEN);
       }
