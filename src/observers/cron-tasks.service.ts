@@ -14,6 +14,7 @@
 
 import { Injectable } from '@nestjs/common';
 import Bottleneck from 'bottleneck';
+import { CronJob } from 'cron';
 import FeedParser from 'feedparser';
 import { differenceWith } from 'lodash';
 import { AnyObject } from 'mongoose';
@@ -43,7 +44,7 @@ export class CronTasksService {
 
   async purgeData() {
     const cronConfig = this.appConfigService.get('cron.purgeData') ?? {};
-    return async () => {
+    return async (): Promise<void> => {
       try {
         const res = await Promise.all([
           (async () => {
@@ -183,7 +184,6 @@ export class CronTasksService {
             }
           })(),
         ]);
-        return res;
       } catch (ex) {
         console.error(ex);
         throw ex;
@@ -192,7 +192,7 @@ export class CronTasksService {
   }
 
   dispatchLiveNotifications() {
-    return async () => {
+    return async (): Promise<void> => {
       const livePushNotifications = await this.notificationsService.findAll(
         undefined,
         {
@@ -208,9 +208,9 @@ export class CronTasksService {
         },
       );
       if (livePushNotifications && livePushNotifications.length === 0) {
-        return livePushNotifications;
+        return;
       }
-      return Promise.all(
+      Promise.all(
         livePushNotifications.map(async (livePushNotification) => {
           livePushNotification.asyncBroadcastPushNotification =
             livePushNotification.asyncBroadcastPushNotification || true;
@@ -248,7 +248,6 @@ export class CronTasksService {
   }
 
   async checkRssConfigUpdates(runOnInit = false) {
-    const CronJob = require('cron').CronJob;
     const rssNtfctnConfigItems = await this.configurationsService.findAll({
       where: {
         name: 'notification',
@@ -275,7 +274,7 @@ export class CronTasksService {
       if (this.rssTasks[rssNtfctnConfigItem.id as string]) {
         continue;
       }
-      this.rssTasks[rssNtfctnConfigItem.id as string] = new CronJob({
+      this.rssTasks[rssNtfctnConfigItem.id as string] = CronJob.from({
         cronTime: rssNtfctnConfigItem.value.rss.timeSpec,
         onTick: async () => {
           let lastSavedRssData: Rss = null;
@@ -434,7 +433,7 @@ export class CronTasksService {
   }
 
   async deleteBounces() {
-    return async () => {
+    return async (): Promise<void> => {
       const minHrs: number = parseInt(
         this.appConfigService.get(
           'cron.deleteBounces.minLapsedHoursSinceLatestNotificationEnded',
@@ -454,7 +453,7 @@ export class CronTasksService {
           },
         },
       });
-      return Promise.all(
+      Promise.all(
         activeBounces.map(async (activeBounce) => {
           const latestBounceMessageDate = activeBounce.bounceMessages?.[0].date;
           if (
@@ -472,7 +471,7 @@ export class CronTasksService {
   }
 
   reDispatchBroadcastPushNotifications() {
-    return async () => {
+    return async (): Promise<void> => {
       const staleBroadcastPushNotifications =
         await this.notificationsService.findAll(undefined, {
           where: {
@@ -490,9 +489,9 @@ export class CronTasksService {
         staleBroadcastPushNotifications &&
         staleBroadcastPushNotifications.length === 0
       ) {
-        return staleBroadcastPushNotifications;
+        return;
       }
-      return Promise.all(
+      Promise.all(
         staleBroadcastPushNotifications.map(
           async (staleBroadcastPushNotification) => {
             staleBroadcastPushNotification.asyncBroadcastPushNotification =
