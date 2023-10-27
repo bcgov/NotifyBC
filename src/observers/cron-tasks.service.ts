@@ -57,6 +57,7 @@ export class CronTasksService {
                 channel: {
                   $ne: 'inApp',
                 },
+                state: { $nin: ['new', 'sending'] },
                 created: {
                   $lt: Date.now() - retentionDays * 86400000,
                 },

@@ -26,6 +26,7 @@ export class SubscriptionsService extends BaseService<Subscription> {
     req: Request & { user: UserProfile },
     where: FilterQuery<Subscription>,
   ): FilterQuery<Subscription> {
+    if (!req) return where;
     if (req.user?.role !== Role.AuthenticatedUser) return where;
     return {
       $and: [
