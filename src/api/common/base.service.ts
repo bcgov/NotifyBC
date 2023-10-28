@@ -129,6 +129,7 @@ export class BaseService<T> {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
     }
+    delete updateDto.id;
     return this.model.findByIdAndUpdate(id, updateDto).exec();
   }
 
@@ -138,6 +139,7 @@ export class BaseService<T> {
     req: (Request & { user?: any }) | null,
     upsert: boolean = false,
   ): Promise<T> {
+    delete updateDto.id;
     return this.findOneAndReplace(updateDto, { _id }, req, upsert);
   }
 
@@ -151,6 +153,7 @@ export class BaseService<T> {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
     }
+    delete updateDto.id;
     const res = await this.model
       .findOneAndReplace(filter, updateDto, {
         upsert,
