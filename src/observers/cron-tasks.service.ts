@@ -331,7 +331,7 @@ export class CronTasksService {
               items.push(item);
             }
           });
-          feedparser.on('end', async function () {
+          feedparser.on('end', async () => {
             const itemKeyField =
               rssNtfctnConfigItem.value.rss.itemKeyField || 'guid';
             const fieldsToCheckForUpdate = rssNtfctnConfigItem.value.rss
@@ -400,6 +400,7 @@ export class CronTasksService {
                   message,
                   data: newOrUpdatedItem,
                   httpHost: rssNtfctnConfigItem.value.httpHost,
+                  asyncBroadcastPushNotification: true,
                 };
                 const httpHost =
                   this.appConfigService.get('internalHttpHost') ||
@@ -416,21 +417,21 @@ export class CronTasksService {
                   },
                 };
                 try {
-                  await fetch(url, options);
+                  const res = await fetch(url, options);
+                  if (res.status >= 400)
+                    throw new HttpException(res.statusText, res.status);
                 } catch (ex: any) {
-                  this.logger.error(new Error(ex.message));
+                  this.logger.error(ex);
                 }
               }
             });
             if (!lastSavedRssData) {
               return;
             }
-            lastSavedRssData.items = items.concat(retainedOutdatedItems);
-            lastSavedRssData.lastPoll = ts;
-            await this.rssService.updateById(
-              lastSavedRssData.id,
-              lastSavedRssData,
-            );
+            await this.rssService.updateById(lastSavedRssData.id, {
+              items: items.concat(retainedOutdatedItems),
+              lastPoll: ts,
+            });
           });
           const res = await fetch(rssNtfctnConfigItem.value.rss.url);
           if (res.status !== 200) {
@@ -533,9 +534,11 @@ export class CronTasksService {
               },
             };
             try {
-              await fetch(url, options);
+              const res = await fetch(url, options);
+              if (res.status >= 400)
+                throw new HttpException(res.statusText, res.status);
             } catch (ex: any) {
-              this.logger.error(new Error(ex.message));
+              this.logger.error(ex);
             }
           },
         ),
