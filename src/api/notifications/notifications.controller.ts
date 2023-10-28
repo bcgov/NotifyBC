@@ -624,7 +624,7 @@ export class NotificationsController extends BaseController {
                 },
                 where: {
                   id: {
-                    $in: data.dispatch?.successful,
+                    $in: data.dispatch?.successful ?? [],
                   },
                 },
               },

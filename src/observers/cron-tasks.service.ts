@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import Bottleneck from 'bottleneck';
 import { CronJob } from 'cron';
 import FeedParser from 'feedparser';
@@ -32,6 +32,7 @@ import { RssService } from 'src/rss/rss.service';
 module.exports.Bottleneck = Bottleneck;
 @Injectable()
 export class CronTasksService {
+  private readonly logger = new Logger(CronTasksService.name);
   constructor(
     private readonly configurationsService: ConfigurationsService,
     private readonly notificationsService: NotificationsService,
@@ -65,7 +66,7 @@ export class CronTasksService {
               undefined,
             );
             if (data?.count > 0) {
-              console.info(
+              this.logger.verbose(
                 new Date().toLocaleString() +
                   ': Deleted ' +
                   data.count +
@@ -89,7 +90,7 @@ export class CronTasksService {
               undefined,
             );
             if (data?.count > 0) {
-              console.info(
+              this.logger.verbose(
                 new Date().toLocaleString() +
                   ': Deleted ' +
                   data.count +
@@ -108,7 +109,7 @@ export class CronTasksService {
               undefined,
             );
             if (data?.count > 0) {
-              console.info(
+              this.logger.verbose(
                 new Date().toLocaleString() +
                   ': Deleted ' +
                   data.count +
@@ -134,7 +135,7 @@ export class CronTasksService {
               undefined,
             );
             if (data?.count > 0) {
-              console.info(
+              this.logger.verbose(
                 new Date().toLocaleString() +
                   ': Deleted ' +
                   data.count +
@@ -155,7 +156,7 @@ export class CronTasksService {
               },
             });
             if (data?.count > 0) {
-              console.info(
+              this.logger.verbose(
                 new Date().toLocaleString() +
                   ': Deleted ' +
                   data.count +
@@ -191,14 +192,14 @@ export class CronTasksService {
               }
             }
             if (count > 0) {
-              console.info(
+              this.logger.verbose(
                 new Date().toLocaleString() + ': Deleted ' + count + ' items.',
               );
             }
           })(),
         ]);
       } catch (ex) {
-        console.error(ex);
+        this.logger.error(ex);
         throw ex;
       }
     };
@@ -245,9 +246,11 @@ export class CronTasksService {
             },
           };
           try {
-            return await fetch(url, options);
+            const res = await fetch(url, options);
+            if (res.status >= 400)
+              throw new HttpException(res.statusText, res.status);
           } catch (ex: any) {
-            console.error(new Error(ex.message));
+            this.logger.error(ex);
           }
         }),
       );
@@ -314,7 +317,7 @@ export class CronTasksService {
 
           feedparser.on('error', function (error: any) {
             // always handle errors
-            console.error(error);
+            this.logger.error(error);
           });
 
           const items: any[] = [];
@@ -415,7 +418,7 @@ export class CronTasksService {
                 try {
                   await fetch(url, options);
                 } catch (ex: any) {
-                  console.error(new Error(ex.message));
+                  this.logger.error(new Error(ex.message));
                 }
               }
             });
@@ -432,7 +435,7 @@ export class CronTasksService {
           const res = await fetch(rssNtfctnConfigItem.value.rss.url);
           if (res.status !== 200) {
             const err = new Error('Bad status code');
-            console.error(err);
+            this.logger.error(err);
           } else {
             Readable.fromWeb(res.body as any).pipe(feedparser);
           }
@@ -532,7 +535,7 @@ export class CronTasksService {
             try {
               await fetch(url, options);
             } catch (ex: any) {
-              console.error(new Error(ex.message));
+              this.logger.error(new Error(ex.message));
             }
           },
         ),
