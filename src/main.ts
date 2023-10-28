@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
 
 const packageJson = require('../package.json');
+const logger = new Logger('main');
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -67,15 +68,15 @@ if (require.main === module) {
   }
   if (numWorkers < 2) {
     bootstrap().catch((err) => {
-      console.error('Cannot start the application.', err);
+      logger.error('Cannot start the application.', err);
       process.exit(1);
     });
-    console.log(`Worker ${process.pid} started`);
+    logger.log(`Worker ${process.pid} started`);
   } else {
     const cluster = require('cluster');
     if (cluster.isMaster) {
-      console.log(`# of worker processes = ${numWorkers}`);
-      console.log(`Master ${process.pid} is running`);
+      logger.log(`# of worker processes = ${numWorkers}`);
+      logger.log(`Master ${process.pid} is running`);
       let masterWorker: any;
       // Fork workers.
       for (let i = 0; i < numWorkers; i++) {
@@ -91,9 +92,9 @@ if (require.main === module) {
       cluster.on(
         'exit',
         (worker: { process: { pid: any } }, code: any, signal: any) => {
-          console.log(`worker ${worker.process.pid} died`);
+          logger.log(`worker ${worker.process.pid} died`);
           if (worker === masterWorker) {
-            console.log(`worker ${worker.process.pid} is the master worker`);
+            logger.log(`worker ${worker.process.pid} is the master worker`);
             masterWorker = cluster.fork();
           } else {
             cluster.fork({
@@ -104,10 +105,10 @@ if (require.main === module) {
       );
     } else {
       bootstrap().catch((err) => {
-        console.error('Cannot start the application.', err);
+        logger.error('Cannot start the application.', err);
         process.exit(1);
       });
-      console.log(`Worker ${process.pid} started`);
+      logger.log(`Worker ${process.pid} started`);
     }
   }
 }
