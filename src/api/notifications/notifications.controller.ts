@@ -434,12 +434,168 @@ export class NotificationsController extends BaseController {
     }
   }
 
-  async sendPushNotification(data: Notification) {
-    const inboundSmtpServerDomain =
-      this.appConfig.email.inboundSmtpServer?.domain;
-    const handleListUnsubscribeByEmail =
-      this.appConfig.email?.listUnsubscribeByEmail?.enabled;
+  broadcastSubscriberChunkSize =
+    this.appConfig.notification?.broadcastSubscriberChunkSize;
+  logSkippedBroadcastPushDispatches =
+    this.appConfig.notification?.logSkippedBroadcastPushDispatches;
+  inboundSmtpServerDomain = this.appConfig.email.inboundSmtpServer?.domain;
+  handleListUnsubscribeByEmail =
+    this.appConfig.email?.listUnsubscribeByEmail?.enabled;
 
+  async broadcastToSubscriberChunk(data, startIdx) {
+    const subChunk = (data.dispatch.candidates as string[]).slice(
+      startIdx,
+      startIdx + this.broadcastSubscriberChunkSize,
+    );
+    pullAll(
+      pullAll(
+        pullAll(
+          subChunk,
+          (data.dispatch?.failed ?? []).map((e: any) => e.subscriptionId),
+        ),
+        data.dispatch?.successful ?? [],
+      ),
+      data.dispatch?.skipped ?? [],
+    );
+    const subscribers = await this.subscriptionsService.findAll(
+      {
+        where: {
+          id: { $in: subChunk },
+        },
+      },
+      this.req,
+    );
+    await Promise.all(
+      subscribers.map(async (e) => {
+        if (e.broadcastPushNotificationFilter && data.data) {
+          let match: [];
+          try {
+            match = await jmespath.search(
+              [data.data],
+              '[?' + e.broadcastPushNotificationFilter + ']',
+              this.jmespathSearchOpts,
+            );
+          } catch (ex) {}
+          if (!match || match.length === 0) {
+            if (
+              this.guaranteedBroadcastPushDispatchProcessing &&
+              this.logSkippedBroadcastPushDispatches
+            )
+              await this.updateBroadcastPushNotificationStatus(
+                data,
+                NotificationDispatchStatusField.skipped,
+                e.id,
+              );
+            return;
+          }
+        }
+        if (e.data && data.broadcastPushNotificationSubscriptionFilter) {
+          let match: [];
+          try {
+            match = await jmespath.search(
+              [e.data],
+              '[?' + data.broadcastPushNotificationSubscriptionFilter + ']',
+              this.jmespathSearchOpts,
+            );
+          } catch (ex) {}
+          if (!match || match.length === 0) {
+            if (
+              this.guaranteedBroadcastPushDispatchProcessing &&
+              this.logSkippedBroadcastPushDispatches
+            )
+              await this.updateBroadcastPushNotificationStatus(
+                data,
+                NotificationDispatchStatusField.skipped,
+                e.id,
+              );
+            return;
+          }
+        }
+        const textBody =
+          data.message.textBody &&
+          this.mailMerge(data.message.textBody, e, data, this.req);
+        switch (e.channel) {
+          case 'sms':
+            try {
+              if (this.chunkRequestAborted)
+                throw new HttpException(
+                  undefined,
+                  HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+              await this.sendSMS(e.userChannelId, textBody, e);
+              return await this.notificationMsgCB(data, null, e);
+            } catch (ex) {
+              return await this.notificationMsgCB(data, ex, e);
+            }
+            break;
+          default: {
+            const subject =
+              data.message.subject &&
+              this.mailMerge(data.message.subject, e, data, this.req);
+            const htmlBody =
+              data.message.htmlBody &&
+              this.mailMerge(data.message.htmlBody, e, data, this.req);
+            const unsubscriptUrl = this.mailMerge(
+              '{unsubscription_url}',
+              e,
+              data,
+              this.req,
+            );
+            let listUnsub = unsubscriptUrl;
+            if (
+              this.handleListUnsubscribeByEmail &&
+              this.inboundSmtpServerDomain
+            ) {
+              const unsubEmail =
+                this.mailMerge(
+                  'un-{subscription_id}-{unsubscription_code}@',
+                  e,
+                  data,
+                  this.req,
+                ) + this.inboundSmtpServerDomain;
+              listUnsub = [[unsubEmail, unsubscriptUrl]];
+            }
+            const mailOptions: AnyObject = {
+              from: data.message.from,
+              to: e.userChannelId,
+              subject: subject,
+              text: textBody,
+              html: htmlBody,
+              list: {
+                id: data.httpHost + '/' + encodeURIComponent(data.serviceName),
+                unsubscribe: listUnsub,
+              },
+            };
+            if (this.handleBounce && this.inboundSmtpServerDomain) {
+              const bounceEmail = this.mailMerge(
+                `bn-{subscription_id}-{unsubscription_code}@${this.inboundSmtpServerDomain}`,
+                e,
+                data,
+                this.req,
+              );
+              mailOptions.envelope = {
+                from: bounceEmail,
+                to: e.userChannelId,
+              };
+            }
+            try {
+              if (this.chunkRequestAborted)
+                throw new HttpException(
+                  undefined,
+                  HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+              await this.sendEmail(mailOptions);
+              return await this.notificationMsgCB(data, null, e);
+            } catch (ex) {
+              return await this.notificationMsgCB(data, ex, e);
+            }
+          }
+        }
+      }),
+    );
+  }
+
+  async sendPushNotification(data: Notification) {
     switch (data.isBroadcast) {
       case false: {
         let sub: Partial<Subscription> =
@@ -465,14 +621,17 @@ export class NotificationsController extends BaseController {
               this.req,
             );
             let listUnsub = unsubscriptUrl;
-            if (handleListUnsubscribeByEmail && inboundSmtpServerDomain) {
+            if (
+              this.handleListUnsubscribeByEmail &&
+              this.inboundSmtpServerDomain
+            ) {
               const unsubEmail =
                 this.mailMerge(
                   'un-{subscription_id}-{unsubscription_code}@',
                   sub,
                   data,
                   this.req,
-                ) + inboundSmtpServerDomain;
+                ) + this.inboundSmtpServerDomain;
               listUnsub = [[unsubEmail, unsubscriptUrl]];
             }
             const mailOptions: AnyObject = {
@@ -486,9 +645,9 @@ export class NotificationsController extends BaseController {
                 unsubscribe: listUnsub,
               },
             };
-            if (this.handleBounce && inboundSmtpServerDomain) {
+            if (this.handleBounce && this.inboundSmtpServerDomain) {
               const bounceEmail = this.mailMerge(
-                `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
+                `bn-{subscription_id}-{unsubscription_code}@${this.inboundSmtpServerDomain}`,
                 sub,
                 data,
                 this.req,
@@ -505,167 +664,9 @@ export class NotificationsController extends BaseController {
         }
       }
       case true: {
-        const broadcastSubscriberChunkSize =
-          this.appConfig.notification?.broadcastSubscriberChunkSize;
         const broadcastSubRequestBatchSize =
           this.appConfig.notification?.broadcastSubRequestBatchSize;
-        const logSkippedBroadcastPushDispatches =
-          this.appConfig.notification?.logSkippedBroadcastPushDispatches;
         let startIdx: undefined | number = this.req['NotifyBC.startIdx'];
-        const broadcastToSubscriberChunk = async () => {
-          const subChunk = (data.dispatch.candidates as string[]).slice(
-            startIdx,
-            startIdx + broadcastSubscriberChunkSize,
-          );
-          pullAll(
-            pullAll(
-              pullAll(
-                subChunk,
-                (data.dispatch?.failed ?? []).map((e: any) => e.subscriptionId),
-              ),
-              data.dispatch?.successful ?? [],
-            ),
-            data.dispatch?.skipped ?? [],
-          );
-          const subscribers = await this.subscriptionsService.findAll(
-            {
-              where: {
-                id: { $in: subChunk },
-              },
-            },
-            this.req,
-          );
-          await Promise.all(
-            subscribers.map(async (e) => {
-              if (e.broadcastPushNotificationFilter && data.data) {
-                let match: [];
-                try {
-                  match = await jmespath.search(
-                    [data.data],
-                    '[?' + e.broadcastPushNotificationFilter + ']',
-                    this.jmespathSearchOpts,
-                  );
-                } catch (ex) {}
-                if (!match || match.length === 0) {
-                  if (
-                    this.guaranteedBroadcastPushDispatchProcessing &&
-                    logSkippedBroadcastPushDispatches
-                  )
-                    await this.updateBroadcastPushNotificationStatus(
-                      data,
-                      NotificationDispatchStatusField.skipped,
-                      e.id,
-                    );
-                  return;
-                }
-              }
-              if (e.data && data.broadcastPushNotificationSubscriptionFilter) {
-                let match: [];
-                try {
-                  match = await jmespath.search(
-                    [e.data],
-                    '[?' +
-                      data.broadcastPushNotificationSubscriptionFilter +
-                      ']',
-                    this.jmespathSearchOpts,
-                  );
-                } catch (ex) {}
-                if (!match || match.length === 0) {
-                  if (
-                    this.guaranteedBroadcastPushDispatchProcessing &&
-                    logSkippedBroadcastPushDispatches
-                  )
-                    await this.updateBroadcastPushNotificationStatus(
-                      data,
-                      NotificationDispatchStatusField.skipped,
-                      e.id,
-                    );
-                  return;
-                }
-              }
-              const textBody =
-                data.message.textBody &&
-                this.mailMerge(data.message.textBody, e, data, this.req);
-              switch (e.channel) {
-                case 'sms':
-                  try {
-                    if (this.chunkRequestAborted)
-                      throw new HttpException(
-                        undefined,
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                      );
-                    await this.sendSMS(e.userChannelId, textBody, e);
-                    return await this.notificationMsgCB(data, null, e);
-                  } catch (ex) {
-                    return await this.notificationMsgCB(data, ex, e);
-                  }
-                  break;
-                default: {
-                  const subject =
-                    data.message.subject &&
-                    this.mailMerge(data.message.subject, e, data, this.req);
-                  const htmlBody =
-                    data.message.htmlBody &&
-                    this.mailMerge(data.message.htmlBody, e, data, this.req);
-                  const unsubscriptUrl = this.mailMerge(
-                    '{unsubscription_url}',
-                    e,
-                    data,
-                    this.req,
-                  );
-                  let listUnsub = unsubscriptUrl;
-                  if (handleListUnsubscribeByEmail && inboundSmtpServerDomain) {
-                    const unsubEmail =
-                      this.mailMerge(
-                        'un-{subscription_id}-{unsubscription_code}@',
-                        e,
-                        data,
-                        this.req,
-                      ) + inboundSmtpServerDomain;
-                    listUnsub = [[unsubEmail, unsubscriptUrl]];
-                  }
-                  const mailOptions: AnyObject = {
-                    from: data.message.from,
-                    to: e.userChannelId,
-                    subject: subject,
-                    text: textBody,
-                    html: htmlBody,
-                    list: {
-                      id:
-                        data.httpHost +
-                        '/' +
-                        encodeURIComponent(data.serviceName),
-                      unsubscribe: listUnsub,
-                    },
-                  };
-                  if (this.handleBounce && inboundSmtpServerDomain) {
-                    const bounceEmail = this.mailMerge(
-                      `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
-                      e,
-                      data,
-                      this.req,
-                    );
-                    mailOptions.envelope = {
-                      from: bounceEmail,
-                      to: e.userChannelId,
-                    };
-                  }
-                  try {
-                    if (this.chunkRequestAborted)
-                      throw new HttpException(
-                        undefined,
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                      );
-                    await this.sendEmail(mailOptions);
-                    return await this.notificationMsgCB(data, null, e);
-                  } catch (ex) {
-                    return await this.notificationMsgCB(data, ex, e);
-                  }
-                }
-              }
-            }),
-          );
-        };
         if (typeof startIdx !== 'number') {
           // main request
           const subCandidates = await this.subscriptionsService.findAll(
@@ -702,13 +703,13 @@ export class NotificationsController extends BaseController {
 
           const count = subCandidates.length;
 
-          if (count <= broadcastSubscriberChunkSize) {
+          if (count <= this.broadcastSubscriberChunkSize) {
             startIdx = 0;
-            await broadcastToSubscriberChunk();
+            await this.broadcastToSubscriberChunk(data, startIdx);
             await this.postBroadcastProcessing(data);
           } else {
             // call broadcastToSubscriberChunk, coordinate output
-            const chunks = Math.ceil(count / broadcastSubscriberChunkSize);
+            const chunks = Math.ceil(count / this.broadcastSubscriberChunkSize);
             let httpHost = this.appConfig.internalHttpHost;
             const restApiRoot = this.appConfig.restApiRoot ?? '';
             if (!httpHost) {
@@ -747,7 +748,7 @@ export class NotificationsController extends BaseController {
                 // mark all chunk subs as failed
                 const subChunk = (data.dispatch.candidates as string[]).slice(
                   task.startIdx,
-                  task.startIdx + broadcastSubscriberChunkSize,
+                  task.startIdx + this.broadcastSubscriberChunkSize,
                 );
                 failedChunks = failedChunks.concat(
                   subChunk.map((e) => {
@@ -759,7 +760,7 @@ export class NotificationsController extends BaseController {
             let i = 0;
             while (i < chunks) {
               q.push({
-                startIdx: i++ * broadcastSubscriberChunkSize,
+                startIdx: i++ * this.broadcastSubscriberChunkSize,
               });
             }
             await q.drain();
@@ -774,7 +775,7 @@ export class NotificationsController extends BaseController {
           }
           clearTimeout(hbTimeout);
         } else {
-          return broadcastToSubscriberChunk();
+          return this.broadcastToSubscriberChunk(data, startIdx);
         }
         break;
       }
