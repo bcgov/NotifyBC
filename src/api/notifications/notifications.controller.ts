@@ -336,6 +336,31 @@ export class NotificationsController extends BaseController {
     );
   }
 
+  async updateBroadcastPushNotificationStatus(
+    data,
+    field: NotificationDispatchStatusField,
+    payload: any,
+  ) {
+    let success = false;
+    while (!success) {
+      try {
+        const val = payload instanceof Array ? { $each: payload } : payload;
+        await this.notificationsService.updateById(
+          data.id,
+          {
+            $push: {
+              ['dispatch.' + NotificationDispatchStatusField[field]]: val,
+            },
+          },
+          this.req,
+        );
+        success = true;
+        return;
+      } catch (ex) {}
+      await wait(1000);
+    }
+  }
+
   async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain =
       this.appConfig.email.inboundSmtpServer?.domain;
@@ -417,30 +442,6 @@ export class NotificationsController extends BaseController {
         const logSkippedBroadcastPushDispatches =
           this.appConfig.notification?.logSkippedBroadcastPushDispatches;
         let startIdx: undefined | number = this.req['NotifyBC.startIdx'];
-        const updateBroadcastPushNotificationStatus = async (
-          field: NotificationDispatchStatusField,
-          payload: any,
-        ) => {
-          let success = false;
-          while (!success) {
-            try {
-              const val =
-                payload instanceof Array ? { $each: payload } : payload;
-              await this.notificationsService.updateById(
-                data.id,
-                {
-                  $push: {
-                    ['dispatch.' + NotificationDispatchStatusField[field]]: val,
-                  },
-                },
-                this.req,
-              );
-              success = true;
-              return;
-            } catch (ex) {}
-            await wait(1000);
-          }
-        };
         const broadcastToSubscriberChunk = async () => {
           const subChunk = (data.dispatch.candidates as string[]).slice(
             startIdx,
@@ -466,7 +467,8 @@ export class NotificationsController extends BaseController {
           );
           const notificationMsgCB = async (err: any, e: Subscription) => {
             if (err) {
-              return updateBroadcastPushNotificationStatus(
+              return this.updateBroadcastPushNotificationStatus(
+                data,
                 NotificationDispatchStatusField.failed,
                 {
                   subscriptionId: e.id,
@@ -478,7 +480,8 @@ export class NotificationsController extends BaseController {
               guaranteedBroadcastPushDispatchProcessing ||
               this.handleBounce
             ) {
-              return updateBroadcastPushNotificationStatus(
+              return this.updateBroadcastPushNotificationStatus(
+                data,
                 NotificationDispatchStatusField.successful,
                 e.id,
               );
@@ -500,7 +503,8 @@ export class NotificationsController extends BaseController {
                     guaranteedBroadcastPushDispatchProcessing &&
                     logSkippedBroadcastPushDispatches
                   )
-                    await updateBroadcastPushNotificationStatus(
+                    await this.updateBroadcastPushNotificationStatus(
+                      data,
                       NotificationDispatchStatusField.skipped,
                       e.id,
                     );
@@ -523,7 +527,8 @@ export class NotificationsController extends BaseController {
                     guaranteedBroadcastPushDispatchProcessing &&
                     logSkippedBroadcastPushDispatches
                   )
-                    await updateBroadcastPushNotificationStatus(
+                    await this.updateBroadcastPushNotificationStatus(
+                      data,
                       NotificationDispatchStatusField.skipped,
                       e.id,
                     );
@@ -759,7 +764,8 @@ export class NotificationsController extends BaseController {
             }
             await q.drain();
             if (failedChunks.length > 0) {
-              await updateBroadcastPushNotificationStatus(
+              await this.updateBroadcastPushNotificationStatus(
+                data,
                 NotificationDispatchStatusField.failed,
                 failedChunks,
               );
