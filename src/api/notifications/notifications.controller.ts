@@ -386,6 +386,54 @@ export class NotificationsController extends BaseController {
     }
   }
 
+  async postBroadcastProcessing(data) {
+    data = await this.notificationsService.findById(data.id);
+    const res = await this.subscriptionsService.findAll(
+      {
+        fields: {
+          userChannelId: true,
+        },
+        where: {
+          id: {
+            $in: data.dispatch?.successful ?? [],
+          },
+        },
+      },
+      this.req,
+    );
+    const userChannelIds = res.map((e) => e.userChannelId);
+    const errUserChannelIds = (data.dispatch?.failed || []).map(
+      (e: { userChannelId: any }) => e.userChannelId,
+    );
+    pullAll(userChannelIds, errUserChannelIds);
+    await this.updateBounces(userChannelIds, data);
+
+    if (!data.asyncBroadcastPushNotification) {
+      return;
+    } else {
+      if (data.state !== 'error') {
+        data.state = 'sent';
+      }
+      await this.notificationsService.updateById(
+        data.id,
+        { state: data.state },
+        this.req,
+      );
+      if (typeof data.asyncBroadcastPushNotification === 'string') {
+        const options = {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        };
+        try {
+          await fetch(data.asyncBroadcastPushNotification, options);
+        } catch (ex) {}
+      }
+    }
+  }
+
   async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain =
       this.appConfig.email.inboundSmtpServer?.domain;
@@ -620,54 +668,6 @@ export class NotificationsController extends BaseController {
         };
         if (typeof startIdx !== 'number') {
           // main request
-          const postBroadcastProcessing = async () => {
-            data = await this.notificationsService.findById(data.id);
-            const res = await this.subscriptionsService.findAll(
-              {
-                fields: {
-                  userChannelId: true,
-                },
-                where: {
-                  id: {
-                    $in: data.dispatch?.successful ?? [],
-                  },
-                },
-              },
-              this.req,
-            );
-            const userChannelIds = res.map((e) => e.userChannelId);
-            const errUserChannelIds = (data.dispatch?.failed || []).map(
-              (e: { userChannelId: any }) => e.userChannelId,
-            );
-            pullAll(userChannelIds, errUserChannelIds);
-            await this.updateBounces(userChannelIds, data);
-
-            if (!data.asyncBroadcastPushNotification) {
-              return;
-            } else {
-              if (data.state !== 'error') {
-                data.state = 'sent';
-              }
-              await this.notificationsService.updateById(
-                data.id,
-                { state: data.state },
-                this.req,
-              );
-              if (typeof data.asyncBroadcastPushNotification === 'string') {
-                const options = {
-                  method: 'POST',
-                  body: JSON.stringify(data),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                };
-                try {
-                  await fetch(data.asyncBroadcastPushNotification, options);
-                } catch (ex) {}
-              }
-            }
-          };
-
           const subCandidates = await this.subscriptionsService.findAll(
             {
               where: {
@@ -705,7 +705,7 @@ export class NotificationsController extends BaseController {
           if (count <= broadcastSubscriberChunkSize) {
             startIdx = 0;
             await broadcastToSubscriberChunk();
-            await postBroadcastProcessing();
+            await this.postBroadcastProcessing(data);
           } else {
             // call broadcastToSubscriberChunk, coordinate output
             const chunks = Math.ceil(count / broadcastSubscriberChunkSize);
@@ -770,7 +770,7 @@ export class NotificationsController extends BaseController {
                 failedChunks,
               );
             }
-            await postBroadcastProcessing();
+            await this.postBroadcastProcessing(data);
           }
           clearTimeout(hbTimeout);
         } else {
@@ -797,8 +797,6 @@ export class NotificationsController extends BaseController {
         }
         try {
           if (res.isBroadcast && res.asyncBroadcastPushNotification) {
-            // async
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.sendPushNotification(res);
             return res;
           } else {
