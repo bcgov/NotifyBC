@@ -507,7 +507,7 @@ export class CronTasksService {
           undefined,
         );
       if (
-        staleBroadcastPushNotifications &&
+        !staleBroadcastPushNotifications ||
         staleBroadcastPushNotifications.length === 0
       ) {
         return;
