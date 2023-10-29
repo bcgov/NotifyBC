@@ -100,6 +100,7 @@ export class NotificationsController extends BaseController {
     description: 'Notification PUT success',
   })
   @HttpCode(204)
+  @Roles(Role.Admin, Role.SuperAdmin)
   async replaceById(
     @Param('id') id: string,
     @Body() notification: CreateNotificationDto,
@@ -220,6 +221,7 @@ export class NotificationsController extends BaseController {
     description: 'Notification model instance',
     type: Notification,
   })
+  @Roles(Role.Admin, Role.SuperAdmin)
   async create(
     @Body() notification: CreateNotificationDto,
   ): Promise<Notification> {
@@ -820,9 +822,6 @@ export class NotificationsController extends BaseController {
   }
 
   public async preCreationValidation(data: CreateNotificationDto) {
-    if (![Role.Admin, Role.SuperAdmin].includes(this.req.user.role)) {
-      throw new HttpException(undefined, HttpStatus.FORBIDDEN);
-    }
     if (
       !data.isBroadcast &&
       data.skipSubscriptionConfirmationCheck &&
