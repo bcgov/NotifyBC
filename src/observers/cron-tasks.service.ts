@@ -472,7 +472,8 @@ export class CronTasksService {
       });
       Promise.all(
         activeBounces.map(async (activeBounce) => {
-          const latestBounceMessageDate = activeBounce.bounceMessages?.[0].date;
+          const latestBounceMessageDate =
+            activeBounce.bounceMessages?.[0]?.date;
           if (
             !activeBounce.latestNotificationStarted ||
             !latestBounceMessageDate ||
