@@ -361,6 +361,31 @@ export class NotificationsController extends BaseController {
     }
   }
 
+  guaranteedBroadcastPushDispatchProcessing =
+    this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing;
+  async notificationMsgCB(data, err: any, e: Subscription) {
+    if (err) {
+      return this.updateBroadcastPushNotificationStatus(
+        data,
+        NotificationDispatchStatusField.failed,
+        {
+          subscriptionId: e.id,
+          userChannelId: e.userChannelId,
+          error: err,
+        },
+      );
+    } else if (
+      this.guaranteedBroadcastPushDispatchProcessing ||
+      this.handleBounce
+    ) {
+      return this.updateBroadcastPushNotificationStatus(
+        data,
+        NotificationDispatchStatusField.successful,
+        e.id,
+      );
+    }
+  }
+
   async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain =
       this.appConfig.email.inboundSmtpServer?.domain;
@@ -436,9 +461,6 @@ export class NotificationsController extends BaseController {
           this.appConfig.notification?.broadcastSubscriberChunkSize;
         const broadcastSubRequestBatchSize =
           this.appConfig.notification?.broadcastSubRequestBatchSize;
-        const guaranteedBroadcastPushDispatchProcessing =
-          this.appConfig.notification
-            ?.guaranteedBroadcastPushDispatchProcessing;
         const logSkippedBroadcastPushDispatches =
           this.appConfig.notification?.logSkippedBroadcastPushDispatches;
         let startIdx: undefined | number = this.req['NotifyBC.startIdx'];
@@ -465,28 +487,6 @@ export class NotificationsController extends BaseController {
             },
             this.req,
           );
-          const notificationMsgCB = async (err: any, e: Subscription) => {
-            if (err) {
-              return this.updateBroadcastPushNotificationStatus(
-                data,
-                NotificationDispatchStatusField.failed,
-                {
-                  subscriptionId: e.id,
-                  userChannelId: e.userChannelId,
-                  error: err,
-                },
-              );
-            } else if (
-              guaranteedBroadcastPushDispatchProcessing ||
-              this.handleBounce
-            ) {
-              return this.updateBroadcastPushNotificationStatus(
-                data,
-                NotificationDispatchStatusField.successful,
-                e.id,
-              );
-            }
-          };
           await Promise.all(
             subscribers.map(async (e) => {
               if (e.broadcastPushNotificationFilter && data.data) {
@@ -500,7 +500,7 @@ export class NotificationsController extends BaseController {
                 } catch (ex) {}
                 if (!match || match.length === 0) {
                   if (
-                    guaranteedBroadcastPushDispatchProcessing &&
+                    this.guaranteedBroadcastPushDispatchProcessing &&
                     logSkippedBroadcastPushDispatches
                   )
                     await this.updateBroadcastPushNotificationStatus(
@@ -524,7 +524,7 @@ export class NotificationsController extends BaseController {
                 } catch (ex) {}
                 if (!match || match.length === 0) {
                   if (
-                    guaranteedBroadcastPushDispatchProcessing &&
+                    this.guaranteedBroadcastPushDispatchProcessing &&
                     logSkippedBroadcastPushDispatches
                   )
                     await this.updateBroadcastPushNotificationStatus(
@@ -547,9 +547,9 @@ export class NotificationsController extends BaseController {
                         HttpStatus.INTERNAL_SERVER_ERROR,
                       );
                     await this.sendSMS(e.userChannelId, textBody, e);
-                    return await notificationMsgCB(null, e);
+                    return await this.notificationMsgCB(data, null, e);
                   } catch (ex) {
-                    return await notificationMsgCB(ex, e);
+                    return await this.notificationMsgCB(data, ex, e);
                   }
                   break;
                 default: {
@@ -609,9 +609,9 @@ export class NotificationsController extends BaseController {
                         HttpStatus.INTERNAL_SERVER_ERROR,
                       );
                     await this.sendEmail(mailOptions);
-                    return await notificationMsgCB(null, e);
+                    return await this.notificationMsgCB(data, null, e);
                   } catch (ex) {
-                    return await notificationMsgCB(ex, e);
+                    return await this.notificationMsgCB(data, ex, e);
                   }
                 }
               }
@@ -740,7 +740,7 @@ export class NotificationsController extends BaseController {
             // See issue #39
             let failedChunks: any[] = [];
             q.error((_err: any, task: any) => {
-              if (guaranteedBroadcastPushDispatchProcessing) {
+              if (this.guaranteedBroadcastPushDispatchProcessing) {
                 q.push(task);
               } else {
                 data.state = 'error';
