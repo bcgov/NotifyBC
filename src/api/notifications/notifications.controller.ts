@@ -298,49 +298,49 @@ export class NotificationsController extends BaseController {
     return this.sendPushNotification(notification);
   }
 
+  handleBounce = this.appConfig.email?.bounce?.enabled;
+  async updateBounces(
+    userChannelIds: string[] | string,
+    dataNotification: Notification,
+  ) {
+    if (!this.handleBounce) {
+      return;
+    }
+    let userChannelIdQry: any = userChannelIds;
+    if (userChannelIds instanceof Array) {
+      userChannelIdQry = {
+        $in: userChannelIds,
+      };
+    }
+    await this.bouncesService.updateAll(
+      {
+        latestNotificationStarted: dataNotification.updated,
+        latestNotificationEnded: new Date(),
+      },
+      {
+        state: 'active',
+        channel: dataNotification.channel,
+        userChannelId: userChannelIdQry,
+        $or: [
+          {
+            latestNotificationStarted: null,
+          },
+          {
+            latestNotificationStarted: {
+              $lt: dataNotification.updated,
+            },
+          },
+        ],
+      },
+      this.req,
+    );
+  }
+
   async sendPushNotification(data: Notification) {
     const inboundSmtpServerDomain =
       this.appConfig.email.inboundSmtpServer?.domain;
-    const handleBounce = this.appConfig.email?.bounce?.enabled;
     const handleListUnsubscribeByEmail =
       this.appConfig.email?.listUnsubscribeByEmail?.enabled;
-
-    const updateBounces = async (
-      userChannelIds: string[] | string,
-      dataNotification: Notification,
-    ) => {
-      if (!handleBounce) {
-        return;
-      }
-      let userChannelIdQry: any = userChannelIds;
-      if (userChannelIds instanceof Array) {
-        userChannelIdQry = {
-          $in: userChannelIds,
-        };
-      }
-      await this.bouncesService.updateAll(
-        {
-          latestNotificationStarted: dataNotification.updated,
-          latestNotificationEnded: new Date(),
-        },
-        {
-          state: 'active',
-          channel: dataNotification.channel,
-          userChannelId: userChannelIdQry,
-          $or: [
-            {
-              latestNotificationStarted: null,
-            },
-            {
-              latestNotificationStarted: {
-                $lt: dataNotification.updated,
-              },
-            },
-          ],
-        },
-        this.req,
-      );
-    };
 
     switch (data.isBroadcast) {
       case false: {
@@ -388,7 +388,7 @@ export class NotificationsController extends BaseController {
                 unsubscribe: listUnsub,
               },
             };
-            if (handleBounce && inboundSmtpServerDomain) {
+            if (this.handleBounce && inboundSmtpServerDomain) {
               const bounceEmail = this.mailMerge(
                 `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
                 sub,
@@ -401,7 +401,7 @@ export class NotificationsController extends BaseController {
               };
             }
             await this.sendEmail(mailOptions);
-            await updateBounces(data.userChannelId as string, data);
+            await this.updateBounces(data.userChannelId as string, data);
             return;
           }
         }
@@ -476,7 +476,7 @@ export class NotificationsController extends BaseController {
               );
             } else if (
               guaranteedBroadcastPushDispatchProcessing ||
-              handleBounce
+              this.handleBounce
             ) {
               return updateBroadcastPushNotificationStatus(
                 NotificationDispatchStatusField.successful,
@@ -585,7 +585,7 @@ export class NotificationsController extends BaseController {
                       unsubscribe: listUnsub,
                     },
                   };
-                  if (handleBounce && inboundSmtpServerDomain) {
+                  if (this.handleBounce && inboundSmtpServerDomain) {
                     const bounceEmail = this.mailMerge(
                       `bn-{subscription_id}-{unsubscription_code}@${inboundSmtpServerDomain}`,
                       e,
@@ -635,7 +635,7 @@ export class NotificationsController extends BaseController {
               (e: { userChannelId: any }) => e.userChannelId,
             );
             pullAll(userChannelIds, errUserChannelIds);
-            await updateBounces(userChannelIds, data);
+            await this.updateBounces(userChannelIds, data);
 
             if (!data.asyncBroadcastPushNotification) {
               return;
