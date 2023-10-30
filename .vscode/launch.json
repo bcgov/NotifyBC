@@ -73,12 +73,19 @@
       "envFile": "${workspaceFolder}/docs/.env"
     },
     {
-      "type": "node",
+      "name": "smtpServer",
       "request": "launch",
-      "name": "Client",
-      "cwd": "${workspaceFolder}/client",
-      "program": "${workspaceFolder}/client/node_modules/vite/bin/vite.js",
-      "args": ["--force"]
+      "type": "node",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "nest",
+      "args": [
+        "start",
+        "--debug",
+        "--watch",
+        "--entryFile",
+        "observers/smtp-server"
+      ],
+      "outputCapture": "std"
     }
   ],
   "compounds": [

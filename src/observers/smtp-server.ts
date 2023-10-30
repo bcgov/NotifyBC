@@ -1,6 +1,5 @@
 import { HttpException } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { Command } from 'commander';
 import { AnyObject } from 'mongoose';
 import { FilterDto } from 'src/api/common/dto/filter.dto';
 import { Subscription } from 'src/api/subscriptions/entities/subscription.entity';
@@ -9,148 +8,58 @@ import { AppConfigService } from 'src/config/app-config.service';
 
 let server: any;
 module.exports.mailParser = require('mailparser');
-module.exports.app = function (...argsArr: any[]) {
+module.exports.app = function (app) {
   return new Promise((resolve, reject) => {
-    let app, cb: Function | undefined;
-    if (argsArr.length > 0) {
-      if (argsArr[0] instanceof Object) {
-        app = argsArr[0];
-      }
-      if (argsArr[argsArr.length - 1] instanceof Function) {
-        cb = argsArr[argsArr.length - 1];
-      }
-    }
-
     if (server) {
       resolve(server);
-      return cb && process.nextTick(cb.bind(null, null, server));
     }
 
-    let urlPrefix = process.env.API_URL_PREFIX ?? 'http://localhost:3000/api';
-    let port = process.env.LISTENING_SMTP_PORT ?? '0';
-    let allowedSmtpDomains = process.env.ALLOWED_SMTP_DOMAINS?.split(',').map(
-      (e) => e.trim().toLowerCase(),
-    );
-    let bounceUnsubThreshold = parseInt(
-      process.env.BOUNCE_UNSUBSCRIBE_THRESHOLD ?? '5',
-    );
-    const smtpOptsString = process.env.SMTP_SERVER_OPTIONS;
-    let smtpOpts = (smtpOptsString && JSON.parse(smtpOptsString)) || {};
-    let handleBounce: any = process.env.SMTP_HANDLE_BOUNCE;
-    let bounceSubjectRegex =
-      process.env.BOUNCE_SUBJECT_REGEX &&
-      new RegExp(process.env.BOUNCE_SUBJECT_REGEX);
-    let bounceSmtpStatusCodeRegex =
-      process.env.BOUNCE_SMTP_STATUS_CODE_REGEX &&
-      new RegExp(process.env.BOUNCE_SMTP_ERROR_CODE_REGEX as string);
-    let bounceFailedRecipientRegex =
-      process.env.BOUNCE_FAILED_RECIPIENT_REGEX &&
-      new RegExp(process.env.BOUNCE_FAILED_RECIPIENT_REGEX);
+    let urlPrefix = 'http://localhost:3000/api';
+    const smtpSvr = app.email.inboundSmtpServer;
+    const internalHttpHost = app.internalHttpHost;
+    if (internalHttpHost) {
+      urlPrefix = internalHttpHost + app.restApiRoot;
+    }
 
-    if (app) {
-      const smtpSvr = app.email.inboundSmtpServer;
-      const internalHttpHost = app.internalHttpHost;
-      if (internalHttpHost) {
-        urlPrefix = internalHttpHost + app.restApiRoot;
-      }
-      smtpSvr.listeningSmtpPort && (port = smtpSvr.listeningSmtpPort);
-      smtpSvr.domain &&
-        (allowedSmtpDomains = smtpSvr.domain
-          .split(',')
-          .map((e: string) => e.trim().toLowerCase()));
-      smtpSvr.options && (smtpOpts = smtpSvr.options);
-      if (app.email?.bounce?.enabled !== undefined) {
-        handleBounce = app.email.bounce.enabled;
-      }
-      bounceUnsubThreshold = app.email.bounce.unsubThreshold;
-      if (
-        app.email.bounce.subjectRegex &&
-        app.email.bounce.subjectRegex.length > 0
-      ) {
-        bounceSubjectRegex = new RegExp(app.email.bounce.subjectRegex);
-      }
-      bounceSmtpStatusCodeRegex = new RegExp(
-        app.email.bounce.smtpStatusCodeRegex,
+    const port = smtpSvr.listeningSmtpPort ?? 0;
+
+    const allowedSmtpDomains = (smtpSvr.domain ?? '')
+      .split(',')
+      .map((e: string) => e.trim().toLowerCase());
+
+    const bounceUnsubThreshold = app.email.bounce.unsubThreshold;
+
+    let smtpOpts = smtpSvr.options ?? {};
+
+    const handleBounce: boolean = app.email?.bounce?.enabled;
+
+    let bounceSubjectRegex;
+    if (
+      app.email.bounce.subjectRegex &&
+      app.email.bounce.subjectRegex.length > 0
+    ) {
+      bounceSubjectRegex = new RegExp(app.email.bounce.subjectRegex);
+    }
+
+    const bounceSmtpStatusCodeRegex = new RegExp(
+      app.email.bounce.smtpStatusCodeRegex,
+    );
+
+    let bounceFailedRecipientRegex;
+    if (
+      app.email.bounce.failedRecipientRegex &&
+      app.email.bounce.failedRecipientRegex.length > 0
+    ) {
+      bounceFailedRecipientRegex = new RegExp(
+        app.email.bounce.failedRecipientRegex,
       );
-      if (
-        app.email.bounce.failedRecipientRegex &&
-        app.email.bounce.failedRecipientRegex.length > 0
-      ) {
-        bounceFailedRecipientRegex = new RegExp(
-          app.email.bounce.failedRecipientRegex,
-        );
-      }
     }
-    if (require.main === module) {
-      const program = new Command();
-      program
-        .name(`node ${process.argv[1]}`)
-        .showHelpAfterError()
-        .option(
-          '-a, --api-url-prefix <string>',
-          'NotifyBC api url prefix',
-          'http://localhost:3000/api',
-        )
-        .option(
-          '-d, --allowed-smtp-domains <strings...>',
-          'allowed recipient email domains; if missing all are allowed; repeat the option to create multiple entries.',
-        )
-        .option(
-          '-p, --listening-smtp-port <integer>',
-          'if missing a random free port is chosen. Proxy is required if port is not 25.',
-        )
-        .option('-b, --handle-bounce', 'enable bounce handling.')
-        .option(
-          '-B, --bounce-unsubscribe-threshold <integer>',
-          'bounce count threshold above which unsubscribe all.',
-        )
-        .option(
-          '-s, --bounce-subject-regex <string>',
-          'bounce email subject regex',
-        )
-        .option(
-          '-r, --bounce-smtp-status-code-regex <string>',
-          'bounce smtp status code regex',
-        )
-        .option(
-          '-R, --bounce-failed-recipient-regex <string>',
-          'bounce failed recipient regex',
-        )
-        .option(
-          '-o, --smtp-server-options <string>',
-          'stringified json smtp server options',
-        );
 
-      program.parse();
-      const opts = program.opts();
-      opts['apiUrlPrefix'] && (urlPrefix = opts['apiUrlPrefix']);
-      opts['listeningSmtpPort'] && (port = opts['listeningSmtpPort']);
-      opts['allowedSmtpDomains'] &&
-        (allowedSmtpDomains = opts['allowedSmtpDomains'].map((e: string) =>
-          e.toLowerCase(),
-        ));
-      opts['bounceUnsubscribeThreshold'] &&
-        (bounceUnsubThreshold = parseInt(opts['bounceUnsubscribeThreshold']));
-      opts['smtpServerOptions'] &&
-        (smtpOpts = JSON.parse(opts['smtpServerOptions']));
-      opts['handleBounce'] !== undefined &&
-        (handleBounce = opts['handleBounce']);
-      opts['bounceSubjectRegex'] &&
-        (bounceSubjectRegex = new RegExp(opts['bounceSubjectRegex']));
-      opts['bounceSmtpStatusCodeRegex'] &&
-        (bounceSmtpStatusCodeRegex = new RegExp(
-          opts['bounceSmtpStatusCodeRegex'],
-        ));
-      opts['bounceFailedRecipientRegex'] &&
-        (bounceFailedRecipientRegex = new RegExp(
-          opts['bounceFailedRecipientRegex'],
-        ));
-    }
     const SMTPServer = require('smtp-server').SMTPServer;
     const validEmailRegEx = /(un|bn)-(.+?)-(.*)@(.+)/;
-    const _ = require('lodash');
     const MaxMsgSize = 1000000;
-    smtpOpts = _.assign({}, smtpOpts, {
+    smtpOpts = {
+      ...smtpOpts,
       authOptional: true,
       disabledCommands: ['AUTH'],
       size: MaxMsgSize,
@@ -381,10 +290,10 @@ module.exports.app = function (...argsArr: any[]) {
           return callback(null);
         });
       },
-    });
+    };
     server = new SMTPServer(smtpOpts);
     server.on('error', () => {});
-    server.listen(parseInt(port), function (this: any) {
+    server.listen(port, function (this: any) {
       console.info(
         `smtp server started listening on port ${
           this.address().port
@@ -392,7 +301,6 @@ module.exports.app = function (...argsArr: any[]) {
       );
       allowedSmtpDomains &&
         console.info(`allowed-smtp-domains=${allowedSmtpDomains}`);
-      cb?.(null, server);
       resolve(server);
     });
   });
