@@ -7,15 +7,10 @@ import { Subscription } from 'src/api/subscriptions/entities/subscription.entity
 import { AppModule } from 'src/app.module';
 import { AppConfigService } from 'src/config/app-config.service';
 
-let server: any;
 module.exports.mailParser = require('mailparser');
 const logger = new Logger(path.parse(__filename).name);
 export function smtpServer(app) {
   return new Promise((resolve, reject) => {
-    if (server) {
-      resolve(server);
-    }
-
     let urlPrefix = 'http://localhost:3000/api';
     const smtpSvr = app.email.inboundSmtpServer;
     const internalHttpHost = app.internalHttpHost;
@@ -291,16 +286,16 @@ export function smtpServer(app) {
         });
       },
     };
-    server = new SMTPServer(smtpOpts);
+    const server = new SMTPServer(smtpOpts);
     server.on('error', () => {});
     server.listen(port, function (this: any) {
-      logger.verbose(
+      logger.log(
         `smtp server started listening on port ${
           this.address().port
         }  with:\napi-url-prefix=${urlPrefix}`,
       );
       allowedSmtpDomains &&
-        logger.verbose(`allowed-smtp-domains=${allowedSmtpDomains}`);
+        logger.log(`allowed-smtp-domains=${allowedSmtpDomains}`);
       resolve(server);
     });
   });
