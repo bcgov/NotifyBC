@@ -10,7 +10,7 @@ import { AppConfigService } from 'src/config/app-config.service';
 let server: any;
 module.exports.mailParser = require('mailparser');
 const logger = new Logger(path.parse(__filename).name);
-module.exports.app = function (app) {
+export function smtpServer(app) {
   return new Promise((resolve, reject) => {
     if (server) {
       resolve(server);
@@ -304,12 +304,12 @@ module.exports.app = function (app) {
       resolve(server);
     });
   });
-};
+}
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appConfig = app.get(AppConfigService).get();
-  module.exports.app(appConfig);
+  smtpServer(appConfig);
 }
 
 if (require.main === module) {
