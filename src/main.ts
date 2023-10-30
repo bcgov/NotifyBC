@@ -2,13 +2,14 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import path from 'path';
 import { FilterDto } from './api/common/dto/filter.dto';
 import { ErrorsInterceptor } from './api/common/errors.interceptor';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
 
 const packageJson = require('../package.json');
-const logger = new Logger('main');
+const logger = new Logger(path.parse(__filename).name);
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

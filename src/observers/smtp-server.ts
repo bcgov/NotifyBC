@@ -1,6 +1,7 @@
-import { HttpException } from '@nestjs/common';
+import { HttpException, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AnyObject } from 'mongoose';
+import path from 'path';
 import { FilterDto } from 'src/api/common/dto/filter.dto';
 import { Subscription } from 'src/api/subscriptions/entities/subscription.entity';
 import { AppModule } from 'src/app.module';
@@ -8,6 +9,7 @@ import { AppConfigService } from 'src/config/app-config.service';
 
 let server: any;
 module.exports.mailParser = require('mailparser');
+const logger = new Logger(path.parse(__filename).name);
 module.exports.app = function (app) {
   return new Promise((resolve, reject) => {
     if (server) {
@@ -28,8 +30,6 @@ module.exports.app = function (app) {
       .map((e: string) => e.trim().toLowerCase());
 
     const bounceUnsubThreshold = app.email.bounce.unsubThreshold;
-
-    let smtpOpts = smtpSvr.options ?? {};
 
     const handleBounce: boolean = app.email?.bounce?.enabled;
 
@@ -58,8 +58,8 @@ module.exports.app = function (app) {
     const SMTPServer = require('smtp-server').SMTPServer;
     const validEmailRegEx = /(un|bn)-(.+?)-(.*)@(.+)/;
     const MaxMsgSize = 1000000;
-    smtpOpts = {
-      ...smtpOpts,
+    const smtpOpts = {
+      ...smtpSvr.options,
       authOptional: true,
       disabledCommands: ['AUTH'],
       size: MaxMsgSize,
@@ -117,7 +117,7 @@ module.exports.app = function (app) {
                 try {
                   parsed = await exports.mailParser.simpleParser(msg);
                 } catch (err) {
-                  console.error(err);
+                  logger.error(err);
                   const error: any = new Error('parsing error');
                   error.responseCode = 451;
                   return callback(error);
@@ -128,7 +128,7 @@ module.exports.app = function (app) {
                   bounceSubjectRegex &&
                   !parsed.subject?.match(bounceSubjectRegex)
                 ) {
-                  console.info(`subject doesn't match filter`);
+                  logger.verbose(`subject doesn't match filter`);
                   incrementBounceCnt = false;
                 }
                 let smtpBody = parsed.html || parsed.text;
@@ -151,7 +151,7 @@ module.exports.app = function (app) {
                   incrementBounceCnt &&
                   !smtpBody?.match(bounceSmtpStatusCodeRegex)
                 ) {
-                  console.info(`smtp status code doesn't match filter`);
+                  logger.verbose(`smtp status code doesn't match filter`);
                   incrementBounceCnt = false;
                 }
                 let bouncedUserChannelId;
@@ -184,7 +184,7 @@ module.exports.app = function (app) {
                   );
                   body = await res.json();
                 } catch (err) {
-                  console.error(err);
+                  logger.error(err);
                   const error: any = new Error('processing error');
                   error.responseCode = 451;
                   return callback(error);
@@ -198,7 +198,7 @@ module.exports.app = function (app) {
                   bouncedUserChannelId &&
                   userChannelId !== bouncedUserChannelId
                 ) {
-                  console.info(
+                  logger.verbose(
                     `userChannelId ${userChannelId} mismatches bouncedUserChannelId ${bouncedUserChannelId}`,
                   );
                   incrementBounceCnt = false;
@@ -218,7 +218,7 @@ module.exports.app = function (app) {
                   );
                   body = await res.json();
                 } catch (err) {
-                  console.error(err);
+                  logger.error(err);
                   const error: any = new Error('processing error');
                   error.responseCode = 451;
                   return callback(error);
@@ -294,13 +294,13 @@ module.exports.app = function (app) {
     server = new SMTPServer(smtpOpts);
     server.on('error', () => {});
     server.listen(port, function (this: any) {
-      console.info(
+      logger.verbose(
         `smtp server started listening on port ${
           this.address().port
         }  with:\napi-url-prefix=${urlPrefix}`,
       );
       allowedSmtpDomains &&
-        console.info(`allowed-smtp-domains=${allowedSmtpDomains}`);
+        logger.verbose(`allowed-smtp-domains=${allowedSmtpDomains}`);
       resolve(server);
     });
   });
