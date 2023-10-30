@@ -1,21 +1,11 @@
-// Copyright 2016-present Province of British Columbia
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// file ported
-import {AnyObject, Filter} from '@loopback/repository';
-import {HttpErrors} from '@loopback/rest';
-import {Command} from 'commander';
+import { HttpException } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { Command } from 'commander';
+import { AnyObject } from 'mongoose';
+import { FilterDto } from 'src/api/common/dto/filter.dto';
+import { Subscription } from 'src/api/subscriptions/entities/subscription.entity';
+import { AppModule } from 'src/app.module';
+import { AppConfigService } from 'src/config/app-config.service';
 
 let server: any;
 module.exports.mailParser = require('mailparser');
@@ -39,7 +29,7 @@ module.exports.app = function (...argsArr: any[]) {
     let urlPrefix = process.env.API_URL_PREFIX ?? 'http://localhost:3000/api';
     let port = process.env.LISTENING_SMTP_PORT ?? '0';
     let allowedSmtpDomains = process.env.ALLOWED_SMTP_DOMAINS?.split(',').map(
-      e => e.trim().toLowerCase(),
+      (e) => e.trim().toLowerCase(),
     );
     let bounceUnsubThreshold = parseInt(
       process.env.BOUNCE_UNSUBSCRIBE_THRESHOLD ?? '5',
@@ -164,7 +154,7 @@ module.exports.app = function (...argsArr: any[]) {
       authOptional: true,
       disabledCommands: ['AUTH'],
       size: MaxMsgSize,
-      onRcptTo(address: {address: string}, session: any, callback: Function) {
+      onRcptTo(address: { address: string }, session: any, callback: Function) {
         try {
           const match = address.address.match(validEmailRegEx);
           if (match) {
@@ -235,7 +225,7 @@ module.exports.app = function (...argsArr: any[]) {
                 let smtpBody = parsed.html || parsed.text;
                 if (parsed.attachments && parsed.attachments.length > 0) {
                   const deliveryStatusAttachment = parsed.attachments.find(
-                    (ele: {contentType: string}) => {
+                    (ele: { contentType: string }) => {
                       return (
                         ele.contentType &&
                         ele.contentType.toLowerCase() ===
@@ -268,7 +258,7 @@ module.exports.app = function (...argsArr: any[]) {
                 if (xfr) {
                   bouncedUserChannelId = xfr;
                 }
-                let filter: Filter = {
+                let filter: FilterDto<Subscription> = {
                   where: {
                     id: id,
                     channel: 'email',
@@ -375,7 +365,7 @@ module.exports.app = function (...argsArr: any[]) {
                     },
                   );
                   if (res.status >= 400 || res.status < 200) {
-                    throw HttpErrors(res.status);
+                    throw new HttpException(res.statusText, res.status);
                   }
                   await fetch(urlPrefix + '/bounces/' + bncId, {
                     method: 'PATCH',
@@ -407,6 +397,13 @@ module.exports.app = function (...argsArr: any[]) {
     });
   });
 };
+
+async function bootstrap() {
+  const app = await NestFactory.createApplicationContext(AppModule);
+  const appConfig = app.get(AppConfigService).get();
+  module.exports.app(appConfig);
+}
+
 if (require.main === module) {
-  module.exports.app();
+  bootstrap();
 }
