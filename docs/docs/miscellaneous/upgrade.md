@@ -326,6 +326,7 @@ v5 introduced following backward incompatible changes
 6. In MongoDB administrator collection, email has changed from case-sensitively unique to case-insensitively unique. Make sure administrator emails differ not just by case.
 7. When a subscription is created by anonymous user, the _data_ field is preserved. In earlier versions this field is deleted.
 8. Dynamic tokens in subscription confirmation request message and duplicated subscription message are not replaced with subscription data, for example {subscription::...} tokens are left unchanged. Update the template of the two messages if dynamic tokens in them depends on subscription data.
+9. [Inbound SMTP Server](../config-email/#inbound-smtp-server) no longer accepts command line arguments or environment variables as inputs. All inputs have to be defined in config files shown in the link.
 
 After above changes are addressed, upgrading to v5 is as simple as
 
