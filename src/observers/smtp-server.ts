@@ -1,4 +1,4 @@
-import { HttpException, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AnyObject } from 'mongoose';
 import path from 'path';
@@ -88,7 +88,7 @@ export function smtpServer(app) {
             const unsubscriptionCode = match[3];
             switch (type) {
               case 'un':
-                await fetch(
+                const res = await fetch(
                   urlPrefix +
                     '/subscriptions/' +
                     id +
@@ -96,13 +96,8 @@ export function smtpServer(app) {
                     encodeURIComponent(unsubscriptionCode) +
                     '&userChannelId=' +
                     encodeURIComponent(session.envelope.mailFrom.address),
-                  {
-                    headers: {
-                      // eslint-disable-next-line @typescript-eslint/naming-convention
-                      is_anonymous: 'true',
-                    },
-                  },
                 );
+                if (res.status >= 400) return callback(res);
                 break;
               case 'bn': {
                 if (!handleBounce) {
@@ -202,7 +197,7 @@ export function smtpServer(app) {
                   where: {
                     channel: 'email',
                     state: 'active',
-                    userChannelId: userChannelId,
+                    userChannelId,
                   },
                 };
                 try {
@@ -230,16 +225,23 @@ export function smtpServer(app) {
                 });
                 // upsert bounce
                 if (bncId) {
-                  await fetch(urlPrefix + '/bounces/' + bncId, {
+                  const res = await fetch(urlPrefix + '/bounces/' + bncId, {
                     method: 'PATCH',
                     body: JSON.stringify({
                       hardBounceCount: bncCnt,
                       bounceMessages: bounceMessages,
                     }),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
                   });
+                  if (res.status >= 400) return callback(res);
                 } else {
                   const res = await fetch(urlPrefix + '/bounces', {
                     method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify({
                       channel: 'email',
                       userChannelId: userChannelId,
@@ -247,11 +249,12 @@ export function smtpServer(app) {
                       bounceMessages: bounceMessages,
                     }),
                   });
+                  if (res.status >= 400) return callback(res);
                   bncId = (await res.json()).id;
                 }
                 // unsub user
                 if (bncCnt > bounceUnsubThreshold) {
-                  const res = await fetch(
+                  let res = await fetch(
                     urlPrefix +
                       '/subscriptions/' +
                       id +
@@ -261,22 +264,20 @@ export function smtpServer(app) {
                       encodeURIComponent(userChannelId) +
                       '&additionalServices=_all',
                     {
-                      headers: {
-                        // eslint-disable-next-line @typescript-eslint/naming-convention
-                        is_anonymous: 'true',
-                      },
                       redirect: 'error',
                     },
                   );
-                  if (res.status >= 400 || res.status < 200) {
-                    throw new HttpException(res.statusText, res.status);
-                  }
-                  await fetch(urlPrefix + '/bounces/' + bncId, {
+                  if (res.status >= 400) return callback(res);
+                  res = await fetch(urlPrefix + '/bounces/' + bncId, {
                     method: 'PATCH',
                     body: JSON.stringify({
                       state: 'deleted',
                     }),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
                   });
+                  if (res.status >= 400) return callback(res);
                 }
                 break;
               }
