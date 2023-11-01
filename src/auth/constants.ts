@@ -13,6 +13,7 @@ export enum AuthnStrategy {
   Ip = 'Ip',
   AccessToken = 'accessToken',
   SiteMinder = 'siteMinder',
+  OIDC = 'oidc',
 }
 
 export const ROLES_KEY = 'roles';

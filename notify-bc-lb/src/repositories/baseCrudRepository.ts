@@ -68,6 +68,7 @@ export class BaseCrudRepository<
           return true;
         }
       } catch (ex) {}
+      // start: ported
       if (
         this.user &&
         this.user.authnStrategy === 'oidc' &&
@@ -76,6 +77,7 @@ export class BaseCrudRepository<
       ) {
         return this.appConfig.oidc.isAdmin(this.user);
       }
+      // end: ported
     }
 
     if (this.user && this.user.authnStrategy === 'clientCertificate') {
@@ -95,6 +97,7 @@ export class BaseCrudRepository<
   }
 
   async getCurrentUser(httpCtx: any, siteMinderOnly = false) {
+    // start: ported
     if (this.user && this.user.authnStrategy === 'oidc' && !siteMinderOnly) {
       if (this.appConfig.oidc.isAuthorizedUser) {
         if (
@@ -107,6 +110,7 @@ export class BaseCrudRepository<
         return this.user[securityId];
       }
     }
+    // end: ported
     // internal requests
     if (!httpCtx) return null;
     // start: ported

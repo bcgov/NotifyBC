@@ -9,12 +9,19 @@ import { RssModule } from 'src/rss/rss.module';
 import { CronTasksService } from './cron-tasks.service';
 import { CronService } from './cron.service';
 import { IndexDBSchemaService } from './index-dbschema.service';
+import { OidcDiscoveryService } from './oidc-discovery.service';
 import { RsaService } from './rsa.service';
 import { SmtpService } from './smtp.service';
-import { OidcDiscoveryService } from './oidc-discovery.service';
 
 @Module({
-  providers: [RsaService, IndexDBSchemaService, CronTasksService, CronService, SmtpService, OidcDiscoveryService],
+  providers: [
+    RsaService,
+    IndexDBSchemaService,
+    CronTasksService,
+    CronService,
+    SmtpService,
+    OidcDiscoveryService,
+  ],
   imports: [
     ConfigurationsModule,
     NotificationsModule,
@@ -24,5 +31,6 @@ import { OidcDiscoveryService } from './oidc-discovery.service';
     RssModule,
     ConfigModule,
   ],
+  exports: [OidcDiscoveryService],
 })
 export class ObserversModule {}
