@@ -49,6 +49,8 @@
     "ioredis": "^5.3.2",
     "ip-range-check": "^0.2.0",
     "jmespath": "f-w/jmespath.js#semver:^1.0",
+    "js-base64": "^3.7.5",
+    "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mailparser": "^3.6.5",
     "mongodb-memory-server": "^8.15.1",
