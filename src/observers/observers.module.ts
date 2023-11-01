@@ -11,9 +11,10 @@ import { CronService } from './cron.service';
 import { IndexDBSchemaService } from './index-dbschema.service';
 import { RsaService } from './rsa.service';
 import { SmtpService } from './smtp.service';
+import { OidcDiscoveryService } from './oidc-discovery.service';
 
 @Module({
-  providers: [RsaService, IndexDBSchemaService, CronTasksService, CronService, SmtpService],
+  providers: [RsaService, IndexDBSchemaService, CronTasksService, CronService, SmtpService, OidcDiscoveryService],
   imports: [
     ConfigurationsModule,
     NotificationsModule,
