@@ -61,6 +61,7 @@ export class ExpressServer {
 
   public async start() {
     await this.lbApp.start();
+    // start: ported
     const port = this.lbApp.restServer.config.port ?? 3000;
     const host = this.lbApp.restServer.config.host ?? '0.0.0.0';
     const proto = this.lbApp.options.tls?.enabled ? 'https' : 'http';
@@ -78,6 +79,7 @@ export class ExpressServer {
         return server.listen(...args);
       };
     }
+    // end: ported
     this.server = this.app.listen(port, host);
     await once(this.server, 'listening');
     this.url = `${proto}://${host}:${port}`;
