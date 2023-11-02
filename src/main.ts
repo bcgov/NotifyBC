@@ -1,18 +1,28 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import {
+  ExpressAdapter,
+  NestExpressApplication,
+} from '@nestjs/platform-express';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import express from 'express';
+import https from 'https';
 import path from 'path';
 import { FilterDto } from './api/common/dto/filter.dto';
 import { ErrorsInterceptor } from './api/common/errors.interceptor';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
+import { ShutdownService } from './observers/shutdown.service';
 
 const packageJson = require('../package.json');
 const logger = new Logger(path.parse(__filename).name);
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const expressServer = express();
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    new ExpressAdapter(expressServer),
+  );
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
   const appConfig = app.get(AppConfigService).get();
@@ -55,9 +65,34 @@ async function bootstrap() {
   );
   appConfig.trustedReverseProxyIps &&
     app.set('trust proxy', appConfig.trustedReverseProxyIps);
-  await app.listen(appConfig.port, appConfig.host);
+
+  // Starts listening for shutdown hooks only in test env
+  if (process.env.NODE_ENV === 'test') {
+    app.enableShutdownHooks();
+  }
+
+  await app.init();
+  const port = appConfig.port ?? 3000;
+  const host = appConfig.host ?? '0.0.0.0';
+  const proto = appConfig.tls?.enabled ? 'https' : 'http';
+  if (appConfig.tls?.enabled) {
+    let opts = { ...appConfig.tls };
+    if (appConfig.tls?.clientCertificateEnabled) {
+      opts = { ...opts, requestCert: true, rejectUnauthorized: false };
+    }
+    await new Promise((resolve) => {
+      const shutdownService = app.get(ShutdownService);
+      shutdownService.addHttpServer(
+        https.createServer(opts, expressServer).listen(port, host, () => {
+          resolve(undefined);
+        }),
+      );
+    });
+  } else {
+    await app.listen(port, host);
+  }
   Logger.log(
-    `Server is running at http://${appConfig.host}:${appConfig.port}${appConfig.restApiRoot}`,
+    `Server is running at ${proto}://${appConfig.host}:${appConfig.port}${appConfig.restApiRoot}`,
     'bootstrap',
   );
 }
