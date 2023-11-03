@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {UserService} from '@loopback/authentication';
 import {injectable} from '@loopback/core';
 import {repository} from '@loopback/repository';
@@ -35,7 +36,6 @@ export class AdminUserService
     public userRepository: AdministratorRepository,
   ) {}
 
-  // start: ported
   async verifyCredentials(credentials: Credentials): Promise<Administrator> {
     const invalidCredentialsError = 'Invalid email or password.';
 
@@ -67,5 +67,4 @@ export class AdminUserService
       email: user.email,
     };
   }
-  // end: ported
 }
