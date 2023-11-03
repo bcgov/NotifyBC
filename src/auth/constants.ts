@@ -14,6 +14,7 @@ export enum AuthnStrategy {
   AccessToken = 'accessToken',
   SiteMinder = 'siteMinder',
   OIDC = 'oidc',
+  ClientCertificate = 'clientCertificate',
 }
 
 export const ROLES_KEY = 'roles';
