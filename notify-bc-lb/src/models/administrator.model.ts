@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {hasMany, hasOne, model} from '@loopback/repository';
 import {AccessToken} from './access-token.model';
 import {UserCredential} from './user-credential.model';

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {TokenService} from '@loopback/authentication';
 import {inject, injectable, service} from '@loopback/core';
 import {AnyObject, repository} from '@loopback/repository';
@@ -20,7 +21,6 @@ import {UserProfile, securityId} from '@loopback/security';
 import {AccessToken} from '../models';
 import {AccessTokenRepository, AdministratorRepository} from '../repositories';
 import {AdminUserService} from './admin-user.service';
-// file ported
 @injectable()
 export class AccessTokenService implements TokenService {
   constructor(

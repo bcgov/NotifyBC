@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {model, property} from '@loopback/repository';
 import {Base} from './base.model';
 import {BounceMessageItem} from './bounce-message-item.model';
