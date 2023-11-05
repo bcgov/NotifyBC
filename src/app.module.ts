@@ -6,7 +6,6 @@ import { BaseController } from './api/common/base.controller';
 import { ConfigurationsModule } from './api/configurations/configurations.module';
 import { NotificationsModule } from './api/notifications/notifications.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
@@ -44,6 +43,6 @@ import { SwaggerService } from './swagger.service';
     RssModule,
   ],
   controllers: [BaseController],
-  providers: [AppService, SwaggerService],
+  providers: [SwaggerService],
 })
 export class AppModule {}
