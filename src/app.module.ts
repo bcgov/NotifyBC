@@ -6,14 +6,13 @@ import { BaseController } from './api/common/base.controller';
 import { ConfigurationsModule } from './api/configurations/configurations.module';
 import { NotificationsModule } from './api/notifications/notifications.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
+import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
 import { ObserversModule } from './observers/observers.module';
+import { SwaggerService } from './observers/swagger.service';
 import { RssModule } from './rss/rss.module';
-import { SwaggerService } from './swagger.service';
-import { AppService } from './app.service';
-import { WebAdminConsoleService } from './web-admin-console.service';
 
 @Module({
   imports: [
@@ -45,6 +44,6 @@ import { WebAdminConsoleService } from './web-admin-console.service';
     RssModule,
   ],
   controllers: [BaseController],
-  providers: [SwaggerService, AppService, WebAdminConsoleService],
+  providers: [SwaggerService, AppService],
 })
 export class AppModule {}

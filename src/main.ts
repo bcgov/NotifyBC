@@ -24,11 +24,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
   const appConfig = app.get(AppConfigService).get();
-
-  // app.setGlobalPrefix has to be called before SwaggerModule.setup
-  // otherwise swagger doesn't honor GlobalPrefix
   app.setGlobalPrefix(appConfig.restApiRoot);
-
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
