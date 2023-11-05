@@ -9,10 +9,11 @@ import { RssModule } from 'src/rss/rss.module';
 import { CronTasksService } from './cron-tasks.service';
 import { CronService } from './cron.service';
 import { IndexDBSchemaService } from './index-dbschema.service';
-import { OidcDiscoveryService } from './oidc-discovery.service';
 import { RsaService } from './rsa.service';
 import { ShutdownService } from './shutdown.service';
 import { SmtpService } from './smtp.service';
+import { SwaggerService } from './swagger.service';
+import { WebAdminConsoleService } from './web-admin-console.service';
 
 @Module({
   providers: [
@@ -21,8 +22,9 @@ import { SmtpService } from './smtp.service';
     CronTasksService,
     CronService,
     SmtpService,
-    OidcDiscoveryService,
     ShutdownService,
+    WebAdminConsoleService,
+    SwaggerService,
   ],
   imports: [
     ConfigurationsModule,
@@ -33,6 +35,5 @@ import { SmtpService } from './smtp.service';
     RssModule,
     ConfigModule,
   ],
-  exports: [OidcDiscoveryService],
 })
 export class ObserversModule {}

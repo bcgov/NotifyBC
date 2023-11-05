@@ -2,9 +2,9 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { FilterDto } from 'src/api/common/dto/filter.dto';
 import { AppConfigService } from 'src/config/app-config.service';
-import { AppService } from './app.service';
-import { OidcDiscoveryService } from './observers/oidc-discovery.service';
-const packageJson = require('../package.json');
+import { AppService } from '../app.service';
+import { OidcDiscoveryService } from '../config/oidc-discovery.service';
+const packageJson = require('../../package.json');
 
 @Injectable()
 export class SwaggerService implements OnModuleInit {

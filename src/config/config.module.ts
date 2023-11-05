@@ -1,9 +1,10 @@
 import { Global, Module } from '@nestjs/common';
+import { AppConfigService } from './app-config.service';
 import { configFactory } from './config.factory';
 import { ConfigType } from './constants';
-import { AppConfigService } from './app-config.service';
-import { MiddlewareConfigService } from './middleware-config.service';
 import { DbConfigService } from './db-config.service';
+import { MiddlewareConfigService } from './middleware-config.service';
+import { OidcDiscoveryService } from './oidc-discovery.service';
 
 @Global()
 @Module({
@@ -14,7 +15,13 @@ import { DbConfigService } from './db-config.service';
     AppConfigService,
     MiddlewareConfigService,
     DbConfigService,
+    OidcDiscoveryService,
   ],
-  exports: [AppConfigService, MiddlewareConfigService, DbConfigService],
+  exports: [
+    AppConfigService,
+    MiddlewareConfigService,
+    DbConfigService,
+    OidcDiscoveryService,
+  ],
 })
 export class ConfigModule {}

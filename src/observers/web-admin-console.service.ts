@@ -1,8 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import express, { Response } from 'express';
 import { join } from 'path';
-import { AppService } from './app.service';
-import { AppConfigService } from './config/app-config.service';
+import { AppService } from '../app.service';
+import { AppConfigService } from '../config/app-config.service';
 
 @Injectable()
 export class WebAdminConsoleService implements OnModuleInit {
@@ -13,7 +13,7 @@ export class WebAdminConsoleService implements OnModuleInit {
   onModuleInit() {
     AppService.app.engine('html', require('ejs').renderFile);
     AppService.app.setViewEngine('html');
-    const viewRelDir = '../client/dist';
+    const viewRelDir = '../../client/dist';
     AppService.app.set('views', join(__dirname, viewRelDir));
 
     const indexRenderer = (_request: Request, response: Response) => {

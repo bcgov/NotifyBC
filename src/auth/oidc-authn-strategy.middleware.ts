@@ -8,7 +8,7 @@ import { Request, Response } from 'express';
 import { decode } from 'js-base64';
 import jwt from 'jsonwebtoken';
 import { AppConfigService } from 'src/config/app-config.service';
-import { OidcDiscoveryService } from 'src/observers/oidc-discovery.service';
+import { OidcDiscoveryService } from 'src/config/oidc-discovery.service';
 import { AuthnStrategy, Role } from './constants';
 
 @Injectable()
