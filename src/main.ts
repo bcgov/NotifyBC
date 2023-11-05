@@ -9,10 +9,9 @@ import https from 'https';
 import path from 'path';
 import { ErrorsInterceptor } from './api/common/errors.interceptor';
 import { AppModule } from './app.module';
+import { AppService } from './app.service';
 import { AppConfigService } from './config/app-config.service';
 import { ShutdownService } from './observers/shutdown.service';
-import { SwaggerService } from './swagger.service';
-import webAdminConsole from './web-admin-console';
 const logger = new Logger(path.parse(__filename).name);
 
 async function bootstrap() {
@@ -21,7 +20,7 @@ async function bootstrap() {
     AppModule,
     new ExpressAdapter(expressServer),
   );
-  SwaggerService.app = app;
+  AppService.app = app;
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
   const appConfig = app.get(AppConfigService).get();
@@ -43,7 +42,6 @@ async function bootstrap() {
   if (process.env.NODE_ENV === 'test') {
     app.enableShutdownHooks();
   }
-  webAdminConsole(app, appConfig);
   await app.init();
   const port = appConfig.port ?? 3000;
   const host = appConfig.host ?? '0.0.0.0';
