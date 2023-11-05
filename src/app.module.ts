@@ -12,6 +12,8 @@ import { DbConfigService } from './config/db-config.service';
 import { ObserversModule } from './observers/observers.module';
 import { RssModule } from './rss/rss.module';
 import { SwaggerService } from './swagger.service';
+import { AppService } from './app.service';
+import { WebAdminConsoleService } from './web-admin-console.service';
 
 @Module({
   imports: [
@@ -43,6 +45,6 @@ import { SwaggerService } from './swagger.service';
     RssModule,
   ],
   controllers: [BaseController],
-  providers: [SwaggerService],
+  providers: [SwaggerService, AppService, WebAdminConsoleService],
 })
 export class AppModule {}

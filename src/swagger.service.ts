@@ -1,15 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { FilterDto } from 'src/api/common/dto/filter.dto';
 import { AppConfigService } from 'src/config/app-config.service';
+import { AppService } from './app.service';
 import { OidcDiscoveryService } from './observers/oidc-discovery.service';
 const packageJson = require('../package.json');
 
 @Injectable()
 export class SwaggerService implements OnModuleInit {
   readonly appConfig;
-  static app: NestExpressApplication;
   constructor(
     private readonly appConfigService: AppConfigService,
     private readonly oidcDiscoveryService: OidcDiscoveryService,
@@ -47,13 +46,13 @@ export class SwaggerService implements OnModuleInit {
     }
     const swaggerConfig = documentBuilder.build();
     const document = SwaggerModule.createDocument(
-      SwaggerService.app,
+      AppService.app,
       swaggerConfig,
       {
         extraModels: [FilterDto],
       },
     );
-    SwaggerModule.setup('explorer', SwaggerService.app, document, {
+    SwaggerModule.setup('explorer', AppService.app, document, {
       useGlobalPrefix: true,
       customJs: '/iframeResizer.contentWindow.min.js',
       patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
