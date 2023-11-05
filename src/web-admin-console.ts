@@ -34,6 +34,11 @@ export default (app: NestExpressApplication, appConfig) => {
   app.use(/^\/(index\.html)?$/, indexRenderer);
   // Serve static files in the client folder
   app.use(express.static(join(__dirname, viewRelDir)));
+  app.use(
+    express.static(
+      join(__dirname, viewRelDir, '../node_modules/iframe-resizer/js'),
+    ),
+  );
 
   // fallback to index for all non restApiRoot requests
   app.use(new RegExp(`^(?!${appConfig.restApiRoot}\/)`), indexRenderer);

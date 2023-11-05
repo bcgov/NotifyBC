@@ -41,6 +41,7 @@ async function bootstrap() {
     extraModels: [FilterDto],
   });
   SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document, {
+    customJs: '/iframeResizer.contentWindow.min.js',
     patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
       let colonPort = ':' + req.connection.localPort;
       if (req.connection.localPort === 80 && req.protocol === 'http')
