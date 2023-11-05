@@ -11,8 +11,8 @@ import { CronService } from './cron.service';
 import { IndexDBSchemaService } from './index-dbschema.service';
 import { OidcDiscoveryService } from './oidc-discovery.service';
 import { RsaService } from './rsa.service';
-import { SmtpService } from './smtp.service';
 import { ShutdownService } from './shutdown.service';
+import { SmtpService } from './smtp.service';
 
 @Module({
   providers: [

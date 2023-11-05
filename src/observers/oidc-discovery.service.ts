@@ -1,10 +1,10 @@
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { AnyObject } from 'mongoose';
 import { AppConfigService } from 'src/config/app-config.service';
 
 @Injectable()
-export class OidcDiscoveryService implements OnApplicationBootstrap {
-  static authorizationUrl: string;
+export class OidcDiscoveryService implements OnModuleInit {
+  authorizationUrl: string;
   static certs: AnyObject;
   private retryCount = 0;
   readonly appConfig;
@@ -12,8 +12,7 @@ export class OidcDiscoveryService implements OnApplicationBootstrap {
   constructor(private readonly appConfigService: AppConfigService) {
     this.appConfig = appConfigService.get();
   }
-
-  async onApplicationBootstrap() {
+  async onModuleInit() {
     if (!this.appConfig.oidc?.discoveryUrl) {
       return;
     }
@@ -22,7 +21,7 @@ export class OidcDiscoveryService implements OnApplicationBootstrap {
       if (!res) {
         throw new Error('no discovery data');
       }
-      OidcDiscoveryService.authorizationUrl = res.authorization_endpoint;
+      this.authorizationUrl = res.authorization_endpoint;
       res = await (await fetch(res.jwks_uri)).json();
       if (!res) {
         throw new Error('no cert data');
@@ -35,7 +34,7 @@ export class OidcDiscoveryService implements OnApplicationBootstrap {
       this.logger.verbose('retry in one minute');
       setTimeout(() => {
         // eslint-disable-next-line no-void
-        void this.onApplicationBootstrap();
+        void this.onModuleInit();
       }, 60000);
     }
   }
