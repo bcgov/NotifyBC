@@ -18,7 +18,7 @@ export class SwaggerService implements OnModuleInit {
   }
 
   onModuleInit() {
-    const swaggerConfig = new DocumentBuilder()
+    const documentBuilder = new DocumentBuilder()
       .setTitle('NotifyBC')
       .setExternalDoc(
         './openapi.json',
@@ -31,7 +31,21 @@ export class SwaggerService implements OnModuleInit {
         in: 'header',
         name: 'Authorization',
       })
-      .build();
+      .addSecurityRequirements('accessToken');
+    if (this.oidcDiscoveryService.authorizationUrl) {
+      documentBuilder
+        .addSecurity('oidc', {
+          type: 'oauth2',
+          flows: {
+            implicit: {
+              authorizationUrl: this.oidcDiscoveryService.authorizationUrl,
+              scopes: {},
+            },
+          },
+        })
+        .addSecurityRequirements('oidc');
+    }
+    const swaggerConfig = documentBuilder.build();
     const document = SwaggerModule.createDocument(
       SwaggerService.app,
       swaggerConfig,
@@ -39,31 +53,23 @@ export class SwaggerService implements OnModuleInit {
         extraModels: [FilterDto],
       },
     );
-    SwaggerModule.setup(
-      `${this.appConfig.restApiRoot}/explorer`,
-      SwaggerService.app,
-      document,
-      {
-        customJs: '/iframeResizer.contentWindow.min.js',
-        patchDocumentOnRequest(
-          req: any,
-          _res: unknown,
-          document: OpenAPIObject,
-        ) {
-          let colonPort = ':' + req.connection.localPort;
-          if (req.connection.localPort === 80 && req.protocol === 'http')
-            colonPort = '';
-          if (req.connection.localPort === 443 && req.protocol === 'https')
-            colonPort = '';
-          const url = `${req.protocol}://${req.hostname}${colonPort}`;
-          if (!document.servers.find((v: any) => v.url === url)) {
-            document.servers.push({
-              url,
-            });
-          }
-          return document;
-        },
+    SwaggerModule.setup('explorer', SwaggerService.app, document, {
+      useGlobalPrefix: true,
+      customJs: '/iframeResizer.contentWindow.min.js',
+      patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
+        let colonPort = ':' + req.connection.localPort;
+        if (req.connection.localPort === 80 && req.protocol === 'http')
+          colonPort = '';
+        if (req.connection.localPort === 443 && req.protocol === 'https')
+          colonPort = '';
+        const url = `${req.protocol}://${req.hostname}${colonPort}`;
+        if (!document.servers.find((v: any) => v.url === url)) {
+          document.servers.push({
+            url,
+          });
+        }
+        return document;
       },
-    );
+    });
   }
 }
