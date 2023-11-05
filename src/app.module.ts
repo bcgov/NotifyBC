@@ -12,6 +12,7 @@ import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
 import { ObserversModule } from './observers/observers.module';
 import { RssModule } from './rss/rss.module';
+import { SwaggerService } from './swagger.service';
 
 @Module({
   imports: [
@@ -43,6 +44,6 @@ import { RssModule } from './rss/rss.module';
     RssModule,
   ],
   controllers: [BaseController],
-  providers: [AppService],
+  providers: [AppService, SwaggerService],
 })
 export class AppModule {}

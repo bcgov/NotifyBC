@@ -4,17 +4,15 @@ import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
-import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import express from 'express';
 import https from 'https';
 import path from 'path';
-import { FilterDto } from './api/common/dto/filter.dto';
 import { ErrorsInterceptor } from './api/common/errors.interceptor';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
 import { ShutdownService } from './observers/shutdown.service';
+import { SwaggerService } from './swagger.service';
 import webAdminConsole from './web-admin-console';
-const packageJson = require('../package.json');
 const logger = new Logger(path.parse(__filename).name);
 
 async function bootstrap() {
@@ -23,6 +21,7 @@ async function bootstrap() {
     AppModule,
     new ExpressAdapter(expressServer),
   );
+  SwaggerService.app = app;
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
   const appConfig = app.get(AppConfigService).get();
@@ -30,33 +29,6 @@ async function bootstrap() {
   // app.setGlobalPrefix has to be called before SwaggerModule.setup
   // otherwise swagger doesn't honor GlobalPrefix
   app.setGlobalPrefix(appConfig.restApiRoot);
-
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('NotifyBC')
-    .setExternalDoc('./openapi.json', `${appConfig.restApiRoot}/explorer-json`)
-    .setDescription(packageJson.description)
-    .setVersion(packageJson.version)
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig, {
-    extraModels: [FilterDto],
-  });
-  SwaggerModule.setup(`${appConfig.restApiRoot}/explorer`, app, document, {
-    customJs: '/iframeResizer.contentWindow.min.js',
-    patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
-      let colonPort = ':' + req.connection.localPort;
-      if (req.connection.localPort === 80 && req.protocol === 'http')
-        colonPort = '';
-      if (req.connection.localPort === 443 && req.protocol === 'https')
-        colonPort = '';
-      const url = `${req.protocol}://${req.hostname}${colonPort}`;
-      if (!document.servers.find((v: any) => v.url === url)) {
-        document.servers.push({
-          url,
-        });
-      }
-      return document;
-    },
-  });
 
   app.useGlobalPipes(
     new ValidationPipe({
