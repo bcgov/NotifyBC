@@ -12,20 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// file ported
-import {CoreBindings} from '@loopback/core';
-import express, {Request, Response} from 'express';
-import {ExpressServer} from './server';
-import path = require('path');
-export default (server: ExpressServer) => {
-  const app = server.app;
+import { NestExpressApplication } from '@nestjs/platform-express';
+import express, { Response } from 'express';
+import { join } from 'path';
+
+export default (app: NestExpressApplication, appConfig) => {
   app.engine('html', require('ejs').renderFile);
-  app.set('view engine', 'html');
+  app.setViewEngine('html');
   const viewRelDir = '../client/dist';
-  app.use(require('connect-history-api-fallback')());
-  app.set('views', path.join(__dirname, viewRelDir));
-  app.use(/^\/(index\.html)?$/, (request: Request, response: Response) => {
-    const appConfig = server.lbApp.getSync(CoreBindings.APPLICATION_CONFIG);
+  app.set('views', join(__dirname, viewRelDir));
+
+  const indexRenderer = (_request: Request, response: Response) => {
     response.render('index.html', {
       apiUrlPrefix: appConfig.restApiRoot,
       oidcAuthority: appConfig.oidc?.discoveryUrl?.split(
@@ -33,10 +30,11 @@ export default (server: ExpressServer) => {
       )[0],
       oidcClientId: appConfig.oidc?.clientId,
     });
-  });
+  };
+  app.use(/^\/(index\.html)?$/, indexRenderer);
   // Serve static files in the client folder
-  app.use(express.static(path.join(__dirname, viewRelDir)));
-  app.use(
-    express.static(path.join(__dirname, '../node_modules/swagger-ui-dist')),
-  );
+  app.use(express.static(join(__dirname, viewRelDir)));
+
+  // fallback to index for all non restApiRoot requests
+  app.use(new RegExp(`^(?!${appConfig.restApiRoot}\/)`), indexRenderer);
 };

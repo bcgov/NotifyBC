@@ -13,7 +13,7 @@ import { ErrorsInterceptor } from './api/common/errors.interceptor';
 import { AppModule } from './app.module';
 import { AppConfigService } from './config/app-config.service';
 import { ShutdownService } from './observers/shutdown.service';
-
+import webAdminConsole from './web-admin-console';
 const packageJson = require('../package.json');
 const logger = new Logger(path.parse(__filename).name);
 
@@ -70,7 +70,7 @@ async function bootstrap() {
   if (process.env.NODE_ENV === 'test') {
     app.enableShutdownHooks();
   }
-
+  webAdminConsole(app, appConfig);
   await app.init();
   const port = appConfig.port ?? 3000;
   const host = appConfig.host ?? '0.0.0.0';
