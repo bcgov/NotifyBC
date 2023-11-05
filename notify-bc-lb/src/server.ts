@@ -49,10 +49,10 @@ export class ExpressServer {
     // start: ported
     this.lbApp.options.trustedReverseProxyIps &&
       this.app.set('trust proxy', this.lbApp.options.trustedReverseProxyIps);
-    // end: ported
 
     // Custom Express routes
     webAdminConsole(this);
+    // end: ported
   }
 
   public async boot() {
