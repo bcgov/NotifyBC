@@ -30,6 +30,7 @@ export class ExpressServer {
     this.app = express();
     this.lbApp = new NotifyBcApplication(options);
 
+    // start: ported
     // Middleware migrated from LoopBack 3
     const allMiddlewareConfigs = this.lbApp.middlewareConfigs.all;
     for (const middlewareFactoryNm in allMiddlewareConfigs) {
@@ -42,6 +43,7 @@ export class ExpressServer {
         ),
       );
     }
+    // end: ported
 
     // Mount the LB4 REST API
     this.app.use(this.lbApp.options.restApiRoot, this.lbApp.requestHandler);

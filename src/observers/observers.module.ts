@@ -9,6 +9,7 @@ import { RssModule } from 'src/rss/rss.module';
 import { CronTasksService } from './cron-tasks.service';
 import { CronService } from './cron.service';
 import { IndexDBSchemaService } from './index-dbschema.service';
+import { MiddlewareService } from './middleware.service';
 import { RsaService } from './rsa.service';
 import { ShutdownService } from './shutdown.service';
 import { SmtpService } from './smtp.service';
@@ -25,6 +26,7 @@ import { WebAdminConsoleService } from './web-admin-console.service';
     ShutdownService,
     WebAdminConsoleService,
     SwaggerService,
+    MiddlewareService,
   ],
   imports: [
     ConfigurationsModule,
