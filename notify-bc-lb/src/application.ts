@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {
   AuthenticationComponent,
   registerAuthenticationStrategy,
@@ -44,7 +45,6 @@ export {ApplicationConfig};
 export class NotifyBcApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
-  // start: ported
   middlewareConfigs: AnyObject;
   constructor(options: ApplicationConfig = {}) {
     let configFiles = ['config.json', 'config.js'];
@@ -92,7 +92,6 @@ export class NotifyBcApplication extends BootMixin(
     //    options.rest.basePath = options.restApiRoot;
     super(options);
     this.middlewareConfigs = middlewareConfigs;
-    // end: ported
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -113,7 +112,6 @@ export class NotifyBcApplication extends BootMixin(
       path.join(__dirname, '../client/node_modules/iframe-resizer/js'),
     );
 
-    // start: ported
     let dsFiles: string[] = [];
     if (process.env.NODE_ENV) {
       dsFiles = [
@@ -133,7 +131,6 @@ export class NotifyBcApplication extends BootMixin(
         this.bind('datasources.config.db').to(require(f));
       }
     }
-    // end: ported
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
@@ -150,7 +147,6 @@ export class NotifyBcApplication extends BootMixin(
     );
     this.add(createBindingFromClass(SecuritySpecEnhancer));
 
-    // start: ported
     const apiOnlyMiddlewareConfigs = middlewareConfigs.apiOnly;
     for (const middlewareFactoryNm in apiOnlyMiddlewareConfigs) {
       if (apiOnlyMiddlewareConfigs[middlewareFactoryNm].enabled === false)
@@ -163,6 +159,5 @@ export class NotifyBcApplication extends BootMixin(
         ),
       );
     }
-    // end: ported
   }
 }
