@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdministratorsModule } from './api/administrators/administrators.module';
 import { BouncesModule } from './api/bounces/bounces.module';
@@ -8,8 +8,10 @@ import { NotificationsModule } from './api/notifications/notifications.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { AppConfigService } from './config/app-config.service';
 import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
+import { MiddlewareConfigService } from './config/middleware-config.service';
 import { ObserversModule } from './observers/observers.module';
 import { SwaggerService } from './observers/swagger.service';
 import { RssModule } from './rss/rss.module';
@@ -46,4 +48,30 @@ import { RssModule } from './rss/rss.module';
   controllers: [BaseController],
   providers: [SwaggerService, AppService],
 })
-export class AppModule {}
+export class AppModule {
+  readonly middlewareConfigs;
+  readonly appConfig;
+  constructor(
+    private readonly middlewareConfigService: MiddlewareConfigService,
+    private readonly appConfigService: AppConfigService,
+  ) {
+    this.middlewareConfigs = middlewareConfigService.get();
+    this.appConfig = appConfigService.get();
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    const apiOnlyMiddlewareConfigs = this.middlewareConfigs.apiOnly;
+    const apiOnlyMiddlewares = [];
+    for (const middlewareFactoryNm in apiOnlyMiddlewareConfigs) {
+      if (apiOnlyMiddlewareConfigs[middlewareFactoryNm].enabled === false)
+        continue;
+      apiOnlyMiddlewares.push(
+        require(middlewareFactoryNm).apply(
+          this,
+          apiOnlyMiddlewareConfigs[middlewareFactoryNm].params,
+        ),
+      );
+    }
+    consumer.apply(...apiOnlyMiddlewares).forRoutes('*');
+  }
+}
