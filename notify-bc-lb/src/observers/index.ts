@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported skipped
 export * from './auto-update.observer';
 export * from './cron.observer';
+export * from './oidc-discovery.observer';
 export * from './rsa.observer';
 export * from './smtp-server.observer';
-export * from './oidc-discovery.observer';

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// not ported - implemented by MongoDB unique index
+// file ported skipped - implemented by MongoDB unique index
 import {
   injectable,
   Interceptor,

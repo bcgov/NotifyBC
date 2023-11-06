@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {AnyObject, juggler} from '@loopback/repository';
 

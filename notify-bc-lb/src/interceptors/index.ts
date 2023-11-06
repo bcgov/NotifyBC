@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported skipped
 export * from './access-token-before-create.interceptor';
 export * from './administrator-before-save.interceptor';
 export * from './configuration-before-save.interceptor';
