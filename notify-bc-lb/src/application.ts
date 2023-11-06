@@ -150,6 +150,7 @@ export class NotifyBcApplication extends BootMixin(
     );
     this.add(createBindingFromClass(SecuritySpecEnhancer));
 
+    // start: ported
     const apiOnlyMiddlewareConfigs = middlewareConfigs.apiOnly;
     for (const middlewareFactoryNm in apiOnlyMiddlewareConfigs) {
       if (apiOnlyMiddlewareConfigs[middlewareFactoryNm].enabled === false)
@@ -162,5 +163,6 @@ export class NotifyBcApplication extends BootMixin(
         ),
       );
     }
+    // end: ported
   }
 }
