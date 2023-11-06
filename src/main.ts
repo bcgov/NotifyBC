@@ -58,9 +58,8 @@ async function bootstrap() {
   } else {
     await app.listen(port, host);
   }
-  Logger.log(
+  logger.log(
     `Server is running at ${proto}://${appConfig.host}:${appConfig.port}${appConfig.restApiRoot}`,
-    'bootstrap',
   );
 }
 
