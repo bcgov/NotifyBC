@@ -62,6 +62,15 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "loadTestingSendMail",
+      "runtimeExecutable": "ts-node",
+      "cwd": "${workspaceFolder}/src/utils/load-testing",
+      "args": ["sendmail.ts", "localhost", "test@invalid.local", "1"],
+      "outputCapture": "std"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Test",
       "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
       "args": ["--timeout", "999999", "dist/__tests__/"],
