@@ -1,22 +1,8 @@
-// Copyright 2016-present Province of British Columbia
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+import { queue } from 'async';
+import { Command } from 'commander';
+import csv from 'csvtojson';
 
-// file ported
-import {Command} from 'commander';
 (function () {
-  const csv = require('csvtojson');
-  const queue = require('async/queue');
   const program = new Command();
   program
     .name(`node ${process.argv[1]}`)
@@ -47,7 +33,7 @@ import {Command} from 'commander';
     successCnt = 0;
 
   const q = queue(function (
-    task: {jsonObj: any; rowIdx: string},
+    task: { jsonObj: any; rowIdx: string },
     cb: Function,
   ) {
     const options = {
@@ -58,7 +44,7 @@ import {Command} from 'commander';
       body: JSON.stringify(task.jsonObj),
     };
     fetch(opts.apiUrlPrefix + '/subscriptions', options)
-      .then((data: {status: number}) => {
+      .then((data: { status: number }) => {
         if (data.status !== 200) {
           throw data.status;
         }
@@ -97,14 +83,16 @@ import {Command} from 'commander';
     },
   })
     .fromFile(program.args[0])
-    .on('json', (jsonObj: any, rowIdx: any) => {
-      q.push({
-        jsonObj: jsonObj,
-        rowIdx: rowIdx,
-      });
-    })
-    .on('done', (error: any) => {
-      error && console.error(error);
-      done = true;
-    });
+    .subscribe(
+      (jsonObj, rowIdx) => {
+        q.push({
+          jsonObj,
+          rowIdx,
+        });
+      },
+      (error) => {
+        console.error(error);
+      },
+      () => (done = true),
+    );
 })();
