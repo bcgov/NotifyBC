@@ -7,5 +7,9 @@
     "assets": ["**/*.json"],
     "watchAssets": true,
     "plugins": ["@nestjs/swagger"]
+  },
+  "generateOptions": {
+    "spec": false,
+    "flat": true
   }
 }
