@@ -775,9 +775,7 @@ export class SubscriptionsController extends BaseController {
     }
     delete subscription.id;
     await this.beforeUpsert(req, subscription);
-    const result = (
-      await this.subscriptionsService.create(subscription, req)
-    ).toJSON();
+    const result = await this.subscriptionsService.create(subscription, req);
     if (!subscription.confirmationRequest) {
       return result;
     }

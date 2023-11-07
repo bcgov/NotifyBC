@@ -53,6 +53,15 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "bulk-import",
+      "runtimeExecutable": "ts-node",
+      "cwd": "${workspaceFolder}/src/utils/bulk-import",
+      "args": ["subscription.ts", "sample-subscription.csv"],
+      "outputCapture": "std"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Test",
       "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
       "args": ["--timeout", "999999", "dist/__tests__/"],
@@ -61,7 +70,6 @@
       "preLaunchTask": "Compile Project",
       "outputCapture": "std"
     },
-
     {
       "type": "node",
       "request": "launch",
