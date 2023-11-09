@@ -20,6 +20,16 @@
       }
     },
     {
+      "type": "node",
+      "request": "launch",
+      "name": "test",
+      "runtimeExecutable": "yarn",
+      "autoAttachChildProcesses": true,
+      "runtimeArgs": ["test:e2e"],
+      "outputCapture": "std"
+      // "console": "internalConsole",
+    },
+    {
       "name": "Launch Docs",
       "request": "launch",
       "type": "pwa-chrome",
@@ -71,7 +81,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Test",
+      "name": "Test-lb4",
       "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
       "args": ["--timeout", "999999", "dist/__tests__/"],
       "autoAttachChildProcesses": true,
