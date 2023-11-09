@@ -34,10 +34,6 @@ async function bootstrap() {
   appConfig.trustedReverseProxyIps &&
     app.set('trust proxy', appConfig.trustedReverseProxyIps);
 
-  // Starts listening for shutdown hooks only in test env
-  if (process.env.NODE_ENV === 'test') {
-    app.enableShutdownHooks();
-  }
   await app.init();
   const port = appConfig.port ?? 3000;
   const host = appConfig.host ?? '0.0.0.0';

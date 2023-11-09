@@ -13,6 +13,7 @@ import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
 import { MiddlewareConfigService } from './config/middleware-config.service';
 import { ObserversModule } from './observers/observers.module';
+import { ShutdownService } from './observers/shutdown.service';
 import { SwaggerService } from './observers/swagger.service';
 import { RssModule } from './rss/rss.module';
 
@@ -24,9 +25,14 @@ import { RssModule } from './rss/rss.module';
     ConfigurationsModule,
     NotificationsModule,
     SubscriptionsModule,
+    ObserversModule,
     MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (dbConfigService: DbConfigService) => {
+      imports: [ConfigModule, ObserversModule],
+      inject: [DbConfigService, ShutdownService],
+      useFactory: async (
+        dbConfigService: DbConfigService,
+        shutdownService: ShutdownService,
+      ) => {
         const dbConfig = dbConfigService.get();
         if (dbConfig.uri) return { ...dbConfig, autoIndex: false };
         const mongod =
@@ -34,15 +40,14 @@ import { RssModule } from './rss/rss.module';
             instance: dbConfig,
           });
         const uri = mongod.getUri();
+        shutdownService.addMongoDBServer(mongod);
         Logger.log(`mongodb-memory-server started at ${uri}`, AppModule.name);
         return {
           uri,
         };
       },
-      inject: [DbConfigService],
     }),
     AuthModule,
-    ObserversModule,
     RssModule,
   ],
   controllers: [BaseController],

@@ -37,5 +37,6 @@ import { WebAdminConsoleService } from './web-admin-console.service';
     RssModule,
     ConfigModule,
   ],
+  exports: [ShutdownService],
 })
 export class ObserversModule {}
