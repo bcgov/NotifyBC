@@ -25,6 +25,7 @@ import {BaseController} from '../../controllers/base.controller';
 
 process.env['NODE_ENV'] = 'test';
 
+// start: ported
 export async function setupApplication(
   options?: AnyObject,
 ): Promise<AppWithClient> {
@@ -49,20 +50,25 @@ export async function setupApplication(
   await app.start();
 
   const client = createRestAppClient(app);
+  // end: ported
 
   beforeEach(async () => {
     await app.migrateSchema({existingSchema: 'drop'});
   });
+  // start: ported
   after(async () => {
     await app.stop();
   });
   return {app, client};
+  // end: ported
 }
 
+// start: ported
 export interface AppWithClient {
   app: NotifyBcApplication;
   client: Client;
 }
+// end: ported
 
 export const wait = promisify(setTimeout);
 
