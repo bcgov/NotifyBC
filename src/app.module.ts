@@ -1,5 +1,6 @@
 import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AdministratorsModule } from './api/administrators/administrators.module';
 import { BouncesModule } from './api/bounces/bounces.module';
 import { BaseController } from './api/common/base.controller';
@@ -35,10 +36,9 @@ import { RssModule } from './rss/rss.module';
       ) => {
         const dbConfig = dbConfigService.get();
         if (dbConfig.uri) return { ...dbConfig, autoIndex: false };
-        const mongod =
-          await require('mongodb-memory-server').MongoMemoryServer.create({
-            instance: dbConfig,
-          });
+        const mongod = await MongoMemoryServer.create({
+          instance: dbConfig,
+        });
         const uri = mongod.getUri();
         shutdownService.addMongoDBServer(mongod);
         Logger.log(`mongodb-memory-server started at ${uri}`, AppModule.name);

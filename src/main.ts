@@ -14,12 +14,8 @@ import { AppConfigService } from './config/app-config.service';
 import { ShutdownService } from './observers/shutdown.service';
 const logger = new Logger(path.parse(__filename).name);
 
-async function bootstrap() {
-  const expressServer = express();
-  const app = await NestFactory.create<NestExpressApplication>(
-    AppModule,
-    new ExpressAdapter(expressServer),
-  );
+// setupApp is shared between bootstrap and e2e setupApplication
+export function setupApp(app: NestExpressApplication) {
   AppService.app = app;
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
@@ -33,8 +29,17 @@ async function bootstrap() {
   );
   appConfig.trustedReverseProxyIps &&
     app.set('trust proxy', appConfig.trustedReverseProxyIps);
+}
 
+async function bootstrap() {
+  const expressServer = express();
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    new ExpressAdapter(expressServer),
+  );
+  setupApp(app);
   await app.init();
+  const appConfig = app.get(AppConfigService).get();
   const port = appConfig.port ?? 3000;
   const host = appConfig.host ?? '0.0.0.0';
   const proto = appConfig.tls?.enabled ? 'https' : 'http';

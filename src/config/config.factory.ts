@@ -9,23 +9,30 @@ const config: Record<ConfigType, any> = {
   [ConfigType.DbConfig]: undefined,
 };
 function init() {
-  let configFiles = ['config.json', 'config.js'];
-  let middlewareFiles = ['middleware.js', 'middleware.json'];
+  let configFiles = ['config.json', 'config.js', 'config.ts'];
+  let middlewareFiles = ['middleware.js', 'middleware.ts', 'middleware.json'];
   if (process.env.NODE_ENV) {
     configFiles = configFiles.concat([
       `config.${process.env.NODE_ENV}.json`,
       `config.${process.env.NODE_ENV}.js`,
+      `config.${process.env.NODE_ENV}.ts`,
     ]);
     middlewareFiles = middlewareFiles.concat([
       `middleware.${process.env.NODE_ENV}.json`,
       `middleware.${process.env.NODE_ENV}.js`,
+      `middleware.${process.env.NODE_ENV}.ts`,
     ]);
   }
   if (process.env.NODE_ENV !== 'test') {
-    configFiles = configFiles.concat([`config.local.json`, `config.local.js`]);
+    configFiles = configFiles.concat([
+      `config.local.json`,
+      `config.local.js`,
+      `config.local.ts`,
+    ]);
     middlewareFiles = middlewareFiles.concat([
       `middleware.local.json`,
       `middleware.local.js`,
+      `middleware.local.ts`,
     ]);
   }
   const options: Record<string, any> = {};
@@ -53,17 +60,23 @@ function init() {
   config[ConfigType.AppConfig] = options;
   config[ConfigType.MiddlewareConfig] = middlewareConfigs;
 
-  let dsFiles: string[] = ['db.datasource.json', 'db.datasource.js'];
+  let dsFiles: string[] = [
+    'db.datasource.json',
+    'db.datasource.js',
+    'db.datasource.ts',
+  ];
   if (process.env.NODE_ENV) {
     dsFiles = dsFiles.concat([
       `db.datasource.${process.env.NODE_ENV}.json`,
       `db.datasource.${process.env.NODE_ENV}.js`,
+      `db.datasource.${process.env.NODE_ENV}.ts`,
     ]);
   }
   if (process.env.NODE_ENV !== 'test') {
     dsFiles = dsFiles.concat([
       'db.datasource.local.json',
       'db.datasource.local.js',
+      'db.datasource.local.ts',
     ]);
   }
   let dbFileSelected: string;
