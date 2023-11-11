@@ -36,7 +36,13 @@ describe('Administrator API', () => {
     appConfig.adminIps = origAdminIPs;
   });
 
-  it('/ (GET)', () => {
-    return client.get('/api/administrators/whoami').expect(200);
+  describe('POST /administrator', function () {
+    it('should forbid anonymous user', async function () {
+      const res = await client.post('/api/administrators').send({
+        email: 'baz@invalid.local',
+        password: VALID_PASSWORD,
+      });
+      expect(res.status).toEqual(403);
+    });
   });
 });
