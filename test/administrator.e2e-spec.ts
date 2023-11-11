@@ -1,4 +1,6 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { compare } from 'bcryptjs';
+import { AdministratorsService } from 'src/api/administrators/administrators.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import supertest from 'supertest';
 import { setupApplication } from './test-helper';
@@ -7,8 +9,12 @@ describe('Administrator API', () => {
   let client: supertest.SuperTest<supertest.Test>;
   let app: NestExpressApplication;
   const VALID_PASSWORD = '1aA@aaaaaa';
+  let administratorsService: AdministratorsService;
   beforeEach(async () => {
     ({ app, client } = await setupApplication());
+    administratorsService = app.get<AdministratorsService>(
+      AdministratorsService,
+    );
   }, 99999);
   let token: string;
 
@@ -43,6 +49,28 @@ describe('Administrator API', () => {
         password: VALID_PASSWORD,
       });
       expect(res.status).toEqual(403);
+    });
+
+    it('should be allowed by admin user', async function () {
+      const appConfig = app.get<AppConfigService>(AppConfigService).get();
+      const origAdminIPs = appConfig.adminIps;
+      appConfig.adminIps = ['127.0.0.1'];
+
+      const res = await client.post('/api/administrators').send({
+        email: 'baz@invalid.local',
+        password: VALID_PASSWORD,
+      });
+      expect(res.status).toEqual(200);
+      const admin = await administratorsService.findById(res.body.id, {
+        include: ['userCredential'],
+      });
+      expect(admin.email).toEqual(res.body.email);
+      const passwordMatched = await compare(
+        VALID_PASSWORD,
+        admin.userCredential.password,
+      );
+      expect(passwordMatched).toBeTruthy();
+      appConfig.adminIps = origAdminIPs;
     });
   });
 });

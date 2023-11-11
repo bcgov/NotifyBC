@@ -21,6 +21,7 @@ import {AdministratorRepository} from '../../repositories';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
 
+// start: ported
 describe('Administrator API', function () {
   let client: Client;
   let app: NotifyBcApplication;
@@ -33,7 +34,6 @@ describe('Administrator API', function () {
     );
   });
 
-  // start: ported
   let token: string;
   beforeEach(async function () {
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
@@ -67,7 +67,6 @@ describe('Administrator API', function () {
       });
       expect(res.status).equal(401);
     });
-    // end: ported
 
     it('should be allowed by admin user', async function () {
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
@@ -92,6 +91,7 @@ describe('Administrator API', function () {
       expect(passwordMatched).true();
       app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
     });
+    // end: ported
 
     it("should forbid if password doesn't meet complexity rules", async function () {
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
