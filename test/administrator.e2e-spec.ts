@@ -7,7 +7,7 @@ describe('Administrator API', () => {
   let client: supertest.SuperTest<supertest.Test>;
   let app: NestExpressApplication;
   const VALID_PASSWORD = '1aA@aaaaaa';
-  beforeAll(async () => {
+  beforeEach(async () => {
     ({ app, client } = await setupApplication());
   }, 99999);
   let token: string;

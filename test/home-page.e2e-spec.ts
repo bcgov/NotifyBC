@@ -3,7 +3,7 @@ import { setupApplication } from './test-helper';
 
 let client: supertest.SuperTest<supertest.Test>;
 
-beforeAll(async () => {
+beforeEach(async () => {
   ({ client } = await setupApplication());
 }, 99999);
 
