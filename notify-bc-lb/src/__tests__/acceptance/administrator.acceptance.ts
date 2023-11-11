@@ -33,6 +33,7 @@ describe('Administrator API', function () {
     );
   });
 
+  // start: ported
   let token: string;
   beforeEach(async function () {
     const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
@@ -57,6 +58,7 @@ describe('Administrator API', function () {
     });
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
+  // end: ported
 
   describe('POST /administrator', function () {
     it('should forbid anonymous user', async function () {

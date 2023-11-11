@@ -26,10 +26,11 @@ export class IpAuthnStrategyMiddleware implements NestMiddleware {
         };
       }
     }
-    if (!req.user) {
+    if (!req.user || req.get('is_anonymous')) {
       req.user = {
         securityId: req.ip,
         authnStrategy: AuthnStrategy.Ip,
+        role: Role.Anonymous,
       };
     }
     next();
