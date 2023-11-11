@@ -58,7 +58,6 @@ describe('Administrator API', function () {
     });
     app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
   });
-  // end: ported
 
   describe('POST /administrator', function () {
     it('should forbid anonymous user', async function () {
@@ -68,6 +67,7 @@ describe('Administrator API', function () {
       });
       expect(res.status).equal(401);
     });
+    // end: ported
 
     it('should be allowed by admin user', async function () {
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
