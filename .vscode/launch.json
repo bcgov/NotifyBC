@@ -25,9 +25,12 @@
       "name": "test",
       "runtimeExecutable": "yarn",
       "autoAttachChildProcesses": true,
-      "runtimeArgs": ["test:e2e"],
-      "outputCapture": "std"
+      "runtimeArgs": ["test:e2e", "administrator"],
+      "outputCapture": "std",
       // "console": "internalConsole",
+      "env": {
+        "jestTestTimeout": "999999999"
+      }
     },
     {
       "name": "Launch Docs",
