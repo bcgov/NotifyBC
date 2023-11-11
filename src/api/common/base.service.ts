@@ -120,8 +120,12 @@ export class BaseService<T> {
       .exec();
   }
 
-  async findById(id: string): Promise<T> {
-    return (await this.model.findById(id).exec()).toJSON();
+  async findById(id: string, options?): Promise<T> {
+    const q = this.model.findById(id);
+    if (options?.include) {
+      q.populate(options.include);
+    }
+    return (await q.exec()).toJSON({ virtuals: !!options?.include });
   }
 
   updateById(id: string, updateDto, req?: (Request & { user?: any }) | null) {
