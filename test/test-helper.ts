@@ -21,6 +21,6 @@ export async function setupApplication(): Promise<AppWithClient> {
   const client = supertest(app.getHttpServer());
   return { app, client };
 }
-afterAll(async () => {
+afterEach(async () => {
   await app.close();
 });
