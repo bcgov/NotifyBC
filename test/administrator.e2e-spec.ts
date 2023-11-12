@@ -124,4 +124,23 @@ describe('Administrator API', () => {
       appConfig.adminIps = origAdminIPs;
     });
   });
+
+  describe('POST /administrator/login', function () {
+    it('should allow anonymous user', async function () {
+      const res = await client.post('/api/administrators/login').send({
+        email: 'bar@invalid.local',
+        password: VALID_PASSWORD,
+        tokenName: 'myApp',
+      });
+      expect(res.status).toEqual(200);
+      const admin = await administratorsService.findOne({
+        where: {
+          email: 'bar@invalid.local',
+        },
+        include: ['accessTokens'],
+      });
+      expect(admin?.accessTokens[0]?.id).toEqual(res.body.token);
+      expect(res.body.token).toHaveLength(64);
+    });
+  });
 });
