@@ -34,4 +34,6 @@ export class AccessToken extends BaseEntity {
   userId: string;
 }
 
-export const AccessTokenSchema = SchemaFactory.createForClass(AccessToken);
+export const AccessTokenSchema = SchemaFactory.createForClass(
+  AccessToken,
+).alias('_id', 'id');

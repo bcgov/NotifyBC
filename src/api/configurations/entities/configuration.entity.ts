@@ -22,6 +22,7 @@ export class Configuration extends BaseEntity {
 }
 
 export const ConfigurationSchema = SchemaFactory.createForClass(Configuration)
+  .alias('_id', 'id')
   .index(
     { name: 1, serviceName: 1 },
     { unique: true, name: 'unique_name_serviceName' },

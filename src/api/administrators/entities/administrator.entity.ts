@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { AnyObject, HydratedDocument } from 'mongoose';
 import { BaseEntity, BaseSchemaOptions } from 'src/api/common/base.entity';
+import { AccessToken } from './access-token.entity';
 
 export type AdministratorDocument = HydratedDocument<Administrator>;
 
@@ -24,10 +25,11 @@ export class Administrator extends BaseEntity {
   userCredential: AnyObject;
 
   @ApiHideProperty()
-  accessTokens: [];
+  accessTokens?: AccessToken[];
 }
 
 export const AdministratorSchema = SchemaFactory.createForClass(Administrator)
+  .alias('_id', 'id')
   .index({ '$**': 'text' }, { name: '$**_text' })
   .index(
     { email: 1 },

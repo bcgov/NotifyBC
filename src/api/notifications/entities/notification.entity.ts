@@ -66,6 +66,6 @@ export class Notification extends BaseEntity {
   [prop: string]: any;
 }
 
-export const NotificationSchema = SchemaFactory.createForClass(
-  Notification,
-).index({ '$**': 'text' }, { name: '$**_text' });
+export const NotificationSchema = SchemaFactory.createForClass(Notification)
+  .alias('_id', 'id')
+  .index({ '$**': 'text' }, { name: '$**_text' });
