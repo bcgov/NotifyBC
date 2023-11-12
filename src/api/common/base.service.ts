@@ -39,42 +39,19 @@ export class BaseService<T> {
     return res[0] ?? { count: 0 };
   }
 
-  findAll(
+  async findAll(
     filter: any = {},
     req?: Request & { user: UserProfile },
   ): Promise<T[]> {
-    let { where, fields, order, skip, limit } = filter;
-    if (fields instanceof Array) {
-      fields = fields.reduce((p, c) => {
-        p[c] = true;
-        return p;
-      }, {});
-    }
-    const castedWhere = this.model.find(where).cast();
-    return this.model
-      .aggregate(
-        compact([
-          {
-            $addFields: {
-              id: { $toString: '$_id' },
-            },
-          },
-          where && {
-            $match: castedWhere,
-          },
-          order && {
-            $sort: order,
-          },
-          skip && {
-            $skip: skip,
-          },
-          limit && { $limit: limit },
-          {
-            $project: { ...fields, _id: false },
-          },
-        ]),
-      )
-      .exec();
+    let { where, fields, order, skip, limit, include } = filter;
+    let qry = this.model.find(this.model.translateAliases(where));
+    order && qry.sort(this.model.translateAliases(order));
+    skip && qry.skip(skip);
+    limit && qry.limit(limit);
+    fields && qry.select(this.model.translateAliases(fields));
+    include && qry.populate(include);
+    const res = await qry.exec();
+    return res;
   }
 
   async findOne(
