@@ -267,7 +267,6 @@ describe('Administrator API', function () {
       expect(res.status).equal(204);
     });
   });
-  // end: ported
 
   describe('PUT /administrator/{id}', function () {
     it('should forbid anonymous user', async function () {
@@ -307,6 +306,7 @@ describe('Administrator API', function () {
       expect(res.status).equal(204);
     });
   });
+  // end: ported
 
   describe('POST /administrator/{id}/user-credential', function () {
     it('should forbid anonymous user', async function () {
