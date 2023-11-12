@@ -204,4 +204,33 @@ describe('Administrator API', () => {
       expect(res.status).toEqual(204);
     });
   });
+
+  describe('PATCH /administrator/{id}', function () {
+    it('should forbid anonymous user', async function () {
+      const res = await client
+        .patch(`/api/administrators/${id1}`)
+        .send({ username: 'foo' });
+      expect(res.status).toEqual(403);
+    });
+    it('should allow super-admin user', async function () {
+      await runAsSuperAdmin(async () => {
+        const res = await client
+          .patch(`/api/administrators/${id1}`)
+          .send({ username: 'foo' });
+        expect(res.status).toEqual(204);
+      });
+    });
+    it('should allow own record only for admin user', async function () {
+      let res = await client
+        .patch(`/api/administrators/${id2}`)
+        .send({ username: 'foo' })
+        .set('Authorization', token);
+      expect(res.status).toEqual(403);
+      res = await client
+        .patch(`/api/administrators/${id1}`)
+        .send({ username: 'foo' })
+        .set('Authorization', token);
+      expect(res.status).toEqual(204);
+    });
+  });
 });
