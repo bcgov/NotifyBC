@@ -166,7 +166,6 @@ describe('Administrator API', function () {
       expect(res.body.token).lengthOf(64);
     });
   });
-  // end: ported
 
   describe('GET /administrator', function () {
     it('should forbid anonymous user', async function () {
@@ -188,6 +187,7 @@ describe('Administrator API', function () {
       expect(res.body.length).equal(1);
     });
   });
+  // end: ported
 
   describe('GET /administrator/{id}', function () {
     it('should forbid anonymous user', async function () {
