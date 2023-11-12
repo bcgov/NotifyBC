@@ -8,6 +8,6 @@ const config: Config = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  testTimeout: parseInt(process.env.jestTestTimeout) || 5000,
+  testTimeout: parseInt(process.env.notifyBcJestTestTimeout) || 5000,
 };
 export default config;
