@@ -17,6 +17,7 @@ describe('Administrator API', () => {
     );
   });
   let token: string;
+  let id1: string, id2: string;
 
   beforeEach(async function () {
     const appConfig = app.get<AppConfigService>(AppConfigService).get();
@@ -26,6 +27,7 @@ describe('Administrator API', () => {
       email: 'foo@invalid.local',
       password: VALID_PASSWORD,
     });
+    id1 = res.body.id;
     res = await client
       .post('/api/administrators/login')
       .send({
@@ -39,6 +41,7 @@ describe('Administrator API', () => {
       email: 'bar@invalid.local',
       password: VALID_PASSWORD,
     });
+    id2 = res.body.id;
     appConfig.adminIps = origAdminIPs;
   });
 
@@ -163,6 +166,33 @@ describe('Administrator API', () => {
         .get('/api/administrators')
         .set('Authorization', token);
       expect(res.body.length).toEqual(1);
+    });
+  });
+
+  describe('GET /administrator/{id}', function () {
+    it('should forbid anonymous user', async function () {
+      const res = await client.get('/api/administrators/1');
+      expect(res.status).toEqual(403);
+    });
+    it('should allow super-admin user', async function () {
+      const appConfig = app.get<AppConfigService>(AppConfigService).get();
+      const origAdminIPs = appConfig.adminIps;
+      appConfig.adminIps = ['127.0.0.1'];
+      const res = await client.get(`/api/administrators/${id1}`);
+      expect(res.status).toEqual(200);
+      expect(res.body.email).toEqual('foo@invalid.local');
+      appConfig.adminIps = origAdminIPs;
+    });
+    it('should allow own record only for admin user', async function () {
+      let res = await client
+        .get(`/api/administrators/${id1}`)
+        .set('Authorization', token);
+      expect(res.status).toEqual(200);
+      expect(res.body.email).toEqual('foo@invalid.local');
+      res = await client
+        .get(`/api/administrators/${id2}`)
+        .set('Authorization', token);
+      expect(res.status).toEqual(403);
     });
   });
 });
