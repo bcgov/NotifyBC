@@ -147,7 +147,6 @@ describe('Administrator API', function () {
       app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
     });
   });
-  // end: ported
 
   describe('POST /administrator/login', function () {
     it('should allow anonymous user', async function () {
@@ -167,6 +166,7 @@ describe('Administrator API', function () {
       expect(res.body.token).lengthOf(64);
     });
   });
+  // end: ported
 
   describe('GET /administrator', function () {
     it('should forbid anonymous user', async function () {
