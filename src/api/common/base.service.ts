@@ -62,7 +62,7 @@ export class BaseService<T> {
     return res && res[0];
   }
 
-  updateAll(
+  async updateAll(
     updateDto,
     filter: FilterQuery<T> | null,
     req: (Request & { user?: any }) | null,
@@ -71,34 +71,10 @@ export class BaseService<T> {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
     }
-
-    const castedFilter = this.model.find(filter).cast();
-    return this.model
-      .aggregate(
-        compact([
-          {
-            $addFields: {
-              id: { $toString: '$_id' },
-            },
-          },
-          filter && {
-            $match: castedFilter,
-          },
-          {
-            $addFields: updateDto,
-          },
-          { $unset: 'id' },
-          {
-            $merge: {
-              into: this.model.collection.name,
-              on: '_id',
-              whenMatched: 'replace',
-              whenNotMatched: 'fail',
-            },
-          },
-        ]),
-      )
+    const res = await this.model
+      .updateMany(this.model.translateAliases(filter), updateDto)
       .exec();
+    return res;
   }
 
   async findById(id: string, options?): Promise<T> {
