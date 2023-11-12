@@ -146,26 +146,9 @@ export class BaseService<T> {
     filter?: FilterQuery<T>,
     req?: Request & { user: UserProfile },
   ) {
-    const castedFilter = this.model.countDocuments(filter).cast();
     const res = await this.model
-      .aggregate(
-        compact([
-          {
-            $addFields: {
-              id: { $toString: '$_id' },
-            },
-          },
-          filter && {
-            $match: castedFilter,
-          },
-          {
-            $project: { _id: true },
-          },
-        ]),
-      )
+      .deleteMany(filter, { translateAliases: true })
       .exec();
-    const ids = res.map((e) => e._id);
-    await this.model.deleteMany({ _id: { $in: ids } }).exec();
-    return { count: ids.length };
+    return { count: res.deletedCount };
   }
 }
