@@ -148,7 +148,7 @@ export class BaseService<T> {
     options?: QueryOptions,
   ) {
     const res = await this.model
-      .deleteMany(filter, { ...options, translateAliases: true })
+      .deleteMany(this.model.translateAliases(filter), options)
       .exec();
     return { count: res.deletedCount };
   }
