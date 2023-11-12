@@ -1,11 +1,11 @@
 import supertest from 'supertest';
-import { setupApplication } from './test-helper';
+import { getAppAndClient } from './test-helper';
 
 let client: supertest.SuperTest<supertest.Test>;
 
-beforeEach(async () => {
-  ({ client } = await setupApplication());
-}, 99999);
+beforeEach(() => {
+  ({ client } = getAppAndClient());
+});
 
 describe('HomePage', () => {
   it('exposes self-hosted explorer', async () => {
