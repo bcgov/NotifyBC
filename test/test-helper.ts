@@ -4,12 +4,12 @@ import { AppModule } from 'src/app.module';
 import { setupApp } from 'src/main';
 import supertest from 'supertest';
 
-export interface AppWithClient {
-  app: NestExpressApplication;
-  client: supertest.SuperTest<supertest.Test>;
+let app: NestExpressApplication, client: supertest.SuperTest<supertest.Test>;
+export function getAppAndClient() {
+  return { app, client };
 }
-let app: NestExpressApplication;
-export async function setupApplication(): Promise<AppWithClient> {
+
+beforeEach(async () => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
@@ -18,9 +18,9 @@ export async function setupApplication(): Promise<AppWithClient> {
   setupApp(app);
   app.enableShutdownHooks();
   await app.init();
-  const client = supertest(app.getHttpServer());
-  return { app, client };
-}
+  client = supertest(app.getHttpServer());
+}, 99999);
+
 afterEach(async () => {
   await app.close();
 });

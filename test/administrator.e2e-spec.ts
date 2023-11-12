@@ -3,19 +3,19 @@ import { compare } from 'bcryptjs';
 import { AdministratorsService } from 'src/api/administrators/administrators.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import supertest from 'supertest';
-import { setupApplication } from './test-helper';
+import { getAppAndClient } from './test-helper';
 
 describe('Administrator API', () => {
   let client: supertest.SuperTest<supertest.Test>;
   let app: NestExpressApplication;
   const VALID_PASSWORD = '1aA@aaaaaa';
   let administratorsService: AdministratorsService;
-  beforeEach(async () => {
-    ({ app, client } = await setupApplication());
+  beforeEach(() => {
+    ({ app, client } = getAppAndClient());
     administratorsService = app.get<AdministratorsService>(
       AdministratorsService,
     );
-  }, 99999);
+  });
   let token: string;
 
   beforeEach(async function () {
