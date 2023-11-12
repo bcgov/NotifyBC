@@ -138,16 +138,17 @@ export class BaseService<T> {
     return res.value;
   }
 
-  remove(id: string) {
-    this.model.findByIdAndRemove(id).exec();
+  async remove(id: string, options?: QueryOptions) {
+    this.model.findByIdAndRemove(id, options).exec();
   }
 
   async removeAll(
     filter?: FilterQuery<T>,
     req?: Request & { user: UserProfile },
+    options?: QueryOptions,
   ) {
     const res = await this.model
-      .deleteMany(filter, { translateAliases: true })
+      .deleteMany(filter, { ...options, translateAliases: true })
       .exec();
     return { count: res.deletedCount };
   }
