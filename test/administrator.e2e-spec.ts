@@ -143,4 +143,26 @@ describe('Administrator API', () => {
       expect(res.body.token).toHaveLength(64);
     });
   });
+
+  describe('GET /administrator', function () {
+    it('should forbid anonymous user', async function () {
+      const res = await client.get('/api/administrators');
+      expect(res.status).toEqual(403);
+    });
+    it('should allow super-admin user', async function () {
+      const appConfig = app.get<AppConfigService>(AppConfigService).get();
+      const origAdminIPs = appConfig.adminIps;
+      appConfig.adminIps = ['127.0.0.1'];
+      const res = await client.get('/api/administrators');
+      expect(res.status).toEqual(200);
+      expect(res.body.length).toEqual(2);
+      appConfig.adminIps = origAdminIPs;
+    });
+    it('should allow own record only for admin user', async function () {
+      const res = await client
+        .get('/api/administrators')
+        .set('Authorization', token);
+      expect(res.body.length).toEqual(1);
+    });
+  });
 });
