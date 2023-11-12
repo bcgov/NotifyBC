@@ -139,7 +139,7 @@ export class BaseService<T> {
   }
 
   async remove(id: string, options?: QueryOptions) {
-    this.model.findByIdAndRemove(id, options).exec();
+    return this.model.findByIdAndRemove(id, options).exec();
   }
 
   async removeAll(

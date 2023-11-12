@@ -326,6 +326,7 @@ export class AdministratorsController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async remove(@Param('id') id: string, @Req() req) {
     if (
       req.user.authnStrategy === AuthnStrategy.AccessToken &&
