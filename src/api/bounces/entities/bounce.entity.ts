@@ -49,6 +49,7 @@ export class Bounce extends BaseEntity {
 }
 
 export const BounceSchema = SchemaFactory.createForClass(Bounce)
+  .alias('_id', 'id')
   .index(
     { state: 1, channel: 1, userChannelId: 1 },
     { name: 'state_channel_userChannelId' },

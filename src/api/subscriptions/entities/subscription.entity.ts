@@ -54,6 +54,7 @@ export class Subscription extends BaseEntity {
 }
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription)
+  .alias('_id', 'id')
   .index({ '$**': 'text' }, { name: '$**_text' })
   .index(
     { serviceName: 1, state: 1, channel: 1 },

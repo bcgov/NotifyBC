@@ -29,6 +29,6 @@ export class UserCredential extends BaseEntity {
   userId: string;
 }
 
-export const UserCredentialSchema = SchemaFactory.createForClass(
-  UserCredential,
-).index({ userId: 1 }, { unique: true, name: 'unique_userId' });
+export const UserCredentialSchema = SchemaFactory.createForClass(UserCredential)
+  .alias('_id', 'id')
+  .index({ userId: 1 }, { unique: true, name: 'unique_userId' });
