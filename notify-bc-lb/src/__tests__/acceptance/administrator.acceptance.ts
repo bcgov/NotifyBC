@@ -306,7 +306,6 @@ describe('Administrator API', function () {
       expect(res.status).equal(204);
     });
   });
-  // end: ported
 
   describe('POST /administrator/{id}/user-credential', function () {
     it('should forbid anonymous user', async function () {
@@ -339,6 +338,7 @@ describe('Administrator API', function () {
       expect(passwordMatched).true();
     });
   });
+  // end: ported
 
   describe('POST /administrator/{id}/access-tokens', function () {
     it('should forbid anonymous user', async function () {

@@ -270,4 +270,35 @@ describe('Administrator API', () => {
       expect(res.status).toEqual(204);
     });
   });
+
+  describe('POST /administrator/{id}/user-credential', function () {
+    it('should forbid anonymous user', async function () {
+      const res = await client
+        .post(`/api/administrators/${id1}/user-credential`)
+        .send({ password: VALID_PASSWORD });
+      expect(res.status).toEqual(403);
+    });
+    it('should allow super-admin user', async function () {
+      await runAsSuperAdmin(async () => {
+        const res = await client
+          .post(`/api/administrators/${id1}/user-credential`)
+          .send({ password: VALID_PASSWORD });
+        expect(res.status).toEqual(200);
+      });
+    });
+    it('should allow own record only for admin user', async function () {
+      let res = await client
+        .post(`/api/administrators/${id2}/user-credential`)
+        .send({ password: VALID_PASSWORD })
+        .set('Authorization', token);
+      expect(res.status).toEqual(403);
+      res = await client
+        .post(`/api/administrators/${id1}/user-credential`)
+        .send({ password: VALID_PASSWORD })
+        .set('Authorization', token);
+      expect(res.status).toEqual(200);
+      const passwordMatched = await compare(VALID_PASSWORD, res.body.password);
+      expect(passwordMatched).toBeTruthy();
+    });
+  });
 });
