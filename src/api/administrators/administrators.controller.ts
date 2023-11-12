@@ -333,9 +333,21 @@ export class AdministratorsController {
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
-    await this.accessTokenService.removeAll({ userId: id });
-    await this.userCredentialService.removeAll({ userId: id });
-    this.administratorsService.remove(id);
+    let session = await this.connection.startSession();
+    try {
+      session.startTransaction();
+      await this.accessTokenService.removeAll({ userId: id }, undefined, {
+        session,
+      });
+      await this.userCredentialService.removeAll({ userId: id }, undefined, {
+        session,
+      });
+      await this.administratorsService.remove(id, { session });
+      await session.commitTransaction();
+    } catch (ex) {
+      await session.abortTransaction();
+      throw ex;
+    }
   }
 
   @Post()
