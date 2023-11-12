@@ -110,5 +110,18 @@ describe('Administrator API', () => {
       expect(res.text).toMatch('must match pattern');
       appConfig.adminIps = origAdminIPs;
     });
+
+    it('should forbid duplicated email address', async function () {
+      const appConfig = app.get<AppConfigService>(AppConfigService).get();
+      const origAdminIPs = appConfig.adminIps;
+      appConfig.adminIps = ['127.0.0.1'];
+      const res = await client.post('/api/administrators').send({
+        email: 'foo@invalid.local',
+        password: VALID_PASSWORD,
+      });
+      expect(res.status).toEqual(400);
+      expect(res.text).toContain('duplicate key');
+      appConfig.adminIps = origAdminIPs;
+    });
   });
 });

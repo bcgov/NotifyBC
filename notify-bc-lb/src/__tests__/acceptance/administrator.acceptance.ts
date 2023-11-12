@@ -131,7 +131,6 @@ describe('Administrator API', function () {
       sinon.assert.match(res.text, 'must match pattern');
       app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
     });
-    // end: ported
 
     it('should forbid duplicated email address', async function () {
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
@@ -148,6 +147,7 @@ describe('Administrator API', function () {
       app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
     });
   });
+  // end: ported
 
   describe('POST /administrator/login', function () {
     it('should allow anonymous user', async function () {
