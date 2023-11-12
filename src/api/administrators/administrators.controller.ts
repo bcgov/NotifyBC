@@ -12,6 +12,7 @@ import {
   Put,
   Req,
 } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
 import {
   ApiExtraModels,
   ApiForbiddenResponse,
@@ -21,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { genSalt, hash } from 'bcryptjs';
 import { omit } from 'lodash';
-import { FilterQuery } from 'mongoose';
+import { Connection, FilterQuery, QueryOptions } from 'mongoose';
 import { AuthnStrategy, Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
@@ -63,6 +64,7 @@ export class AdministratorsController {
     private readonly administratorsService: AdministratorsService,
     private readonly accessTokenService: AccessTokenService,
     private readonly userCredentialService: UserCredentialService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   @Get('count')
@@ -235,6 +237,7 @@ export class AdministratorsController {
     @Req() req,
     @Body()
     userCredential: CreateUserCredentialDto,
+    options?: QueryOptions<UserCredential>,
   ): Promise<CreateUserCredentialReturnDto> {
     if (
       req?.user?.authnStrategy === AuthnStrategy.AccessToken &&
@@ -244,7 +247,7 @@ export class AdministratorsController {
     }
     const pwdRegEx = new RegExp(PASSWORD_COMPLEXITY_REGEX);
     if (!pwdRegEx.test(userCredential.password)) {
-      throw new HttpException(undefined, HttpStatus.BAD_REQUEST);
+      throw new HttpException('must match pattern', HttpStatus.BAD_REQUEST);
     }
     userCredential.password = await hash(
       userCredential.password,
@@ -256,6 +259,7 @@ export class AdministratorsController {
       { userId },
       req,
       true,
+      options,
     );
   }
 
@@ -345,14 +349,28 @@ export class AdministratorsController {
     @Body() createAdministratorDto: CreateAdministratorDto,
     @Req() req,
   ): Promise<Administrator> {
-    const savedUser = await this.administratorsService.create(
-      omit(createAdministratorDto, 'password'),
-      req,
-    );
-    await this.createCredential(savedUser.id, req, {
-      password: createAdministratorDto.password,
-    });
-    return savedUser;
+    let session = await this.connection.startSession();
+    try {
+      session.startTransaction();
+      const savedUser = await this.administratorsService.create(
+        omit(createAdministratorDto, 'password'),
+        req,
+        { session },
+      );
+      await this.createCredential(
+        savedUser.id,
+        req,
+        {
+          password: createAdministratorDto.password,
+        },
+        { session },
+      );
+      await session.commitTransaction();
+      return savedUser;
+    } catch (ex) {
+      await session.abortTransaction();
+      throw ex;
+    }
   }
 
   @Get()

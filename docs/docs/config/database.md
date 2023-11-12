@@ -8,7 +8,7 @@ By default _NotifyBC_ uses in-memory database backed up by folder _/server/datab
 
 ```js
 module.exports = {
-  uri: 'mongodb://127.0.0.1:27017/notifyBC',
+  uri: 'mongodb://127.0.0.1:27017/notifyBC?replicaSet=rs0',
   user: process.env.MONGODB_USER,
   pass: process.env.MONGODB_PASSWORD,
 };
