@@ -72,5 +72,43 @@ describe('Administrator API', () => {
       expect(passwordMatched).toBeTruthy();
       appConfig.adminIps = origAdminIPs;
     });
+
+    it("should forbid if password doesn't meet complexity rules", async function () {
+      const appConfig = app.get<AppConfigService>(AppConfigService).get();
+      const origAdminIPs = appConfig.adminIps;
+      appConfig.adminIps = ['127.0.0.1'];
+
+      let res = await client.post('/api/administrators').send({
+        email: 'baz@invalid.local',
+        password: 'Too_sh0rt',
+      });
+      expect(res.status).toEqual(400);
+      expect(res.text).toMatch('must match pattern');
+      res = await client.post('/api/administrators').send({
+        email: 'baz@invalid.local',
+        password: 'No__number',
+      });
+      expect(res.status).toEqual(400);
+      expect(res.text).toMatch('must match pattern');
+      res = await client.post('/api/administrators').send({
+        email: 'baz@invalid.local',
+        password: '1no_uppercase',
+      });
+      expect(res.status).toEqual(400);
+      expect(res.text).toMatch('must match pattern');
+      res = await client.post('/api/administrators').send({
+        email: 'baz@invalid.local',
+        password: '1NO_LOWERCASE',
+      });
+      expect(res.status).toEqual(400);
+      expect(res.text).toMatch('must match pattern');
+      res = await client.post('/api/administrators').send({
+        email: 'baz@invalid.local',
+        password: '1NoSpecialChar',
+      });
+      expect(res.status).toEqual(400);
+      expect(res.text).toMatch('must match pattern');
+      appConfig.adminIps = origAdminIPs;
+    });
   });
 });

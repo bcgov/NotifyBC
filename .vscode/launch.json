@@ -29,7 +29,7 @@
       "outputCapture": "std",
       // "console": "internalConsole",
       "env": {
-        "notifyBcJestTestTimeout": "9999999999"
+        "notifyBcJestTestTimeout": "99999999"
       }
     },
     {

@@ -91,7 +91,6 @@ describe('Administrator API', function () {
       expect(passwordMatched).true();
       app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
     });
-    // end: ported
 
     it("should forbid if password doesn't meet complexity rules", async function () {
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);
@@ -132,6 +131,7 @@ describe('Administrator API', function () {
       sinon.assert.match(res.text, 'must match pattern');
       app.bind(CoreBindings.APPLICATION_CONFIG).to(origConfig);
     });
+    // end: ported
 
     it('should forbid duplicated email address', async function () {
       const origConfig = await app.get(CoreBindings.APPLICATION_CONFIG);

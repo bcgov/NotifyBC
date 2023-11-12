@@ -19,7 +19,7 @@ beforeEach(async () => {
   app.enableShutdownHooks();
   await app.init();
   client = supertest(app.getHttpServer());
-}, parseInt(process.env.notifyBcJestTestTimeout) || 99999);
+}, Number(process.env.notifyBcJestTestTimeout) || 99999);
 
 afterEach(async () => {
   await app.close();
