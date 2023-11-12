@@ -1,16 +1,20 @@
 import { Request } from 'express';
 import { compact } from 'lodash';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, QueryOptions } from 'mongoose';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { CountDto } from './dto/count.dto';
 export class BaseService<T> {
   constructor(protected model: Model<T>) {}
 
-  async create(createDto, req?: (Request & { user?: any }) | null): Promise<T> {
+  async create(
+    createDto,
+    req?: (Request & { user?: any }) | null,
+    options?,
+  ): Promise<T> {
     if (req?.user) {
       createDto.createdBy = req.user;
     }
-    return (await new this.model(createDto).save()).toJSON();
+    return (await new this.model(createDto).save(options)).toJSON();
   }
 
   async count(where?: FilterQuery<T>): Promise<CountDto> {
@@ -152,6 +156,7 @@ export class BaseService<T> {
     filter: FilterQuery<T> | null,
     req: (Request & { user?: any }) | null,
     upsert: boolean = false,
+    options?: QueryOptions<T>,
   ): Promise<T> {
     if (req?.user) {
       updateDto.updatedBy = req.user;
@@ -160,6 +165,7 @@ export class BaseService<T> {
     delete updateDto.id;
     const res = await this.model
       .findOneAndReplace(filter, updateDto, {
+        ...options,
         upsert,
         new: true,
         includeResultMetadata: true,
@@ -167,9 +173,13 @@ export class BaseService<T> {
       .exec();
     if (upsert && !res.lastErrorObject.updatedExisting) {
       return this.model
-        .findByIdAndUpdate(res.value._id, {
-          createdBy: req.user,
-        })
+        .findByIdAndUpdate(
+          res.value._id,
+          {
+            createdBy: req.user,
+          },
+          options,
+        )
         .exec();
     }
     return res.value;

@@ -269,8 +269,9 @@ Replace _v4.x.x_ with a v4 release, preferably latest, found in GitHub such as _
 
 v5 introduced following backward incompatible changes
 
-1. If you use default in-memory database, data in _server/database/data.json_ will not be migrated automatically. Manually migrate if necessary.
-2. Update file _src/datasources/db.datasource.local.json_
+1. Replica set is required for MongoDB. If you deployed NotifyBC using Helm, replica set is already enabled.
+2. If you use default in-memory database, data in _server/database/data.json_ will not be migrated automatically. Manually migrate if necessary.
+3. Update file _src/datasources/db.datasource.local.json_
 
    1. rename _url_ property to _uri_
    2. for other properties, instead of following [LoopBack MongoDB data source](https://loopback.io/doc/en/lb4/MongoDB-connector.html#creating-a-mongodb-data-source), follow [Mongoose connection options](https://mongoosejs.com/docs/connections.html#options). In particular, _host_, _port_ and _database_ properties are no longer supported. Use _uri_ instead.
@@ -293,7 +294,7 @@ v5 introduced following backward incompatible changes
    }
    ```
 
-3. API querying operators have changed. Replace following [Loopback operators](https://loopback.io/doc/en/lb4/Where-filter.html#operators) with corresponding [MongoDB operators](https://www.mongodb.com/docs/manual/reference/operator/query/) at client-side API call.
+4. API querying operators have changed. Replace following [Loopback operators](https://loopback.io/doc/en/lb4/Where-filter.html#operators) with corresponding [MongoDB operators](https://www.mongodb.com/docs/manual/reference/operator/query/) at client-side API call.
 
    | Loopback operators      | MongoDB operators                               |
    | ----------------------- | ----------------------------------------------- |
@@ -310,7 +311,7 @@ v5 introduced following backward incompatible changes
    | like, nlike, options: i | (replace with $regexp)                          |
    | regexp                  | $regex                                          |
 
-4. API _order_ filter syntax has changed. Replace syntax from [Loopback](https://loopback.io/doc/en/lb4/Order-filter.html) to [Mongoose](<https://mongoosejs.com/docs/api/query.html#Query.prototype.sort()>) at client-side API call. For example, if your client-side code generates following API call
+5. API _order_ filter syntax has changed. Replace syntax from [Loopback](https://loopback.io/doc/en/lb4/Order-filter.html) to [Mongoose](<https://mongoosejs.com/docs/api/query.html#Query.prototype.sort()>) at client-side API call. For example, if your client-side code generates following API call
    ```
    GET http://localhost:3000/api/configurations?filter={"order":["serviceName asc"]}
    ```
@@ -322,11 +323,11 @@ v5 introduced following backward incompatible changes
    ```
    GET http://localhost:3000/api/configurations?filter={"order":"serviceName"}
    ```
-5. Response code of successful bulk patch operation has changed from 200 to 204. No success count is returned. For example, `PATCH http://localhost:3000/api/configurations?where...` returns 204 with empty body upon success. If success count matters, do a `GET .../count` API call first with same _where_ filter.
-6. In MongoDB administrator collection, email has changed from case-sensitively unique to case-insensitively unique. Make sure administrator emails differ not just by case.
-7. When a subscription is created by anonymous user, the _data_ field is preserved. In earlier versions this field is deleted.
-8. Dynamic tokens in subscription confirmation request message and duplicated subscription message are not replaced with subscription data, for example {subscription::...} tokens are left unchanged. Update the template of the two messages if dynamic tokens in them depends on subscription data.
-9. [Inbound SMTP Server](../config-email/#inbound-smtp-server) no longer accepts command line arguments or environment variables as inputs. All inputs have to be defined in config files shown in the link.
+6. Response code of successful bulk patch operation has changed from 200 to 204. No success count is returned. For example, `PATCH http://localhost:3000/api/configurations?where...` returns 204 with empty body upon success. If success count matters, do a `GET .../count` API call first with same _where_ filter.
+7. In MongoDB administrator collection, email has changed from case-sensitively unique to case-insensitively unique. Make sure administrator emails differ not just by case.
+8. When a subscription is created by anonymous user, the _data_ field is preserved. In earlier versions this field is deleted.
+9. Dynamic tokens in subscription confirmation request message and duplicated subscription message are not replaced with subscription data, for example {subscription::...} tokens are left unchanged. Update the template of the two messages if dynamic tokens in them depends on subscription data.
+10. [Inbound SMTP Server](../config-email/#inbound-smtp-server) no longer accepts command line arguments or environment variables as inputs. All inputs have to be defined in config files shown in the link.
 
 After above changes are addressed, upgrading to v5 is as simple as
 
