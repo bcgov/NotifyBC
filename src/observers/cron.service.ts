@@ -27,7 +27,7 @@ export class CronService implements OnApplicationBootstrap {
     this.jobs.push(
       CronJob.from({
         cronTime: cronConfigPurgeData.timeSpec,
-        onTick: await this.cronTasksService.purgeData(),
+        onTick: this.cronTasksService.purgeData(),
         start: true,
       }),
     );
