@@ -381,7 +381,6 @@ describe('Administrator API', function () {
       expect(res.body.id).lengthOf(64);
     });
   });
-  // end: ported
 
   describe('PATCH /administrator/{id}/access-tokens', function () {
     it('should forbid anonymous user', async function () {
@@ -433,6 +432,7 @@ describe('Administrator API', function () {
       expect(res.body.count).equal(1);
     });
   });
+  // end: ported
 
   describe('GET /administrator/{id}/access-tokens', function () {
     it('should forbid anonymous user', async function () {
