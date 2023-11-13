@@ -420,4 +420,33 @@ describe('Administrator API', () => {
       expect(res.body[0].id).toEqual(token);
     });
   });
+
+  describe('DELETE /administrator/{id}/access-tokens', function () {
+    it('should forbid anonymous user', async function () {
+      const res = await client.delete(
+        `/api/administrators/${id1}/access-tokens`,
+      );
+      expect(res.status).toEqual(403);
+    });
+    it('should allow super-admin user', async function () {
+      await runAsSuperAdmin(async () => {
+        const res = await client.delete(
+          `/api/administrators/${id1}/access-tokens`,
+        );
+        expect(res.status).toEqual(200);
+        expect(res.body.count).toEqual(1);
+      });
+    });
+    it('should allow own record only for admin user', async function () {
+      let res = await client
+        .delete(`/api/administrators/${id2}/access-tokens`)
+        .set('Authorization', token);
+      expect(res.status).toEqual(403);
+      res = await client
+        .delete(`/api/administrators/${id1}/access-tokens`)
+        .set('Authorization', token);
+      expect(res.status).toEqual(200);
+      expect(res.body.count).toEqual(1);
+    });
+  });
 });
