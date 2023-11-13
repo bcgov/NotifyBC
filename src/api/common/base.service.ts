@@ -85,13 +85,18 @@ export class BaseService<T> {
     return (await q.exec()).toJSON({ virtuals: !!options?.include });
   }
 
-  updateById(id: string, updateDto, req?: (Request & { user?: any }) | null) {
+  async updateById(
+    id: string,
+    updateDto,
+    req?: (Request & { user?: any }) | null,
+    options?: QueryOptions<T>,
+  ) {
     if (req?.user) {
       updateDto.updatedBy = req.user;
       updateDto.updated = new Date();
     }
     delete updateDto.id;
-    return this.model.findByIdAndUpdate(id, updateDto).exec();
+    return this.model.findByIdAndUpdate(id, updateDto, options).exec();
   }
 
   replaceById(

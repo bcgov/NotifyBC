@@ -300,17 +300,32 @@ export class AdministratorsController {
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
-    if (updateAdministratorDto.password) {
-      await this.createCredential(id, req, {
-        password: updateAdministratorDto.password,
-      });
-      delete updateAdministratorDto.password;
+    const session = await this.connection.startSession();
+    try {
+      session.startTransaction();
+      if (updateAdministratorDto.password) {
+        await this.createCredential(
+          id,
+          req,
+          {
+            password: updateAdministratorDto.password,
+          },
+          { session },
+        );
+        delete updateAdministratorDto.password;
+      }
+      const res = this.administratorsService.updateById(
+        id,
+        updateAdministratorDto,
+        req,
+        { session },
+      );
+      await session.commitTransaction();
+      return res;
+    } catch (ex) {
+      await session.abortTransaction();
+      throw ex;
     }
-    return this.administratorsService.updateById(
-      id,
-      updateAdministratorDto,
-      req,
-    );
   }
 
   @Get(':id')
@@ -333,7 +348,7 @@ export class AdministratorsController {
     ) {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
-    let session = await this.connection.startSession();
+    const session = await this.connection.startSession();
     try {
       session.startTransaction();
       await this.accessTokenService.removeAll({ userId: id }, undefined, {
@@ -361,7 +376,7 @@ export class AdministratorsController {
     @Body() createAdministratorDto: CreateAdministratorDto,
     @Req() req,
   ): Promise<Administrator> {
-    let session = await this.connection.startSession();
+    const session = await this.connection.startSession();
     try {
       session.startTransaction();
       const savedUser = await this.administratorsService.create(
