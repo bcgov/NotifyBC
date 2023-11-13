@@ -9,5 +9,6 @@ const config: Config = {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
   testTimeout: Number(process.env.notifyBcJestTestTimeout) || 5000,
+  restoreMocks: true,
 };
 export default config;
