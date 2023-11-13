@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {toLower} from 'lodash';
+import { toLower } from 'lodash';
 
 module.exports = {
   rest: {
@@ -63,7 +63,7 @@ module.exports = {
           if (!resolvedArgs[0] || !resolvedArgs[1]) {
             return false;
           }
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             setTimeout(() => {
               resolve(
                 toLower(resolvedArgs[0]).indexOf(toLower(resolvedArgs[1])) >= 0,
@@ -80,6 +80,12 @@ module.exports = {
           },
         ],
       },
+    },
+  },
+  cron: {
+    purgeData: {
+      // never - feb 32
+      timeSpec: '0 0 31 2 *',
     },
   },
 };

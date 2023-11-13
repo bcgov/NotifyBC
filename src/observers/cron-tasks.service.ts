@@ -29,11 +29,11 @@ export class CronTasksService {
     private readonly rssService: RssService,
   ) {}
 
-  async purgeData() {
+  purgeData() {
     const cronConfig = this.appConfigService.get('cron.purgeData') ?? {};
-    return async (): Promise<void> => {
+    return async () => {
       try {
-        const res = await Promise.all([
+        await Promise.all([
           (async () => {
             // delete all non-inApp old notifications
             const retentionDays =

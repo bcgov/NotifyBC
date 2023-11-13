@@ -34,9 +34,7 @@ export async function setupApplication(extraConfigs?) {
 }
 
 beforeEach(async () => {
-  const res = await setupApplication();
-  app = res.app;
-  client = res.client;
+  ({ app, client } = await setupApplication());
 }, Number(process.env.notifyBcJestTestTimeout) || 99999);
 
 afterEach(async () => {

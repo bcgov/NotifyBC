@@ -14,7 +14,7 @@
 
 import {ApplicationConfig, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
-import {Client, expect, SinonSpy} from '@loopback/testlab';
+import {Client, SinonSpy, expect} from '@loopback/testlab';
 import {fail} from 'assert';
 import _ from 'lodash';
 import sinon from 'sinon';
@@ -42,6 +42,7 @@ let subscriptionRepository: SubscriptionRepository;
 let configurationRepository: ConfigurationRepository;
 let bounceRepository: BounceRepository;
 let accessTokenRepository: AccessTokenRepository;
+// start: ported
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   rssRepository = await app.get('repositories.RssRepository');
@@ -284,6 +285,7 @@ describe('CRON purgeData', function () {
     expect(data.length).equal(1);
   });
 });
+// end: ported
 
 describe('CRON dispatchLiveNotifications', function () {
   beforeEach(async function () {
