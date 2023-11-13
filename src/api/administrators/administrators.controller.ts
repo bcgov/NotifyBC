@@ -155,7 +155,6 @@ export class AdministratorsController {
   @Patch(':id/access-tokens')
   @ApiWhereJsonQuery()
   @Roles(Role.SuperAdmin, Role.Admin)
-  @HttpCode(204)
   @ApiNoContentResponse({
     description: 'Administrator.AccessToken PATCH success',
   })

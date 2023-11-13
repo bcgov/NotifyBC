@@ -99,7 +99,6 @@ export class BouncesController {
 
   @Patch()
   @ApiWhereJsonQuery()
-  @HttpCode(204)
   @ApiNoContentResponse({ description: 'Bounce PATCH success' })
   updateAll(
     @Body() updateConfigurationDto: UpdateBounceDto,

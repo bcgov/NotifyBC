@@ -73,7 +73,6 @@ export class ConfigurationsController {
 
   @Patch()
   @ApiWhereJsonQuery()
-  @HttpCode(204)
   @ApiNoContentResponse({ description: 'Configuration PATCH success' })
   updateAll(
     @Body() updateConfigurationDto: UpdateConfigurationDto,

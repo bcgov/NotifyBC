@@ -74,7 +74,7 @@ export class BaseService<T> {
     const res = await this.model
       .updateMany(this.model.translateAliases(filter), updateDto)
       .exec();
-    return res;
+    return { count: res.modifiedCount };
   }
 
   async findById(id: string, options?): Promise<T> {
