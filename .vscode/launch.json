@@ -25,7 +25,7 @@
       "name": "test",
       "runtimeExecutable": "yarn",
       "autoAttachChildProcesses": true,
-      "runtimeArgs": ["test:e2e", "administrator"],
+      "runtimeArgs": ["test:e2e", "config"],
       "outputCapture": "std",
       // "console": "internalConsole",
       "env": {

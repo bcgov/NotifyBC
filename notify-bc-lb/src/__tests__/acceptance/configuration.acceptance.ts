@@ -15,10 +15,11 @@
 import {Client, expect} from '@loopback/testlab';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
+import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {ConfigurationRepository} from '../../repositories/configuration.repository';
 import {setupApplication} from './test-helper';
-import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 
+// file ported
 describe('GET /configuration', function () {
   let app: NotifyBcApplication;
   let client: Client;
@@ -52,6 +53,7 @@ describe('GET /configuration', function () {
       },
     });
   });
+
   it('should be forbidden by anonymous user', async function () {
     const res = await client.get('/api/configurations');
     expect(res.status).equal(401);
