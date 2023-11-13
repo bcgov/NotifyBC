@@ -458,7 +458,6 @@ describe('Administrator API', function () {
       expect(res.body[0].id).equal(token);
     });
   });
-  // end: ported
 
   describe('DELETE /administrator/{id}/access-tokens', function () {
     it('should forbid anonymous user', async function () {
@@ -485,6 +484,7 @@ describe('Administrator API', function () {
       expect(res.body.count).equal(1);
     });
   });
+  // end: ported
 
   describe('GET /administrator/whoami', function () {
     it('should handle oidc authn', async function () {
