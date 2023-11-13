@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {CoreBindings} from '@loopback/core';
 import {Client, expect} from '@loopback/testlab';
 import {compare} from 'bcryptjs';
@@ -21,7 +22,6 @@ import {AdministratorRepository} from '../../repositories';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
 import {setupApplication} from './test-helper';
 
-// start: ported
 describe('Administrator API', function () {
   let client: Client;
   let app: NotifyBcApplication;
@@ -484,7 +484,6 @@ describe('Administrator API', function () {
       expect(res.body.count).equal(1);
     });
   });
-  // end: ported
 
   describe('GET /administrator/whoami', function () {
     it('should handle oidc authn', async function () {

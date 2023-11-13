@@ -1,5 +1,6 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
+import { merge } from 'lodash';
 import { AppModule } from 'src/app.module';
 import { AppConfigService } from 'src/config/app-config.service';
 import { setupApp } from 'src/main';
@@ -18,16 +19,24 @@ export async function runAsSuperAdmin(f) {
   appConfig.adminIps = origAdminIPs;
 }
 
-beforeEach(async () => {
+export async function setupApplication(extraConfigs?) {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
-
-  app = moduleFixture.createNestApplication<NestExpressApplication>();
+  const app = moduleFixture.createNestApplication<NestExpressApplication>();
+  const appConfig = app.get<AppConfigService>(AppConfigService).get();
+  merge(appConfig, extraConfigs);
   setupApp(app);
   app.enableShutdownHooks();
   await app.init();
-  client = supertest(app.getHttpServer());
+  const client = supertest(app.getHttpServer());
+  return { app, client };
+}
+
+beforeEach(async () => {
+  const res = await setupApplication();
+  app = res.app;
+  client = res.client;
 }, Number(process.env.notifyBcJestTestTimeout) || 99999);
 
 afterEach(async () => {
