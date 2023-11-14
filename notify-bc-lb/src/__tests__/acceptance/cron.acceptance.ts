@@ -285,7 +285,6 @@ describe('CRON purgeData', function () {
     expect(data.length).equal(1);
   });
 });
-// end: ported
 
 describe('CRON dispatchLiveNotifications', function () {
   beforeEach(async function () {
@@ -381,6 +380,7 @@ describe('CRON dispatchLiveNotifications', function () {
     expect(data.length).equal(1);
   });
 });
+// end: ported
 
 describe('CRON checkRssConfigUpdates', function () {
   beforeEach(async function () {

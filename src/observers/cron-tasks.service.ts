@@ -210,7 +210,7 @@ export class CronTasksService {
       if (livePushNotifications && livePushNotifications.length === 0) {
         return;
       }
-      Promise.all(
+      await Promise.all(
         livePushNotifications.map(async (livePushNotification) => {
           livePushNotification.asyncBroadcastPushNotification =
             livePushNotification.asyncBroadcastPushNotification || true;

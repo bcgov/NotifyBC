@@ -3,13 +3,14 @@ import { fail } from 'assert';
 import mongoose from 'mongoose';
 import { AccessTokenService } from 'src/api/administrators/access-token.service';
 import { BouncesService } from 'src/api/bounces/bounces.service';
+import { BaseController } from 'src/api/common/base.controller';
 import { ConfigurationsService } from 'src/api/configurations/configurations.service';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
 import { CronTasksService } from 'src/observers/cron-tasks.service';
 import { RssService } from 'src/rss/rss.service';
 import supertest from 'supertest';
-import { getAppAndClient } from './test-helper';
+import { getAppAndClient, runAsSuperAdmin, wait } from './test-helper';
 
 let client: supertest.SuperTest<supertest.Test>;
 let app: NestExpressApplication;
@@ -200,10 +201,12 @@ describe('CRON purgeData', function () {
       state: 'deleted',
       updated: '2010-01-01',
     });
-    const promiseAll = jest.spyOn(Promise, 'all');
+    const mockedPromiseAll = jest.spyOn(Promise, 'all');
     try {
       await cronTasksService.purgeData()();
-      expect((await promiseAll.mock.results[0].value)[4].count).toEqual(1);
+      expect((await mockedPromiseAll.mock.results[0].value)[4].count).toEqual(
+        1,
+      );
     } catch (err: any) {
       fail(err);
     }
@@ -221,10 +224,12 @@ describe('CRON purgeData', function () {
       state: 'deleted',
       updated: new Date(),
     });
-    const promiseAll = jest.spyOn(Promise, 'all');
+    const mockedPromiseAll = jest.spyOn(Promise, 'all');
     try {
       await cronTasksService.purgeData()();
-      expect((await promiseAll.mock.results[0].value)[4].count).toEqual(0);
+      expect((await mockedPromiseAll.mock.results[0].value)[4].count).toEqual(
+        0,
+      );
     } catch (err: any) {
       fail(err);
     }
@@ -263,5 +268,111 @@ describe('CRON purgeData', function () {
       },
     });
     expect(data.length).toEqual(1);
+  });
+});
+
+describe('CRON dispatchLiveNotifications', function () {
+  let beforeEachRes;
+  beforeEach(async function () {
+    beforeEachRes = await Promise.all([
+      (async () => {
+        return notificationsService.create({
+          channel: 'email',
+          message: {
+            from: 'admin@foo.com',
+            subject: 'test',
+            textBody: 'this is a test {http_host}',
+          },
+          isBroadcast: true,
+          serviceName: 'myService',
+          httpHost: 'http://foo.com',
+          asyncBroadcastPushNotification: false,
+          invalidBefore: '2010-01-01',
+          state: 'new',
+        });
+      })(),
+      (async () => {
+        return notificationsService.create({
+          channel: 'email',
+          message: {
+            from: 'admin@foo.com',
+            subject: 'test',
+            textBody: 'this is another test {http_host}',
+          },
+          serviceName: 'myService',
+          httpHost: 'http://foo.com',
+          userChannelId: 'bar@foo.com',
+          invalidBefore: '3010-01-01',
+          state: 'new',
+        });
+      })(),
+      (async () => {
+        return subscriptionsService.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'confirmed',
+          unsubscriptionCode: '12345',
+        });
+      })(),
+    ]);
+  });
+  it('should send all live push notifications', async function () {
+    await runAsSuperAdmin(async () => {
+      const globalFetch = jest
+        .spyOn(global, 'fetch')
+        .mockImplementation(async (url, options) => {
+          if (options?.method === 'PUT') {
+            const r = await client
+              .put(url.toString())
+              .send(JSON.parse(options?.body as string));
+            return new Response(JSON.stringify(r.body));
+          }
+        });
+      const mockedPromiseAll = jest.spyOn(Promise, 'all');
+      try {
+        await cronTasksService.dispatchLiveNotifications()();
+        expect((await mockedPromiseAll.mock.results[0].value).length).toEqual(
+          1,
+        );
+      } catch (err: any) {
+        fail(err);
+      }
+      await wait(3000);
+      const mockedSendEmail = BaseController.prototype
+        .sendEmail as unknown as jest.SpyInstance;
+      expect(mockedSendEmail).toHaveBeenCalledTimes(1);
+      const subId = beforeEachRes[2].id;
+      expect(mockedSendEmail).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          from: 'admin@foo.com',
+          to: 'bar@foo.com',
+          subject: 'test',
+          text: 'this is a test http://foo.com',
+          html: undefined,
+          list: {
+            id: 'http://foo.com/myService',
+            unsubscribe: [
+              [
+                `un-${subId}-12345@invalid.local`,
+                `http://foo.com/api/subscriptions/${subId}/unsubscribe?unsubscriptionCode=12345`,
+              ],
+            ],
+          },
+        }),
+      );
+
+      const data = await notificationsService.findAll(
+        {
+          where: {
+            serviceName: 'myService',
+            channel: 'email',
+            state: 'sent',
+          },
+        },
+        undefined,
+      );
+      expect(data.length).toEqual(1);
+    });
   });
 });
