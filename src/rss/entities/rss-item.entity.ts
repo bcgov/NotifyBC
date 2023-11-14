@@ -3,7 +3,6 @@ import { BaseSchemaOptions } from 'src/api/common/base.entity';
 
 @Schema({
   ...BaseSchemaOptions,
-  _id: false,
 })
 export class RssItem {
   @Prop({
@@ -13,6 +12,8 @@ export class RssItem {
 
   @Prop()
   pubDate?: Date;
+
+  [prop: string]: any;
 }
 
 export const RssItemSchema = SchemaFactory.createForClass(RssItem);

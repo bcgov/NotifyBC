@@ -1,6 +1,7 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { fail } from 'assert';
 import mongoose from 'mongoose';
+import path from 'path';
 import { AccessTokenService } from 'src/api/administrators/access-token.service';
 import { BouncesService } from 'src/api/bounces/bounces.service';
 import { BaseController } from 'src/api/common/base.controller';
@@ -11,7 +12,7 @@ import { CronTasksService } from 'src/observers/cron-tasks.service';
 import { RssService } from 'src/rss/rss.service';
 import supertest from 'supertest';
 import { getAppAndClient, runAsSuperAdmin, wait } from './test-helper';
-
+const fs = require('fs');
 let client: supertest.SuperTest<supertest.Test>;
 let app: NestExpressApplication;
 let rssService: RssService;
@@ -374,5 +375,167 @@ describe('CRON dispatchLiveNotifications', function () {
       );
       expect(data.length).toEqual(1);
     });
+  });
+});
+
+describe('CRON checkRssConfigUpdates', function () {
+  let beforeEachRes;
+  beforeEach(async function () {
+    jest.spyOn(global, 'fetch').mockImplementation(async (url, options) => {
+      switch (url) {
+        case 'http://myService/rss':
+          const output = fs.createReadStream(path.join(__dirname, 'rss.xml'));
+          return new Response(output, {
+            status: 200,
+          });
+        case 'http://foo/api/notifications':
+          const r = await client
+            .post('/api/notifications')
+            .send(JSON.parse(options?.body as string));
+          return new Response(JSON.stringify(r.body));
+      }
+    });
+    beforeEachRes = await Promise.all([
+      configurationsService.create({
+        name: 'notification',
+        serviceName: 'myService',
+        value: {
+          rss: {
+            url: 'http://myService/rss',
+            timeSpec: '0 0 1 1 0',
+            outdatedItemRetentionGenerations: 1,
+            includeUpdatedItems: false,
+            fieldsToCheckForUpdate: ['title'],
+          },
+          messageTemplates: {
+            email: {
+              from: 'no_reply@invlid.local',
+              subject: '{title}',
+              textBody: '{description}',
+              htmlBody: '{description}',
+            },
+          },
+          httpHost: 'http://foo',
+        },
+      }),
+      subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        unsubscriptionCode: '12345',
+      }),
+    ]);
+  });
+  afterEach(() => {
+    const rssTasks = cronTasksService.getRssTasks();
+    if (!rssTasks) return;
+    for (const idx in rssTasks) {
+      rssTasks[idx].stop();
+      delete rssTasks[idx];
+    }
+  });
+  it('should create rss task and post notifications at initial run', async function () {
+    try {
+      const rssTasks = await cronTasksService.checkRssConfigUpdates(true);
+      expect(rssTasks[beforeEachRes[0].id.toString()]).not.toBeNull();
+    } catch (err: any) {
+      fail(err);
+    }
+    await wait(1000);
+    expect(fetch as unknown as jest.SpyInstance).toBeCalledWith(
+      'http://foo/api/notifications',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringMatching('"httpHost":"http://foo"'),
+      }),
+    );
+    const results = await rssService.findAll();
+    expect(results?.[0].items?.[0].author).toEqual('foo');
+  });
+  it('should avoid sending notification for unchanged items', async function () {
+    const data: any = {
+      serviceName: 'myService',
+      items: [
+        {
+          title: 'Item 2',
+          description: 'lorem ipsum',
+          summary: 'lorem ipsum',
+          pubDate: '1970-01-01T00:00:00.000Z',
+          link: 'http://myservice/2',
+          guid: '2',
+          author: 'foo',
+          _notifyBCLastPoll: '1970-01-01T00:00:00.000Z',
+        },
+        {
+          title: 'Item 1',
+          description: 'lorem ipsum',
+          summary: 'lorem ipsum',
+          pubDate: '1970-01-01T00:00:00.000Z',
+          link: 'http://myservice/1',
+          guid: '1',
+          author: 'foo',
+          _notifyBCLastPoll: '1970-01-01T00:00:00.000Z',
+        },
+      ],
+      lastPoll: '1970-01-01T00:00:00.000Z',
+    };
+    await rssService.create(data);
+    await cronTasksService.checkRssConfigUpdates(true);
+    await wait(2000);
+    expect(fetch as unknown as jest.SpyInstance).not.toBeCalledWith(
+      expect.any(String),
+      expect.objectContaining({ method: 'POST' }),
+    );
+    const results = await rssService.findAll();
+    expect(results[0].items[0].author).toEqual('foo');
+  });
+  it('should send notification for updated item', async function () {
+    const res = await configurationsService.findById(
+      beforeEachRes[0].id.toString(),
+    );
+    const newVal = res.value;
+    newVal.rss.includeUpdatedItems = true;
+    newVal.rss.outdatedItemRetentionGenerations = 100;
+    await configurationsService.updateById(res.id, { value: newVal });
+    const data: any = {
+      serviceName: 'myService',
+      items: [
+        {
+          title: 'Item',
+          description: 'lorem ipsum',
+          pubDate: '1970-01-01T00:00:00.000Z',
+          link: 'http://myservice/1',
+          guid: '1',
+          author: 'foo',
+          _notifyBCLastPoll: '1970-01-01T00:00:00.000Z',
+        },
+      ],
+      lastPoll: '1970-01-01T00:00:00.000Z',
+    };
+    await rssService.create(data);
+    await cronTasksService.checkRssConfigUpdates(true);
+    await wait(2000);
+
+    expect(fetch as unknown as jest.SpyInstance).lastCalledWith(
+      expect.stringContaining('/api/notifications'),
+      expect.objectContaining({ method: 'POST' }),
+    );
+  });
+  it('should handle error', async function () {
+    // (fetch as unknown as jest.SpyInstance).mockRestore();
+    jest.spyOn(global, 'fetch').mockImplementation(async function () {
+      return new Response(null, {
+        status: 300,
+      });
+    });
+    const loggerErrorSpy = jest.spyOn(cronTasksService.logger, 'error');
+    await cronTasksService.checkRssConfigUpdates(true);
+    await wait(1000);
+    expect(loggerErrorSpy).toBeCalledWith(
+      expect.objectContaining({
+        message: 'Bad status code',
+      }),
+    );
   });
 });

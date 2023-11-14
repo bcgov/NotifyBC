@@ -18,7 +18,7 @@ import { RssService } from 'src/rss/rss.service';
 module.exports.Bottleneck = Bottleneck;
 @Injectable()
 export class CronTasksService {
-  private readonly logger = new Logger(CronTasksService.name);
+  readonly logger = new Logger(CronTasksService.name);
   constructor(
     private readonly configurationsService: ConfigurationsService,
     private readonly notificationsService: NotificationsService,
@@ -273,10 +273,10 @@ export class CronTasksService {
       }
     }
     for (const rssNtfctnConfigItem of rssNtfctnConfigItems) {
-      if (this.rssTasks[rssNtfctnConfigItem.id as string]) {
+      if (this.rssTasks[rssNtfctnConfigItem.id.toString()]) {
         continue;
       }
-      this.rssTasks[rssNtfctnConfigItem.id as string] = CronJob.from({
+      this.rssTasks[rssNtfctnConfigItem.id.toString()] = CronJob.from({
         cronTime: rssNtfctnConfigItem.value.rss.timeSpec,
         onTick: async () => {
           let lastSavedRssData: Rss = null;
