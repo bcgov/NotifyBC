@@ -1,10 +1,12 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { merge } from 'lodash';
+import { BaseController } from 'src/api/common/base.controller';
 import { AppModule } from 'src/app.module';
 import { AppConfigService } from 'src/config/app-config.service';
 import { setupApp } from 'src/main';
 import supertest from 'supertest';
+import { promisify } from 'util';
 
 let app: NestExpressApplication, client: supertest.SuperTest<supertest.Test>;
 export function getAppAndClient() {
@@ -33,9 +35,28 @@ export async function setupApplication(extraConfigs?) {
   return { app, client };
 }
 
+export const wait = promisify(setTimeout);
+
 beforeEach(async () => {
   ({ app, client } = await setupApplication());
 }, Number(process.env.notifyBcJestTestTimeout) || 99999);
+
+beforeEach(function () {
+  async function fakeSendEmail(_mailOptions: any) {
+    console.log('faking sendEmail');
+  }
+
+  async function fakeSendSMS(_to: string, _textBody: string, _data: any) {
+    console.log('faking sendSMS');
+  }
+
+  jest
+    .spyOn(BaseController.prototype, 'sendEmail')
+    .mockImplementation(fakeSendEmail);
+  jest
+    .spyOn(BaseController.prototype, 'sendSMS')
+    .mockImplementation(fakeSendSMS);
+});
 
 afterEach(async () => {
   await app.close();

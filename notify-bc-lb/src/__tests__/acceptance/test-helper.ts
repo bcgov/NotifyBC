@@ -68,7 +68,6 @@ export interface AppWithClient {
   app: NotifyBcApplication;
   client: Client;
 }
-// end: ported
 
 export const wait = promisify(setTimeout);
 
@@ -84,6 +83,7 @@ beforeEach(function () {
   sinon.stub(BaseController.prototype, 'sendEmail').callsFake(fakeSendEmail);
   sinon.stub(BaseController.prototype, 'sendSMS').callsFake(fakeSendSMS);
 });
+// end: ported
 
 afterEach(() => {
   // Restore the default sandbox here
