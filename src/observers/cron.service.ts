@@ -58,7 +58,7 @@ export class CronService implements OnApplicationBootstrap {
     this.jobs.push(
       CronJob.from({
         cronTime: deleteBounces.timeSpec,
-        onTick: await this.cronTasksService.deleteBounces(),
+        onTick: this.cronTasksService.deleteBounces(),
         start: true,
       }),
     );

@@ -539,3 +539,54 @@ describe('CRON checkRssConfigUpdates', function () {
     );
   });
 });
+
+describe('CRON deleteBounces', () => {
+  it('should delete bounce records in which no messages since latestNotificationStarted', async () => {
+    const bounce = await bouncesService.create({
+      channel: 'email',
+      userChannelId: 'foo@invalid.local',
+      hardBounceCount: 6,
+      state: 'active',
+      latestNotificationStarted: '2018-09-30T17:27:44.501Z',
+      latestNotificationEnded: '2018-07-30T17:27:45.261Z',
+      bounceMessages: [
+        {
+          date: '2018-08-30T17:27:45.784Z',
+          message: 'blah',
+        },
+      ],
+    });
+    try {
+      await cronTasksService.deleteBounces()();
+    } catch (err: any) {
+      fail(err);
+    }
+    const item = await bouncesService.findById(bounce.id);
+    expect(item.state).toEqual('deleted');
+  });
+  it.only('should not delete bounce records in which there are messages since latestNotificationStarted', async function () {
+    const bounce = await bouncesService.create({
+      channel: 'email',
+      userChannelId: 'foo@invalid.local',
+      hardBounceCount: 6,
+      state: 'active',
+      latestNotificationStarted: '2018-07-30T17:27:44.501Z',
+      latestNotificationEnded: '2018-07-30T17:27:45.261Z',
+      bounceMessages: [
+        {
+          date: '2018-08-30T17:27:45.784Z',
+          message: 'blah',
+        },
+      ],
+    });
+    try {
+      await (
+        await cronTasksService.deleteBounces()
+      )();
+    } catch (err: any) {
+      fail(err);
+    }
+    const item = await bouncesService.findById(bounce.id);
+    expect(item.state).toEqual('active');
+  });
+});

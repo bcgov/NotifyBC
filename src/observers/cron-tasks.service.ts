@@ -435,7 +435,7 @@ export class CronTasksService {
     return this.rssTasks;
   }
 
-  async deleteBounces() {
+  deleteBounces() {
     return async (): Promise<void> => {
       const minHrs: number = parseInt(
         this.appConfigService.get(
@@ -456,7 +456,7 @@ export class CronTasksService {
           },
         },
       });
-      Promise.all(
+      await Promise.all(
         activeBounces.map(async (activeBounce) => {
           const latestBounceMessageDate =
             activeBounce.bounceMessages?.[0]?.date;

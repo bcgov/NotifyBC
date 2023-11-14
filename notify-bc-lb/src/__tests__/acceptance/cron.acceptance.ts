@@ -554,7 +554,6 @@ describe('CRON checkRssConfigUpdates', function () {
     });
   });
 });
-// end: ported
 
 describe('CRON deleteBounces', function () {
   it('should delete bounce records in which no messages since latestNotificationStarted', async function () {
@@ -608,6 +607,7 @@ describe('CRON deleteBounces', function () {
     expect(item.state).equal('active');
   });
 });
+// end: ported
 
 describe('CRON reDispatchBroadcastPushNotifications', function () {
   beforeEach(async function () {
