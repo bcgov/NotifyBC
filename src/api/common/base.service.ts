@@ -50,8 +50,7 @@ export class BaseService<T> {
     limit && qry.limit(limit);
     fields && qry.select(this.model.translateAliases(fields));
     include && qry.populate(include);
-    const res = await qry.exec();
-    return res;
+    return await qry.exec();
   }
 
   async findOne(
