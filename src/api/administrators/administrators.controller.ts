@@ -301,8 +301,8 @@ export class AdministratorsController {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
     const session = await this.connection.startSession();
-    try {
-      session.startTransaction();
+    let res;
+    await session.withTransaction(async () => {
       if (updateAdministratorDto.password) {
         await this.createCredential(
           id,
@@ -314,18 +314,14 @@ export class AdministratorsController {
         );
         delete updateAdministratorDto.password;
       }
-      const res = this.administratorsService.updateById(
+      res = this.administratorsService.updateById(
         id,
         updateAdministratorDto,
         req,
         { session },
       );
-      await session.commitTransaction();
-      return res;
-    } catch (ex) {
-      await session.abortTransaction();
-      throw ex;
-    }
+    });
+    return res;
   }
 
   @Get(':id')
@@ -349,8 +345,7 @@ export class AdministratorsController {
       throw new HttpException(undefined, HttpStatus.FORBIDDEN);
     }
     const session = await this.connection.startSession();
-    try {
-      session.startTransaction();
+    await session.withTransaction(async () => {
       await this.accessTokenService.removeAll({ userId: id }, undefined, {
         session,
       });
@@ -358,11 +353,7 @@ export class AdministratorsController {
         session,
       });
       await this.administratorsService.remove(id, { session });
-      await session.commitTransaction();
-    } catch (ex) {
-      await session.abortTransaction();
-      throw ex;
-    }
+    });
   }
 
   @Post()
@@ -377,9 +368,9 @@ export class AdministratorsController {
     @Req() req,
   ): Promise<Administrator> {
     const session = await this.connection.startSession();
-    try {
-      session.startTransaction();
-      const savedUser = await this.administratorsService.create(
+    let savedUser;
+    await session.withTransaction(async () => {
+      savedUser = await this.administratorsService.create(
         omit(createAdministratorDto, 'password'),
         req,
         { session },
@@ -392,12 +383,8 @@ export class AdministratorsController {
         },
         { session },
       );
-      await session.commitTransaction();
-      return savedUser;
-    } catch (ex) {
-      await session.abortTransaction();
-      throw ex;
-    }
+    });
+    return savedUser;
   }
 
   @Get()
