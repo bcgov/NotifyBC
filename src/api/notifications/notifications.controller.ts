@@ -371,7 +371,7 @@ export class NotificationsController extends BaseController {
         data,
         NotificationDispatchStatusField.failed,
         {
-          subscriptionId: e.id,
+          subscriptionId: e.id.toString(),
           userChannelId: e.userChannelId,
           error: err,
         },
@@ -383,7 +383,7 @@ export class NotificationsController extends BaseController {
       return this.updateBroadcastPushNotificationStatus(
         data,
         NotificationDispatchStatusField.successful,
-        e.id,
+        e.id.toString(),
       );
     }
   }
@@ -486,7 +486,7 @@ export class NotificationsController extends BaseController {
               await this.updateBroadcastPushNotificationStatus(
                 data,
                 NotificationDispatchStatusField.skipped,
-                e.id,
+                e.id.toString(),
               );
             return;
           }
@@ -508,7 +508,7 @@ export class NotificationsController extends BaseController {
               await this.updateBroadcastPushNotificationStatus(
                 data,
                 NotificationDispatchStatusField.skipped,
-                e.id,
+                e.id.toString(),
               );
             return;
           }
@@ -684,7 +684,8 @@ export class NotificationsController extends BaseController {
           );
           data.dispatch = data.dispatch ?? {};
           data.dispatch.candidates =
-            data.dispatch.candidates ?? subCandidates.map((e) => e.id);
+            data.dispatch.candidates ??
+            subCandidates.map((e) => e.id.toString());
           await this.notificationsService.updateById(
             data.id,
             {

@@ -498,7 +498,7 @@ export class CronTasksService {
       ) {
         return;
       }
-      Promise.all(
+      await Promise.all(
         staleBroadcastPushNotifications.map(
           async (staleBroadcastPushNotification) => {
             staleBroadcastPushNotification.asyncBroadcastPushNotification =

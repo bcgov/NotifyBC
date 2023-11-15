@@ -607,7 +607,6 @@ describe('CRON deleteBounces', function () {
     expect(item.state).equal('active');
   });
 });
-// end: ported
 
 describe('CRON reDispatchBroadcastPushNotifications', function () {
   beforeEach(async function () {
@@ -692,6 +691,7 @@ describe('CRON reDispatchBroadcastPushNotifications', function () {
     expect(data[0].dispatch?.successful).containEql('1');
   });
 });
+// end: ported
 
 describe('CRON clearRedisDatastore', function () {
   let ready: sinon.SinonStub;

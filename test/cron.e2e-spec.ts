@@ -529,7 +529,9 @@ describe('CRON checkRssConfigUpdates', function () {
         status: 300,
       });
     });
-    const loggerErrorSpy = jest.spyOn(cronTasksService.logger, 'error');
+    const loggerErrorSpy = jest
+      .spyOn(cronTasksService.logger, 'error')
+      .mockReturnValueOnce(null);
     await cronTasksService.checkRssConfigUpdates(true);
     await wait(1000);
     expect(loggerErrorSpy).toBeCalledWith(
@@ -564,7 +566,7 @@ describe('CRON deleteBounces', () => {
     const item = await bouncesService.findById(bounce.id);
     expect(item.state).toEqual('deleted');
   });
-  it.only('should not delete bounce records in which there are messages since latestNotificationStarted', async function () {
+  it('should not delete bounce records in which there are messages since latestNotificationStarted', async function () {
     const bounce = await bouncesService.create({
       channel: 'email',
       userChannelId: 'foo@invalid.local',
@@ -588,5 +590,92 @@ describe('CRON deleteBounces', () => {
     }
     const item = await bouncesService.findById(bounce.id);
     expect(item.state).toEqual('active');
+  });
+});
+
+describe('CRON reDispatchBroadcastPushNotifications', () => {
+  let subId;
+  beforeEach(async function () {
+    subId = (
+      await subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        unsubscriptionCode: '12345',
+      })
+    ).id;
+    notificationsService.create({
+      channel: 'email',
+      message: {
+        from: 'admin@foo.com',
+        subject: 'test',
+        textBody: 'this is a test http://foo.com',
+      },
+      isBroadcast: true,
+      serviceName: 'myService',
+      httpHost: 'http://foo.com',
+      asyncBroadcastPushNotification: false,
+      state: 'sending',
+      updated: new Date(new Date().valueOf() - 601000).toUTCString(),
+      dispatch: {
+        candidates: [subId],
+      },
+    });
+  });
+
+  it('should reDispatch broadcast push notifications', async () => {
+    await runAsSuperAdmin(async () => {
+      jest.spyOn(global, 'fetch').mockImplementation(async (url, options) => {
+        if (options.method === 'PUT') {
+          const r = await client
+            .put(url.toString())
+            .send(JSON.parse(options?.body as string));
+          return new Response(JSON.stringify(r.body));
+        }
+      });
+
+      try {
+        const promiseAllSpy = jest.spyOn(Promise, 'all');
+        await cronTasksService.reDispatchBroadcastPushNotifications()();
+        const value = await promiseAllSpy.mock.results?.[0].value;
+        expect(value.length).toEqual(1);
+      } catch (err: any) {
+        fail(err);
+      }
+      await wait(3000);
+      const mockedSendEmail = BaseController.prototype
+        .sendEmail as unknown as jest.SpyInstance;
+      expect(mockedSendEmail).toBeCalledWith(
+        expect.objectContaining({
+          from: 'admin@foo.com',
+          to: 'bar@foo.com',
+          subject: 'test',
+          text: 'this is a test http://foo.com',
+          html: undefined,
+          list: {
+            id: 'http://foo.com/myService',
+            unsubscribe: [
+              [
+                `un-${subId}-12345@invalid.local`,
+                `http://foo.com/api/subscriptions/${subId}/unsubscribe?unsubscriptionCode=12345`,
+              ],
+            ],
+          },
+        }),
+      );
+      const data = await notificationsService.findAll(
+        {
+          where: {
+            serviceName: 'myService',
+            channel: 'email',
+            state: 'sent',
+          },
+        },
+        undefined,
+      );
+      expect(data.length).toEqual(1);
+      expect(data[0].dispatch?.successful).toContainEqual(subId);
+    });
   });
 });

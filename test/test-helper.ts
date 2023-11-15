@@ -42,20 +42,8 @@ beforeEach(async () => {
 }, Number(process.env.notifyBcJestTestTimeout) || 99999);
 
 beforeEach(function () {
-  async function fakeSendEmail(_mailOptions: any) {
-    console.log('faking sendEmail');
-  }
-
-  async function fakeSendSMS(_to: string, _textBody: string, _data: any) {
-    console.log('faking sendSMS');
-  }
-
-  jest
-    .spyOn(BaseController.prototype, 'sendEmail')
-    .mockImplementation(fakeSendEmail);
-  jest
-    .spyOn(BaseController.prototype, 'sendSMS')
-    .mockImplementation(fakeSendSMS);
+  jest.spyOn(BaseController.prototype, 'sendEmail').mockResolvedValue({});
+  jest.spyOn(BaseController.prototype, 'sendSMS').mockResolvedValue({});
 });
 
 afterEach(async () => {
