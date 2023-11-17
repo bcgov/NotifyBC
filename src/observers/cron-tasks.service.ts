@@ -15,10 +15,10 @@ import { RssItem } from 'src/rss/entities/rss-item.entity';
 import { Rss } from 'src/rss/entities/rss.entity';
 import { RssService } from 'src/rss/rss.service';
 
-module.exports.Bottleneck = Bottleneck;
 @Injectable()
 export class CronTasksService {
   readonly logger = new Logger(CronTasksService.name);
+  static Bottleneck = Bottleneck;
   constructor(
     private readonly configurationsService: ConfigurationsService,
     private readonly notificationsService: NotificationsService,
@@ -560,7 +560,7 @@ export class CronTasksService {
           clearDatastore: true,
         });
         delete newThrottleConfig.enabled;
-        const limiter = new module.exports.Bottleneck(newThrottleConfig);
+        const limiter = new CronTasksService.Bottleneck(newThrottleConfig);
         await limiter.ready();
         await limiter.disconnect();
       }
