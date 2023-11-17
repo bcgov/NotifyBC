@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {ApplicationConfig, CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
 import {Client, SinonSpy, expect} from '@loopback/testlab';
@@ -42,7 +43,6 @@ let subscriptionRepository: SubscriptionRepository;
 let configurationRepository: ConfigurationRepository;
 let bounceRepository: BounceRepository;
 let accessTokenRepository: AccessTokenRepository;
-// start: ported
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   rssRepository = await app.get('repositories.RssRepository');
@@ -691,7 +691,6 @@ describe('CRON reDispatchBroadcastPushNotifications', function () {
     expect(data[0].dispatch?.successful).containEql('1');
   });
 });
-// end: ported
 
 describe('CRON clearRedisDatastore', function () {
   let ready: sinon.SinonStub;

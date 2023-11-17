@@ -11,7 +11,12 @@ import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.servic
 import { CronTasksService } from 'src/observers/cron-tasks.service';
 import { RssService } from 'src/rss/rss.service';
 import supertest from 'supertest';
-import { getAppAndClient, runAsSuperAdmin, wait } from './test-helper';
+import {
+  getAppAndClient,
+  runAsSuperAdmin,
+  setupApplication,
+  wait,
+} from './test-helper';
 const fs = require('fs');
 let client: supertest.SuperTest<supertest.Test>;
 let app: NestExpressApplication;
@@ -677,5 +682,77 @@ describe('CRON reDispatchBroadcastPushNotifications', () => {
       expect(data.length).toEqual(1);
       expect(data[0].dispatch?.successful).toContainEqual(subId);
     });
+  });
+});
+
+describe('CRON clearRedisDatastore', function () {
+  let thisApp: NestExpressApplication;
+  let ready: jest.Mock<any, any, any>;
+  let disconnect: jest.Mock<any, any, any>;
+  let spiedBottleneck: jest.SpyInstance<any, any, any>;
+
+  beforeEach(async function () {
+    const { app } = await setupApplication({
+      email: { throttle: { enabled: true, datastore: 'ioredis' } },
+      sms: { throttle: { enabled: true, datastore: 'ioredis' } },
+    });
+    thisApp = app;
+    ready = jest.fn();
+    disconnect = jest.fn();
+    spiedBottleneck = (
+      jest.spyOn(CronTasksService, 'Bottleneck') as jest.SpyInstance<any, any>
+    ).mockReturnValue({ ready, disconnect });
+  });
+
+  afterEach(async () => {
+    await thisApp.close();
+  });
+
+  it('should not clear datastore when there is sending notification', async function () {
+    const notificationsService =
+      thisApp.get<NotificationsService>(NotificationsService);
+    await Promise.all([
+      notificationsService.create({
+        channel: 'sms',
+        message: {
+          textBody: 'this is a test http://foo.com',
+        },
+        isBroadcast: true,
+        serviceName: 'myService',
+        state: 'sending',
+      }),
+      notificationsService.create({
+        channel: 'email',
+        isBroadcast: true,
+        serviceName: 'myService',
+        state: 'sending',
+      }),
+    ]);
+    const cronTasksService = thisApp.get<CronTasksService>(CronTasksService);
+    await cronTasksService.clearRedisDatastore()();
+    expect(spiedBottleneck).not.toBeCalled();
+    expect(spiedBottleneck.mock.instances).toHaveLength(0);
+  });
+
+  it('should clear datastore when no sending notification', async function () {
+    await cronTasksService.clearRedisDatastore()();
+    expect(spiedBottleneck).nthCalledWith(
+      1,
+      expect.objectContaining({
+        clearDatastore: true,
+        datastore: 'ioredis',
+        id: 'notifyBCSms',
+      }),
+    );
+    expect(spiedBottleneck).nthCalledWith(
+      2,
+      expect.objectContaining({
+        clearDatastore: true,
+        datastore: 'ioredis',
+        id: 'notifyBCEmail',
+      }),
+    );
+    expect(ready).toBeCalledTimes(2);
+    expect(disconnect).toBeCalledTimes(2);
   });
 });
