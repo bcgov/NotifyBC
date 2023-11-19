@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AnyObject } from 'mongoose';
 import path from 'path';
 import { FilterDto } from 'src/api/common/dto/filter.dto';
@@ -9,6 +10,8 @@ import { AppConfigService } from 'src/config/app-config.service';
 
 module.exports.mailParser = require('mailparser');
 const logger = new Logger(path.parse(__filename).name);
+let server: any;
+
 export function smtpServer(app) {
   return new Promise((resolve, reject) => {
     let urlPrefix = 'http://localhost:3000/api';
@@ -96,6 +99,12 @@ export function smtpServer(app) {
                     encodeURIComponent(unsubscriptionCode) +
                     '&userChannelId=' +
                     encodeURIComponent(session.envelope.mailFrom.address),
+                  {
+                    headers: {
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      is_anonymous: 'true',
+                    },
+                  },
                 );
                 if (res.status >= 400) return callback(res);
                 break;
@@ -287,7 +296,7 @@ export function smtpServer(app) {
         });
       },
     };
-    const server = new SMTPServer(smtpOpts);
+    server = new SMTPServer(smtpOpts);
     server.on('error', () => {});
     server.listen(port, function (this: any) {
       logger.log(
@@ -303,9 +312,9 @@ export function smtpServer(app) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const appConfig = app.get(AppConfigService).get();
-  smtpServer(appConfig);
+  return smtpServer(appConfig);
 }
 
 if (require.main === module) {
