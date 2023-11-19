@@ -10,6 +10,7 @@ import { AppConfigService } from 'src/config/app-config.service';
 
 module.exports.mailParser = require('mailparser');
 const logger = new Logger(path.parse(__filename).name);
+
 let server: any;
 
 export function smtpServer(app) {
@@ -188,7 +189,7 @@ export function smtpServer(app) {
                   error.responseCode = 451;
                   return callback(error);
                 }
-                if (!(body instanceof Array) || body.length !== 1) {
+                if (!Array.isArray(body) || body.length !== 1) {
                   return callback(null);
                 }
                 const userChannelId = body[0]?.userChannelId;
