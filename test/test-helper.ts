@@ -1,6 +1,8 @@
+import { DEFAULT_DB_CONNECTION } from '@nestjs/mongoose/dist/mongoose.constants';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { merge } from 'lodash';
+import { Connection } from 'mongoose';
 import { BaseController } from 'src/api/common/base.controller';
 import { AppModule } from 'src/app.module';
 import { AppConfigService } from 'src/config/app-config.service';
@@ -37,9 +39,13 @@ export async function setupApplication(extraConfigs?) {
 
 export const wait = promisify(setTimeout);
 
-beforeEach(async () => {
+beforeAll(async () => {
   ({ app, client } = await setupApplication());
 }, Number(process.env.notifyBcJestTestTimeout) || 99999);
+
+afterAll(async () => {
+  await app.close();
+});
 
 beforeEach(function () {
   jest.spyOn(BaseController.prototype, 'sendEmail').mockResolvedValue({});
@@ -47,5 +53,7 @@ beforeEach(function () {
 });
 
 afterEach(async () => {
-  await app.close();
+  const connection: Connection = app.get(DEFAULT_DB_CONNECTION);
+  await connection.dropDatabase();
+  await connection.syncIndexes();
 });
