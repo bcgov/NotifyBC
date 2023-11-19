@@ -19,8 +19,8 @@ import {fail} from 'should';
 import sinon from 'sinon';
 import {NotifyBcApplication} from '../..';
 import {BounceRepository, SubscriptionRepository} from '../../repositories';
-import {setupApplication} from './test-helper';
 import {BaseCrudRepository} from '../../repositories/baseCrudRepository';
+import {setupApplication} from './test-helper';
 
 let app: NotifyBcApplication;
 const SMTPConnection = require('nodemailer/lib/smtp-connection');
@@ -31,6 +31,7 @@ let port: number;
 let client: Client;
 let subscriptionRepository: SubscriptionRepository;
 let bounceRepository: BounceRepository;
+// start: ported
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
@@ -240,6 +241,7 @@ describe('bounce', function () {
       );
     });
   });
+  // end: ported
 
   it('should increment bounce record', function (done) {
     sinon

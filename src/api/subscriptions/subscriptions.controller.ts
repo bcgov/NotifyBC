@@ -287,7 +287,7 @@ export class SubscriptionsController extends BaseController {
     unsubscriptionCode?: string,
     @Query('userChannelId')
     userChannelId?: string,
-    @Query('additionalServices', ParseArrayPipe)
+    @Query('additionalServices', new ParseArrayPipe({ optional: true }))
     additionalServices?: string[],
   ): Promise<void> {
     await this.deleteById(
@@ -533,7 +533,7 @@ export class SubscriptionsController extends BaseController {
     unsubscriptionCode: string,
     @Query('userChannelId')
     userChannelId?: string,
-    @Query('additionalServices', ParseArrayPipe)
+    @Query('additionalServices', new ParseArrayPipe({ optional: true }))
     additionalServices?: string[],
   ): Promise<void> {
     let instance = await this.subscriptionsService.findOne(
