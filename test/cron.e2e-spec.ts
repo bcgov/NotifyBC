@@ -600,7 +600,7 @@ describe('CRON deleteBounces', () => {
 
 describe('CRON reDispatchBroadcastPushNotifications', () => {
   let subId;
-  beforeEach(async function () {
+  beforeEach(async () => {
     subId = (
       await subscriptionsService.create({
         serviceName: 'myService',
@@ -610,7 +610,7 @@ describe('CRON reDispatchBroadcastPushNotifications', () => {
         unsubscriptionCode: '12345',
       })
     ).id;
-    notificationsService.create({
+    await notificationsService.create({
       channel: 'email',
       message: {
         from: 'admin@foo.com',
