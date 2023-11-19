@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
 import {Client, expect} from '@loopback/testlab';
@@ -31,7 +32,6 @@ let port: number;
 let client: Client;
 let subscriptionRepository: SubscriptionRepository;
 let bounceRepository: BounceRepository;
-// start: ported
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   subscriptionRepository = await app.get('repositories.SubscriptionRepository');
@@ -241,7 +241,6 @@ describe('bounce', function () {
       );
     });
   });
-  // end: ported
 
   it('should increment bounce record', function (done) {
     sinon
