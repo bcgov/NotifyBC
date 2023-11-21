@@ -35,6 +35,7 @@ let notificationRepository: NotificationRepository;
 let subscriptionRepository: SubscriptionRepository;
 let bounceRepository: BounceRepository;
 
+// start: ported
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   notificationRepository = await app.get('repositories.NotificationRepository');
@@ -120,6 +121,7 @@ describe('GET /notifications', function () {
       expect(res.body.length).equal(1);
     },
   );
+  // end: ported
 });
 
 describe('POST /notifications', function () {
