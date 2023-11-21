@@ -217,6 +217,7 @@ export class NotificationsController extends BaseController {
   }
 
   @Post()
+  @HttpCode(200)
   @ApiOkResponse({
     description: 'Notification model instance',
     type: Notification,
@@ -866,7 +867,7 @@ export class NotificationsController extends BaseController {
       );
       const escapedUserChannelIdRegExp = new RegExp(escapedUserChannelId, 'i');
       whereClause.userChannelId = {
-        regexp: escapedUserChannelIdRegExp,
+        $regex: escapedUserChannelIdRegExp,
       };
     }
     if (data.userId) {

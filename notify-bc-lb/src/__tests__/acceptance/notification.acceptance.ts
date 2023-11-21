@@ -121,7 +121,6 @@ describe('GET /notifications', function () {
       expect(res.body.length).equal(1);
     },
   );
-  // end: ported
 });
 
 describe('POST /notifications', function () {
@@ -1460,6 +1459,7 @@ describe('PATCH /notifications/{id}', function () {
     expect(data.readBy).containEql('bar');
     expect(data.state).equal('new');
   });
+  // end: ported
   it('should set state field of broadcast inApp notifications for admin users', async function () {
     sinon.stub(BaseCrudRepository.prototype, 'isAdminReq').resolves(true);
     const res = await client
