@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {CoreBindings} from '@loopback/core';
 import {HttpErrors} from '@loopback/rest';
 import {Client, expect} from '@loopback/testlab';
@@ -35,7 +36,6 @@ let notificationRepository: NotificationRepository;
 let subscriptionRepository: SubscriptionRepository;
 let bounceRepository: BounceRepository;
 
-// start: ported
 before('setupApplication', async function () {
   ({app, client} = await setupApplication());
   notificationRepository = await app.get('repositories.NotificationRepository');
@@ -1482,7 +1482,6 @@ describe('PATCH /notifications/{id}', function () {
     expect(res.status).equal(401);
   });
 });
-// end: ported
 
 describe('DELETE /notifications/{id}', function () {
   beforeEach(async function () {
