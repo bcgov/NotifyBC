@@ -94,7 +94,6 @@ describe('GET /subscriptions', function () {
     expect(res.body[0].confirmationRequest).not.undefined();
   });
 });
-// end: ported
 
 describe('POST /subscriptions', function () {
   it('should allow admin users create subscriptions without sending confirmation request', async function () {
@@ -497,6 +496,7 @@ describe('POST /subscriptions', function () {
     expect(data.length).equal(1);
   });
 });
+// end: ported
 
 describe('PATCH /subscriptions/{id}', function () {
   beforeEach(async function () {
