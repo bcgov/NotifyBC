@@ -9,7 +9,7 @@ export class BaseEntity {
   @Prop({ default: Date.now })
   created?: Date;
 
-  @Prop()
+  @Prop({ default: Date.now })
   updated?: Date;
 
   @Prop({ type: mongoose.Schema.Types.Mixed })
