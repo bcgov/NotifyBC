@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// start: ported
 import {CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
 import {Client, expect} from '@loopback/testlab';
@@ -93,6 +94,7 @@ describe('GET /subscriptions', function () {
     expect(res.body[0].confirmationRequest).not.undefined();
   });
 });
+// end: ported
 
 describe('POST /subscriptions', function () {
   it('should allow admin users create subscriptions without sending confirmation request', async function () {
