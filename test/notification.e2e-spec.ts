@@ -1635,4 +1635,29 @@ describe('PATCH /notifications/{id}', function () {
     expect(data.readBy).toContain('bar');
     expect(data.state).toEqual('new');
   });
+
+  it('should set state field of broadcast inApp notifications for admin users', async () => {
+    await runAsSuperAdmin(async () => {
+      const res = await client
+        .patch(`/api/notifications/${notificationId}`)
+        .send({
+          state: 'deleted',
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).toEqual(204);
+      const data = await notificationsService.findById(notificationId);
+      expect(data.state).toEqual('deleted');
+    });
+  });
+
+  it('should deny anonymous user', async () => {
+    const res = await client
+      .patch('/api/notifications/1')
+      .send({
+        serviceName: 'myService',
+        state: 'read',
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+  });
 });
