@@ -68,8 +68,8 @@ export class BaseService<T> {
   ) {
     if (req?.user) {
       updateDto.updatedBy = req.user;
-      updateDto.updated = new Date();
     }
+    updateDto.updated = new Date();
     const res = await this.model
       .updateMany(this.model.translateAliases(filter), updateDto)
       .exec();
@@ -92,8 +92,8 @@ export class BaseService<T> {
   ) {
     if (req?.user) {
       updateDto.updatedBy = req.user;
-      updateDto.updated = new Date();
     }
+    updateDto.updated = new Date();
     delete updateDto.id;
     return this.model.findByIdAndUpdate(id, updateDto, options).exec();
   }
@@ -117,8 +117,8 @@ export class BaseService<T> {
   ): Promise<T> {
     if (req?.user) {
       updateDto.updatedBy = req.user;
-      updateDto.updated = new Date();
     }
+    updateDto.updated = new Date();
     delete updateDto.id;
     const res = await this.model
       .findOneAndReplace(filter, updateDto, {
