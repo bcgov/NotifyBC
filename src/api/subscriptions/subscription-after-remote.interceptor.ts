@@ -19,16 +19,16 @@ export class SubscriptionAfterRemoteInterceptor implements NestInterceptor {
         if (data instanceof Array) {
           data.forEach(function (e) {
             if (!(e instanceof Object)) return;
-            delete e.confirmationRequest;
-            delete e.updatedBy;
-            delete e.createdBy;
-            delete e.unsubscriptionCode;
+            e.confirmationRequest = undefined;
+            e.updatedBy = undefined;
+            e.createdBy = undefined;
+            e.unsubscriptionCode = undefined;
           });
         } else if (data instanceof Object) {
-          delete data.confirmationRequest;
-          delete data.updatedBy;
-          delete data.createdBy;
-          delete data.unsubscriptionCode;
+          data.confirmationRequest = undefined;
+          data.updatedBy = undefined;
+          data.createdBy = undefined;
+          data.unsubscriptionCode = undefined;
         }
         return data;
       }),

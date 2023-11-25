@@ -237,7 +237,7 @@ export class SubscriptionsController extends BaseController {
       }
       const unsubscribedAdditionalServicesIds =
         instance.unsubscribedAdditionalServices.ids.slice();
-      delete instance.unsubscribedAdditionalServices;
+      instance.unsubscribedAdditionalServices = undefined;
       await this.subscriptionsService.replaceById(instance.id, instance, req);
       await revertItems({
         $or: [

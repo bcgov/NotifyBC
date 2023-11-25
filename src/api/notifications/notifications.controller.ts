@@ -269,8 +269,8 @@ export class NotificationsController extends BaseController {
         e.readBy = null;
         e.deletedBy = null;
       }
-      delete e.updatedBy;
-      delete e.createdBy;
+      e.updatedBy = undefined;
+      e.createdBy = undefined;
       p.push(e);
       return p;
     }, []);
