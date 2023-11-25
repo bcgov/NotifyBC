@@ -1605,7 +1605,7 @@ describe('POST /notifications', () => {
   });
 });
 
-describe('PATCH /notifications/{id}', function () {
+describe('PATCH /notifications/{id}', () => {
   let notificationId;
   beforeEach(async function () {
     const res = await notificationsService.create({
@@ -1652,11 +1652,57 @@ describe('PATCH /notifications/{id}', function () {
 
   it('should deny anonymous user', async () => {
     const res = await client
-      .patch('/api/notifications/1')
+      .patch(`/api/notifications/${notificationId}`)
       .send({
         serviceName: 'myService',
         state: 'read',
       })
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+  });
+});
+
+describe('DELETE /notifications/{id}', () => {
+  let notificationId;
+  beforeEach(async function () {
+    const res = await notificationsService.create({
+      channel: 'inApp',
+      isBroadcast: true,
+      message: {
+        title: 'test',
+        body: 'this is a test',
+      },
+      serviceName: 'myService',
+      state: 'new',
+    });
+    notificationId = res.id;
+  });
+
+  it('should set deletedBy field of broadcast inApp notifications for sm users', async () => {
+    const res = await client
+      .delete(`/api/notifications/${notificationId}`)
+      .set('Accept', 'application/json')
+      .set('SM_USER', 'bar');
+    expect(res.status).toEqual(204);
+    const data = await notificationsService.findById(notificationId);
+    expect(data.deletedBy).toContain('bar');
+    expect(data.state).toEqual('new');
+  });
+
+  it('should set state field of broadcast inApp notifications for admin users', async () => {
+    await runAsSuperAdmin(async () => {
+      const res = await client
+        .delete(`/api/notifications/${notificationId}`)
+        .set('Accept', 'application/json');
+      expect(res.status).toEqual(204);
+      const data = await notificationsService.findById(notificationId);
+      expect(data.state).toEqual('deleted');
+    });
+  });
+
+  it('should deny anonymous user', async () => {
+    const res = await client
+      .delete(`/api/notifications/${notificationId}`)
       .set('Accept', 'application/json');
     expect(res.status).toEqual(403);
   });
