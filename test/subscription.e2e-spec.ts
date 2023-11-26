@@ -625,3 +625,210 @@ describe('GET /subscriptions/{id}/verify', () => {
     expect(res.state).toEqual('deleted');
   });
 });
+
+describe('DELETE /subscriptions/{id}', () => {
+  let data: any[];
+  beforeEach(async () => {
+    data = await Promise.all([
+      subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userId: 'bar',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        confirmationRequest: {
+          confirmationCodeRegex: '\\d{5}',
+          sendRequest: true,
+          from: 'no_reply@invlid.local',
+          subject: 'Subscription confirmation',
+          textBody: 'enter {confirmation_code} in this email',
+          confirmationCode: '37688',
+        },
+      }),
+      subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        confirmationRequest: {
+          confirmationCodeRegex: '\\d{5}',
+          sendRequest: true,
+          from: 'no_reply@invlid.local',
+          subject: 'Subscription confirmation',
+          textBody: 'enter {confirmation_code} in this email',
+          confirmationCode: '37689',
+        },
+        unsubscriptionCode: '50032',
+      }),
+      subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'unconfirmed',
+        confirmationRequest: {
+          confirmationCodeRegex: '\\d{5}',
+          sendRequest: true,
+          from: 'no_reply@invlid.local',
+          subject: 'Subscription confirmation',
+          textBody: 'enter {confirmation_code} in this email',
+          confirmationCode: '37689',
+        },
+      }),
+      subscriptionsService.create({
+        serviceName: 'redirectAck',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        unsubscriptionCode: '12345',
+      }),
+      subscriptionsService.create({
+        serviceName: 'redirectAck',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'deleted',
+        unsubscriptionCode: '12345',
+      }),
+      configurationsService.create({
+        name: 'subscription',
+        serviceName: 'redirectAck',
+        value: {
+          anonymousUnsubscription: {
+            acknowledgements: {
+              onScreen: {
+                redirectUrl: 'http://nowhere',
+              },
+            },
+          },
+        },
+      }),
+    ]);
+  });
+
+  it('should allow unsubscription by sm user', async () => {
+    let res: any = await client
+      .delete('/api/subscriptions/' + data[0].id)
+      .set('Accept', 'application/json')
+      .set('SM_USER', 'bar');
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findById(data[0].id);
+    expect(res.state).toEqual('deleted');
+  });
+
+  it('should allow unsubscription by anonymous user', async () => {
+    let res: any = await client
+      .get(
+        '/api/subscriptions/' +
+          data[1].id +
+          '/unsubscribe?unsubscriptionCode=50032',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findById(data[1].id);
+    expect(res.state).toEqual('deleted');
+  });
+
+  it('should deny unsubscription by anonymous user with incorrect unsubscriptionCode', async () => {
+    let res: any = await client
+      .get(
+        '/api/subscriptions/' +
+          data[1].id +
+          '/unsubscribe?unsubscriptionCode=50033',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+    res = await subscriptionsService.findById(data[1].id);
+    expect(res.state).toEqual('confirmed');
+  });
+
+  it('should deny unsubscription if state is not confirmed', async () => {
+    let res: any = await client
+      .get(
+        '/api/subscriptions/' +
+          data[2].id +
+          '/unsubscribe?unsubscriptionCode=50033',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+    res = await subscriptionsService.findById(data[2].id);
+    expect(res.state).toEqual('unconfirmed');
+  });
+
+  it('should deny unsubscription by another sm user', async () => {
+    let res: any = await client
+      .delete('/api/subscriptions/' + data[0].id)
+      .set('Accept', 'application/json')
+      .set('SM_USER', 'baz');
+    expect(res.status).toEqual(404);
+    res = await subscriptionsService.findById(data[0].id);
+    expect(res.state).toEqual('confirmed');
+  });
+
+  it('should redirect onscreen acknowledgements', async () => {
+    let res: any = await client
+      .get(
+        '/api/subscriptions/' +
+          data[3].id +
+          '/unsubscribe?unsubscriptionCode=12345',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(302);
+    expect(res.header.location).toEqual('http://nowhere?channel=email');
+    res = await subscriptionsService.findById(data[3].id);
+    expect(res.state).toEqual('deleted');
+  });
+
+  it('should redirect onscreen acknowledgements with error', async () => {
+    jest
+      .spyOn(BaseController.prototype, 'getMergedConfig')
+      .mockImplementation(async function () {
+        return {
+          anonymousUnsubscription: {
+            acknowledgements: {
+              onScreen: {
+                redirectUrl: 'http://nowhere',
+              },
+            },
+          },
+        };
+      });
+
+    const res = await client
+      .get(
+        '/api/subscriptions/' +
+          data[4].id +
+          '/unsubscribe?unsubscriptionCode=12345',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(302);
+    expect(res.header.location).toMatch(
+      /http:\/\/nowhere\?channel=email\&err=.+/,
+    );
+  });
+
+  it('should display onScreen acknowledgements failureMessage', async () => {
+    jest
+      .spyOn(BaseController.prototype, 'getMergedConfig')
+      .mockImplementation(async function () {
+        return {
+          anonymousUnsubscription: {
+            acknowledgements: {
+              onScreen: {
+                failureMessage: 'fail',
+              },
+            },
+          },
+        };
+      });
+
+    const res = await client
+      .get(
+        '/api/subscriptions/' +
+          data[4].id +
+          '/unsubscribe?unsubscriptionCode=12345',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+    expect(res.text).toEqual('fail');
+    expect(res.type).toEqual('text/plain');
+  });
+});
