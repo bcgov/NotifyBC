@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// file ported
 import {AnyObject} from '@loopback/repository';
 import {
   Client,
@@ -25,7 +26,6 @@ import {BaseController} from '../../controllers/base.controller';
 
 process.env['NODE_ENV'] = 'test';
 
-// start: ported
 export async function setupApplication(
   options?: AnyObject,
 ): Promise<AppWithClient> {
@@ -50,20 +50,16 @@ export async function setupApplication(
   await app.start();
 
   const client = createRestAppClient(app);
-  // end: ported
 
   beforeEach(async () => {
     await app.migrateSchema({existingSchema: 'drop'});
   });
-  // start: ported
   after(async () => {
     await app.stop();
   });
   return {app, client};
-  // end: ported
 }
 
-// start: ported
 export interface AppWithClient {
   app: NotifyBcApplication;
   client: Client;
@@ -83,7 +79,6 @@ beforeEach(function () {
   sinon.stub(BaseController.prototype, 'sendEmail').callsFake(fakeSendEmail);
   sinon.stub(BaseController.prototype, 'sendSMS').callsFake(fakeSendSMS);
 });
-// end: ported
 
 afterEach(() => {
   // Restore the default sandbox here
