@@ -846,7 +846,6 @@ describe('DELETE /subscriptions/{id}', function () {
     expect(res.type).equal('text/plain');
   });
 });
-// end: ported
 
 describe('GET /subscriptions/{id}/unsubscribe', function () {
   let data: Subscription[];
@@ -954,6 +953,7 @@ describe('GET /subscriptions/{id}/unsubscribe', function () {
     expect(res.length).equal(2);
   });
 });
+// end: ported
 
 describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
   let data: Subscription[];
