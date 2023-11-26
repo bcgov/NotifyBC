@@ -496,3 +496,59 @@ describe('POST /subscriptions', function () {
     expect(data.length).toEqual(1);
   });
 });
+
+describe('PATCH /subscriptions/{id}', () => {
+  let subscriptionId;
+  beforeEach(async () => {
+    const res = await subscriptionsService.create({
+      serviceName: 'myService',
+      channel: 'email',
+      userId: 'bar',
+      userChannelId: 'bar@foo.com',
+      state: 'confirmed',
+      confirmationRequest: {
+        confirmationCodeRegex: '\\d{5}',
+        sendRequest: true,
+        from: 'no_reply@invlid.local',
+        subject: 'Subscription confirmation',
+        textBody: 'enter {confirmation_code} in this email',
+        confirmationCode: '37688',
+      },
+      unsubscriptionCode: '50032',
+    });
+    subscriptionId = res.id;
+  });
+
+  it('should allow sm users change their user channel id', async () => {
+    const res = await client
+      .patch(`/api/subscriptions/${subscriptionId}`)
+      .send({
+        userChannelId: 'baz@foo.com',
+      })
+      .set('Accept', 'application/json')
+      .set('SM_USER', 'bar');
+    expect(res.body.state).toEqual('unconfirmed');
+    expect(res.body.userChannelId).toEqual('baz@foo.com');
+  });
+
+  it("should deny sm user from changing other user's subscription", async () => {
+    const res = await client
+      .patch(`/api/subscriptions/${subscriptionId}`)
+      .send({
+        userChannelId: 'baz@foo.com',
+      })
+      .set('Accept', 'application/json')
+      .set('SM_USER', 'baz');
+    expect(res.status).toEqual(404);
+  });
+
+  it("should deny anonymous user's access", async () => {
+    const res = await client
+      .patch(`/api/subscriptions/${subscriptionId}`)
+      .send({
+        userChannelId: 'baz@foo.com',
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+  });
+});
