@@ -1073,7 +1073,6 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', function () {
     expect(res.unsubscribedAdditionalServices).undefined();
   });
 });
-// end: ported
 
 describe('PUT /subscriptions/{id}', function () {
   beforeEach(async function () {
@@ -1129,6 +1128,7 @@ describe('PUT /subscriptions/{id}', function () {
     expect(res.status).equal(401);
   });
 });
+// end: ported
 
 describe('GET /subscriptions/services', function () {
   beforeEach(async function () {
