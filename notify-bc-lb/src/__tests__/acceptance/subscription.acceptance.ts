@@ -627,7 +627,6 @@ describe('GET /subscriptions/{id}/verify', function () {
     expect(res.state).equal('deleted');
   });
 });
-// end: ported
 
 describe('DELETE /subscriptions/{id}', function () {
   let data: any[];
@@ -847,6 +846,7 @@ describe('DELETE /subscriptions/{id}', function () {
     expect(res.type).equal('text/plain');
   });
 });
+// end: ported
 
 describe('GET /subscriptions/{id}/unsubscribe', function () {
   let data: Subscription[];
