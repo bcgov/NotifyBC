@@ -1118,3 +1118,41 @@ describe('PUT /subscriptions/{id}', () => {
     expect(res.status).toEqual(403);
   });
 });
+
+describe('GET /subscriptions/services', () => {
+  beforeEach(async () => {
+    await subscriptionsService.create({
+      serviceName: 'myService',
+      channel: 'email',
+      userId: 'bar',
+      userChannelId: 'bar@invalid.local',
+      state: 'confirmed',
+      confirmationRequest: {
+        confirmationCodeRegex: '\\d{5}',
+        sendRequest: true,
+        from: 'no_reply@invlid.local',
+        subject: 'Subscription confirmation',
+        textBody: 'enter {confirmation_code} in this email',
+        confirmationCode: '37688',
+      },
+      unsubscriptionCode: '50032',
+    });
+  });
+
+  it(`should allow admin user's access`, async () => {
+    await runAsSuperAdmin(async () => {
+      const res = await client
+        .get('/api/subscriptions/services')
+        .set('Accept', 'application/json');
+      expect(res.body instanceof Array).toEqual(true);
+      expect(res.body.length).toEqual(1);
+    });
+  });
+
+  it("should deny anonymous user's access", async () => {
+    const res = await client
+      .get('/api/subscriptions/services')
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+  });
+});
