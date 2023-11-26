@@ -1128,7 +1128,6 @@ describe('PUT /subscriptions/{id}', function () {
     expect(res.status).equal(401);
   });
 });
-// end: ported
 
 describe('GET /subscriptions/services', function () {
   beforeEach(async function () {
@@ -1168,6 +1167,7 @@ describe('GET /subscriptions/services', function () {
     expect(res.status).equal(401);
   });
 });
+// end: ported
 
 describe('POST /subscriptions/swift', function () {
   let origConfig: AnyObject;
