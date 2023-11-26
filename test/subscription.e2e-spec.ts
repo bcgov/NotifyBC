@@ -944,3 +944,121 @@ describe('GET /subscriptions/{id}/unsubscribe', () => {
     expect(res.length).toEqual(2);
   });
 });
+
+describe('GET /subscriptions/{id}/unsubscribe/undo', () => {
+  let data: Subscription[] = [];
+  beforeEach(async () => {
+    data.push(
+      await subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'deleted',
+        unsubscriptionCode: '50032',
+      }),
+    );
+    data = data.concat(
+      await Promise.all([
+        subscriptionsService.create({
+          serviceName: 'myService',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'unconfirmed',
+          confirmationRequest: {
+            confirmationCodeRegex: '\\d{5}',
+            sendRequest: true,
+            from: 'no_reply@invlid.local',
+            subject: 'Subscription confirmation',
+            textBody: 'enter {confirmation_code} in this email',
+            confirmationCode: '37689',
+          },
+          unsubscriptionCode: '50032',
+        }),
+        subscriptionsService.create({
+          serviceName: 'myService2',
+          channel: 'email',
+          userChannelId: 'bar@foo.com',
+          state: 'deleted',
+          unsubscriptionCode: '12345',
+          unsubscribedAdditionalServices: {
+            names: ['myService'],
+            ids: [data[0].id],
+          },
+        }),
+      ]),
+    );
+  });
+
+  it('should allow undelete subscription by anonymous user', async () => {
+    let res: any = await client
+      .get(
+        '/api/subscriptions/' +
+          data[0].id +
+          '/unsubscribe/undo?unsubscriptionCode=50032',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findById(data[0].id);
+    expect(res.state).toEqual('confirmed');
+  });
+
+  it('should forbid undelete subscription by anonymous user with incorrect unsubscriptionCode', async () => {
+    const res = await client
+      .get(
+        '/api/subscriptions/' +
+          data[0].id +
+          '/unsubscribe/undo?unsubscriptionCode=50033',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+    const sub = await subscriptionsService.findById(data[0].id);
+    expect(sub.state).toEqual('deleted');
+  });
+
+  it('should forbid undelete subscription where state is not deleted', async () => {
+    let res: any = await client
+      .get(
+        '/api/subscriptions/' +
+          data[1].id +
+          '/unsubscribe/undo?unsubscriptionCode=50032',
+      )
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+    res = await subscriptionsService.findById(data[1].id);
+    expect(res.state).toEqual('unconfirmed');
+  });
+
+  it('should redirect response if set so', async () => {
+    await configurationsService.create({
+      name: 'subscription',
+      serviceName: 'myService',
+      value: {
+        anonymousUndoUnsubscription: {
+          redirectUrl: 'http://nowhere',
+        },
+      },
+    });
+    let res: any = await client.get(
+      '/api/subscriptions/' +
+        data[0].id +
+        '/unsubscribe/undo?unsubscriptionCode=50032',
+    );
+    expect(res.status).toEqual(302);
+    expect(res.headers.location).toEqual('http://nowhere?channel=email');
+    res = await subscriptionsService.findById(data[0].id);
+    expect(res.state).toEqual('confirmed');
+  });
+
+  it('should allow bulk undo unsubscriptions by anonymous user', async () => {
+    let res: any = await client.get(
+      '/api/subscriptions/' +
+        data[2].id +
+        '/unsubscribe/undo?unsubscriptionCode=12345',
+    );
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findById(data[0].id);
+    expect(res.state).toEqual('confirmed');
+    res = await subscriptionsService.findById(data[2].id);
+    expect(res.unsubscribedAdditionalServices).toBeUndefined();
+  });
+});
