@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { compact } from 'lodash';
-import { FilterQuery, Model, QueryOptions } from 'mongoose';
+import { FilterQuery, HydratedDocument, Model, QueryOptions } from 'mongoose';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { CountDto } from './dto/count.dto';
 export class BaseService<T> {
@@ -42,7 +42,7 @@ export class BaseService<T> {
   async findAll(
     filter: any = {},
     req?: Request & { user: UserProfile },
-  ): Promise<T[]> {
+  ): Promise<HydratedDocument<T>[]> {
     let { where, fields, order, skip, limit, include } = filter;
     let qry = this.model.find(this.model.translateAliases(where));
     order && qry.sort(this.model.translateAliases(order));
@@ -58,7 +58,7 @@ export class BaseService<T> {
     req?: Request & { user: UserProfile },
   ): Promise<T> {
     const res = await this.findAll({ ...filter, limit: 1 });
-    return res && res[0];
+    return res && res?.[0]?.toJSON({ virtuals: !!filter?.include });
   }
 
   async updateAll(
