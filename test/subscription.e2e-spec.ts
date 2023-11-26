@@ -1062,3 +1062,59 @@ describe('GET /subscriptions/{id}/unsubscribe/undo', () => {
     expect(res.unsubscribedAdditionalServices).toBeUndefined();
   });
 });
+
+describe('PUT /subscriptions/{id}', () => {
+  let subscriptionId;
+  beforeEach(async function () {
+    const res = await subscriptionsService.create({
+      serviceName: 'myService',
+      channel: 'email',
+      userId: 'bar',
+      userChannelId: 'bar@invalid.local',
+      state: 'confirmed',
+      confirmationRequest: {
+        confirmationCodeRegex: '\\d{5}',
+        sendRequest: true,
+        from: 'no_reply@invlid.local',
+        subject: 'Subscription confirmation',
+        textBody: 'enter {confirmation_code} in this email',
+        confirmationCode: '37688',
+      },
+      unsubscriptionCode: '50032',
+    });
+    subscriptionId = res.id;
+  });
+
+  it('should allow admin user replace subscription', async () => {
+    await runAsSuperAdmin(async () => {
+      const res = await client
+        .put(`/api/subscriptions/${subscriptionId}`)
+        .send({
+          serviceName: 'myService',
+          channel: 'email',
+          userId: 'bar',
+          userChannelId: 'bar@invalid.local',
+          state: 'deleted',
+          unsubscriptionCode: '50033',
+        })
+        .set('Accept', 'application/json');
+      expect(res.body.state).toEqual('deleted');
+      expect(res.body.confirmationRequest).toBeUndefined();
+    });
+  });
+
+  it('should deny anonymous user replace subscription', async () => {
+    const res = await client
+      .put(`/api/subscriptions/${subscriptionId}`)
+      .send({
+        serviceName: 'myService',
+        channel: 'email',
+        userId: 'bar',
+        userChannelId: 'bar@invalid.local',
+        state: 'deleted',
+        unsubscriptionCode: '50032',
+      })
+      .set('Accept', 'application/json');
+    expect(res.status).toEqual(403);
+  });
+});
