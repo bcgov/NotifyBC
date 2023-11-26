@@ -1,8 +1,10 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { merge } from 'lodash';
 import { BaseController } from 'src/api/common/base.controller';
 import { ConfigurationsService } from 'src/api/configurations/configurations.service';
 import { Subscription } from 'src/api/subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
+import { AppConfigService } from 'src/config/app-config.service';
 import supertest from 'supertest';
 import { getAppAndClient, runAsSuperAdmin } from './test-helper';
 
@@ -1154,5 +1156,64 @@ describe('GET /subscriptions/services', () => {
       .get('/api/subscriptions/services')
       .set('Accept', 'application/json');
     expect(res.status).toEqual(403);
+  });
+});
+
+describe('POST /subscriptions/swift', () => {
+  let appConfig, origSmsConfig, subscriptionId;
+  beforeAll(async function () {
+    appConfig = app.get<AppConfigService>(AppConfigService).get();
+    origSmsConfig = appConfig.sms;
+    const newSmsConfig = merge({}, origSmsConfig, {
+      providerSettings: { swift: { notifyBCSwiftKey: '12345' } },
+    });
+    appConfig.sms = newSmsConfig;
+  });
+  afterAll(async function () {
+    appConfig.sms = origSmsConfig;
+  });
+  beforeEach(async function () {
+    const res = await subscriptionsService.create({
+      serviceName: 'myService',
+      channel: 'sms',
+      userChannelId: '250-000-0000',
+      state: 'confirmed',
+      unsubscriptionCode: '12345',
+    });
+    subscriptionId = res.id;
+  });
+
+  it(`should unsubscribe with valid id reference`, async () => {
+    let res: any = await client.post('/api/subscriptions/swift').send({
+      Reference: subscriptionId,
+      PhoneNumber: '12500000000',
+      notifyBCSwiftKey: '12345',
+    });
+    expect(res.status).toEqual(200);
+    expect(res.text).toEqual('You have been un-subscribed.');
+    res = await subscriptionsService.findById(subscriptionId);
+    expect(res.state).toEqual('deleted');
+  });
+
+  it(`should unsubscribe with valid phone number`, async () => {
+    let res: any = await client.post('/api/subscriptions/swift').send({
+      PhoneNumber: '12500000000',
+      notifyBCSwiftKey: '12345',
+    });
+    expect(res.status).toEqual(200);
+    expect(res.text).toEqual('You have been un-subscribed.');
+    res = await subscriptionsService.findById(subscriptionId);
+    expect(res.state).toEqual('deleted');
+  });
+
+  it(`should deny invalid swift key`, async () => {
+    let res: any = await client.post('/api/subscriptions/swift').send({
+      Reference: subscriptionId,
+      PhoneNumber: '12500000000',
+      notifyBCSwiftKey: 'invalid',
+    });
+    expect(res.status).toEqual(403);
+    res = await subscriptionsService.findById(subscriptionId);
+    expect(res.state).toEqual('confirmed');
   });
 });

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// start: ported
+// file ported
 import {CoreBindings} from '@loopback/core';
 import {AnyObject} from '@loopback/repository';
 import {Client, expect} from '@loopback/testlab';
@@ -1167,7 +1167,6 @@ describe('GET /subscriptions/services', function () {
     expect(res.status).equal(401);
   });
 });
-// end: ported
 
 describe('POST /subscriptions/swift', function () {
   let origConfig: AnyObject;
