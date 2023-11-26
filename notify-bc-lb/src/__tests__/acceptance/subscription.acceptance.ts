@@ -496,7 +496,6 @@ describe('POST /subscriptions', function () {
     expect(data.length).equal(1);
   });
 });
-// end: ported
 
 describe('PATCH /subscriptions/{id}', function () {
   beforeEach(async function () {
@@ -548,6 +547,7 @@ describe('PATCH /subscriptions/{id}', function () {
     expect(res.status).equal(401);
   });
 });
+// end: ported
 
 describe('GET /subscriptions/{id}/verify', function () {
   let data: Subscription[];
