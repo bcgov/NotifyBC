@@ -832,3 +832,115 @@ describe('DELETE /subscriptions/{id}', () => {
     expect(res.type).toEqual('text/plain');
   });
 });
+
+describe('GET /subscriptions/{id}/unsubscribe', () => {
+  let data: Subscription[];
+  beforeEach(async function () {
+    data = await Promise.all([
+      subscriptionsService.create({
+        serviceName: 'myService1',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        unsubscriptionCode: '12345',
+      }),
+      subscriptionsService.create({
+        serviceName: 'myService2',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        unsubscriptionCode: '54321',
+      }),
+      subscriptionsService.create({
+        serviceName: 'myService3',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+        unsubscriptionCode: '11111',
+      }),
+    ]);
+  });
+
+  it('should allow bulk unsubscribing all services', async () => {
+    jest
+      .spyOn(BaseController.prototype, 'getMergedConfig')
+      .mockImplementation(async function () {
+        return {
+          anonymousUnsubscription: {
+            acknowledgements: {
+              onScreen: { successMessage: '' },
+              notification: {
+                email: {
+                  from: 'no_reply@invalid.local',
+                  subject: '',
+                  textBody: '{unsubscription_service_names}',
+                  htmlBody: '{unsubscription_service_names}',
+                },
+              },
+            },
+          },
+        };
+      });
+
+    let res: any = await client.get(
+      '/api/subscriptions/' +
+        data[0].id +
+        '/unsubscribe?unsubscriptionCode=12345&additionalServices=_all',
+    );
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findAll(
+      {
+        where: {
+          state: 'deleted',
+        },
+      },
+      undefined,
+    );
+    expect(res.length).toEqual(3);
+    expect(
+      BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+    ).toBeCalledWith(
+      expect.objectContaining({
+        text: expect.stringContaining(
+          'services myService1, myService2 and myService3',
+        ),
+      }),
+    );
+  });
+
+  it('should allow bulk unsubscribing selected additional service', async () => {
+    let res: any = await client.get(
+      '/api/subscriptions/' +
+        data[0].id +
+        '/unsubscribe?unsubscriptionCode=12345&additionalServices=myService3',
+    );
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findAll(
+      {
+        where: {
+          state: 'deleted',
+        },
+      },
+      undefined,
+    );
+    expect(res.length).toEqual(2);
+  });
+
+  it('should allow bulk unsubscribing selected additional service as an array', async () => {
+    let res: any = await client.get(
+      '/api/subscriptions/' +
+        data[0].id +
+        '/unsubscribe?unsubscriptionCode=12345&additionalServices[]=myService3',
+    );
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findAll(
+      {
+        where: {
+          state: 'deleted',
+        },
+      },
+      undefined,
+    );
+    expect(res.length).toEqual(2);
+  });
+});
