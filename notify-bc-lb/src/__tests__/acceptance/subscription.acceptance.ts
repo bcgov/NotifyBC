@@ -547,7 +547,6 @@ describe('PATCH /subscriptions/{id}', function () {
     expect(res.status).equal(401);
   });
 });
-// end: ported
 
 describe('GET /subscriptions/{id}/verify', function () {
   let data: Subscription[];
@@ -628,6 +627,7 @@ describe('GET /subscriptions/{id}/verify', function () {
     expect(res.state).equal('deleted');
   });
 });
+// end: ported
 
 describe('DELETE /subscriptions/{id}', function () {
   let data: any[];

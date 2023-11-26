@@ -1,6 +1,7 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { BaseController } from 'src/api/common/base.controller';
 import { ConfigurationsService } from 'src/api/configurations/configurations.service';
+import { Subscription } from 'src/api/subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
 import supertest from 'supertest';
 import { getAppAndClient, runAsSuperAdmin } from './test-helper';
@@ -550,5 +551,77 @@ describe('PATCH /subscriptions/{id}', () => {
       })
       .set('Accept', 'application/json');
     expect(res.status).toEqual(403);
+  });
+});
+
+describe('GET /subscriptions/{id}/verify', () => {
+  let data: Subscription[];
+  beforeEach(async () => {
+    data = await Promise.all([
+      subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userId: 'bar',
+        userChannelId: 'bar@foo.com',
+        state: 'unconfirmed',
+        confirmationRequest: {
+          confirmationCode: '37688',
+        },
+      }),
+      subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'unconfirmed',
+        confirmationRequest: {
+          confirmationCode: '37689',
+        },
+      }),
+      subscriptionsService.create({
+        serviceName: 'myService',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'confirmed',
+      }),
+    ]);
+  });
+
+  it('should verify confirmation code sent by sm user', async () => {
+    let res: any = await client
+      .get(`/api/subscriptions/${data[0].id}/verify?confirmationCode=37688`)
+      .set('Accept', 'application/json')
+      .set('SM_USER', 'bar');
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findById(data[0].id);
+    expect(res.state).toEqual('confirmed');
+  });
+
+  it('should verify confirmation code sent by anonymous user', async () => {
+    let res: any = await client.get(
+      `/api/subscriptions/${data[1].id}/verify?confirmationCode=37689`,
+    );
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findById(data[1].id);
+    expect(res.state).toEqual('confirmed');
+  });
+
+  it('should deny incorrect confirmation code', async () => {
+    let res: any = await client.get(
+      `/api/subscriptions/${data[1].id}/verify?confirmationCode=0000`,
+    );
+    expect(res.status).toEqual(403);
+    res = await subscriptionsService.findById(data[1].id);
+    expect(res.state).toEqual('unconfirmed');
+  });
+
+  it('should unsubscribe existing subscriptions when replace parameter is supplied', async () => {
+    let res: any = await client.get(
+      '/api/subscriptions/' +
+        data[1].id +
+        '/verify?confirmationCode=37689&replace=true',
+    );
+    expect(res.status).toEqual(200);
+    res = await subscriptionsService.findById(data[2].id);
+    expect(res.state).toEqual('deleted');
   });
 });
