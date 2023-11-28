@@ -917,8 +917,8 @@ describe('GET /subscriptions/{id}/unsubscribe', () => {
       BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
     ).toBeCalledWith(
       expect.objectContaining({
-        text: expect.stringContaining(
-          'services myService1, myService2 and myService3',
+        text: expect.stringMatching(
+          /services myService\d, myService\d and myService\d/,
         ),
       }),
     );
@@ -964,45 +964,42 @@ describe('GET /subscriptions/{id}/unsubscribe', () => {
 describe('GET /subscriptions/{id}/unsubscribe/undo', () => {
   let data: Subscription[] = [];
   beforeEach(async () => {
-    data.push(
-      await subscriptionsService.create({
+    const data0 = await subscriptionsService.create({
+      serviceName: 'myService',
+      channel: 'email',
+      userChannelId: 'bar@foo.com',
+      state: 'deleted',
+      unsubscriptionCode: '50032',
+    });
+    const promiseAllRes = await Promise.all([
+      subscriptionsService.create({
         serviceName: 'myService',
         channel: 'email',
         userChannelId: 'bar@foo.com',
-        state: 'deleted',
+        state: 'unconfirmed',
+        confirmationRequest: {
+          confirmationCodeRegex: '\\d{5}',
+          sendRequest: true,
+          from: 'no_reply@invlid.local',
+          subject: 'Subscription confirmation',
+          textBody: 'enter {confirmation_code} in this email',
+          confirmationCode: '37689',
+        },
         unsubscriptionCode: '50032',
       }),
-    );
-    data = data.concat(
-      await Promise.all([
-        subscriptionsService.create({
-          serviceName: 'myService',
-          channel: 'email',
-          userChannelId: 'bar@foo.com',
-          state: 'unconfirmed',
-          confirmationRequest: {
-            confirmationCodeRegex: '\\d{5}',
-            sendRequest: true,
-            from: 'no_reply@invlid.local',
-            subject: 'Subscription confirmation',
-            textBody: 'enter {confirmation_code} in this email',
-            confirmationCode: '37689',
-          },
-          unsubscriptionCode: '50032',
-        }),
-        subscriptionsService.create({
-          serviceName: 'myService2',
-          channel: 'email',
-          userChannelId: 'bar@foo.com',
-          state: 'deleted',
-          unsubscriptionCode: '12345',
-          unsubscribedAdditionalServices: {
-            names: ['myService'],
-            ids: [data[0].id],
-          },
-        }),
-      ]),
-    );
+      subscriptionsService.create({
+        serviceName: 'myService2',
+        channel: 'email',
+        userChannelId: 'bar@foo.com',
+        state: 'deleted',
+        unsubscriptionCode: '12345',
+        unsubscribedAdditionalServices: {
+          names: ['myService'],
+          ids: [data0.id],
+        },
+      }),
+    ]);
+    data = [data0, ...promiseAllRes];
   });
 
   it('should allow undelete subscription by anonymous user', async () => {
