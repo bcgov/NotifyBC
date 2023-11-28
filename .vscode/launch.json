@@ -33,35 +33,14 @@
       }
     },
     {
-      "name": "Launch Docs",
-      "request": "launch",
-      "type": "pwa-chrome",
-      "url": "http://localhost:8080/NotifyBC",
-      "webRoot": "${workspaceFolder}/docs"
-    },
-    {
-      "type": "pwa-node",
-      "request": "launch",
-      "name": "Server-lb",
-      "runtimeExecutable": "yarn",
-      "autoAttachChildProcesses": true,
-      "runtimeArgs": ["run", "nodemon"],
-      "outputCapture": "std",
-      "cwd": "${workspaceFolder}/notify-bc-lb",
-      "env": {
-        "NODE_ENV": "dev",
-        "NOTIFYBC_WORKER_PROCESS_COUNT": "1",
-        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
-      }
-    },
-    {
       "type": "node",
       "request": "launch",
-      "name": "script",
-      "runtimeExecutable": "ts-node",
-      "cwd": "${workspaceFolder}/src/utils/load-testing",
-      "args": ["post-notification.ts", "http://127.0.0.1:3000/api"],
-      "outputCapture": "std"
+      "name": "Docs",
+      "cwd": "${workspaceFolder}/docs",
+      "program": "node_modules/vuepress/bin/vuepress.js",
+      "args": ["dev"],
+      "console": "internalConsole",
+      "envFile": "${workspaceFolder}/docs/.env"
     },
     {
       "type": "node",
@@ -82,27 +61,6 @@
       "outputCapture": "std"
     },
     {
-      "type": "node",
-      "request": "launch",
-      "name": "Test-lb4",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
-      "args": ["--timeout", "999999", "dist/__tests__/"],
-      "autoAttachChildProcesses": true,
-      "console": "internalConsole",
-      "preLaunchTask": "Compile Project",
-      "outputCapture": "std"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Docs",
-      "cwd": "${workspaceFolder}/docs",
-      "program": "node_modules/vuepress/bin/vuepress.js",
-      "args": ["dev"],
-      "console": "internalConsole",
-      "envFile": "${workspaceFolder}/docs/.env"
-    },
-    {
       "name": "smtpServer",
       "request": "launch",
       "type": "node",
@@ -116,12 +74,6 @@
         "observers/smtp-server"
       ],
       "outputCapture": "std"
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Server&Docs",
-      "configurations": ["Server", "Docs", "Launch Docs"]
     }
   ]
 }
