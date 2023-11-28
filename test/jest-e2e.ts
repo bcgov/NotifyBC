@@ -19,9 +19,7 @@ const config: Config = {
   rootDir: '.',
   testEnvironment: 'node',
   testRegex: '.e2e-spec.ts$',
-  transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
-  },
+  preset: 'ts-jest',
   testTimeout: Number(process.env.notifyBcJestTestTimeout) || 5000,
   restoreMocks: true,
   // cache: process.platform === 'win32' ? false : true,
