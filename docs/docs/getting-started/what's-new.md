@@ -14,7 +14,7 @@ See [Upgrade Guide](../upgrade/#v4-to-v5) for more information.
 - Runs on _Nest_
 
 ::: tip Why v5?
-_NotifyBC_ was built on Node.js [LoopBack](https://loopback.io/) in the beginning. While _Loopback_ is an awesome framework, it is evident by 2022 _Loopback_ is no longer actively maintained
+_NotifyBC_ was built on [LoopBack](https://loopback.io/) since the beginning. While _Loopback_ is an awesome framework, it is evident by 2022 _Loopback_ is no longer actively maintained
 
 1. features such as GraphQL have been in experimental state for years
 2. recent commits are mostly chores rather than enhancements

@@ -22,7 +22,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "test",
+      "name": "Test",
       "runtimeExecutable": "yarn",
       "autoAttachChildProcesses": true,
       "runtimeArgs": ["test:e2e", "subscription"],

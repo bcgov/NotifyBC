@@ -29,6 +29,7 @@
 const path = require('path');
 import * as fs from 'fs';
 const config: Record<string, any> = {
+  // REST API URL path prefix
   restApiRoot: '/api',
   // host ip address NotifyBC listen on
   host: '0.0.0.0',
