@@ -24,5 +24,6 @@ const config: Config = {
   },
   testTimeout: Number(process.env.notifyBcJestTestTimeout) || 5000,
   restoreMocks: true,
+  // cache: process.platform === 'win32' ? false : true,
 };
 export default config;
