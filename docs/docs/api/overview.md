@@ -5,8 +5,8 @@ prev: /docs/config-certificates/
 
 # API Overview
 
-_NotifyBC_'s core function is implemented by two [LoopBack models](https://loopback.io/doc/en/lb4/Model.html) - subscription and notification. Other models - configuration, administrator and bounces, are for administrative purposes. A LoopBack model determines the underlying database schema and the API.
-The APIs displayed in the web console (by default <a href="http://localhost:3000" target="_blank">http://localhost:3000</a>) and API explorer are also grouped by the LoopBack models. Click on a LoopBack model in API explorer, say notification, to explore the operations on that model. Model specific APIs are available here:
+_NotifyBC_'s core function is implemented by two models - subscription and notification. Other models - configuration, administrator and bounces etc, are for administrative purposes. A model determines the underlying database schema and the API.
+The APIs displayed in the web console (by default <a href="http://localhost:3000" target="_blank">http://localhost:3000</a>) and API explorer are also grouped by models. Click on a model in API explorer, say notification, to explore the operations on that model. Model specific APIs are available here:
 
 - [Subscription](../api-subscription)
 - [Notification](../api-notification)

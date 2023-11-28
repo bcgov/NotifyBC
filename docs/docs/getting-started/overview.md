@@ -56,7 +56,7 @@ _NotifyBC_ recognizes following case-insensitive static tokens. Most of the name
 - {subscription_confirmation_code}
 - {service_name}
 - {http_host} - http host in the form <i>http(s): //<host_name\>:\<port\></i>. The value is obtained from the http request that triggers the message
-- {rest_api_root} - configured Loopback [REST API basePath](https://loopback.io/doc/en/lb4/Customizing-server-configuration.html#configure-the-base-path)
+- {rest_api_root} - REST API URL path prefix
 - {subscription_id}
 - anonymous unsubscription related tokens
   - {unsubscription_url}
@@ -242,4 +242,4 @@ Here are some common scenarios and recommendations
 
 ## Application Framework
 
-_NotifyBC_ is created on Node.js [LoopBack](https://loopback.io/). Contributors to source code of _NotifyBC_ should be familiar with LoopBack. [LoopBack Docs](https://loopback.io/doc/en/lb4) serves a good complement to this documentation.
+_NotifyBC_ is created on [NestJS](https://nestjs.com/). Contributors to source code of _NotifyBC_ should be familiar with NestJS. [NestJS Docs](https://docs.nestjs.com/) serves a good complement to this documentation.
