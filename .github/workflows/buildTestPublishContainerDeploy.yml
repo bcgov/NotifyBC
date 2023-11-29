@@ -25,6 +25,7 @@ jobs:
       - name: Install and Test 🔧
         run: |
           yarn install
+          yarn build
           yarn test:e2e
   publish-container:
     if: ${{ github.repository == 'bcgov/NotifyBC' && github.event_name != 'pull_request' }}
