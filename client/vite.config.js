@@ -1,22 +1,25 @@
 // Plugins
 import vue from '@vitejs/plugin-vue';
-import vuetify, {transformAssetUrls} from 'vite-plugin-vuetify';
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 // Utilities
-import {fileURLToPath, URL} from 'node:url';
-import {defineConfig} from 'vite';
-import fs from 'fs';
-import {globSync} from 'fast-glob';
+import { NestFactory } from '@nestjs/core';
 import ejs from 'ejs';
+import { globSync } from 'fast-glob';
+import fs from 'fs';
+import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from 'vite';
+import { AppModule } from '../dist/app.module';
+import { AppConfigService } from '../dist/config/app-config.service';
 
-const NotifyBcApplication = require('../dist/application').NotifyBcApplication;
-const app = new NotifyBcApplication();
-const proxyProto = app.options.tls.enabled ? 'https' : 'http';
+export default async ({ mode }) => {
+  const app = await NestFactory.create(AppModule);
+  const appConfig = app.get(AppConfigService).get();
+  const proxyProto = appConfig.tls.enabled ? 'https' : 'http';
 
-export default ({mode}) => {
   let config = {
     plugins: [
       vue({
-        template: {transformAssetUrls},
+        template: { transformAssetUrls },
       }),
       // glob inject css
       {
@@ -25,10 +28,10 @@ export default ({mode}) => {
             const source = fs
               .readFileSync(id)
               .toString()
-              .replace(/inject-css:\s*'([^']+)';/g, replace => {
+              .replace(/inject-css:\s*'([^']+)';/g, (replace) => {
                 const pattern = replace.match(/'([^']+)/)[1];
-                return globSync(pattern, {absolute: true})
-                  .map(file => fs.readFileSync(file))
+                return globSync(pattern, { absolute: true })
+                  .map((file) => fs.readFileSync(file))
                   .join('\n');
               });
             return source;
@@ -70,16 +73,17 @@ export default ({mode}) => {
         name: 'html-transform',
         transformIndexHtml(html) {
           return ejs.render(html, {
-            apiUrlPrefix: app.options.restApiRoot,
-            oidcAuthority: app.options.oidc?.discoveryUrl?.split(
+            apiUrlPrefix: appConfig.restApiRoot,
+            oidcAuthority: appConfig.oidc?.discoveryUrl?.split(
               /\/\.well-known\/openid-configuration$/,
             )[0],
-            oidcClientId: app.options.oidc && app.options.oidc.clientId,
+            oidcClientId: appConfig.oidc && appConfig.oidc.clientId,
           });
         },
       };
     };
     config.plugins.push(htmlPlugin());
   }
+  await app.close();
   return defineConfig(config);
 };

@@ -22,6 +22,14 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Client",
+      "cwd": "${workspaceFolder}/client",
+      "program": "${workspaceFolder}/client/node_modules/vite/bin/vite.js",
+      "args": ["--force"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Test",
       "runtimeExecutable": "yarn",
       "autoAttachChildProcesses": true,
