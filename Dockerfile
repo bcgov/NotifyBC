@@ -1,6 +1,8 @@
 ARG nodeVersion=lts
 # Check out https://hub.docker.com/_/node to select a new base image
-FROM node:${nodeVersion}-slim
+FROM node:${nodeVersion}-bullseye-slim
+
+RUN apt-get update && apt-get install curl libssl-dev -y
 
 # Set to a non-root built-in user `node`
 USER node
