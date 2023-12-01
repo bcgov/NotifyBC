@@ -97,7 +97,7 @@
           </v-dialog>
         </template>
         <template v-else>
-          <v-btn plain @click="oidclogin" v-if="!oidcUser">
+          <v-btn plain @click="oidcLogin" v-if="!oidcUser">
             Login<v-icon>login</v-icon>
           </v-btn>
           <template v-else>
@@ -163,7 +163,7 @@ export default {
     setAccessToken(evt) {
       this.$store.setAccessToken(evt.target.value);
     },
-    oidclogin: async function () {
+    oidcLogin: async function () {
       let config = this.$store.oidcConfig;
       config = Object.assign({}, config, {
         redirect_uri: window.location.href,
