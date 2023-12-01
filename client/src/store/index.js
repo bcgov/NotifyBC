@@ -1,5 +1,5 @@
-import {UserManager} from 'oidc-client-ts';
-import {defineStore} from 'pinia';
+import { UserManager } from 'oidc-client-ts';
+import { defineStore } from 'pinia';
 
 const apiUrlPrefix = window.apiUrlPrefix || '/api';
 let accessToken;
@@ -42,6 +42,7 @@ export const useDefaultStore = defineStore('default', {
     },
     accessToken,
     authnStrategy: undefined,
+    role: undefined,
     oidcConfig: {
       authority: window.oidcAuthority,
       client_id: window.oidcClientId,
@@ -64,6 +65,9 @@ export const useDefaultStore = defineStore('default', {
     },
     setAuthnStrategy(payload) {
       this.authnStrategy = payload;
+    },
+    setRole(payload) {
+      this.role = payload;
     },
     setAccessToken(payload) {
       let auth = JSON.parse(sessionStorage.getItem('authorized')) || {};
@@ -134,7 +138,7 @@ export const useDefaultStore = defineStore('default', {
       if (filter) {
         filter = Object.assign({}, this[payload.model].filter, filter);
       } else {
-        this.setItemSearch({model: payload.model});
+        this.setItemSearch({ model: payload.model });
       }
       this.setItemFilter({
         model: payload.model,
@@ -154,11 +158,11 @@ export const useDefaultStore = defineStore('default', {
         }
         items = await res.json();
       } catch (ex) {
-        this.setLocalItems({model: payload.model, items: []});
-        this.setTotalItemCount({model: payload.model, cnt: undefined});
+        this.setLocalItems({ model: payload.model, items: [] });
+        this.setTotalItemCount({ model: payload.model, cnt: undefined });
         throw ex;
       }
-      this.setLocalItems({model: payload.model, items});
+      this.setLocalItems({ model: payload.model, items });
       url = apiUrlPrefix + '/' + payload.model + '/count';
       if (filter && filter.where) {
         url += '?where=' + encodeURIComponent(JSON.stringify(filter.where));
@@ -195,6 +199,7 @@ export const useDefaultStore = defineStore('default', {
       }
       res = await res.json();
       this.setAuthnStrategy(res.authnStrategy);
+      this.setRole(res.role);
     },
     async login(payload) {
       let url = apiUrlPrefix + '/administrators/login';
