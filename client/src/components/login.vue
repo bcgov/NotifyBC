@@ -17,16 +17,16 @@
   <v-toolbar-items class="center-text">
     <div v-if="$store.authnStrategy === 'clientCertificate'">
       <v-tooltip bottom>
-        <template v-slot:activator="{props}">
+        <template v-slot:activator="{ props }">
           <v-icon v-bind="props">verified</v-icon>
         </template>
         <span>You are super-admin</span>
       </v-tooltip>
     </div>
     <template v-else>
-      <div v-if="$store.authnStrategy === 'ipWhitelist'">
+      <div v-if="$store.authnStrategy === 'Ip' && $store.role === 'SuperAdmin'">
         <v-tooltip bottom>
-          <template v-slot:activator="{props}">
+          <template v-slot:activator="{ props }">
             <v-icon v-bind="props" icon="verified_user"></v-icon>
           </template>
           <span>You are super-admin</span>
@@ -48,9 +48,9 @@
           <v-dialog
             v-model="dialog"
             max-width="500px"
-            v-if="$store.authnStrategy === 'anonymous'"
+            v-if="$store.role === 'anonymous'"
           >
-            <template v-slot:activator="{props}">
+            <template v-slot:activator="{ props }">
               <v-btn plain v-bind="props"> Login<v-icon>login</v-icon> </v-btn>
             </template>
             <v-card>
@@ -113,7 +113,7 @@
 </template>
 
 <script>
-import {UserManager} from 'oidc-client-ts';
+import { UserManager } from 'oidc-client-ts';
 
 export default {
   data: function () {
