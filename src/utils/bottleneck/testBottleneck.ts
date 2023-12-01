@@ -16,7 +16,7 @@ import Bottleneck from 'bottleneck';
 import { promisify } from 'util';
 
 async function log(n: number) {
-  await promisify(setTimeout)(1000);
+  await promisify(setTimeout)(1);
   console.log(n);
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -24,7 +24,7 @@ async function log(n: number) {
   const tasks: Promise<any>[] = [];
   const opts = {
     maxConcurrent: 1,
-    minTime: 4000,
+    minTime: 500,
     id: 'test',
     /* Redis clustering options */
     datastore: 'ioredis',
@@ -35,10 +35,11 @@ async function log(n: number) {
     },
   };
   console.log(`priority=${process.argv[2]}`);
-  for (let i = 0; i < 10; i++) {
+  const bottleneck = new Bottleneck(opts);
+  for (let i = 0; i < 100; i++) {
     tasks.push(
       (async () => {
-        const bottleneck = new Bottleneck(opts);
+        // const bottleneck = new Bottleneck(opts);
         try {
           await bottleneck
             .wrap(log)
@@ -56,9 +57,10 @@ async function log(n: number) {
             throw ex;
           }
         }
-        await bottleneck.disconnect();
+        // await bottleneck.disconnect();
       })(),
     );
   }
   await Promise.all(tasks);
+  await bottleneck.disconnect();
 })();
