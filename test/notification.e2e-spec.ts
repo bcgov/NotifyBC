@@ -555,7 +555,7 @@ describe('POST /notifications', () => {
     });
   });
 
-  it('should throttle sms broadcast push notification', async () => {
+  it('should throttle sms broadcast push notification w/o redis', async () => {
     await runAsSuperAdmin(async () => {
       const appConfig = app.get<AppConfigService>(AppConfigService).get();
       const origSmsConfig = appConfig.sms;
