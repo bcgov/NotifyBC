@@ -88,8 +88,10 @@ mongodb:
   architecture: replicaset
   replicaCount: 3
   auth:
-    username: notify-bc
-    database: notify-bc
+    usernames:
+      - notify-bc
+    databases:
+      - notify-bc
     password: ''
   persistence:
     size: 1Gi
