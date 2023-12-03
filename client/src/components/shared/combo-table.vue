@@ -23,7 +23,7 @@
       persistent-hint
       v-model="search"
     >
-      <template v-slot:message="{message}">
+      <template v-slot:message="{ message }">
         <span v-html="message"></span>
       </template>
     </v-text-field>
@@ -71,7 +71,7 @@
                     class="d-flex justify-center"
                   >
                     <v-tooltip location="bottom">
-                      <template v-slot:activator="{props}">
+                      <template v-slot:activator="{ props }">
                         <v-btn
                           v-bind="props"
                           :icon="
@@ -234,14 +234,14 @@ export default {
     viewItem: function (props) {
       this.handleToggle('modelViewer', props);
     },
-    submitEditPanel: function ({toggleExpand, item}) {
+    submitEditPanel: function ({ toggleExpand, item }) {
       toggleExpand(this.expanded.pop());
       this.$store.fetchItems({
         model: this.model,
         filter: {},
       });
     },
-    cancelEditPanel: function ({toggleExpand, item}) {
+    cancelEditPanel: function ({ toggleExpand, item }) {
       toggleExpand(this.expanded.pop());
     },
     submitNewPanel: function () {
@@ -289,7 +289,7 @@ export default {
       if (this.options.sortBy.length > 0) {
         filter = filter || {};
         filter.order = this.options.sortBy.map((e, i) => {
-          return `${e.key}  ${e.order}`;
+          return [e.key, e.order];
         });
       }
       await this.fetchItems(filter);
@@ -310,7 +310,7 @@ export default {
     return {
       newPanelExpanded: undefined,
       currentExpanderView: 'modelEditor',
-      options: {itemsPerPage: 10},
+      options: { itemsPerPage: 10 },
       loading: true,
       expanded: [],
       noDataText: NoDataText,
