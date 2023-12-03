@@ -41,14 +41,14 @@ spec:
                 -headless
               {{- end }}
             - name: MONGODB_USER
-              value: {{ .Values.mongodb.auth.username }}
+              value: {{ .Values.mongodb.auth.usernames | first }}
             - name: MONGODB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-mongodb
-                  key: mongodb-password
+                  key: mongodb-passwords
             - name: MONGODB_DATABASE
-              value: {{ .Values.mongodb.auth.database }}
+              value: {{ .Values.mongodb.auth.databases | first }}
             - name: MONGODB_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
