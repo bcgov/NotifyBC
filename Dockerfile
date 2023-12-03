@@ -15,10 +15,9 @@ WORKDIR /home/node/app
 # Bundle app source code
 COPY --chown=node . .
 
-RUN yarn install --production && yarn build
+RUN yarn install --ignore-optional && yarn build && yarn install --prod --ignore-optional
 
-# Bind to all network interfaces so that it can be mapped to the host OS
-ENV HOST=0.0.0.0 PORT=3000 SMTP_PORT=2525
+ENV HOST=0.0.0.0 PORT=3000 SMTP_PORT=2525 NODE_ENV=production NOTIFYBC_WORKER_PROCESS_COUNT=1
 
 EXPOSE ${PORT} ${SMTP_PORT}
 CMD [ "node", "." ]
