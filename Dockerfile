@@ -15,7 +15,7 @@ WORKDIR /home/node/app
 # Bundle app source code
 COPY --chown=node . .
 
-RUN yarn install && yarn build
+RUN yarn install --production && yarn build
 
 # Bind to all network interfaces so that it can be mapped to the host OS
 ENV HOST=0.0.0.0 PORT=3000 SMTP_PORT=2525
