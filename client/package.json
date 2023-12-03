@@ -12,9 +12,6 @@
     "@fortawesome/fontawesome-free": "^v5.15.4",
     "core-js": "^3.29.0",
     "iframe-resizer": "^4.3.1",
-    "vue": "^3.2.0",
-    "vue-router": "^4.0.0",
-    "vuetify": "^3.0.0",
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {
@@ -34,7 +31,10 @@
     "oidc-client-ts": "^2.2.4",
     "pinia": "^2.1.4",
     "vite": "^4.2.0",
-    "vite-plugin-vuetify": "^1.0.0"
+    "vite-plugin-vuetify": "^1.0.0",
+    "vue": "^3.2.0",
+    "vue-router": "^4.0.0",
+    "vuetify": "^3.0.0"
   },
   "eslintConfig": {
     "root": true,
