@@ -101,7 +101,8 @@ mongodb:
     enabled: false
   arbiter:
     enabled: false
-
+  readinessProbe:
+    timeoutSeconds: 10
 configMap:
   config.local.js: |-
     module.exports = {};
