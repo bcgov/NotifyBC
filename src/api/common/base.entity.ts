@@ -37,11 +37,10 @@ export const BaseSchemaOptions = {
   strict: false,
   versionKey: false,
   toJSON: {
+    virtuals: true,
+    flattenObjectIds: true,
     transform: (doc: unknown, ret: any) => {
-      try {
-        ret.id = ret._id.toString();
-        delete ret._id;
-      } catch (ex) {}
+      delete ret._id;
     },
   },
 };
