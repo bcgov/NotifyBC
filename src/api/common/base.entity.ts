@@ -38,8 +38,10 @@ export const BaseSchemaOptions = {
   versionKey: false,
   toJSON: {
     transform: (doc: unknown, ret: any) => {
-      ret.id = ret._id.toString();
-      delete ret._id;
+      try {
+        ret.id = ret._id.toString();
+        delete ret._id;
+      } catch (ex) {}
     },
   },
 };
