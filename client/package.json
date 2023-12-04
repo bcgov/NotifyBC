@@ -16,7 +16,6 @@
   },
   "devDependencies": {
     "@json-editor/json-editor": "^2.10.1",
-    "@mdi/font": "7.0.96",
     "@vitejs/plugin-vue": "^3.0.3",
     "bootstrap": "^4.6.0",
     "ejs": "^3.1.9",

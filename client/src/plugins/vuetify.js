@@ -5,15 +5,14 @@
  */
 
 // Styles
-import '@mdi/font/css/materialdesignicons.css';
-import 'vuetify/styles';
-import {aliases, md} from 'vuetify/iconsets/md';
-import {fa} from 'vuetify/iconsets/fa';
-import {VDataTableServer} from 'vuetify/labs/VDataTable';
 import '@fortawesome/fontawesome-free/css/all.css';
+import { fa } from 'vuetify/iconsets/fa';
+import { aliases, md } from 'vuetify/iconsets/md';
+import { VDataTableServer } from 'vuetify/labs/VDataTable';
+import 'vuetify/styles';
 
 // Composables
-import {createVuetify} from 'vuetify';
+import { createVuetify } from 'vuetify';
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
