@@ -72,7 +72,7 @@ export class BaseService<T> {
     req?: Request & { user: UserProfile },
   ): Promise<T> {
     const res = await this.findAll({ ...filter, limit: 1 });
-    return res && res?.[0]?.toJSON({ virtuals: !!filter?.include });
+    return res && res?.[0]?.toJSON();
   }
 
   async updateAll(
@@ -95,7 +95,7 @@ export class BaseService<T> {
     if (options?.include) {
       q.populate(options.include);
     }
-    return (await q.exec()).toJSON({ virtuals: !!options?.include });
+    return (await q.exec()).toJSON();
   }
 
   async updateById(
