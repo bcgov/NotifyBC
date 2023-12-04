@@ -70,7 +70,9 @@
                     <v-col cols="12">
                       <v-text-field
                         v-model="password"
-                        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                        :append-icon="
+                          showPassword ? 'visibility_off' : 'visibility'
+                        "
                         @click:append="showPassword = !showPassword"
                         :type="showPassword ? 'text' : 'password'"
                         label="password"
