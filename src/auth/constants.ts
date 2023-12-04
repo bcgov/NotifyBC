@@ -24,7 +24,7 @@ export enum Role {
 }
 
 export enum AuthnStrategy {
-  Ip = 'Ip',
+  Ip = 'ip',
   AccessToken = 'accessToken',
   SiteMinder = 'siteMinder',
   OIDC = 'oidc',

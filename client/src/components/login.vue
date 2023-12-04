@@ -24,7 +24,7 @@
       </v-tooltip>
     </div>
     <template v-else>
-      <div v-if="$store.authnStrategy === 'Ip' && $store.role === 'SuperAdmin'">
+      <div v-if="$store.authnStrategy === 'ip' && $store.role === 'SuperAdmin'">
         <v-tooltip bottom>
           <template v-slot:activator="{ props }">
             <v-icon v-bind="props" icon="verified_user"></v-icon>
@@ -48,7 +48,7 @@
           <v-dialog
             v-model="dialog"
             max-width="500px"
-            v-if="$store.role === 'anonymous'"
+            v-if="$store.role === 'Anonymous'"
           >
             <template v-slot:activator="{ props }">
               <v-btn plain v-bind="props"> Login<v-icon>login</v-icon> </v-btn>
