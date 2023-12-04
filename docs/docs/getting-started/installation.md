@@ -272,7 +272,8 @@ Following are some common customizations
     auth:
       rootPassword: <secret>
       replicaSetKey: <secret>
-      password: <secret>
+      passwords:
+        - <secret>
   ```
 
   To install a Helm chart, the above credentials can be randomly defined. To upgrade an existing release, they must match what's defined in secret _\<release-name\>-mongodb_.

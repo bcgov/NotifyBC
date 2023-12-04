@@ -327,21 +327,48 @@ v5 introduced following backward incompatible changes
 7. When a subscription is created by anonymous user, the _data_ field is preserved. In earlier versions this field is deleted.
 8. Dynamic tokens in subscription confirmation request message and duplicated subscription message are not replaced with subscription data, for example {subscription::...} tokens are left unchanged. Update the template of the two messages if dynamic tokens in them depends on subscription data.
 9. [Inbound SMTP Server](../config-email/#inbound-smtp-server) no longer accepts command line arguments or environment variables as inputs. All inputs have to be defined in config files shown in the link.
+10. If you deployed _NotifyBC_ using Helm, change MongoDB password format from
+    ```yaml
+    # in file helm/values.local.yaml
+    mongodb:
+      auth:
+        rootPassword: <secret>
+        replicaSetKey: <secret>
+        password: <secret>
+    ```
+    to
+    ```yaml
+    # in file helm/values.local.yaml
+    mongodb:
+      auth:
+        rootPassword: <secret>
+        replicaSetKey: <secret>
+        passwords:
+          - <secret>
+    ```
 
-After above changes are addressed, upgrading to v5 is as simple as
+After above changes are addressed, to upgrade _NotifyBC_ to v5,
 
-```sh
-git pull
-git checkout tags/v5.x.x -b <branch_name>
-yarn install && yarn build
-```
+- if _NotifyBC_ is deployed from source code, run
 
-or, if _NotifyBC_ is deployed to Kubernetes using Helm.
+  ```sh
+  git pull
+  git checkout tags/v5.x.x -b <branch_name>
+  yarn install && yarn build
+  ```
 
-```sh
-git pull
-git checkout tags/v5.x.x -b <branch_name>
-helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
-```
-
-Replace _v5.x.x_ with a v5 release, preferably latest, found in GitHub such as _v5.0.0_.
+- if _NotifyBC_ is deployed to Kubernetes using Helm,
+  1. backup MongoDB database
+  2. run
+     ```sh
+     helm uninstall <release-name>
+     ```
+  3. delete PVCs used by MongoDB stateful set
+  4. run
+     ```sh
+     git pull
+     git checkout tags/v5.x.x -b <branch_name>
+     helm install <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+     ```
+     Replace _v5.x.x_ with a v5 release, preferably latest, found in GitHub such as _v5.0.0_.
+  5. restore MongoDB database
