@@ -8,11 +8,11 @@ import { globSync } from 'fast-glob';
 import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
-import { AppModule } from '../dist/app.module';
 import { AppConfigService } from '../dist/config/app-config.service';
+import { ConfigModule } from '../dist/config/config.module';
 
 export default async ({ mode }) => {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(ConfigModule);
   const appConfig = app.get(AppConfigService).get();
   const proxyProto = appConfig.tls.enabled ? 'https' : 'http';
 
