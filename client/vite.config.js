@@ -8,6 +8,7 @@ import { globSync } from 'fast-glob';
 import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
+import DynamicPublicDirectory from 'vite-multiple-assets';
 import { AppConfigService } from '../dist/config/app-config.service';
 import { ConfigModule } from '../dist/config/config.module';
 
@@ -42,6 +43,7 @@ export default async ({ mode }) => {
       vuetify({
         autoImport: true,
       }),
+      DynamicPublicDirectory(['node_modules/iframe-resizer/js']),
     ],
     define: {
       'process.env': {},

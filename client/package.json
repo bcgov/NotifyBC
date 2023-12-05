@@ -30,6 +30,7 @@
     "oidc-client-ts": "^2.2.4",
     "pinia": "^2.1.4",
     "vite": "^4.2.0",
+    "vite-multiple-assets": "^1.2.3",
     "vite-plugin-vuetify": "^1.0.0",
     "vue": "^3.2.0",
     "vue-router": "^4.0.0",

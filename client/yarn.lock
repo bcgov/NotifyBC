@@ -1378,6 +1378,11 @@ util-deprecate@^1.0.2:
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=
 
+vite-multiple-assets@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/vite-multiple-assets/-/vite-multiple-assets-1.2.3.tgz#b8a280fca21e9a474196b8369b0af13f721a7a71"
+  integrity sha512-F9by7YuR440+o0p8wI1gYuYhf4CE9Fcn0HVqoBn3KZRlUVUIOO7/SWh47JFhMgsuUbeNA5IRGB7YcQIvjmcOoQ==
+
 vite-plugin-vuetify@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/vite-plugin-vuetify/-/vite-plugin-vuetify-1.0.2.tgz#d1777c63aa1b3a308756461b3d0299fd101ee8f4"
