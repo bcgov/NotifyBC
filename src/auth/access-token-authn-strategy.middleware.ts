@@ -35,7 +35,7 @@ export class AccessTokenAuthnStrategyMiddleware implements NestMiddleware {
         };
         return next();
       },
-      (err) => {
+      () => {
         next();
       },
     );
@@ -43,7 +43,7 @@ export class AccessTokenAuthnStrategyMiddleware implements NestMiddleware {
 
   extractCredentials(request: Request): string | undefined {
     // from Authorization header
-    let token = request.headers.authorization;
+    const token = request.headers.authorization;
     if (token) {
       return token;
     }

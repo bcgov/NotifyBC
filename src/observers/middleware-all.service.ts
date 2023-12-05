@@ -28,11 +28,11 @@ export class MiddlewareAllService implements OnModuleInit {
     this.middlewareConfigs = middlewareConfigService.get();
     this.appConfig = appConfigService.get();
   }
-  onModuleInit() {
+  async onModuleInit() {
     const allMiddlewareConfigs = this.middlewareConfigs.all;
     for (const middlewareFactoryNm in allMiddlewareConfigs) {
       if (allMiddlewareConfigs[middlewareFactoryNm].enabled === false) continue;
-      const middlewareFactory: Function = require(middlewareFactoryNm);
+      const { default: middlewareFactory } = await import(middlewareFactoryNm);
       AppService.app.use(
         middlewareFactory.apply(
           this,

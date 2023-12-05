@@ -782,10 +782,6 @@ export class SubscriptionsController extends BaseController {
   ): Promise<Subscription> {
     if (![Role.SuperAdmin, Role.Admin].includes(req.user?.role)) {
       delete subscription.state;
-      const userId =
-        req.user?.role === Role.AuthenticatedUser
-          ? req.user.securityId
-          : undefined;
     }
     delete subscription.id;
     await this.beforeUpsert(req, subscription);

@@ -78,17 +78,15 @@ export class AppModule {
     this.appConfig = appConfigService.get();
   }
 
-  configure(consumer: MiddlewareConsumer) {
+  async configure(consumer: MiddlewareConsumer) {
     const apiOnlyMiddlewareConfigs = this.middlewareConfigs.apiOnly;
     const apiOnlyMiddlewares = [];
     for (const middlewareFactoryNm in apiOnlyMiddlewareConfigs) {
       if (apiOnlyMiddlewareConfigs[middlewareFactoryNm].enabled === false)
         continue;
+      const { default: m } = await import(middlewareFactoryNm);
       apiOnlyMiddlewares.push(
-        require(middlewareFactoryNm).apply(
-          this,
-          apiOnlyMiddlewareConfigs[middlewareFactoryNm].params,
-        ),
+        m.apply(this, apiOnlyMiddlewareConfigs[middlewareFactoryNm].params),
       );
     }
     consumer.apply(...apiOnlyMiddlewares).forRoutes('*');

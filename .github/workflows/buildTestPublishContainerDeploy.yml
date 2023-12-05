@@ -12,7 +12,7 @@ on:
 env:
   notifyBCContainerTag: latest
 jobs:
-  build-and-test:
+  install-build-lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -22,14 +22,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ vars.NODE_VERSION }}
-      - name: Install and Test 🔧
+      - name: Install, build, lint and test:e2e 🔧
         run: |
           yarn install
           yarn build
+          yarn lint
           yarn test:e2e
   publish-container:
     if: ${{ github.repository == 'bcgov/NotifyBC' && github.event_name != 'pull_request' }}
-    needs: build-and-test
+    needs: install-build-lint-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Update notifyBCContainerTag for tags

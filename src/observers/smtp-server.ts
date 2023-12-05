@@ -15,20 +15,21 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import mailParser from 'mailparser';
 import { AnyObject } from 'mongoose';
 import path from 'path';
+import { SMTPServer } from 'smtp-server';
 import { FilterDto } from 'src/api/common/dto/filter.dto';
 import { Subscription } from 'src/api/subscriptions/entities/subscription.entity';
 import { AppModule } from 'src/app.module';
 import { AppConfigService } from 'src/config/app-config.service';
-
-module.exports.mailParser = require('mailparser');
+export { mailParser };
 const logger = new Logger(path.parse(__filename).name);
 
 let server: any;
 
 export function smtpServer(app) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     let urlPrefix = 'http://localhost:3000/api';
     const smtpSvr = app.email.inboundSmtpServer;
     const internalHttpHost = app.internalHttpHost;
@@ -68,7 +69,6 @@ export function smtpServer(app) {
       );
     }
 
-    const SMTPServer = require('smtp-server').SMTPServer;
     const validEmailRegEx = /(un|bn)-(.+?)-(.*)@(.+)/;
     const MaxMsgSize = 1000000;
     const smtpOpts = {
@@ -76,7 +76,11 @@ export function smtpServer(app) {
       authOptional: true,
       disabledCommands: ['AUTH'],
       size: MaxMsgSize,
-      onRcptTo(address: { address: string }, session: any, callback: Function) {
+      onRcptTo(
+        address: { address: string },
+        session: any,
+        callback: (arg0?: Error) => any,
+      ) {
         try {
           const match = address.address.match(validEmailRegEx);
           if (match) {
@@ -90,7 +94,7 @@ export function smtpServer(app) {
         } catch (ex) {}
         return callback(new Error('invalid recipient'));
       },
-      onData(stream: any, session: any, callback: Function) {
+      onData(stream: any, session: any, callback: (arg0?: Response) => any) {
         stream.setEncoding('utf8');
         let msg = '';
         stream.on('data', (chunk: any) => {
@@ -312,6 +316,7 @@ export function smtpServer(app) {
       },
     };
     server = new SMTPServer(smtpOpts);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     server.on('error', () => {});
     server.listen(port, function (this: any) {
       logger.log(

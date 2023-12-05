@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import ejs from 'ejs';
 import express, { Response } from 'express';
 import { join } from 'path';
 import { AppService } from '../app.service';
 import { AppConfigService } from '../config/app-config.service';
-
 @Injectable()
 export class WebAdminConsoleService implements OnModuleInit {
   readonly appConfig;
@@ -25,7 +25,7 @@ export class WebAdminConsoleService implements OnModuleInit {
     this.appConfig = appConfigService.get();
   }
   onModuleInit() {
-    AppService.app.engine('html', require('ejs').renderFile);
+    AppService.app.engine('html', ejs.renderFile);
     AppService.app.setViewEngine('html');
     const viewRelDir = '../../client/dist';
     AppService.app.set('views', join(__dirname, viewRelDir));

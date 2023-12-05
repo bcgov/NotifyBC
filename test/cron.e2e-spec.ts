@@ -14,6 +14,7 @@
 
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { fail } from 'assert';
+import fs from 'fs';
 import mongoose from 'mongoose';
 import path from 'path';
 import { AccessTokenService } from 'src/api/administrators/access-token.service';
@@ -31,7 +32,6 @@ import {
   setupApplication,
   wait,
 } from './test-helper';
-const fs = require('fs');
 let client: supertest.SuperTest<supertest.Test>;
 let app: NestExpressApplication;
 let rssService: RssService;
@@ -339,16 +339,14 @@ describe('CRON dispatchLiveNotifications', function () {
   });
   it('should send all live push notifications', async function () {
     await runAsSuperAdmin(async () => {
-      const globalFetch = jest
-        .spyOn(global, 'fetch')
-        .mockImplementation(async (url, options) => {
-          if (options?.method === 'PUT') {
-            const r = await client
-              .put(url.toString())
-              .send(JSON.parse(options?.body as string));
-            return new Response(JSON.stringify(r.body));
-          }
-        });
+      jest.spyOn(global, 'fetch').mockImplementation(async (url, options) => {
+        if (options?.method === 'PUT') {
+          const r = await client
+            .put(url.toString())
+            .send(JSON.parse(options?.body as string));
+          return new Response(JSON.stringify(r.body));
+        }
+      });
       const mockedPromiseAll = jest.spyOn(Promise, 'all');
       try {
         await cronTasksService.dispatchLiveNotifications()();
@@ -404,7 +402,7 @@ describe('CRON checkRssConfigUpdates', function () {
       switch (url) {
         case 'http://myService/rss':
           const output = fs.createReadStream(path.join(__dirname, 'rss.xml'));
-          return new Response(output, {
+          return new Response(output as unknown as BodyInit, {
             status: 200,
           });
         case 'http://foo/api/notifications':

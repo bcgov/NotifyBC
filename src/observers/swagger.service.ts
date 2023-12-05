@@ -18,6 +18,8 @@ import { FilterDto } from 'src/api/common/dto/filter.dto';
 import { AppConfigService } from 'src/config/app-config.service';
 import { AppService } from '../app.service';
 import { OidcDiscoveryService } from '../config/oidc-discovery.service';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
 @Injectable()
