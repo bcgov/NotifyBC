@@ -19,6 +19,7 @@ import { get, merge, union } from 'lodash';
 import net from 'net';
 import pluralize from 'pluralize';
 import { AppConfigService } from 'src/config/app-config.service';
+import twilio from 'twilio';
 import toSentence from 'underscore.string/toSentence';
 import util from 'util';
 import { ConfigurationsService } from '../configurations/configurations.service';
@@ -83,7 +84,7 @@ export class BaseController {
         const authToken = smsConfig.authToken;
         //require the Twilio module and create a REST client
         BaseController.smsClient =
-          BaseController.smsClient || require('twilio')(accountSid, authToken);
+          BaseController.smsClient || twilio(accountSid, authToken);
         let req = BaseController.smsClient.messages.create;
         if (BaseController.smsLimiter) {
           req = BaseController.smsLimiter.wrap(req);
@@ -181,7 +182,7 @@ export class BaseController {
     subscription: Partial<Subscription>,
     notification: Partial<Notification>,
     req: any,
-    ignoreSubscriptionData: boolean = false,
+    ignoreSubscriptionData = false,
   ): any {
     let output = srcTxt;
     try {
@@ -220,7 +221,7 @@ export class BaseController {
       if (this.appConfig.httpHost) {
         httpHost = this.appConfig.httpHost;
       }
-      let args: any = req.args;
+      const args: any = req.args;
       if (args?.data?.httpHost) {
         httpHost = args.data.httpHost;
       } else if (req.instance?.httpHost) {
@@ -356,26 +357,13 @@ export class BaseController {
     return output;
   }
 
-  async getMergedConfig(
-    configName: string,
-    serviceName: string,
-    next?: Function,
-  ) {
-    let data;
-    try {
-      data = await this.configurationsService.findOne({
-        where: {
-          name: configName,
-          serviceName: serviceName,
-        },
-      });
-    } catch (ex) {
-      if (next) {
-        return next(ex, null);
-      } else {
-        throw ex;
-      }
-    }
+  async getMergedConfig(configName: string, serviceName: string) {
+    const data = await this.configurationsService.findOne({
+      where: {
+        name: configName,
+        serviceName: serviceName,
+      },
+    });
     let res;
     try {
       res = merge({}, this.appConfig[configName]);
@@ -383,7 +371,6 @@ export class BaseController {
     try {
       res = merge({}, res, (data as Configuration).value);
     } catch (ex) {}
-    next?.(null, res);
     return res;
   }
 }
