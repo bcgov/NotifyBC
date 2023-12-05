@@ -468,11 +468,7 @@ describe('POST /subscriptions', function () {
           },
         };
         const cb = args[args.length - 1];
-        if (typeof cb === 'function') {
-          return process.nextTick(cb, null, res);
-        } else {
-          return res;
-        }
+        return res;
       });
 
     await subscriptionsService.create({
