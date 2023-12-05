@@ -15,13 +15,22 @@
 import type { Config } from 'jest';
 const config: Config = {
   moduleFileExtensions: ['ts', 'js', 'json'],
-  modulePaths: ['<rootDir>/../'],
-  rootDir: '.',
+  modulePaths: ['<rootDir>'],
+  rootDir: '..',
   testEnvironment: 'node',
-  testRegex: '.e2e-spec.ts$',
+  // testRegex: '.e2e-spec.ts$',
+  testMatch: ['<rootDir>/test/**/*.e2e-spec.{ts,js}'],
   preset: 'ts-jest',
   testTimeout: Number(process.env.notifyBcJestTestTimeout) || 5000,
   restoreMocks: true,
   // cache: process.platform === 'win32' ? false : true,
+  collectCoverageFrom: [
+    'src/**/*.{js,ts}',
+    '!src/utils/**',
+    '!src/datasources/**',
+    '!src/config*',
+    '!src/middleware*',
+    '!src/main.ts',
+  ],
 };
 export default config;
