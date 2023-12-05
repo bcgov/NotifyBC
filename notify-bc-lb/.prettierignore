@@ -1,5 +1,0 @@
-dist
-coverage
-**/*.local.*
-**/*.cache/
-**/*.temp/
