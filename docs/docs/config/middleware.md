@@ -6,7 +6,6 @@ permalink: /docs/config-middleware/
 
 _NotifyBC_ pre-installed following [Express](https://expressjs.com/) middleware as defined in _/src/middleware.ts_
 
-- [serve-favicon](https://www.npmjs.com/package/serve-favicon)
 - [compression](https://www.npmjs.com/package/compression)
 - [helmet](https://www.npmjs.com/package/helmet)
 - [morgan](https://www.npmjs.com/package/morgan) (disabled by default)
@@ -17,7 +16,6 @@ _/src/middleware.ts_ contains following default middleware settings
 import path from 'path';
 module.exports = {
   all: {
-    'serve-favicon': {params: [path.join(__dirname, '..', 'favicon.ico')]},
     compression: {},
     helmet: {
       params: [
