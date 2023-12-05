@@ -615,7 +615,7 @@ export class NotificationsController extends BaseController {
   async sendPushNotification(data: Notification) {
     switch (data.isBroadcast) {
       case false: {
-        let sub: Partial<Subscription> =
+        const sub: Partial<Subscription> =
           this.req['NotifyBC.subscription'] ?? {};
         const textBody =
           data.message.textBody &&

@@ -15,6 +15,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import semver from 'semver';
 import { ConfigurationsService } from 'src/api/configurations/configurations.service';
 
 @Injectable()
@@ -34,8 +35,8 @@ export class IndexDBSchemaService implements OnApplicationBootstrap {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const pJson = require('../../package.json');
-    const semver = require('semver');
     const targetVersion = pJson.dbSchemaVersion;
     let data = await this.configurationsService.findOne({
       where: { name: 'dbSchemaVersion' },

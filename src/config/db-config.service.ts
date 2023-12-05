@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Inject, Injectable} from '@nestjs/common';
-import {ConfigType} from './constants';
-import {get} from 'lodash';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from './constants';
+import { get } from 'lodash';
 
 @Injectable()
 export class DbConfigService {

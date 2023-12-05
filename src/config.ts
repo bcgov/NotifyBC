@@ -26,8 +26,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const path = require('path');
 import * as fs from 'fs';
+import path from 'path';
 const config: Record<string, any> = {
   // REST API URL path prefix
   restApiRoot: '/api',

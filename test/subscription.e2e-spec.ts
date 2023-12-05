@@ -440,7 +440,7 @@ describe('POST /subscriptions', function () {
   it('should detect duplicated subscription', async () => {
     jest
       .spyOn(BaseController.prototype, 'getMergedConfig')
-      .mockImplementation(async function (...args) {
+      .mockImplementation(async () => {
         const res = {
           detectDuplicatedSubscription: true,
           duplicatedSubscriptionNotification: {
@@ -467,7 +467,6 @@ describe('POST /subscriptions', function () {
             },
           },
         };
-        const cb = args[args.length - 1];
         return res;
       });
 

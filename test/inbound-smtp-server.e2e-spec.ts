@@ -20,9 +20,9 @@ import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.servic
 import { AppConfigService } from 'src/config/app-config.service';
 import supertest from 'supertest';
 import { promisify } from 'util';
+import * as smtpSvrImport from '../src/observers/smtp-server';
 import { getAppAndClient, runAsSuperAdmin } from './test-helper';
 
-const smtpSvrImport = require('../src/observers/smtp-server');
 let client: supertest.SuperTest<supertest.Test>;
 let subscriptionsService: SubscriptionsService;
 let bouncesService: BouncesService;

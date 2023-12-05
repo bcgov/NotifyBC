@@ -55,10 +55,11 @@ export class BaseService<T> {
 
   async findAll(
     filter: any = {},
-    req?: Request & { user: UserProfile },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _req?: Request & { user: UserProfile },
   ): Promise<HydratedDocument<T>[]> {
-    let { where, fields, order, skip, limit, include } = filter;
-    let qry = this.model.find(this.model.translateAliases(where));
+    const { where, fields, order, skip, limit, include } = filter;
+    const qry = this.model.find(this.model.translateAliases(where));
     order && qry.sort(this.model.translateAliases(order));
     skip && qry.skip(skip);
     limit && qry.limit(limit);
@@ -69,7 +70,8 @@ export class BaseService<T> {
 
   async findOne(
     filter: any = {},
-    req?: Request & { user: UserProfile },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _req?: Request & { user: UserProfile },
   ): Promise<T> {
     const res = await this.findAll({ ...filter, limit: 1 });
     return res && res?.[0]?.toJSON();
@@ -116,7 +118,7 @@ export class BaseService<T> {
     _id: string,
     updateDto,
     req: (Request & { user?: any }) | null,
-    upsert: boolean = false,
+    upsert = false,
   ): Promise<T> {
     delete updateDto.id;
     return this.findOneAndReplace(updateDto, { _id }, req, upsert);
@@ -126,7 +128,7 @@ export class BaseService<T> {
     updateDto,
     filter: FilterQuery<T> | null,
     req: (Request & { user?: any }) | null,
-    upsert: boolean = false,
+    upsert = false,
     options?: QueryOptions<T>,
   ): Promise<T> {
     if (req?.user) {

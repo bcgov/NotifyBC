@@ -48,7 +48,7 @@ import csv from 'csvtojson';
 
   const q = queue(function (
     task: { jsonObj: any; rowIdx: string },
-    cb: Function,
+    cb: (arg0?: undefined) => void,
   ) {
     const options = {
       method: 'post',
@@ -81,13 +81,7 @@ import csv from 'csvtojson';
   csv({
     colParser: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'confirmationRequest.sendRequest': (
-        item: string,
-        head: any,
-        resultRow: any,
-        row: any,
-        colIdx: any,
-      ) => {
+      'confirmationRequest.sendRequest': (item: string) => {
         try {
           return item.toLowerCase() === 'true';
         } catch (ex) {

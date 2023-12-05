@@ -18,8 +18,10 @@ import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
+import cluster from 'cluster';
 import express from 'express';
 import https from 'https';
+import os from 'os';
 import path from 'path';
 import { ErrorsInterceptor } from './api/common/errors.interceptor';
 import { AppModule } from './app.module';
@@ -81,7 +83,7 @@ async function bootstrap() {
 if (require.main === module) {
   let numWorkers = parseInt(process.env.NOTIFYBC_WORKER_PROCESS_COUNT ?? '');
   if (isNaN(numWorkers)) {
-    numWorkers = require('os').cpus().length;
+    numWorkers = os.cpus().length;
   }
   if (numWorkers < 2) {
     bootstrap().catch((err) => {
@@ -90,8 +92,7 @@ if (require.main === module) {
     });
     logger.log(`Worker ${process.pid} started`);
   } else {
-    const cluster = require('cluster');
-    if (cluster.isMaster) {
+    if (cluster.isPrimary) {
       logger.log(`# of worker processes = ${numWorkers}`);
       logger.log(`Master ${process.pid} is running`);
       let masterWorker: any;
@@ -106,20 +107,17 @@ if (require.main === module) {
         }
       }
 
-      cluster.on(
-        'exit',
-        (worker: { process: { pid: any } }, code: any, signal: any) => {
-          logger.log(`worker ${worker.process.pid} died`);
-          if (worker === masterWorker) {
-            logger.log(`worker ${worker.process.pid} is the master worker`);
-            masterWorker = cluster.fork();
-          } else {
-            cluster.fork({
-              NOTIFYBC_NODE_ROLE: 'slave',
-            });
-          }
-        },
-      );
+      cluster.on('exit', (worker: { process: { pid: any } }) => {
+        logger.log(`worker ${worker.process.pid} died`);
+        if (worker === masterWorker) {
+          logger.log(`worker ${worker.process.pid} is the master worker`);
+          masterWorker = cluster.fork();
+        } else {
+          cluster.fork({
+            NOTIFYBC_NODE_ROLE: 'slave',
+          });
+        }
+      });
     } else {
       bootstrap().catch((err) => {
         logger.error('Cannot start the application.', err);

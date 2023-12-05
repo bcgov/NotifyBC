@@ -29,7 +29,7 @@ export class FilterDto<T> {
   /**
    * To include/exclude fields
    */
-  fields?: Object | string | string[];
+  fields?: object | string | string[];
   /**
    * Sorting order for matched entities. Each item should be formatted as
    * `fieldName ASC` or `fieldName DESC`.
