@@ -5,6 +5,8 @@ next: /docs/conduct/
 
 # Upgrade Guide
 
+Major version can only be upgraded incrementally from immediate previous major version, i.e. from _N_ to _N+1_.
+
 ## v1 to v2
 
 Upgrading _NotifyBC_ from v1 to v2 involves two steps
@@ -269,9 +271,9 @@ Replace _v4.x.x_ with a v4 release, preferably latest, found in GitHub such as _
 
 v5 introduced following backward incompatible changes
 
-1. Replica set is required for MongoDB. If you deployed NotifyBC using Helm, replica set is already enabled.
+1. Replica set is required for MongoDB. If you deployed NotifyBC using Helm, replica set is already enabled by default.
 2. If you use default in-memory database, data in _server/database/data.json_ will not be migrated automatically. Manually migrate if necessary.
-3. Update file _src/datasources/db.datasource.local.json_
+3. Update file _src/datasources/db.datasource.local.[json|js|ts]_
 
    1. rename _url_ property to _uri_
    2. for other properties, instead of following [LoopBack MongoDB data source](https://loopback.io/doc/en/lb4/MongoDB-connector.html#creating-a-mongodb-data-source), follow [Mongoose connection options](https://mongoosejs.com/docs/connections.html#options). In particular, _host_, _port_ and _database_ properties are no longer supported. Use _uri_ instead.
@@ -294,7 +296,9 @@ v5 introduced following backward incompatible changes
    }
    ```
 
-4. API querying operators have changed. Replace following [Loopback operators](https://loopback.io/doc/en/lb4/Where-filter.html#operators) with corresponding [MongoDB operators](https://www.mongodb.com/docs/manual/reference/operator/query/) at client-side API call.
+   If you deployed NotifyBC using Helm, this is taken care of.
+
+4. API querying operators have changed. Replace following [Loopback operators](https://loopback.io/doc/en/lb4/Where-filter.html#operators) with corresponding [MongoDB operators](https://www.mongodb.com/docs/manual/reference/operator/query/) at your client-side API call.
 
    | Loopback operators      | MongoDB operators                               |
    | ----------------------- | ----------------------------------------------- |
@@ -327,7 +331,7 @@ v5 introduced following backward incompatible changes
 7. When a subscription is created by anonymous user, the _data_ field is preserved. In earlier versions this field is deleted.
 8. Dynamic tokens in subscription confirmation request message and duplicated subscription message are not replaced with subscription data, for example {subscription::...} tokens are left unchanged. Update the template of the two messages if dynamic tokens in them depends on subscription data.
 9. [Inbound SMTP Server](../config-email/#inbound-smtp-server) no longer accepts command line arguments or environment variables as inputs. All inputs have to be defined in config files shown in the link.
-10. If you deployed _NotifyBC_ using Helm, change MongoDB password format from
+10. If you deployed _NotifyBC_ using Helm, change MongoDB password format in your local values yaml file from
     ```yaml
     # in file helm/values.local.yaml
     mongodb:
@@ -363,6 +367,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
      ```sh
      helm uninstall <release-name>
      ```
+     Replace \<release-name\> with installed helm release name
   3. delete PVCs used by MongoDB stateful set
   4. run
      ```sh
@@ -370,5 +375,8 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
      git checkout tags/v5.x.x -b <branch_name>
      helm install <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
      ```
-     Replace _v5.x.x_ with a v5 release, preferably latest, found in GitHub such as _v5.0.0_.
+     Replace
+     - _v5.x.x_ with a v5 release, preferably latest, found in GitHub such as _v5.0.0_.
+     - \<release-name\> with installed helm release name
+     - \<platform\> with openshift or aks depending on your platform
   5. restore MongoDB database

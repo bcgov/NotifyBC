@@ -11,20 +11,22 @@ _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
 See [Upgrade Guide](../upgrade/#v4-to-v5) for more information.
 
-- Runs on _Nest_
+- Runs on _NestJS_
+- Bitnami MongoDB Helm chart is updated from version 10.7.1 to 14.3.2, with corresponding MongoDB from 4.4 to 7.0.4
+- Bitnami Redis Helm chart is updated from version 14.7.2 to 18.4.0, with corresponding Redis from 6.2.4 to 7.2.3
 
 ::: tip Why v5?
-_NotifyBC_ was built on [LoopBack](https://loopback.io/) since the beginning. While _Loopback_ is an awesome framework, it is evident by 2022 _Loopback_ is no longer actively maintained
+_NotifyBC_ was built on [LoopBack](https://loopback.io/) since the beginning. While _Loopback_ is an awesome framework at the time, it is evident by 2022 _Loopback_ is no longer actively maintained
 
 1. features such as GraphQL have been in experimental state for years
 2. recent commits are mostly chores rather than enhancements
 3. core developers have ceased to contribute
 
-To pave the way for future growth, switching platform becomes necessary. Nest was chosen because
+To pave the way for future growth, switching platform becomes necessary. _NestJS_ was chosen because
 
-1. both _Nest_ and _Loopback_ are server-side Node.js frameworks
-2. _Nest_ has the closest feature set as _Loopback_. To a large extent _Nest_ is a superset of _Loopback_.
-3. _Nest_ incorporates more technologies
+1. both _NestJS_ and _Loopback_ are server-side Node.js frameworks
+2. _NestJS_ has the closest feature set as _Loopback_. To a large extent _NestJS_ is a superset of _Loopback_
+3. _NestJS_ incorporates more technologies
 
 :::
 
