@@ -17,7 +17,7 @@
   <div>
     <v-text-field
       append-icon="search"
-      hint='Enter free style text for full text search or LoopBack <a href="https://loopback.io/doc/en/lb4/Where-filter.html" target="_blank">where filter</a> compatible JSON string for parametrized search, for example {"channel": "email"}.'
+      hint='Enter free style text for full text search or MongoDB <a href="https://www.mongodb.com/docs/manual/tutorial/query-documents/" target="_blank">query</a> compatible JSON string for parametrized search. For example, to search for items updated in year 2023, enter <i>{"updated": {"$gte": "2023-01-01","$lt": "2024-01-01"}}</i>'
       label="Search"
       single-line
       persistent-hint
