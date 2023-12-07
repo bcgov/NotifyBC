@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { FilterDto } from 'src/api/common/dto/filter.dto';
 import { AppConfigService } from 'src/config/app-config.service';
 import { AppService } from '../app.service';
@@ -71,6 +71,7 @@ export class SwaggerService implements OnModuleInit {
     SwaggerModule.setup('explorer', AppService.app, document, {
       useGlobalPrefix: true,
       customJs: '/iframeResizer.contentWindow.min.js',
+      /*
       patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
         let colonPort = ':' + req.connection.localPort;
         if (req.connection.localPort === 80 && req.protocol === 'http')
@@ -85,6 +86,7 @@ export class SwaggerService implements OnModuleInit {
         }
         return document;
       },
+      */
     });
   }
 }
