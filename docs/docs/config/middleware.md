@@ -17,17 +17,9 @@ import path from 'path';
 module.exports = {
   all: {
     compression: {},
-    helmet: {
-      params: [
-        {
-          hsts: {
-            maxAge: 0,
-          },
-        },
-      ],
-    },
   },
   apiOnly: {
+    helmet: {},
     morgan: {
       params: [
         ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status ":req[X-Forwarded-For]"',
