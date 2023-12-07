@@ -28,14 +28,15 @@
 
 module.exports = {
   all: {
-    compression: {},
+    compression: {
+      enabled: false,
+    },
+    helmet: {
+      enabled: false,
+    },
   },
   apiOnly: {
-    helmet: {},
     morgan: {
-      params: [
-        ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status ":req[X-Forwarded-For]"',
-      ],
       enabled: false,
     },
   },

@@ -44,7 +44,7 @@ export async function setupApplication(extraConfigs?) {
   const app = moduleFixture.createNestApplication<NestExpressApplication>();
   const appConfig = app.get<AppConfigService>(AppConfigService).get();
   merge(appConfig, extraConfigs);
-  setupApp(app);
+  await setupApp(app);
   app.enableShutdownHooks();
   await app.init();
   const client = supertest(app.getHttpServer());

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AppService } from 'src/app.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import { MiddlewareConfigService } from 'src/config/middleware-config.service';
 
 @Injectable()
-export class MiddlewareAllService implements OnModuleInit {
+export class MiddlewareAllService {
   readonly middlewareConfigs;
   readonly appConfig;
   constructor(
@@ -28,7 +28,7 @@ export class MiddlewareAllService implements OnModuleInit {
     this.middlewareConfigs = middlewareConfigService.get();
     this.appConfig = appConfigService.get();
   }
-  async onModuleInit() {
+  async setupMiddlewareAll() {
     const allMiddlewareConfigs = this.middlewareConfigs.all;
     for (const middlewareFactoryNm in allMiddlewareConfigs) {
       if (allMiddlewareConfigs[middlewareFactoryNm].enabled === false) continue;
