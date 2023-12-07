@@ -4,7 +4,8 @@ var Service = require('node-windows').Service;
 var svc = new Service({
   name: process.argv[2] || 'notifyBC',
   description: 'notifyBC Windows Service',
-  script: 'server\\server.js',
+  script: 'node_modules\\jest\\bin\\jest.js',
+  scriptOptions: 'start',
   nodeOptions: ['--inspect=0'],
   env: [
     {
