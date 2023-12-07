@@ -31,11 +31,11 @@ module.exports = {
     compression: {
       enabled: false,
     },
+  },
+  apiOnly: {
     helmet: {
       enabled: false,
     },
-  },
-  apiOnly: {
     morgan: {
       enabled: false,
     },
