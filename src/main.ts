@@ -27,11 +27,12 @@ import { ErrorsInterceptor } from './api/common/errors.interceptor';
 import { AppModule } from './app.module';
 import { AppService } from './app.service';
 import { AppConfigService } from './config/app-config.service';
+import { MiddlewareAllService } from './observers/middleware-all.service';
 import { ShutdownService } from './observers/shutdown.service';
 const logger = new Logger(path.parse(__filename).name);
 
 // setupApp is shared between bootstrap and e2e setupApplication
-export function setupApp(app: NestExpressApplication) {
+export async function setupApp(app: NestExpressApplication) {
   AppService.app = app;
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
@@ -45,6 +46,10 @@ export function setupApp(app: NestExpressApplication) {
   );
   appConfig.trustedReverseProxyIps &&
     app.set('trust proxy', appConfig.trustedReverseProxyIps);
+  const middlewareAllService = app.get(MiddlewareAllService);
+  // setupMiddlewareAll has to be called before app.init(),
+  // otherwise middleware has no effect on routes
+  await middlewareAllService.setupMiddlewareAll();
 }
 
 async function bootstrap() {
@@ -53,7 +58,7 @@ async function bootstrap() {
     AppModule,
     new ExpressAdapter(expressServer),
   );
-  setupApp(app);
+  await setupApp(app);
   await app.init();
   const appConfig = app.get(AppConfigService).get();
   const port = appConfig.port ?? 3000;
