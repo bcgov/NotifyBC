@@ -23,8 +23,8 @@ async function log(n: number) {
 (async function () {
   const tasks: Promise<any>[] = [];
   const opts = {
-    maxConcurrent: 1,
-    minTime: 500,
+    maxConcurrent: 3,
+    minTime: 1000,
     id: 'test',
     /* Redis clustering options */
     datastore: 'ioredis',
