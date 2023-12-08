@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import { Request } from 'express';
-import { compact } from 'lodash';
 import { FilterQuery, HydratedDocument, Model, QueryOptions } from 'mongoose';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { CountDto } from './dto/count.dto';
@@ -32,25 +31,10 @@ export class BaseService<T> {
   }
 
   async count(where?: FilterQuery<T>): Promise<CountDto> {
-    const castedFilter = this.model.countDocuments(where).cast();
-    const res = await this.model
-      .aggregate(
-        compact([
-          {
-            $addFields: {
-              id: { $toString: '$_id' },
-            },
-          },
-          where && {
-            $match: castedFilter,
-          },
-          {
-            $count: 'count',
-          },
-        ]),
-      )
-      .exec();
-    return res[0] ?? { count: 0 };
+    const count = await this.model.countDocuments(
+      this.model.translateAliases(where),
+    );
+    return { count };
   }
 
   async findAll(
