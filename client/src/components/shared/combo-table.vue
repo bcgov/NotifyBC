@@ -168,7 +168,7 @@ export default {
         if (value !== '') {
           filter.where = {
             $text: {
-              search: value,
+              $search: value,
             },
           };
           try {
