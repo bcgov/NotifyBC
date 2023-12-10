@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import Bottleneck from 'bottleneck';
 import dns from 'dns';
 import { get, merge, union } from 'lodash';
@@ -34,6 +34,8 @@ interface SMSBody {
 @Controller()
 export class BaseController {
   readonly appConfig;
+  readonly logger = new Logger(BaseController.name);
+
   constructor(
     readonly appConfigService: AppConfigService,
     readonly configurationsService: ConfigurationsService,
@@ -73,13 +75,17 @@ export class BaseController {
             .wrap(req)
             .withOptions.bind(this, { priority });
         }
-        return req(url, {
+        const res = await req(url, {
           method: 'POST',
           body: JSON.stringify(body),
           headers: {
             'Content-Type': 'application/json;charset=UTF-8',
           },
         });
+        if (res.status >= 400 || res.status < 200) {
+          throw new Error(res);
+        }
+        return res;
       }
       default: {
         // Twilio Credentials

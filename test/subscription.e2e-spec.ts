@@ -146,77 +146,92 @@ describe('POST /subscriptions', function () {
         expect.objectContaining({
           text: expect.stringContaining('{subscription_confirmation_code}'),
         }),
+        expect.anything(),
       );
       expect(spiedSendEmail).not.toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{service_name}'),
         }),
+        expect.anything(),
       );
       expect(spiedSendEmail).not.toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{http_host}'),
         }),
+        expect.anything(),
       );
       expect(spiedSendEmail).not.toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{rest_api_root}'),
         }),
+        expect.anything(),
       );
       expect(spiedSendEmail).not.toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{subscription_id}'),
         }),
+        expect.anything(),
       );
       expect(spiedSendEmail).not.toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{unsubscription_code}'),
         }),
+        expect.anything(),
       );
       expect(spiedSendEmail).not.toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{unsubscription_url}'),
         }),
+        expect.anything(),
       );
       expect(spiedSendEmail).not.toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{subscription_confirmation_url}'),
         }),
+        expect.anything(),
       );
       expect(spiedSendEmail).not.toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{unsubscription_reversion_url}'),
         }),
+        expect.anything(),
       );
 
       expect(spiedSendEmail).toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('12345'),
         }),
+        1,
       );
       expect(spiedSendEmail).toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('myService'),
         }),
+        1,
       );
       expect(spiedSendEmail).toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('http://127.0.0.1'),
         }),
+        1,
       );
       expect(spiedSendEmail).toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('/api'),
         }),
+        1,
       );
       expect(spiedSendEmail).toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('1 '),
         }),
+        1,
       );
       expect(spiedSendEmail).toBeCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('54321'),
         }),
+        1,
       );
       //unsubscription_url
       expect(spiedSendEmail).toBeCalledWith(
@@ -225,6 +240,7 @@ describe('POST /subscriptions', function () {
             `/api/subscriptions/${res.body.id}/unsubscribe?unsubscriptionCode=54321`,
           ),
         }),
+        1,
       );
       //subscription_confirmation_url
       expect(spiedSendEmail).toBeCalledWith(
@@ -233,6 +249,7 @@ describe('POST /subscriptions', function () {
             `/api/subscriptions/${res.body.id}/verify?confirmationCode=12345`,
           ),
         }),
+        1,
       );
       //unsubscription_reversion_url
       expect(spiedSendEmail).toBeCalledWith(
@@ -241,6 +258,7 @@ describe('POST /subscriptions', function () {
             `/api/subscriptions/${res.body.id}/unsubscribe/undo?unsubscriptionCode=54321`,
           ),
         }),
+        1,
       );
 
       const data = await subscriptionsService.findAll(
@@ -493,6 +511,7 @@ describe('POST /subscriptions', function () {
       expect.objectContaining({
         text: expect.stringContaining('A duplicated subscription'),
       }),
+      1,
     );
     const data = await subscriptionsService.findAll(
       {
@@ -916,6 +935,7 @@ describe('GET /subscriptions/{id}/unsubscribe', () => {
           /services myService\d, myService\d and myService\d/,
         ),
       }),
+      3,
     );
   });
 
