@@ -616,7 +616,12 @@ export class SubscriptionsController extends BaseController {
             switch (instance.channel) {
               case 'sms':
                 textBody = this.mailMerge(msg.textBody, instance, {}, req);
-                await this.sendSMS(instance.userChannelId, textBody, instance);
+                await this.sendSMS(
+                  instance.userChannelId,
+                  textBody,
+                  instance,
+                  3,
+                );
                 break;
               case 'email': {
                 const subject = this.mailMerge(msg.subject, instance, {}, req);
@@ -634,7 +639,7 @@ export class SubscriptionsController extends BaseController {
                   text: textBody,
                   html: htmlBody,
                 };
-                await this.sendEmail(mailOptions);
+                await this.sendEmail(mailOptions, 3);
                 break;
               }
             }
@@ -900,7 +905,7 @@ export class SubscriptionsController extends BaseController {
     }
     switch (data.channel) {
       case 'sms':
-        await this.sendSMS(data.userChannelId, textBody, data);
+        await this.sendSMS(data.userChannelId, textBody, data, 1);
         break;
       default: {
         const mailOptions = {
@@ -910,7 +915,7 @@ export class SubscriptionsController extends BaseController {
           text: textBody,
           html: mailHtmlBody,
         };
-        await this.sendEmail(mailOptions);
+        await this.sendEmail(mailOptions, 1);
       }
     }
   }
