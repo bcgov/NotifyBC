@@ -15,26 +15,36 @@
 import Bottleneck from 'bottleneck';
 import { promisify } from 'util';
 
+const clearDatastore = !!process.argv[4];
+console.log(`clearDatastore=${clearDatastore}`);
+
+const maxConcurrent = isNaN(parseInt(process.argv[3]))
+  ? 9999
+  : parseInt(process.argv[3]);
+
+const priority = isNaN(parseInt(process.argv[2]))
+  ? 5
+  : parseInt(process.argv[2]);
+
 async function log(n: number) {
   await promisify(setTimeout)(1);
-  console.log(n);
+  console.log('p' + priority + ' ' + n);
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async function () {
   const tasks: Promise<any>[] = [];
   const opts = {
-    maxConcurrent: 3,
+    maxConcurrent,
     minTime: 1000,
     id: 'test',
     /* Redis clustering options */
     datastore: 'ioredis',
-    // clearDatastore: true,
+    clearDatastore,
     clientOptions: {
       host: '127.0.0.1',
       port: 6379,
     },
   };
-  console.log(`priority=${process.argv[2]}`);
   const bottleneck = new Bottleneck(opts);
   for (let i = 0; i < 100; i++) {
     tasks.push(
@@ -43,10 +53,7 @@ async function log(n: number) {
         try {
           await bottleneck
             .wrap(log)
-            .withOptions(
-              { priority: parseInt(process.argv[2]) ?? 5, expiration: 500 },
-              i,
-            );
+            .withOptions({ priority, expiration: 500 }, i);
         } catch (ex) {
           if (
             !(

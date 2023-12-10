@@ -76,8 +76,8 @@ const config: Record<string, any> = {
     throttle: {
       enabled: false,
       id: 'notifyBCEmail',
-      // minTime: 250,
-      // maxConcurrent: 1,
+      minTime: 250,
+      maxConcurrent: 1,
       /* Redis clustering options */
       // datastore: 'ioredis',
       // clientOptions: {
