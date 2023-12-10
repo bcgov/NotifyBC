@@ -102,7 +102,7 @@ export class BaseController {
   directTransport = require('nodemailer-direct-transport');
   transport: any;
   static emailLimiter: Bottleneck;
-  async sendEmail(mailOptions: any) {
+  async sendEmail(mailOptions: any, priority = 5) {
     const smtpCfg =
       this.appConfig.email.smtp || this.appConfig.email.defaultSmtp;
     if (!this.transport) {
@@ -124,11 +124,13 @@ export class BaseController {
     }
     let info;
     try {
-      let sendMail = this.transport.sendMail;
+      let sendMail = this.transport.sendMail.bind(this.transport);
       if (BaseController.emailLimiter) {
-        sendMail = BaseController.emailLimiter.wrap(sendMail);
+        sendMail = BaseController.emailLimiter
+          .wrap(sendMail)
+          .withOptions.bind(this.transport, { priority });
       }
-      info = await sendMail.call(this.transport, mailOptions);
+      info = await sendMail(mailOptions);
       if (info?.accepted?.length < 1) {
         throw new Error('delivery failed');
       }
