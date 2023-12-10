@@ -47,6 +47,7 @@ export class BaseController {
     to: string,
     textBody: string,
     subscription: Partial<Subscription>,
+    priority = 5,
   ) {
     if (!BaseController.smsLimiter && this.appConfig?.sms?.throttle?.enabled) {
       const smsThrottleCfg = Object.assign({}, this.appConfig.sms.throttle);
@@ -68,7 +69,9 @@ export class BaseController {
         }
         let req: any = fetch;
         if (BaseController.smsLimiter) {
-          req = BaseController.smsLimiter.wrap(req);
+          req = BaseController.smsLimiter
+            .wrap(req)
+            .withOptions.bind(this, { priority });
         }
         return req(url, {
           method: 'POST',
@@ -85,11 +88,15 @@ export class BaseController {
         //require the Twilio module and create a REST client
         BaseController.smsClient =
           BaseController.smsClient || twilio(accountSid, authToken);
-        let req = BaseController.smsClient.messages.create;
+        let req = BaseController.smsClient.messages.create.bind(
+          BaseController.smsClient.messages,
+        );
         if (BaseController.smsLimiter) {
-          req = BaseController.smsLimiter.wrap(req);
+          req = BaseController.smsLimiter
+            .wrap(req)
+            .withOptions.bind(BaseController.smsClient.messages, { priority });
         }
-        return req.call(BaseController.smsClient.messages, {
+        return req({
           to: to,
           from: smsConfig.fromNumber,
           body: textBody,
