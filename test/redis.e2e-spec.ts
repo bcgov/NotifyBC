@@ -151,3 +151,64 @@ describe('CRON clearRedisDatastore', () => {
     appConfig.sms = origSmsConfig;
   });
 });
+
+describe('POST /subscriptions', () => {
+  it(
+    'should take higher priority than notification',
+    async () => {
+      const subs = [];
+      for (let i = 0; i < 2; i++) {
+        subs.push(
+          subscriptionsService.create({
+            serviceName: 'smsThrottle',
+            channel: 'sms',
+            userChannelId: '12345',
+            state: 'confirmed',
+          }),
+        );
+      }
+      await Promise.all(subs);
+      let res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'smsThrottle',
+          message: {
+            textBody:
+              'This is a broadcast test {confirmation_code} {service_name} ' +
+              '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
+          },
+          channel: 'sms',
+          isBroadcast: true,
+          asyncBroadcastPushNotification: true,
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).toEqual(200);
+      await wait(1);
+      res = await client
+        .post('/api/subscriptions')
+        .send({
+          serviceName: 'myService',
+          channel: 'sms',
+          userChannelId: '12345',
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).toEqual(200);
+      const redisRes = await con.hgetall('b_notifyBCSms_client_num_queued');
+      expect(Object.values(redisRes)[0]).toEqual('1');
+      expect(mockedFetch).toBeCalledTimes(3);
+      const data = await subscriptionsService.findAll(
+        {
+          where: {
+            serviceName: 'myService',
+            userChannelId: '12345',
+          },
+        },
+        undefined,
+      );
+      expect(data[0].unsubscriptionCode).toMatch(/\d{5}/);
+      await wait(4000);
+      expect(mockedFetch).toBeCalledTimes(5);
+    },
+    Number(process.env.notifyBcJestTestTimeout) || 10000,
+  );
+});
