@@ -15,6 +15,10 @@
 import Bottleneck from 'bottleneck';
 import { promisify } from 'util';
 
+const minTime = isNaN(parseInt(process.argv[5]))
+  ? 1000
+  : parseInt(process.argv[5]);
+
 const clearDatastore = !!process.argv[4];
 console.log(`clearDatastore=${clearDatastore}`);
 
@@ -35,7 +39,7 @@ async function log(n: number) {
   const tasks: Promise<any>[] = [];
   const opts = {
     maxConcurrent,
-    minTime: 1000,
+    minTime,
     id: 'test',
     /* Redis clustering options */
     datastore: 'ioredis',
