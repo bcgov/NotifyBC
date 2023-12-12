@@ -78,6 +78,10 @@ const config: Record<string, any> = {
       id: 'notifyBCEmail',
       minTime: 250,
       maxConcurrent: 1,
+
+      // jobExpiration corresponds to Bottleneck expiration job option
+      jobExpiration: 120000,
+
       /* Redis clustering options */
       // datastore: 'ioredis',
       // clientOptions: {
@@ -98,6 +102,10 @@ const config: Record<string, any> = {
       id: 'notifyBCSms',
       minTime: 250,
       maxConcurrent: 1,
+
+      // jobExpiration corresponds to Bottleneck expiration job option
+      jobExpiration: 120000,
+
       /* Redis clustering options */
       // datastore: 'ioredis',
       // clientOptions: {

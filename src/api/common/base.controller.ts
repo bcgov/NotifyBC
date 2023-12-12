@@ -45,6 +45,9 @@ export class BaseController {
 
   static smsClient: any;
   static smsLimiter: Bottleneck;
+  static smsJobExpiration;
+  static emailJobExpiration;
+
   async sendSMS(
     to: string,
     textBody: string,
@@ -52,7 +55,9 @@ export class BaseController {
     priority = 5,
   ) {
     if (!BaseController.smsLimiter && this.appConfig?.sms?.throttle?.enabled) {
-      const smsThrottleCfg = Object.assign({}, this.appConfig.sms.throttle);
+      let smsThrottleCfg;
+      ({ jobExpiration: BaseController.smsJobExpiration, ...smsThrottleCfg } =
+        this.appConfig.sms.throttle);
       delete smsThrottleCfg.enabled;
       BaseController.smsLimiter = new Bottleneck(smsThrottleCfg);
     }
@@ -71,9 +76,10 @@ export class BaseController {
         }
         let req: any = fetch;
         if (BaseController.smsLimiter) {
-          req = BaseController.smsLimiter
-            .wrap(req)
-            .withOptions.bind(this, { priority });
+          req = BaseController.smsLimiter.wrap(req).withOptions.bind(this, {
+            priority,
+            expiration: BaseController.smsJobExpiration,
+          });
         }
         const res = await req(url, {
           method: 'POST',
@@ -131,7 +137,11 @@ export class BaseController {
       !BaseController.emailLimiter &&
       this.appConfig?.email?.throttle?.enabled
     ) {
-      const emailThrottleCfg = Object.assign({}, this.appConfig.email.throttle);
+      let emailThrottleCfg;
+      ({
+        jobExpiration: BaseController.emailJobExpiration,
+        ...emailThrottleCfg
+      } = this.appConfig.email.throttle);
       delete emailThrottleCfg.enabled;
       BaseController.emailLimiter = new Bottleneck(emailThrottleCfg);
     }
@@ -141,7 +151,10 @@ export class BaseController {
       if (BaseController.emailLimiter) {
         sendMail = BaseController.emailLimiter
           .wrap(sendMail)
-          .withOptions.bind(this.transport, { priority });
+          .withOptions.bind(this.transport, {
+            priority,
+            expiration: BaseController.emailJobExpiration,
+          });
       }
       info = await sendMail(mailOptions);
       if (info?.accepted?.length < 1) {
