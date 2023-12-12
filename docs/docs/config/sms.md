@@ -137,16 +137,14 @@ module.exports = {
       datastore: 'ioredis',
       clientOptions: {
         name: 'mymaster',
-        sentinels: [{host: '127.0.0.1', port: 26379}],
+        sentinels: [{ host: '127.0.0.1', port: 26379 }],
       },
     },
   },
 };
 ```
 
-Throttle is implemented using [Bottleneck](https://github.com/SGrondin/bottleneck) and [ioredis](https://github.com/luin/ioredis). See their documentations for more configurations.
-
-When _NotifyBC_ is deployed to Kubernetes using Helm, by default throttle uses Redis Sentinel therefore rate limit applies to whole cluster.
+!!!include(./docs/shared/throttle.md)!!!
 
 To disable throttle, set _sms.throttle.enabled_ to _false_ in file /src/config.local.js
 

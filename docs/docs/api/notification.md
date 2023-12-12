@@ -241,20 +241,23 @@ The API operates on following notification data model fields:
   <tr>
     <td>
       <p class="name">asyncBroadcastPushNotification</p>
-      <div class="description">this field determines if the API call to create an immediate (i.e. not future-dated) broadcast push notification is asynchronous or not. If omitted, the API call is synchronous, i.e. the API call blocks until all subscribers have been processed. If set, valid values and corresponding behaviors are
+      <div class="description">this field determines if the API call to create an immediate (i.e. not future-dated) broadcast push notification is asynchronous or not. If omitted, the API call is synchronous, i.e. the API call blocks until notifications to all subscribers have been dispatched. If set, valid values and corresponding behaviors are
         <ul>
           <li>true - async without callback</li>
           <li>false - sync </li>
-          <li>a string contain callback url - async with callback of the supplied url upon completion</li>
+          <li>a string containing callback url - async with a POST call to the supplied callback url upon completion</li>
         </ul>
+        When posting to a service with large number of subscribers, it is highly <b>recommended</b> to set the API call to asynchronous, i.e. setting the value to <i>true</i> or supplying a callback.
       </div>
     </td>
     <td>
       <table>
         <tr><td>type</td><td>string or boolean</td></tr>
         <tr><td>required</td><td>false</td></tr>
+        <tr><td>default</td><td>false</td></tr>
       </table>
     </td>
+
   </tr>
   <tr>
     <td>
