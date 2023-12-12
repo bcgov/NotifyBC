@@ -13,7 +13,7 @@ See [Upgrade Guide](../upgrade/#v4-to-v5) for more information.
 
 - Runs on _NestJS_
 - Bitnami MongoDB Helm chart is updated from version 10.7.1 to 14.3.2, with corresponding MongoDB from 4.4 to 7.0.4
-- Bitnami Redis Helm chart is updated from version 14.7.2 to 18.4.0, with corresponding Redis from 6.2.4 to 7.2.3
+- Bitnami Redis Helm chart is updated from version 14.7.2 to 16.13.2, with corresponding Redis from 6.2.4 to 6.2.7
 
 ::: tip Why v5?
 _NotifyBC_ was built on [LoopBack](https://loopback.io/) since the beginning. While _Loopback_ is an awesome framework at the time, it is evident by 2022 _Loopback_ is no longer actively maintained
