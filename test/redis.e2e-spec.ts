@@ -1,6 +1,9 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
+import Bottleneck from 'bottleneck';
+import dns from 'dns';
 import Redis from 'ioredis';
 import { merge } from 'lodash';
+import mailer from 'nodemailer/lib/mailer';
 import { RedisMemoryServer } from 'redis-memory-server';
 import { BaseController } from 'src/api/common/base.controller';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
@@ -8,7 +11,7 @@ import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.servic
 import { AppConfigService } from 'src/config/app-config.service';
 import { CronTasksService } from 'src/observers/cron-tasks.service';
 import supertest from 'supertest';
-import { setupApplication, wait } from './test-helper';
+import { runAsSuperAdmin, setupApplication, wait } from './test-helper';
 
 let app: NestExpressApplication;
 let client: supertest.SuperTest<supertest.Test>;
@@ -26,6 +29,16 @@ beforeEach(async () => {
 
   ({ app, client } = await setupApplication({
     adminIps: ['127.0.0.1'],
+    email: {
+      throttle: {
+        enabled: true,
+        datastore: 'ioredis',
+        clientOptions: {
+          host,
+          port,
+        },
+      },
+    },
     sms: {
       throttle: {
         enabled: true,
@@ -46,17 +59,20 @@ afterEach(async () => {
   await con.quit();
   await BaseController.smsLimiter?.disconnect();
   delete BaseController.smsLimiter;
+  await BaseController.emailLimiter?.disconnect();
+  delete BaseController.emailLimiter;
   await app.close();
   await redisServer.stop();
 });
 
+let promiseAllRes;
 beforeEach(async () => {
   (
     BaseController.prototype.sendSMS as unknown as jest.SpyInstance
   ).mockRestore();
   mockedFetch = jest.spyOn(global, 'fetch').mockResolvedValue(new Response());
 
-  await Promise.all([
+  promiseAllRes = await Promise.all([
     subscriptionsService.create({
       serviceName: 'smsThrottle',
       channel: 'sms',
@@ -73,6 +89,12 @@ beforeEach(async () => {
       serviceName: 'smsNoThrottle',
       channel: 'sms',
       userChannelId: '12345',
+      state: 'confirmed',
+    }),
+    subscriptionsService.create({
+      serviceName: 'myService',
+      channel: 'email',
+      userChannelId: 'bar@foo.com',
       state: 'confirmed',
     }),
   ]);
@@ -115,6 +137,60 @@ describe('POST /notifications', () => {
       undefined,
     );
     expect(data.length).toEqual(1);
+  });
+
+  it('should perform throttled client-retry', async () => {
+    await runAsSuperAdmin(async () => {
+      (
+        BaseController.prototype.sendEmail as unknown as jest.SpyInstance
+      ).mockRestore();
+      jest
+        .spyOn(mailer.prototype, 'sendMail')
+        .mockImplementation(async function (this: any) {
+          if (this.options.host !== '127.0.0.1') {
+            // eslint-disable-next-line no-throw-literal
+            throw { command: 'CONN', code: 'ETIMEDOUT' };
+          }
+          return 'ok';
+        });
+      jest.spyOn(dns, 'lookup').mockImplementation((...args) => {
+        const cb: any = args[args.length - 1];
+        cb(null, [{ address: '127.0.0.2' }, { address: '127.0.0.1' }]);
+      });
+      const spiedBottleneckSchedule = jest.spyOn(
+        Bottleneck.prototype,
+        'schedule',
+      );
+      const res = await client
+        .post('/api/notifications')
+        .send({
+          serviceName: 'myService',
+          message: {
+            from: 'no_reply@bar.com',
+            subject: 'test',
+            textBody: 'test',
+          },
+          channel: 'email',
+          isBroadcast: true,
+        })
+        .set('Accept', 'application/json');
+      expect(res.status).toEqual(200);
+      const data = await notificationsService.findAll(
+        {
+          where: {
+            serviceName: 'myService',
+          },
+        },
+        undefined,
+      );
+      expect(data[0].dispatch?.failed).toBeUndefined();
+      expect(data[0].dispatch?.successful).toContain(promiseAllRes[3].id);
+      expect(spiedBottleneckSchedule).toBeCalledTimes(3);
+      expect(spiedBottleneckSchedule.mock.calls[2][0]).toMatchObject({
+        priority: 5,
+        expiration: 120000,
+      });
+    });
   });
 });
 

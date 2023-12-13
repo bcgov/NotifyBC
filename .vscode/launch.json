@@ -33,7 +33,7 @@
       "name": "Test",
       "runtimeExecutable": "yarn",
       "autoAttachChildProcesses": true,
-      "runtimeArgs": ["test:e2e", "--detectOpenHandles", "notification"],
+      "runtimeArgs": ["test:e2e", "--detectOpenHandles", "redis"],
       "outputCapture": "std",
       // "console": "internalConsole",
       "env": {
