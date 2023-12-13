@@ -570,10 +570,13 @@ export class CronTasksService {
           undefined,
         );
         if (sendingNotification) continue;
-        const newThrottleConfig = Object.assign({}, throttleConfig, {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { enabled, jobExpiration, ...newThrottleConfig } = {
+          ...throttleConfig,
+          enabled: undefined,
+          jobExpiration: undefined,
           clearDatastore: true,
-        });
-        delete newThrottleConfig.enabled;
+        };
         const limiter = new CronTasksService.Bottleneck(newThrottleConfig);
         await limiter.ready();
         await limiter.disconnect();

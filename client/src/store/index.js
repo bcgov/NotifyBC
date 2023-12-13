@@ -136,7 +136,7 @@ export const useDefaultStore = defineStore('default', {
     async fetchItems(payload) {
       let filter = payload.filter;
       if (filter) {
-        filter = Object.assign({}, this[payload.model].filter, filter);
+        filter = { ...this[payload.model].filter, ...filter };
       } else {
         this.setItemSearch({ model: payload.model });
       }
