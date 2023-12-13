@@ -14,6 +14,7 @@
 
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import axios from 'axios';
 import dns from 'dns';
 import { merge } from 'lodash';
 import nodemailer from 'nodemailer';
@@ -838,7 +839,7 @@ describe('POST /notifications', () => {
         broadcastSubRequestBatchSize: 10,
       });
       appConfig.notification = newNotificationConfig;
-      const spiedFetch = jest.spyOn(global, 'fetch');
+      const spiedAxios = jest.spyOn(axios, 'get');
       const res = await client
         .post('/api/notifications')
         .send({
@@ -856,7 +857,7 @@ describe('POST /notifications', () => {
       expect(
         BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
       ).toBeCalledTimes(2);
-      expect(spiedFetch).toBeCalledTimes(2);
+      expect(spiedAxios).toBeCalledTimes(2);
       const data = await notificationsService.findAll(
         {
           where: {
@@ -882,28 +883,12 @@ describe('POST /notifications', () => {
 
       const spiedFetch = jest
         .spyOn(global, 'fetch')
-        .mockImplementation(async function (...args: any[]) {
-          if (
-            args.length === 1 ||
-            (args.length > 1 && args[1].method === undefined)
-          ) {
-            const getReq = client.get(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
-              for (const [p, v] of Object.entries(args[1].headers as object)) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                getReq.set(p, v);
-              }
-            }
-            const data: any = await getReq;
-            return new Response(JSON.stringify(data.body));
-          }
-          if (args.length > 1 && args[1].method === 'POST') {
-            return new Response();
-          }
-          throw new Error();
-        });
+        .mockResolvedValue(new Response());
+      jest.spyOn(axios, 'get').mockImplementation(async (...args: any[]) => {
+        const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
+        const data: any = await getReq;
+        return new Response(JSON.stringify(data.body));
+      });
 
       (
         BaseController.prototype.sendEmail as unknown as jest.SpyInstance
@@ -1032,7 +1017,7 @@ describe('POST /notifications', () => {
         appConfig.notification = newNotificationConfig;
 
         const reqStub = jest
-          .spyOn(global, 'fetch')
+          .spyOn(axios, 'get')
           .mockRejectedValueOnce({ error: 'connection error' });
         const res = await client
           .post('/api/notifications')
@@ -1473,7 +1458,7 @@ describe('POST /notifications', () => {
           guaranteedBroadcastPushDispatchProcessing: false,
         });
         appConfig.notification = newNotificationConfig;
-        jest.spyOn(global, 'fetch').mockRejectedValue({});
+        jest.spyOn(axios, 'get').mockRejectedValue({});
         const res = await client
           .post('/api/notifications')
           .send({

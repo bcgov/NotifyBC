@@ -35,23 +35,6 @@ const config: Record<string, any> = {
   host: '0.0.0.0',
   // port listen on
   port: 3000,
-  remoting: {
-    rest: {
-      normalizeHttpPath: false,
-      xml: false,
-      handleErrors: false,
-    },
-    json: {
-      strict: false,
-      limit: '100kb',
-    },
-    urlencoded: {
-      extended: true,
-      limit: '100kb',
-    },
-    cors: false,
-  },
-  legacyExplorer: false,
   adminIps: ['127.0.0.1'],
   siteMinderReverseProxyIps: ['127.0.0.1'],
   email: {
