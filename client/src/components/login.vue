@@ -167,17 +167,13 @@ export default {
     },
     oidcLogin: async function () {
       let config = this.$store.oidcConfig;
-      config = Object.assign({}, config, {
-        redirect_uri: window.location.href,
-      });
+      config = { ...config, redirect_uri: window.location.href };
       let um = new UserManager(config);
       await um.signinRedirect();
     },
     oidcLogout: async function () {
       let config = this.$store.oidcConfig;
-      config = Object.assign({}, config, {
-        post_logout_redirect_uri: window.location.href,
-      });
+      config = { ...config, post_logout_redirect_uri: window.location.href };
       let um = new UserManager(config);
       await um.signoutRedirect();
     },
