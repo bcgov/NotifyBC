@@ -176,16 +176,19 @@ export class BaseController {
       }
       // do client retry if there are multiple addresses
       for (const [index, address] of addresses.entries()) {
-        const newSmtpCfg = Object.assign({}, smtpCfg, {
-          host: address.address,
-        });
+        const newSmtpCfg = { ...smtpCfg, host: address.address };
         const transport = this.nodemailer.createTransport(newSmtpCfg);
-        let sendMail = transport.sendMail;
+        let sendMail = transport.sendMail.bind(transport);
         if (BaseController.emailLimiter) {
-          sendMail = BaseController.emailLimiter.wrap(sendMail);
+          sendMail = BaseController.emailLimiter
+            .wrap(sendMail)
+            .withOptions.bind(transport, {
+              priority,
+              expiration: BaseController.emailJobExpiration,
+            });
         }
         try {
-          info = await sendMail.call(transport, mailOptions);
+          info = await sendMail(mailOptions);
           if (info?.accepted?.length < 1) {
             throw new Error('delivery failed');
           }
