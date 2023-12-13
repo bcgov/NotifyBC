@@ -21,6 +21,7 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Logger,
   Param,
   ParseIntPipe,
   Patch,
@@ -40,6 +41,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { queue } from 'async';
+import axios from 'axios';
 import { Request } from 'express';
 import jmespath from 'jmespath';
 import { pullAll } from 'lodash';
@@ -744,15 +746,8 @@ export class NotificationsController extends BaseController {
                 data.id +
                 '/broadcastToChunkSubscribers?start=' +
                 task.startIdx;
-              const response = await fetch(uri);
-              if (response.status < 300) {
-                try {
-                  return await response.json();
-                } catch (ex) {
-                  return response.body;
-                }
-              }
-              throw new HttpException(undefined, response.status);
+              const response = await axios.get(uri);
+              return response.data;
             }, broadcastSubRequestBatchSize);
             // re-submit task on error if
             // guaranteedBroadcastPushDispatchProcessing.
@@ -760,6 +755,11 @@ export class NotificationsController extends BaseController {
             let failedChunks: any[] = [];
             q.error((_err: any, task: any) => {
               if (this.guaranteedBroadcastPushDispatchProcessing) {
+                Logger.debug(_err, NotificationsController.name);
+                Logger.debug(
+                  `re-push task startIdx=${task.startIdx}`,
+                  NotificationsController.name,
+                );
                 q.push(task);
               } else {
                 data.state = 'error';
