@@ -862,6 +862,7 @@ describe('POST /notifications', () => {
         {
           where: {
             serviceName: 'myChunkedBroadcastService',
+            state: 'sent',
           },
         },
         undefined,
