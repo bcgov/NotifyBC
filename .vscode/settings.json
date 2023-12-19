@@ -51,6 +51,7 @@
     "letsencrypt",
     "mailparser",
     "materialdesignicons",
+    "mongoimport",
     "mongorestore",
     "mymaster",
     "NDRs",

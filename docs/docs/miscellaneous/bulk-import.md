@@ -4,7 +4,7 @@ permalink: /docs/bulk-import/
 
 # Bulk Import
 
-To facilitate migrating subscriptions from other notification systems, _NotifyBC_ provides a utility script to bulk import subscription data from a .csv file. To use the utility, you need
+To migrate subscriptions from other notification systems, you can use [mongoimport](https://www.mongodb.com/docs/database-tools/mongoimport/). _NotifyBC_ also provides a utility script to bulk import subscription data from a .csv file. To use the utility, you need
 
 - Software installed
   - Node.js
