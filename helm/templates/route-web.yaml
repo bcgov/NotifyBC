@@ -6,6 +6,7 @@ metadata:
   labels:
     {{- include "NotifyBC.labels" . | nindent 4 }}
   annotations:
+    haproxy.router.openshift.io/ip_whitelist: {{ .Values.route.web.ip_whitelist }}
     haproxy.router.openshift.io/timeout: 24d
   name: {{ $fullName }}-web
 spec:
