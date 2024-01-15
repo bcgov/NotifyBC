@@ -130,7 +130,6 @@ route:
     host: ''
     tls:
       termination: edge
-    ip_whitelist: 0.0.0.0/0
   smtp:
     host: ''
 
