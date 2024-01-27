@@ -5,6 +5,10 @@ npm-debug.log
 *.tsbuildinfo
 **/*.local.*
 /docs/
-/server/database/data.json
 /server/certs
-/chart
+/.github/
+/.vscode/
+/helm
+notifyBC.code-workspace
+/coverage/
+windows-service.js
