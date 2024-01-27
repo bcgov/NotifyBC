@@ -187,8 +187,8 @@ const config: Record<string, any> = {
       minLapsedHoursSinceLatestNotificationEnded: 1,
     },
     reDispatchBroadcastPushNotifications: {
-      // minutely
-      timeSpec: '0 * * * * *',
+      // every 2 minutes
+      timeSpec: '0 */2 * * * *',
     },
     clearRedisDatastore: {
       // hourly
