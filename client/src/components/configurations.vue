@@ -32,7 +32,11 @@
           </v-btn>
 
           <template
-            v-if="['dbSchemaVersion', 'rsa'].indexOf(props.props.item.name) < 0"
+            v-if="
+              ['dbSchemaVersion', 'rsa'].indexOf(
+                props.props.item.columns.name,
+              ) < 0
+            "
           >
             <v-btn
               @click="props.editItem(props.props)"
