@@ -38,7 +38,7 @@
             <v-icon>info</v-icon>
             <v-tooltip activator="parent" location="bottom">details</v-tooltip>
           </v-btn>
-          <template v-if="props.props.item.state === 'new'">
+          <template v-if="props.props.item.columns.state === 'new'">
             <v-btn
               @click="props.editItem(props.props)"
               density="compact"
@@ -58,8 +58,8 @@
 <script>
 import ComboTable from './shared/combo-table';
 import 'jquery-ui-bundle';
-import {mapActions} from 'pinia';
-import {useDefaultStore} from '../store';
+import { mapActions } from 'pinia';
+import { useDefaultStore } from '../store';
 // one-time definition of custom jquery-ui widget
 $.widget('custom.annotatedAutoComplete', $.ui.autocomplete, {
   _create: function () {
