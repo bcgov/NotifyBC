@@ -1,0 +1,26 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+      - v4
+    paths:
+      - helm/Chart.yaml
+  workflow_dispatch:
+
+jobs:
+  release:
+    # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
+    # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish Helm charts
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          charts_dir: ./
+          branch: gh-pages
+          target_dir: docs/helm
