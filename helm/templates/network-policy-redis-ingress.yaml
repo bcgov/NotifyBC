@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-redis-ingress
+  name: {{ include "NotifyBC.fullname" . }}-allow-redis-ingress
   labels:
     {{- include "NotifyBC.labels" . | nindent 4 }}
 spec:
