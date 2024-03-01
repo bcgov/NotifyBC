@@ -1,0 +1,48 @@
+# ImageStream api-run
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    description: Image for the notify application
+  labels:
+    role: app
+  name: notify-bc
+
+---
+# BuildConfig api-run
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    description: Image Build for notify bc application
+  labels:
+    role: app
+  name: notify-bc
+spec:
+  failedBuildsHistoryLimit: 1
+  successfulBuildsHistoryLimit: 2
+  strategy:
+    dockerStrategy:
+      from:
+        kind: DockerImage
+        name: node:20.9.0-slim
+      incremental: false
+    type: Docker
+  source:
+    contextDir: ./
+    git:
+      ref: main
+      uri: https://github.com/bcgov/NotifyBC.git
+    type: Git
+  output:
+    to:
+      kind: ImageStreamTag
+      name: notify-bc:latest
+  resources:
+    limits:
+      cpu: "2"
+      memory: 2Gi
+    requests:
+      cpu: "1.5"
+      memory: 1.5Gi
+  runPolicy: Serial
