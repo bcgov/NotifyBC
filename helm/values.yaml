@@ -130,7 +130,7 @@ route:
     host: ''
     tls:
       termination: edge
-    ip_whitelist: 0.0.0.0/0  
+    ip_whitelist: 0.0.0.0/0
   smtp:
     host: ''
 
@@ -142,6 +142,10 @@ cronJob:
   timeZone: UTC
   persistence:
     size: 5Gi
+
+hpa:
+  cron:
+    enabled: true
 
 redis:
   enabled: true
