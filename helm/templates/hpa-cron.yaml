@@ -1,3 +1,4 @@
+{{- if .Values.hpa.notify-bc-cron.enabled -}}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
