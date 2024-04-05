@@ -12,3 +12,4 @@ spec:
     name: {{ include "NotifyBC.fullname" . }}-cron
   minReplicas: 1
   maxReplicas: 1
+{{- end }}
