@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/bcgov/notify-bc
+  repository: ghcr.io/bcgov/des-notify-bc
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ''
+  tag: 'latest'
 
 imagePullSecrets: []
 nameOverride: ''

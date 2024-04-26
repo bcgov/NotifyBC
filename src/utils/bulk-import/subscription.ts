@@ -69,8 +69,7 @@ import csv from 'csvtojson';
         console.error('error for row #' + task.rowIdx + ': ' + err);
         cb(err);
       });
-  },
-  parseInt(opts.concurrency));
+  }, parseInt(opts.concurrency));
   q.drain(function () {
     if (done) {
       console.log('success row count = ' + successCnt);
