@@ -21,9 +21,9 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { MongoServerError } from 'mongodb';
-import { MongooseError } from 'mongoose';
-import { Observable, catchError } from 'rxjs';
+import {MongoServerError} from 'mongodb';
+import mongoose, {MongooseError} from 'mongoose';
+import {Observable, catchError} from 'rxjs';
 
 @Injectable()
 export class ErrorsInterceptor implements NestInterceptor {
@@ -33,7 +33,8 @@ export class ErrorsInterceptor implements NestInterceptor {
         if (exception instanceof HttpException) throw exception;
         if (
           exception instanceof MongooseError ||
-          exception instanceof MongoServerError
+          exception instanceof MongoServerError ||
+          exception instanceof mongoose.mongo.MongoServerError
         )
           throw new HttpException(exception.message, HttpStatus.BAD_REQUEST, {
             cause: exception,

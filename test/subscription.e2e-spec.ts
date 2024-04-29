@@ -337,9 +337,10 @@ describe('POST /subscriptions', function () {
   });
 
   it('should allow non-admin user create sms subscription using swift provider', async () => {
-    const spiedSendSms = (
+    (
       BaseController.prototype.sendSMS as unknown as jest.SpyInstance
-    ).mockReset();
+    ).mockRestore();
+    const spiedSendSms = jest.spyOn(BaseController.prototype, 'sendSMS');
     const fetchStub = jest
       .spyOn(global, 'fetch')
       .mockResolvedValue(new Response());
