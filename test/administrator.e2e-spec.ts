@@ -51,7 +51,7 @@ describe('Administrator API', () => {
           password: VALID_PASSWORD,
           tokenName: 'myApp',
         })
-        .set({ is_anonymous: true });
+        .set({ is_anonymous: 'true' });
       token = res.body.token;
       res = await client.post('/api/administrators').send({
         email: 'bar@invalid.local',
