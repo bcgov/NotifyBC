@@ -17,7 +17,7 @@ To run the utility
 ```sh
 git clone https://github.com/bcgov/NotifyBC.git
 cd NotifyBC
-npm i -g yarn && yarn install && yarn build
+npm i && npm run build
 node dist/utils/bulk-import/subscription.js -a <api-url-prefix> -c <concurrency> <csv-file-path>
 ```
 

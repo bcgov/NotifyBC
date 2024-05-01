@@ -54,8 +54,8 @@ Run following commands
 ```sh
 git clone https://github.com/bcgov/NotifyBC.git
 cd NotifyBC
-npm i -g yarn && yarn install && yarn build
-yarn start
+npm i && npm run build
+npm run start
 ```
 
 If successful, you will see following output
@@ -92,8 +92,6 @@ If you want to install on a server behind firewall which restricts internet conn
   git config --global http.proxy http://my_proxy:8080
   git config --global url."https://".insteadOf git://
   npm config set proxy http://my_proxy:8080
-  npm i -g yarn
-  yarn config set proxy http://my_proxy:8080
   ```
 
 :::

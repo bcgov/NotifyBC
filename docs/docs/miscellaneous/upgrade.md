@@ -99,10 +99,10 @@ module.exports = {
 11. Run
 
 ```sh
-yarn install && yarn build
+npm i && npm run build
 ```
 
-11. Start server by running `yarn start` or Windows Service
+11. Start server by running `npm run start` or Windows Service
 
 #### OpenShift Installation
 
@@ -207,7 +207,7 @@ After above changes are addressed, upgrading to v3 is as simple as
 ```sh
 git pull
 git checkout tags/v3.x.x -b <branch_name>
-yarn install && yarn build
+npm i && npm run build
 ```
 
 or, if _NotifyBC_ is deployed to Kubernetes using Helm.
@@ -254,7 +254,7 @@ After above changes are addressed, upgrading to v4 is as simple as
 ```sh
 git pull
 git checkout tags/v4.x.x -b <branch_name>
-yarn install && yarn build
+npm i && npm run build
 ```
 
 or, if _NotifyBC_ is deployed to Kubernetes using Helm.
@@ -358,7 +358,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
   ```sh
   git pull
   git checkout tags/v5.x.x -b <branch_name>
-  yarn install && yarn build
+  npm i && npm run build
   ```
 
 - if _NotifyBC_ is deployed to Kubernetes using Helm,

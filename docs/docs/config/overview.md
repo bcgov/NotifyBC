@@ -21,7 +21,7 @@ Most static configurations are specified in file _/src/config.ts_. If you need t
 - local file _/src/config.local.js_
 
 ::: warning Run build script whenever changing file in /src
-Every time a file under _/src_, including config files, is updated, run `yarn build` before restarting _NotifyBC_ to take effect.
+Every time a file under _/src_, including config files, is updated, run `npm run build` before restarting _NotifyBC_ to take effect.
 :::
 
 Following configs should be customized per installation
