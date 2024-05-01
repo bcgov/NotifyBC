@@ -17,12 +17,12 @@ Install Visual Studio Code and following extensions:
 Multiple run configs have been created to facilitate debugging server, client, test and docs.
 
 ::: warning Client certificate authentication doesn't work in client debugger
-Because Vue cli webpack dev server cannot proxy passthrough HTTPS connections, client certificate authentication doesn't work in client debugger. If testing client certificate authentication in web console is needed, run `yarn build` to generate prod client distribution and launch server debugger on https://localhost:3000
+Because Vue cli webpack dev server cannot proxy passthrough HTTPS connections, client certificate authentication doesn't work in client debugger. If testing client certificate authentication in web console is needed, run `npm run build` to generate prod client distribution and launch server debugger on https://localhost:3000
 :::
 
 ## Automated Testing
 
-_NotifyBC_ uses [Jest](https://jestjs.io/) test framework bundled in NestJS. To launch test, run `yarn test:e2e`. A _Test_ launch config is provided to debug in VS Code.
+_NotifyBC_ uses [Jest](https://jestjs.io/) test framework bundled in NestJS. To launch test, run `npm run test:e2e`. A _Test_ launch config is provided to debug in VS Code.
 
 Github Actions runs tests as part of the build. All test scripts should be able to run unattended, headless, quickly and depend only on local resources.
 
@@ -41,8 +41,7 @@ Whenever possible, a test spec should be written to
 If you want to contribute to _NotifyBC_ docs beyond simple fix ups, run
 
 ```sh
-yarn --cwd docs install
-yarn --cwd docs dev
+cd docs && npm install && npm run dev
 ```
 
 If everything goes well, the last line of the output will be

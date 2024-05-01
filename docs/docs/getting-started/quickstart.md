@@ -9,8 +9,8 @@ For the impatient, here's how to get a boilerplate _NotifyBC_ instance up and ru
 ```sh
 git clone https://github.com/bcgov/NotifyBC.git
 cd NotifyBC
-npm i -g yarn && yarn install && yarn build
-yarn start
+npm i && npm run build
+npm run start
 # => Now browse to http://localhost:3000
 ```
 

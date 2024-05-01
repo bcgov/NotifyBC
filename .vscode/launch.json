@@ -7,8 +7,8 @@
     {
       "name": "Server",
       "request": "launch",
-      "runtimeArgs": ["start:debug"],
-      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["run", "start:debug"],
+      "runtimeExecutable": "npm",
       "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "outputCapture": "std",
@@ -31,9 +31,9 @@
       "type": "node",
       "request": "launch",
       "name": "Test",
-      "runtimeExecutable": "yarn",
+      "runtimeExecutable": "npm",
       "autoAttachChildProcesses": true,
-      "runtimeArgs": ["test:e2e", "--detectOpenHandles", "redis"],
+      "runtimeArgs": ["run", "test:e2e", "--detectOpenHandles", "redis"],
       "outputCapture": "std",
       // "console": "internalConsole",
       "env": {

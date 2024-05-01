@@ -1,6 +1,6 @@
 ARG nodeVersion=lts
 # Check out https://hub.docker.com/_/node to select a new base image
-FROM node:${nodeVersion}-bullseye-slim
+FROM node:${nodeVersion}-bookworm-slim
 
 RUN apt-get update && apt-get install curl libssl-dev -y
 
@@ -15,7 +15,7 @@ WORKDIR /home/node/app
 # Bundle app source code
 COPY --chown=node . .
 
-RUN yarn install --ignore-optional && yarn build && yarn install --prod --ignore-optional
+RUN npm i --omit=optional && npm run build && npm i --omit=dev --omit=optional
 
 ENV HOST=0.0.0.0 PORT=3000 SMTP_PORT=2525 NODE_ENV=production NOTIFYBC_WORKER_PROCESS_COUNT=1
 
