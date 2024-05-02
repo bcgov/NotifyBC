@@ -54,8 +54,7 @@ You can now browse to the local docs site [http://localhost:8080/NotifyBC](http:
 
 ## Publish Version Checklist
 
-Before adding a release,
-
 1. update _version_ in _package.json_
 2. update _version_ _appVersion_ in _helm/Chart.yaml_ (major/minor only)
 3. update [What's new](../getting-started/what's-new.md) (major/minor only)
+4. create a new Github release
