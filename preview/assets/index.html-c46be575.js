@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-17bdcfe6","path":"/docs/config-middleware/","title":"Middleware","lang":"en-US","frontmatter":{"permalink":"/docs/config-middleware/"},"headers":[],"git":{},"filePathRelative":"docs/config/middleware.md"}');export{e as data};
