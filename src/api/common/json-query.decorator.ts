@@ -33,6 +33,7 @@ export function ApiFilterJsonQuery() {
   return applyDecorators(
     ApiQuery({
       name: 'filter',
+      required: false,
       content: {
         'application/json': {
           schema: { $ref: getSchemaPath(FilterDto) },
