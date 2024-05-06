@@ -61,7 +61,7 @@ The procedure to upgrade from v1 to v2 depends on how v1 was installed.
    git branch -u origin/main
    ```
 4. Make a note of any extra packages added to _package.json_
-5. Run `git pull && git checkout tags/v2.x.x -b <branch_name>` from app root, replace _v2.x.x_ with a v2 release, preferably latest, found in GitHub such as _v2.9.0_.
+5. Run `git pull && git checkout tags/v2.x.x` from app root, replace _v2.x.x_ with a v2 release, preferably latest, found in GitHub such as _v2.9.0_.
 6. Make sure _version_ property in _package.json_ is _2.x.x_
 7. Add back extra packages noted in step 4
 8. Move _server/config.(local|dev|production).(js|json)_ to _src/_ if exists
@@ -206,7 +206,7 @@ After above changes are addressed, upgrading to v3 is as simple as
 
 ```sh
 git pull
-git checkout tags/v3.x.x -b <branch_name>
+git checkout tags/v3.x.x
 npm i && npm run build
 ```
 
@@ -214,7 +214,7 @@ or, if _NotifyBC_ is deployed to Kubernetes using Helm.
 
 ```sh
 git pull
-git checkout tags/v3.x.x -b <branch_name>
+git checkout tags/v3.x.x
 helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
 ```
 
@@ -253,7 +253,7 @@ After above changes are addressed, upgrading to v4 is as simple as
 
 ```sh
 git pull
-git checkout tags/v4.x.x -b <branch_name>
+git checkout tags/v4.x.x
 npm i && npm run build
 ```
 
@@ -261,7 +261,7 @@ or, if _NotifyBC_ is deployed to Kubernetes using Helm.
 
 ```sh
 git pull
-git checkout tags/v4.x.x -b <branch_name>
+git checkout tags/v4.x.x
 helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
 ```
 
@@ -357,7 +357,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
 
   ```sh
   git pull
-  git checkout tags/v5.x.x -b <branch_name>
+  git checkout tags/v5.x.x
   npm i && npm run build
   ```
 
@@ -372,7 +372,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
   4. run
      ```sh
      git pull
-     git checkout tags/v5.x.x -b <branch_name>
+     git checkout tags/v5.x.x
      helm install <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
      ```
      Replace
