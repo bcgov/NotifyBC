@@ -39,7 +39,6 @@ jobs:
             ghcr.io/bcgov/des-notify-bc
           tags: |
             type=ref,event=pr
-            type=ref,event=workflow_dispatch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
