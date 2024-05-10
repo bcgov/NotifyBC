@@ -1,8 +1,5 @@
 name: buildTestPublishContainerDeploy
 on:
-  push:
-    branches:
-      - main
   release:
     types:
       - published
@@ -13,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.5
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4.0.2
@@ -26,7 +23,7 @@ jobs:
           npm run lint
           npm run test:e2e
   publish-container:
-    if: ${{ github.repository == 'bcgov/des-notifybc' }}
+    if: ${{ github.repository == 'bcgov/des-notifybc' && github.actor != 'renovate[bot]' }}
     needs: install-build-lint-and-test
     runs-on: ubuntu-latest
     steps:
@@ -42,6 +39,7 @@ jobs:
             ghcr.io/bcgov/des-notify-bc
           tags: |
             type=ref,event=pr
+            type=ref,event=workflow_dispatch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
