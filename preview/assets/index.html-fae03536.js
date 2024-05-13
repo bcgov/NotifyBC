@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-ca3407c4","path":"/docs/acknowledgments/","title":"Acknowledgments","lang":"en-US","frontmatter":{"permalink":"/docs/acknowledgments/"},"headers":[],"git":{},"filePathRelative":"docs/meta/acknowledgments.md"}');export{e as data};
