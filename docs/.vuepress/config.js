@@ -147,6 +147,7 @@ export default defineUserConfig({
         text: 'Miscellaneous',
         children: [
           '/docs/health-check/',
+          '/docs/memory-dump/',
           '/docs/benchmarks/',
           '/docs/bulk-import/',
           '/docs/developer-notes/',
