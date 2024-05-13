@@ -32,6 +32,7 @@ import { ShutdownService } from './observers/shutdown.service';
 import { SwaggerService } from './observers/swagger.service';
 import { RssModule } from './rss/rss.module';
 import { HealthModule } from './api/health/health.module';
+import { MemoryModule } from './api/memory/memory.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { HealthModule } from './api/health/health.module';
     AuthModule,
     RssModule,
     HealthModule,
+    MemoryModule,
   ],
   controllers: [BaseController],
   providers: [SwaggerService, AppService],
