@@ -21,9 +21,9 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import {MongoServerError} from 'mongodb';
-import mongoose, {MongooseError} from 'mongoose';
-import {Observable, catchError} from 'rxjs';
+import { MongoServerError } from 'mongodb';
+import mongoose, { MongooseError } from 'mongoose';
+import { Observable, catchError } from 'rxjs';
 
 @Injectable()
 export class ErrorsInterceptor implements NestInterceptor {
