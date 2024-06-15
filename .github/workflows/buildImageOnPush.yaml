@@ -1,0 +1,31 @@
+name: Build API Image.
+on:
+  push:
+    branches:
+      - v5
+    paths:
+      - 'src/**'
+  workflow_dispatch:
+defaults:
+  run:
+    working-directory: ./
+jobs:
+  deploy_api_on_openshift:
+    if: github.repository_owner == 'bcgov'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to OpenShift and open the correct namespace
+        uses: redhat-developer/openshift-actions@v1.1
+        with:
+          version: 'latest'
+          openshift_server_url: ${{ secrets.OpenShiftServerURL }}
+          parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
+          cmd: |
+            oc project ${{ secrets.OpenShiftNamespace }}
+
+      - name: Create PipelineRun
+        run: |
+          oc create -f helm/deployments/openshift/tekton/build-pipelinerun.yaml

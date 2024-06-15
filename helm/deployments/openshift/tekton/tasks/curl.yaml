@@ -1,0 +1,35 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: curl
+  labels:
+    app.kubernetes.io/version: '0.1'
+spec:
+  description: This task performs curl operation to transfer data from internet.
+  params:
+    - description: Name of the secret which holds the URL to be curl'ed.
+      name: url-secret
+      type: string
+    - description: Options for the url command.
+      name: options
+      type: array
+    - default: >-
+        docker.io/curlimages/curl:7.72.0@sha256:bd5bbd35f89b867c1dccbc84b8be52f3f74dea20b46c5fe0db3780e040afcb6f
+      description: Image of curl to pull.
+      name: curl-image
+      type: string
+  steps:
+    - args:
+        - '$(params.options[*])'
+        - $(URL)
+      command:
+        - curl
+      env:
+        - name: URL
+          valueFrom:
+            secretKeyRef:
+              key: url
+              name: $(params.url-secret)
+      image: $(params.curl-image)
+      name: curl
+      resources: {}
