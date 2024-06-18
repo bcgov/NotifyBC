@@ -1,24 +1,19 @@
 name: buildTestPublishContainerDeploy
 on:
-  push:
-    branches:
-      - main
   release:
     types:
       - published
   pull_request:
   workflow_dispatch:
-env:
-  notifyBCContainerTag: latest
 jobs:
   install-build-lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v4.1.5
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ vars.NODE_VERSION }}
       - name: Install, build, lint and test:e2e 🔧
@@ -28,48 +23,46 @@ jobs:
           npm run lint
           npm run test:e2e
   publish-container:
-    if: ${{ github.repository == 'bcgov/NotifyBC' && github.event_name != 'pull_request' }}
+    if: ${{ github.repository == 'bcgov/des-notifybc' && github.actor != 'renovate[bot]' }}
     needs: install-build-lint-and-test
     runs-on: ubuntu-latest
     steps:
-      - name: Update notifyBCContainerTag for tags
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: echo notifyBCContainerTag=$(echo $GITHUB_REF | cut -d / -f 3 | cut -d v -f 2- | cut -d . -f 1,2) >> $GITHUB_ENV
-      - name: Update notifyBCContainerTag for branches
-        if: ${{ startsWith(github.ref, 'refs/heads/') && github.ref != 'refs/heads/main' }}
-        run: echo notifyBCContainerTag=$(echo $GITHUB_REF | cut -d / -f 3) >> $GITHUB_ENV
-      - name: Save $notifyBCContainerTag to file
-        run: |
-          echo $notifyBCContainerTag > notifyBCContainerTag.txt
-      - name: Upload notifyBCContainerTag
-        if: ${{ startsWith(github.ref, 'refs/heads/') }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: notifyBCContainerTag
-          path: notifyBCContainerTag.txt
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v4.1.4
         with:
           persist-credentials: false
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/bcgov/des-notify-bc
+          tags: |
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3.1.0
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Container 🚀
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5.3.0
         with:
+          context: .
           push: true
-          tags: ghcr.io/bcgov/notify-bc:${{ env.notifyBCContainerTag }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: nodeVersion=${{ vars.NODE_VERSION }}
   deploy:
-    if: ${{ github.repository == 'bcgov/NotifyBC' && github.event_name == 'push' }}
+    if: ${{ github.repository == 'bcgov/des-notifybc' && github.event_name == 'push' }}
     needs: publish-container
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v4.1.4
         with:
           persist-credentials: false
       - name: Decrypt values.ocp4.dev.yaml.gpg

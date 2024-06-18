@@ -1,0 +1,54 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: notify-bc-mongodb-restore-template
+parameters:
+  - name: RELEASE_NAME
+    displayName: "Release Name"
+    description: "The NotifyBC release name"
+    required: true
+  - name: MONGO_IMAGE
+    displayName: "Mongo Image"
+    description: "The image used by the mongodb pods. This should match the version used by the mongodb pods."
+    required: true
+    value: "docker.io/bitnami/mongodb:7.0.4-debian-11-r0"
+  - name: BACKUP_DATE
+    displayName: "Backup Date"
+    description: "The date of the backup file to restore from (YYYYMMDD format, eg. 20240125)"
+    required: true
+objects:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: ${RELEASE_NAME}-mongodb-restore-${BACKUP_DATE}
+    spec:
+      parallelism: 1
+      completions: 1
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 100
+      template:
+        spec:
+          containers:
+            - name: mongodb
+              image: ${MONGO_IMAGE}
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: import
+                  mountPath: /import
+              env:
+                - name: DATABASE_SERVICE_NAME
+                  value: ${RELEASE_NAME}-mongodb-headless
+                - name: MONGODB_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${RELEASE_NAME}-mongodb
+                      key: mongodb-root-password
+              command:
+                - /bin/bash
+                - -vc
+                - mongorestore --username=root --password="$MONGODB_ADMIN_PASSWORD" --host="rs0/$DATABASE_SERVICE_NAME" --gzip --drop --archive="`find /import -name "mongodb-backup-${BACKUP_DATE}*.gz" | tail -n 1`"
+          restartPolicy: Never
+          volumes:
+            - name: import
+              persistentVolumeClaim:
+                claimName: ${RELEASE_NAME}-notify-bc-cronjob-mongodb-backup

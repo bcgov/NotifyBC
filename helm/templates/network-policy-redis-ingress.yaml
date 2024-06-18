@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "NotifyBC.fullname" . }}-allow-redis-ingress
+  labels:
+    {{- include "NotifyBC.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 26379
+      from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "NotifyBC.name" . }}-app
+              app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress

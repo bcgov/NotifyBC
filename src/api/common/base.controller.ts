@@ -118,20 +118,13 @@ export class BaseController {
   }
 
   nodemailer = require('nodemailer');
-  directTransport = require('nodemailer-direct-transport');
   transport: any;
   static emailLimiter: Bottleneck;
   async sendEmail(mailOptions: any, priority = 5) {
     const smtpCfg =
       this.appConfig.email.smtp || this.appConfig.email.defaultSmtp;
     if (!this.transport) {
-      if (smtpCfg.direct) {
-        this.transport = this.nodemailer.createTransport(
-          this.directTransport(smtpCfg),
-        );
-      } else {
-        this.transport = this.nodemailer.createTransport(smtpCfg);
-      }
+      this.transport = this.nodemailer.createTransport(smtpCfg);
     }
     if (
       !BaseController.emailLimiter &&

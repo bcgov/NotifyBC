@@ -16,6 +16,8 @@ spec:
             - name: mongodb
               image: {{ include "common.images.image" (dict "imageRoot" .Values.mongodb.image "global" .Values.global) }}
               imagePullPolicy: IfNotPresent
+              resources:
+                {{- toYaml .Values.cronJob.resources | nindent 16 }}
               volumeMounts:
                 - name: export
                   mountPath: /export

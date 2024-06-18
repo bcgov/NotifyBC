@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/bcgov/notify-bc
+  repository: ghcr.io/bcgov/des-notify-bc
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ''
+  tag: 'latest'
 
 imagePullSecrets: []
 nameOverride: ''
@@ -130,6 +130,7 @@ route:
     host: ''
     tls:
       termination: edge
+    ip_whitelist: 0.0.0.0/0
   smtp:
     host: ''
 
@@ -141,6 +142,18 @@ cronJob:
   timeZone: UTC
   persistence:
     size: 5Gi
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "256Mi"
+    limits:
+      cpu: "250m"
+      memory: "1Gi"
+
+
+hpa:
+  cron:
+    enabled: true
 
 redis:
   enabled: true
