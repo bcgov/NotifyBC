@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: start-build
+spec:
+  results:
+    - description: Output of the start-build command
+      name: build-output
+      type: string
+    - description: Status of the build ("Build Succeeded" or "Build Failed")
+      name: exit-status
+      type: string
+  steps:
+    - image: 'quay.io/openshift/origin-cli:latest'
+      name: start-build
+      resources: {}
+      script: |
+        #!/bin/sh
+        output=$(oc start-build notify-bc --wait)
+        exit_code=$?
+        echo "$output" > /tekton/results/build-output
+        if [ "$exit_code" -eq 0 ]; then
+          echo -n "Build Succeeded" > /tekton/results/exit-status
+        else
+          echo -n "Build Failed" > /tekton/results/exit-status
+        fi
+        exit 0  # Continue the pipeline even if the task fails

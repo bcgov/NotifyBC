@@ -1,0 +1,16 @@
+# .github/pipelines/pipelinerun.yaml
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: build-pipelinerun-
+  labels:
+    tekton.dev/pipeline: build-pipeline
+spec:
+  params:
+    - name: rocketchat-url-secret
+      value: rocketchat-url
+  pipelineRef:
+    name: build-pipeline
+  serviceAccountName: pipeline
+  timeouts:
+    pipeline: 1h0m0s

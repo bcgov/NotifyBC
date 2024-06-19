@@ -1,0 +1,34 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-pipeline
+spec:
+  params:
+    - description: The name of the secret holding the Rocket.Chat URL
+      name: rocketchat-url-secret
+      type: string
+  tasks:
+    - name: start-build
+      taskRef:
+        kind: Task
+        name: start-build
+    - name: send-to-rocketchat
+      params:
+        - name: url-secret
+          value: $(params.rocketchat-url-secret)
+        - name: options
+          value:
+            - '-X'
+            - POST
+            - '-H'
+            - 'Content-Type: application/json'
+            - '-v'
+            - '--data'
+            - >-
+              {"alias": "DESCW OC Alerts", "text":
+              "$(tasks.start-build.results.exit-status)"}
+      runAfter:
+        - start-build
+      taskRef:
+        kind: Task
+        name: curl
