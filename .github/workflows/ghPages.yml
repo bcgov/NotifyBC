@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - v4
+      - v5
   release:
     types:
       - published
+
 env:
   notifyBCDocVersion_PATH: /
   ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
