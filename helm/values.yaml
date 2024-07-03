@@ -144,12 +144,12 @@ cronJob:
     size: 5Gi
   resources:
     requests:
-      cpu: "50m"
-      memory: "256Mi"
+      cpu: '50m'
+      memory: '256Mi'
     limits:
-      cpu: "250m"
-      memory: "1Gi"
-
+      cpu: '250m'
+      memory: '1Gi'
+  storageClassName: netapp-file-backup
 
 hpa:
   cron:
