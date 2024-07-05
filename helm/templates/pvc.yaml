@@ -12,5 +12,5 @@ spec:
   resources:
     requests:
       storage: {{ .Values.cronJob.persistence.size }}
-{{ end }}
   storageClassName: {{ .Values.cronJob.storageClassName }}
+{{ end }}
