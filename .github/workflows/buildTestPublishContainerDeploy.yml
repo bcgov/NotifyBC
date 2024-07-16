@@ -4,6 +4,13 @@ on:
     types:
       - published
   pull_request:
+    paths:
+      - 'src/**'
+      - 'client/**'
+      - 'server/**'
+      - 'test/**'
+      - 'package-lock.json'
+      - 'Dockerfile'
   workflow_dispatch:
 jobs:
   install-build-lint-and-test:
