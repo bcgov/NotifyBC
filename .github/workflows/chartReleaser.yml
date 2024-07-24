@@ -34,4 +34,4 @@ jobs:
           charts_dir: ./
           branch: gh-pages
           target_dir: helm
-          chart_version: ${{ format('{0}{1}', steps.chart.outputs.version, env.CHART_VERSION || '') }}
+          chart_version: ${{ format('{0}{1}', steps.chart.outputs.version, (env.CHART_VERSION != 'false' && env.CHART_VERSION || '')) }}
