@@ -102,10 +102,40 @@ spec:
               mountPath: {{ .mountPath }}
               subPath: {{ .subPath }}
             {{- end }}
+            - name: local-logs
+              mountPath: /home/node/app/logs/
+        {{- if .Values.fluentbit.enabled }}
+        - name: {{ .Chart.Name }}-fluent-bit
+          image: {{ .Values.fluentbit.imageRegistry }}
+          imagePullPolicy: {{ .Values.fluentbit.imagePullPolicy }}
+          ports:
+            - name: logs
+              containerPort: 2020
+              protocol: TCP
+          {{- if .Values.fluentbit.securityContext.enabled }}
+          securityContext: {{- omit .Values.fluentbit.securityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.fluentbit.resources }}
+          resources: {{- toYaml .Values.fluentbit.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: log-storage
+              mountPath: /tmp/pvc/
+            - name: local-logs
+              mountPath: /tmp/logs/
+              readOnly: true
+        {{- end }}
       volumes:
         - configMap:
             name: {{include "NotifyBC.fullname" .}}
           name: config-volume
+        - name: local-logs
+          emptyDir: {}
+        {{- if .Values.fluentbit.enabled }}
+        - name: log-storage
+          persistentVolumeClaim:
+            claimName: {{ include "NotifyBC.fullname" . }}-logs
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -179,3 +179,21 @@ redis:
       enabled: false
     containerSecurityContext:
       enabled: false
+
+fluentbit:
+  enabled: true
+  imageRegistry: docker.io/fluent/fluent-bit:3.1
+  imagePullPolicy: IfNotPresent
+  securityContext:
+    enabled: false
+    runAsUser: 1001
+  persistence:
+    size: 1Gi
+    storageClassName: netapp-file-backup
+  resources:
+    limits:
+      cpu: 100m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 16Mi

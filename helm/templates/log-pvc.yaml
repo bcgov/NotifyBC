@@ -1,0 +1,16 @@
+{{- if .Values.fluentbit.enabled -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  annotations:
+    "helm.sh/resource-policy": keep
+  name: {{ include "NotifyBC.fullname" . }}-logs
+  labels: {{- include "NotifyBC.labels" . | nindent 4}}
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.fluentbit.persistence.size }}
+  storageClassName: {{ .Values.fluentbit.persistence.storageClassName }}
+{{ end }}
