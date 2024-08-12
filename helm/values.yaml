@@ -197,3 +197,19 @@ fluentbit:
     requests:
       cpu: 10m
       memory: 16Mi
+  config:
+    customParsers: ""
+    service: ""
+    inputs: |
+      [INPUT]
+          Name tail
+          Path /tmp/logs/*.log
+          Tag app.access.log
+          Mem_Buf_Limit 5MB
+          Skip_Long_Lines Off
+    filters: ""
+    outputs: |
+      [OUTPUT]
+          Name file
+          Match *
+          Path /tmp/pvc/
