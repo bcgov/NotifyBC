@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { CronJob } from 'cron';
-import { AppConfigService } from 'src/config/app-config.service';
-import { CronTasksService } from './cron-tasks.service';
+import {Injectable, OnApplicationBootstrap} from '@nestjs/common';
+import {CronJob} from 'cron';
+import {AppConfigService} from 'src/config/app-config.service';
+import {CronTasksService} from './cron-tasks.service';
 
 @Injectable()
 export class CronService implements OnApplicationBootstrap {
@@ -41,7 +41,9 @@ export class CronService implements OnApplicationBootstrap {
     this.jobs.push(
       CronJob.from({
         cronTime: cronConfigPurgeData.timeSpec,
-        onTick: this.cronTasksService.purgeData(),
+        onTick: async() => {
+          await this.cronTasksService.purgeData();
+        },
         start: true,
       }),
     );
@@ -51,7 +53,9 @@ export class CronService implements OnApplicationBootstrap {
     this.jobs.push(
       CronJob.from({
         cronTime: cronConfigDispatchLiveNotifications.timeSpec,
-        onTick: this.cronTasksService.dispatchLiveNotifications(),
+        onTick: async() => {
+          await this.cronTasksService.dispatchLiveNotifications();
+        },
         start: true,
       }),
     );
@@ -72,7 +76,9 @@ export class CronService implements OnApplicationBootstrap {
     this.jobs.push(
       CronJob.from({
         cronTime: deleteBounces.timeSpec,
-        onTick: this.cronTasksService.deleteBounces(),
+        onTick: async () => {
+          await this.cronTasksService.deleteBounces();
+        },
         start: true,
       }),
     );
@@ -81,7 +87,9 @@ export class CronService implements OnApplicationBootstrap {
     this.jobs.push(
       CronJob.from({
         cronTime: reDispatchBroadcastPushNotifications.timeSpec,
-        onTick: this.cronTasksService.reDispatchBroadcastPushNotifications(),
+        onTick: async() => {
+          await this.cronTasksService.reDispatchBroadcastPushNotifications();
+        },
         start: true,
       }),
     );
@@ -98,7 +106,9 @@ export class CronService implements OnApplicationBootstrap {
       this.jobs.push(
         CronJob.from({
           cronTime: clearRedisDatastore.timeSpec,
-          onTick: this.cronTasksService.clearRedisDatastore(),
+          onTick: async() => {
+            await this.cronTasksService.clearRedisDatastore();
+          },
           start: true,
           runOnInit: true,
         }),
