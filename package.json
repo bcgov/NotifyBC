@@ -18,10 +18,10 @@
   "scripts": {
     "build": "nest build",
     "build:client": "cd client && npm run build",
-    "build:docs": "cd docs && npm i && npm run build",
+    "build:docs": "cd docs && npm ci && npm run build",
     "postbuild": "npm run build:client",
-    "install:client": "cd client && npm i",
-    "install:docs": "cd docs && npm i",
+    "install:client": "cd client && npm ci",
+    "install:docs": "cd docs && npm ci",
     "postinstall": "npm run install:client",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

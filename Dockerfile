@@ -18,7 +18,7 @@ RUN mkdir /home/node/app/logs/ && touch /home/node/app/logs/access.log
 # Bundle app source code
 COPY --chown=node . .
 
-RUN npm i --omit=optional && npm run build && npm i --omit=dev --omit=optional
+RUN npm ci --omit=optional && npm run build && npm ci --omit=dev --omit=optional
 
 ENV HOST=0.0.0.0 PORT=3000 SMTP_PORT=2525 NODE_ENV=production NOTIFYBC_WORKER_PROCESS_COUNT=1
 
