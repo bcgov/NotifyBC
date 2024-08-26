@@ -202,14 +202,25 @@ fluentbit:
     service: ""
     inputs: |
       [INPUT]
-          Name tail
-          Path /tmp/logs/*.log
-          Tag app.access.log
-          Mem_Buf_Limit 5MB
+          Name            tail
+          Path            /tmp/logs/*.log
+          Tag             app.access.log
+          Mem_Buf_Limit   5MB
           Skip_Long_Lines Off
-    filters: ""
+    filters: |
+      [FILTER]
+          Name  Lua
+          Match *
+          call  append_tag
+          code  function append_tag(tag, timestamp, record) new_record = record new_record["datestamp"] = os.date("%Y%m%d", timestamp) return 1, timestamp, new_record end
+
+      [FILTER]
+          Name          rewrite_tag
+          Match         app.access.log
+          Rule          $datestamp ^(.*)$ $datestamp.app.access.log false
+          Emitter_Name  re_emitted
     outputs: |
       [OUTPUT]
-          Name file
+          Name  file
           Match *
-          Path /tmp/pvc/
+          Path  /tmp/pvc/

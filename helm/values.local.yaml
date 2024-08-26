@@ -1,0 +1,6 @@
+fluentbit:
+  persistence:
+    size: 1Gi
+    #storageClassName: local-storage
+#cronJob:
+  #storageClassName: local-storage
