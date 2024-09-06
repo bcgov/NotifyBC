@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4.1.5
+        uses: actions/checkout@v4.1.7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4.0.2
+      - uses: actions/setup-node@v4.0.3
         with:
           node-version: ${{ vars.NODE_VERSION }}
       - name: Install, build, lint and test:e2e 🔧
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.7
         with:
           persist-credentials: false
       - name: Docker meta
@@ -50,13 +50,13 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Container 🚀
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v5.4.0
         with:
           context: .
           push: true
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.7
         with:
           persist-credentials: false
       - name: Decrypt values.ocp4.dev.yaml.gpg
