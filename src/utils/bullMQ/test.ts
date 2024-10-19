@@ -28,5 +28,9 @@ new Worker(
       host: '127.0.0.1',
       port: 6379,
     },
+    limiter: {
+      max: 1,
+      duration: 40000,
+    },
   },
 );
