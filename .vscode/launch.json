@@ -69,6 +69,15 @@
       "outputCapture": "std"
     },
     {
+      "type": "node",
+      "request": "launch",
+      "name": "bullMqTest",
+      "runtimeExecutable": "ts-node",
+      "cwd": "${workspaceFolder}/src/utils/bullMQ",
+      "args": ["test.ts"],
+      "outputCapture": "std"
+    },
+    {
       "name": "smtpServer",
       "request": "launch",
       "type": "node",
