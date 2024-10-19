@@ -1,6 +1,14 @@
 import { Queue, Worker } from 'bullmq';
 
-const myQueue = new Queue('foo');
+const myQueue = new Queue('foo', {
+  connection: {
+    host: '127.0.0.1',
+    port: 6379,
+  },
+  defaultJobOptions: {
+    removeOnComplete: true,
+  },
+});
 
 async function addJobs() {
   await myQueue.add('myJobName', { foo: 'bar' });
@@ -20,6 +28,5 @@ new Worker(
       host: '127.0.0.1',
       port: 6379,
     },
-    removeOnComplete: { count: 0 },
   },
 );
