@@ -11,8 +11,11 @@ const myQueue = new Queue('foo', {
 });
 
 async function addJobs() {
-  await myQueue.add('myJobName', { foo: 'bar' });
-  await myQueue.add('myJobName', { qux: 'baz' });
+  for (let i = 0; i < 10; i++) {
+    await myQueue.add('myJobName', {
+      count: i,
+    });
+  }
 }
 
 addJobs();
@@ -21,7 +24,7 @@ new Worker(
   async (job) => {
     // Will print { foo: 'bar'} for the first job
     // and { qux: 'baz' } for the second.
-    console.log(job.data);
+    console.log({ ...job.data, time: new Date() });
   },
   {
     connection: {
@@ -30,7 +33,7 @@ new Worker(
     },
     limiter: {
       max: 1,
-      duration: 40000,
+      duration: 10000,
     },
   },
 );
