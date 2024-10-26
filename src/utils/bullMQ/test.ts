@@ -8,6 +8,11 @@ const myQueue = new Queue('foo', {
   defaultJobOptions: {
     removeOnComplete: true,
   },
+  streams: {
+    events: {
+      maxLen: 10,
+    },
+  },
 });
 
 async function addJobs() {
