@@ -1,4 +1,6 @@
 import { Queue, QueueEvents, Worker } from 'bullmq';
+import { promisify } from 'util';
+export const wait = promisify(setTimeout);
 
 const myQueue = new Queue('foo', {
   connection: {
@@ -15,32 +17,50 @@ const myQueue = new Queue('foo', {
   },
 });
 
+function rateLimit(queueName: string, fn: (...args: any[]) => Promise<any>) {
+  return async function (...args: any[]): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      const queueEvents = new QueueEvents(queueName);
+      const queuedID = [];
+      // IMPORTANT: place queueEvents.on before myQueue.add
+      queueEvents.on('completed', async ({ jobId }) => {
+        if (!j?.id) {
+          queuedID.push(jobId);
+          return;
+        }
+        if (jobId !== j?.id) {
+          return;
+        }
+        try {
+          resolve(await fn.apply(this, args));
+        } catch (ex) {
+          reject(ex);
+        }
+        queueEvents.close();
+      });
+      const j = await myQueue.add('myJobName', undefined);
+      // extra guard in case queueEvents.on is called before j is assigned.
+      if (queuedID.indexOf(j.id) >= 0) {
+        try {
+          resolve(await fn.apply(this, args));
+        } catch (ex) {
+          reject(ex);
+        }
+      }
+    });
+  };
+}
+
+async function theWork(count) {
+  await wait(100);
+  console.log({ count, time: new Date() });
+}
+
 async function addJobs() {
   for (let i = 0; i < 10; i++) {
-    async function theWork() {
-      console.log({ count: i, time: new Date() });
-    }
-    const queueEvents = new QueueEvents('foo');
-    const queuedID = [];
-    // IMPORTANT: place queueEvents.on before myQueue.add
-    queueEvents.on('completed', ({ jobId }) => {
-      if (!j?.id) {
-        queuedID.push(jobId);
-        return;
-      }
-      if (jobId !== j?.id) {
-        return;
-      }
-      theWork();
-      queueEvents.close();
-    });
-    const j = await myQueue.add('myJobName', {
-      count: i,
-    });
-    // extra guard in case queueEvents.on is called before j is assigned.
-    if (queuedID.indexOf(j.id) >= 0) {
-      theWork();
-    }
+    rateLimit('foo', theWork)(i);
+    // non-rateLimited counterpart
+    // theWork(i);
   }
 }
 
