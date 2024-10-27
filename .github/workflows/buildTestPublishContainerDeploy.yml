@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ vars.NODE_VERSION }}
       - name: Install, build, lint and test:e2e 🔧
@@ -43,22 +43,22 @@ jobs:
           echo $notifyBCContainerTag > notifyBCContainerTag.txt
       - name: Upload notifyBCContainerTag
         if: ${{ startsWith(github.ref, 'refs/heads/') }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: notifyBCContainerTag
           path: notifyBCContainerTag.txt
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.CR_PAT }}
       - name: Publish Container 🚀
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: ghcr.io/bcgov/notify-bc:${{ env.notifyBCContainerTag }}
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Decrypt values.ocp4.dev.yaml.gpg
@@ -85,7 +85,7 @@ jobs:
           openshift_token: ${{ secrets.OPENSHIFT_API_TOKEN }}
           namespace: ${{ secrets.OPENSHIFT_PROJECT }}-dev
       - name: Download notifyBCContainerTag
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: notifyBCContainerTag
       - name: helm upgrade 🚀
