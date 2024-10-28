@@ -95,6 +95,8 @@ export class BaseService<T> {
     }
     updateDto.updated = new Date();
     delete updateDto.id;
+    delete updateDto.createdBy;
+    delete updateDto.created;
     return this.model.findByIdAndUpdate(id, updateDto, options).exec();
   }
 

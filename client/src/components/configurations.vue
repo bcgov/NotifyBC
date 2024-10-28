@@ -136,13 +136,13 @@ export default {
             },
           },
           createdBy: {
-            type: 'string',
+            type: 'object',
             options: {
               hidden: true,
             },
           },
           updatedBy: {
-            type: 'string',
+            type: 'object',
             options: {
               hidden: true,
             },

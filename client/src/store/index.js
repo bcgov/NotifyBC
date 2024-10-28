@@ -104,7 +104,7 @@ export const useDefaultStore = defineStore('default', {
         method = 'PUT';
         delete item.id;
         delete item.updated;
-        delete item.created;
+        delete item.updatedBy;
       }
       let req = {
         method,

@@ -67,7 +67,7 @@
 <script>
 import ComboTable from './shared/combo-table';
 import ModelEditor from './shared/editor';
-import {merge} from 'lodash';
+import { merge } from 'lodash';
 export default {
   components: {
     ComboTable,
@@ -112,13 +112,13 @@ export default {
           },
         },
         createdBy: {
-          type: 'string',
+          type: 'object',
           options: {
             hidden: true,
           },
         },
         updatedBy: {
-          type: 'string',
+          type: 'object',
           options: {
             hidden: true,
           },
