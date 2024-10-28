@@ -29,6 +29,7 @@ import { ShutdownService } from './shutdown.service';
 import { SmtpService } from './smtp.service';
 import { SwaggerService } from './swagger.service';
 import { WebAdminConsoleService } from './web-admin-console.service';
+import { EmailQueueConsumerService } from './email-queue-consumer.service';
 
 @Module({
   providers: [
@@ -41,6 +42,7 @@ import { WebAdminConsoleService } from './web-admin-console.service';
     WebAdminConsoleService,
     SwaggerService,
     MiddlewareAllService,
+    EmailQueueConsumerService,
   ],
   imports: [
     ConfigurationsModule,
