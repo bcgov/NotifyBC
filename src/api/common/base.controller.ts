@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Controller, Logger } from '@nestjs/common';
+import { getQueueToken } from '@nestjs/bullmq';
+import { Controller, Inject, Logger } from '@nestjs/common';
 import Bottleneck from 'bottleneck';
+import { Queue } from 'bullmq';
 import dns from 'dns';
 import { get, merge, union } from 'lodash';
 import net from 'net';
@@ -36,6 +38,12 @@ export class BaseController {
   readonly appConfig;
   readonly logger = new Logger(BaseController.name);
 
+  @Inject(getQueueToken('s'))
+  private readonly smsQueue: Queue;
+
+  @Inject(getQueueToken('e'))
+  private readonly emailQueue: Queue;
+
   constructor(
     readonly appConfigService: AppConfigService,
     readonly configurationsService: ConfigurationsService,
@@ -54,6 +62,7 @@ export class BaseController {
     subscription: Partial<Subscription>,
     priority = 5,
   ) {
+    console.log(this.smsQueue);
     if (!BaseController.smsLimiter && this.appConfig?.sms?.throttle?.enabled) {
       let smsThrottleCfg;
       ({ jobExpiration: BaseController.smsJobExpiration, ...smsThrottleCfg } =
