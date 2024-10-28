@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BouncesModule } from '../bounces/bounces.module';
@@ -32,6 +33,11 @@ import { NotificationsService } from './notifications.service';
     MongooseModule.forFeature([
       { name: Notification.name, schema: NotificationSchema },
     ]),
+    BullModule.registerQueue(
+      { name: 's' /* sms */ },
+      { name: 'e' /* email */ },
+      { name: 'n' /* notification */ },
+    ),
   ],
   controllers: [NotificationsController],
   providers: [NotificationsService],

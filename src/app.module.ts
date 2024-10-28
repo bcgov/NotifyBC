@@ -18,7 +18,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import { AdministratorsModule } from './api/administrators/administrators.module';
 import { BouncesModule } from './api/bounces/bounces.module';
-import { BaseController } from './api/common/base.controller';
 import { ConfigurationsModule } from './api/configurations/configurations.module';
 import { HealthModule } from './api/health/health.module';
 import { MemoryModule } from './api/memory/memory.module';
@@ -85,13 +84,7 @@ import { RssModule } from './rss/rss.module';
         };
       },
     }),
-    BullModule.registerQueue(
-      { name: 's' /* sms */ },
-      { name: 'e' /* email */ },
-      { name: 'n' /* notification */ },
-    ),
   ],
-  controllers: [BaseController],
   providers: [SwaggerService, AppService],
 })
 export class AppModule {
