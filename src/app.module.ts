@@ -85,6 +85,11 @@ import { RssModule } from './rss/rss.module';
         };
       },
     }),
+    BullModule.registerQueue(
+      { name: 's' /* sms */ },
+      { name: 'e' /* email */ },
+      { name: 'n' /* notification */ },
+    ),
   ],
   controllers: [BaseController],
   providers: [SwaggerService, AppService],
