@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { BullModule } from '@nestjs/bullmq';
 import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
@@ -19,6 +20,8 @@ import { AdministratorsModule } from './api/administrators/administrators.module
 import { BouncesModule } from './api/bounces/bounces.module';
 import { BaseController } from './api/common/base.controller';
 import { ConfigurationsModule } from './api/configurations/configurations.module';
+import { HealthModule } from './api/health/health.module';
+import { MemoryModule } from './api/memory/memory.module';
 import { NotificationsModule } from './api/notifications/notifications.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
 import { AppService } from './app.service';
@@ -31,8 +34,6 @@ import { ObserversModule } from './observers/observers.module';
 import { ShutdownService } from './observers/shutdown.service';
 import { SwaggerService } from './observers/swagger.service';
 import { RssModule } from './rss/rss.module';
-import { HealthModule } from './api/health/health.module';
-import { MemoryModule } from './api/memory/memory.module';
 
 @Module({
   imports: [
@@ -69,6 +70,21 @@ import { MemoryModule } from './api/memory/memory.module';
     RssModule,
     HealthModule,
     MemoryModule,
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [AppConfigService],
+
+      useFactory: (appConfigService: AppConfigService) => {
+        const connection = appConfigService.get('queue.connection');
+        return {
+          connection,
+          prefix: 'nb',
+          defaultJobOptions: {
+            removeOnComplete: true,
+          },
+        };
+      },
+    }),
   ],
   controllers: [BaseController],
   providers: [SwaggerService, AppService],

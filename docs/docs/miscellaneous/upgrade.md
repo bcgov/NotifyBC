@@ -380,3 +380,61 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
      - \<release-name\> with installed helm release name
      - \<platform\> with openshift or aks depending on your platform
   5. restore MongoDB database
+
+## v5 to v6
+
+v6 introduced following backward incompatible changes
+
+1. Redis is required. Redis connection is moved from `sms.throttle.clientOptions` and `email.throttle.clientOptions` to `queue.connection`. Update file _src/config.local.[json|js|ts]_ from, for example,
+
+   ```ts
+   module.exports = {
+     // ...
+     sms: {
+       throttle: {
+         // ...
+         datastore: 'ioredis',
+         clientOptions: {
+           host: '127.0.0.1',
+           port: 6379,
+         },
+       },
+     },
+     // ...
+     email: {
+       throttle: {
+         // ...
+         datastore: 'ioredis',
+         clientOptions: {
+           host: '127.0.0.1',
+           port: 6379,
+         },
+       },
+     },
+   };
+   ```
+
+   to
+
+   ```ts
+   module.exports = {
+     // ...
+     sms: {
+       throttle: {
+         // ...
+       },
+     },
+     // ...
+     email: {
+       throttle: {
+         // ...
+       },
+     },
+     queue: {
+       connection: {
+         host: '127.0.0.1',
+         port: 6379,
+       },
+     },
+   };
+   ```

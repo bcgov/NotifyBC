@@ -196,6 +196,12 @@ const config: Record<string, any> = {
     },
   },
   tls: {},
+  queue: {
+    connection: {
+      host: '127.0.0.1',
+      port: 6379,
+    },
+  },
 };
 for (const e of ['key', 'cert', 'ca']) {
   const filePath = path.join(__dirname, `../server/certs/${e}.pem`);
