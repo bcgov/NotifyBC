@@ -14,8 +14,7 @@
 
 import { getQueueToken } from '@nestjs/bullmq';
 import { Controller, Inject, Logger } from '@nestjs/common';
-import Bottleneck from 'bottleneck';
-import { Queue } from 'bullmq';
+import { Queue, QueueEvents } from 'bullmq';
 import dns from 'dns';
 import { get, merge, union } from 'lodash';
 import net from 'net';
@@ -51,10 +50,41 @@ export class BaseController {
     this.appConfig = appConfigService.get();
   }
 
+  rateLimit(queue: Queue, fn: (...args: any[]) => Promise<any>) {
+    return async function (...args: any[]): Promise<any> {
+      return new Promise(async (resolve, reject) => {
+        const queueEvents = new QueueEvents(queue.name);
+        const queuedID = [];
+        // IMPORTANT: place queueEvents.on before myQueue.add
+        queueEvents.on('completed', async ({ jobId }) => {
+          if (!j?.id) {
+            queuedID.push(jobId);
+            return;
+          }
+          if (jobId !== j?.id) {
+            return;
+          }
+          try {
+            resolve(await fn.apply(this, args));
+          } catch (ex) {
+            reject(ex);
+          }
+          queueEvents.close();
+        });
+        const j = await queue.add('myJobName', undefined);
+        // extra guard in case queueEvents.on is called before j is assigned.
+        if (queuedID.indexOf(j.id) >= 0) {
+          try {
+            resolve(await fn.apply(this, args));
+          } catch (ex) {
+            reject(ex);
+          }
+        }
+      });
+    };
+  }
+
   static smsClient: any;
-  static smsLimiter: Bottleneck;
-  static smsJobExpiration;
-  static emailJobExpiration;
 
   async sendSMS(
     to: string,
@@ -63,13 +93,6 @@ export class BaseController {
     priority = 5,
   ) {
     console.log(this.smsQueue);
-    if (!BaseController.smsLimiter && this.appConfig?.sms?.throttle?.enabled) {
-      let smsThrottleCfg;
-      ({ jobExpiration: BaseController.smsJobExpiration, ...smsThrottleCfg } =
-        this.appConfig.sms.throttle);
-      delete smsThrottleCfg.enabled;
-      BaseController.smsLimiter = new Bottleneck(smsThrottleCfg);
-    }
     const smsProvider = this.appConfig.sms.provider;
     const smsConfig = this.appConfig.sms.providerSettings[smsProvider];
     switch (smsProvider) {
@@ -84,11 +107,8 @@ export class BaseController {
           body.Reference = subscription.id;
         }
         let req: any = fetch;
-        if (BaseController.smsLimiter) {
-          req = BaseController.smsLimiter.wrap(req).withOptions.bind(this, {
-            priority,
-            expiration: BaseController.smsJobExpiration,
-          });
+        if (this.appConfig?.sms?.throttle?.enabled) {
+          req = this.rateLimit(this.smsQueue, req);
         }
         const res = await req(url, {
           method: 'POST',
@@ -112,10 +132,8 @@ export class BaseController {
         let req = BaseController.smsClient.messages.create.bind(
           BaseController.smsClient.messages,
         );
-        if (BaseController.smsLimiter) {
-          req = BaseController.smsLimiter
-            .wrap(req)
-            .withOptions.bind(BaseController.smsClient.messages, { priority });
+        if (this.appConfig?.sms?.throttle?.enabled) {
+          req = this.rateLimit(this.smsQueue, req);
         }
         return req({
           to: to,
@@ -129,7 +147,6 @@ export class BaseController {
   nodemailer = require('nodemailer');
   directTransport = require('nodemailer-direct-transport');
   transport: any;
-  static emailLimiter: Bottleneck;
   async sendEmail(mailOptions: any, priority = 5) {
     const smtpCfg =
       this.appConfig.email.smtp || this.appConfig.email.defaultSmtp;
@@ -142,28 +159,11 @@ export class BaseController {
         this.transport = this.nodemailer.createTransport(smtpCfg);
       }
     }
-    if (
-      !BaseController.emailLimiter &&
-      this.appConfig?.email?.throttle?.enabled
-    ) {
-      let emailThrottleCfg;
-      ({
-        jobExpiration: BaseController.emailJobExpiration,
-        ...emailThrottleCfg
-      } = this.appConfig.email.throttle);
-      delete emailThrottleCfg.enabled;
-      BaseController.emailLimiter = new Bottleneck(emailThrottleCfg);
-    }
     let info;
     try {
       let sendMail = this.transport.sendMail.bind(this.transport);
-      if (BaseController.emailLimiter) {
-        sendMail = BaseController.emailLimiter
-          .wrap(sendMail)
-          .withOptions.bind(this.transport, {
-            priority,
-            expiration: BaseController.emailJobExpiration,
-          });
+      if (this.appConfig?.email?.throttle?.enabled) {
+        sendMail = this.rateLimit(this.emailQueue, sendMail);
       }
       info = await sendMail(mailOptions);
       if (info?.accepted?.length < 1) {
@@ -188,13 +188,8 @@ export class BaseController {
         const newSmtpCfg = { ...smtpCfg, host: address.address };
         const transport = this.nodemailer.createTransport(newSmtpCfg);
         let sendMail = transport.sendMail.bind(transport);
-        if (BaseController.emailLimiter) {
-          sendMail = BaseController.emailLimiter
-            .wrap(sendMail)
-            .withOptions.bind(transport, {
-              priority,
-              expiration: BaseController.emailJobExpiration,
-            });
+        if (this.appConfig?.email?.throttle?.enabled) {
+          sendMail = this.rateLimit(this.emailQueue, sendMail);
         }
         try {
           info = await sendMail(mailOptions);
