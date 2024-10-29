@@ -342,7 +342,7 @@ The above settings assume you have setup secret \<docker-pull-secret\> to access
   Restoration can then be achieved by running in MongoDB pod
 
   ```bash
-  mongorestore -u "$MONGODB_EXTRA_USERNAMES" -p"$MONGODB_EXTRA_PASSWORDS" \
+  mongorestore -u "$MONGODB_EXTRA_USERNAMES" -p "$MONGODB_EXTRA_PASSWORDS" \
   --uri="mongodb://$K8S_SERVICE_NAME" --db $MONGODB_EXTRA_DATABASES --gzip --drop \
   --archive=/export/<mongodb-backup-YYMMDD-hhmmss.gz>
   ```
