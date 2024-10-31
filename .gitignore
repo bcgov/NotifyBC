@@ -36,6 +36,7 @@ lerna-debug.log*
 
 # NotifyBC
 **/*.local.*
+!/helm/values.local.yaml
 /server/database/**
 !/server/database/.keep
 /server/certs/**

@@ -4,6 +4,16 @@
 3. Move the new `.tgz` file to the `docs/` directory (`mv notify-bc-[version].tgz ../docs/helm`).
 4. Update `docs/helm/index.yaml` to list the new package (`helm repo index ../docs/helm`).
 
+## Deploying to local Kubernetes cluster (Docker Desktop)
+1. Ensure Docker Desktop has Kubernetes enabled (Settings > Kubernetes > Enable Kubernetes).
+2. Ensure you are on the `docker-desktop` context (should be the current context when running `kubectl config get-contexts`).
+3. From project root, deploy to the Kubernetes cluster using the Helm command `helm install local -f ./helm/values.local.yaml ./helm/`.
+   - `local` in the example is the release name and can be changed to any name you want.
+   - `values.local.yaml` is a values file that changes configurations so the deployment will work locally.
+   - To add any other custom values (to change the image version, for example), add another `-f` flag pointing to your values yaml file.
+4. To undo a deployment, run the command `helm delete local`.
+   - If you used a different release name in the previous step, replace `local` with that release name.
+
 ## Deploying to OpenShift
 1. In this example we will be deploying to `dev`, so a file named `values.dev.local.yaml` should exist and contain values specific to the `dev` instance.
 1. Run `helm install dev -f platform-specific/openshift.yaml -f values.yaml -f values.dev.local.yaml ./`

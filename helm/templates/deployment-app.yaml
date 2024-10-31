@@ -124,6 +124,8 @@ spec:
             - name: local-logs
               mountPath: /tmp/logs/
               readOnly: true
+            - name: fluentbit-config-volume
+              mountPath: /fluent-bit/etc/
         {{- end }}
       volumes:
         - configMap:
@@ -135,6 +137,9 @@ spec:
         - name: log-storage
           persistentVolumeClaim:
             claimName: {{ include "NotifyBC.fullname" . }}-logs
+        - name: fluentbit-config-volume
+          configMap:
+            name: {{ include "NotifyBC.fullname" . }}-fluentbit-configmap
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

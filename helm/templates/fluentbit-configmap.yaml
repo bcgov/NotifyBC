@@ -1,0 +1,16 @@
+{{- if .Values.fluentbit.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "NotifyBC.fullname" . }}-fluentbit-configmap
+  labels:
+    {{- include "NotifyBC.labels" . | nindent 4 }}
+data:
+  custom_parsers.conf: |
+    {{- (tpl .Values.fluentbit.config.customParsers $) | nindent 4 }}
+  fluent-bit.conf: |
+    {{- (tpl .Values.fluentbit.config.service $)  | nindent 4 }}
+    {{- (tpl .Values.fluentbit.config.inputs $)  | nindent 4 }}
+    {{- (tpl .Values.fluentbit.config.filters $)  | nindent 4 }}
+    {{- (tpl .Values.fluentbit.config.outputs $)  | nindent 4 }}
+{{- end -}}
