@@ -50,10 +50,14 @@ export class BaseController {
     this.appConfig = appConfigService.get();
   }
 
-  rateLimit(queue: Queue, fn: (...args: any[]) => Promise<any>) {
-    return async function (...args: any[]): Promise<any> {
+  static rateLimit(queue: Queue, fn: (...args: any[]) => Promise<any>) {
+    return function (...args: any[]): Promise<any> {
       return new Promise(async (resolve, reject) => {
-        const queueEvents = new QueueEvents(queue.name);
+        const queueEvents = new QueueEvents(queue.name, {
+          connection: queue.opts.connection,
+          prefix: queue.opts.prefix,
+          autorun: true,
+        });
         const queuedID = [];
         // IMPORTANT: place queueEvents.on before myQueue.add
         queueEvents.on('completed', async ({ jobId }) => {
@@ -108,7 +112,7 @@ export class BaseController {
         }
         let req: any = fetch;
         if (this.appConfig?.sms?.throttle?.enabled) {
-          req = this.rateLimit(this.smsQueue, req);
+          req = BaseController.rateLimit(this.smsQueue, req);
         }
         const res = await req(url, {
           method: 'POST',
@@ -133,7 +137,7 @@ export class BaseController {
           BaseController.smsClient.messages,
         );
         if (this.appConfig?.sms?.throttle?.enabled) {
-          req = this.rateLimit(this.smsQueue, req);
+          req = BaseController.rateLimit(this.smsQueue, req);
         }
         return req({
           to: to,
@@ -163,7 +167,7 @@ export class BaseController {
     try {
       let sendMail = this.transport.sendMail.bind(this.transport);
       if (this.appConfig?.email?.throttle?.enabled) {
-        sendMail = this.rateLimit(this.emailQueue, sendMail);
+        sendMail = BaseController.rateLimit(this.emailQueue, sendMail);
       }
       info = await sendMail(mailOptions);
       if (info?.accepted?.length < 1) {
@@ -189,7 +193,7 @@ export class BaseController {
         const transport = this.nodemailer.createTransport(newSmtpCfg);
         let sendMail = transport.sendMail.bind(transport);
         if (this.appConfig?.email?.throttle?.enabled) {
-          sendMail = this.rateLimit(this.emailQueue, sendMail);
+          sendMail = BaseController.rateLimit(this.emailQueue, sendMail);
         }
         try {
           info = await sendMail(mailOptions);
