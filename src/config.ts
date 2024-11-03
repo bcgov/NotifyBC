@@ -58,19 +58,8 @@ const config: Record<string, any> = {
     },
     throttle: {
       enabled: false,
-      id: 'notifyBCEmail',
-      minTime: 250,
-      maxConcurrent: 1,
-
-      // jobExpiration corresponds to Bottleneck expiration job option
-      jobExpiration: 120000,
-
-      /* Redis clustering options */
-      // datastore: 'ioredis',
-      // clientOptions: {
-      //   host: '127.0.0.1',
-      //   port: 6379,
-      // },
+      max: 4,
+      duration: 1000,
     },
   },
   sms: {
@@ -82,19 +71,8 @@ const config: Record<string, any> = {
     },
     throttle: {
       enabled: true,
-      id: 'notifyBCSms',
-      minTime: 250,
-      maxConcurrent: 1,
-
-      // jobExpiration corresponds to Bottleneck expiration job option
-      jobExpiration: 120000,
-
-      /* Redis clustering options */
-      // datastore: 'ioredis',
-      // clientOptions: {
-      //   host: '127.0.0.1',
-      //   port: 6379,
-      // },
+      max: 4,
+      duration: 1000,
     },
   },
   subscription: {
