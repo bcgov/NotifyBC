@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import { HttpException, Injectable, Logger } from '@nestjs/common';
-import Bottleneck from 'bottleneck';
 import { CronJob } from 'cron';
 import FeedParser from 'feedparser';
 import { differenceWith } from 'lodash';
@@ -32,7 +31,6 @@ import { RssService } from 'src/rss/rss.service';
 @Injectable()
 export class CronTasksService {
   readonly logger = new Logger(CronTasksService.name);
-  static Bottleneck = Bottleneck;
   constructor(
     private readonly configurationsService: ConfigurationsService,
     private readonly notificationsService: NotificationsService,
@@ -543,43 +541,6 @@ export class CronTasksService {
           },
         ),
       );
-    };
-  }
-
-  clearRedisDatastore() {
-    return async () => {
-      for (const channel of ['sms', 'email']) {
-        const throttleConfig = <Bottleneck.ConstructorOptions>(
-          this.appConfigService.get(channel + '.throttle')
-        );
-        if (
-          !throttleConfig.enabled ||
-          throttleConfig.clearDatastore === true ||
-          throttleConfig.datastore !== 'ioredis'
-        )
-          continue;
-        const sendingNotification = await this.notificationsService.findOne(
-          {
-            where: {
-              state: 'sending',
-              channel: channel,
-              isBroadcast: true,
-            },
-          },
-          undefined,
-        );
-        if (sendingNotification) continue;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { enabled, jobExpiration, ...newThrottleConfig } = {
-          ...throttleConfig,
-          enabled: undefined,
-          jobExpiration: undefined,
-          clearDatastore: true,
-        };
-        const limiter = new CronTasksService.Bottleneck(newThrottleConfig);
-        await limiter.ready();
-        await limiter.disconnect();
-      }
     };
   }
 }

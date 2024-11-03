@@ -85,24 +85,5 @@ export class CronService implements OnApplicationBootstrap {
         start: true,
       }),
     );
-
-    if (
-      (this.appConfig.sms?.throttle?.enabled &&
-        this.appConfig.sms?.throttle?.clearDatastore !== true &&
-        this.appConfig.sms?.throttle?.datastore !== 'local') ||
-      (this.appConfig.email?.throttle?.enabled &&
-        this.appConfig.email?.throttle?.clearDatastore !== true &&
-        this.appConfig.email?.throttle?.datastore !== 'local')
-    ) {
-      const clearRedisDatastore = cronConfig.clearRedisDatastore || {};
-      this.jobs.push(
-        CronJob.from({
-          cronTime: clearRedisDatastore.timeSpec,
-          onTick: this.cronTasksService.clearRedisDatastore(),
-          start: true,
-          runOnInit: true,
-        }),
-      );
-    }
   }
 }
