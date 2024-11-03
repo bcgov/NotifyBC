@@ -202,6 +202,7 @@ const config: Record<string, any> = {
       port: 6379,
     },
   },
+  loggingLevels: ['fatal', 'error', 'warn', 'log'],
 };
 for (const e of ['key', 'cert', 'ca']) {
   const filePath = path.join(__dirname, `../server/certs/${e}.pem`);
