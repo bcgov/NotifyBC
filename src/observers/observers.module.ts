@@ -27,6 +27,7 @@ import { IndexDBSchemaService } from './index-dbschema.service';
 import { MiddlewareAllService } from './middleware-all.service';
 import { RsaService } from './rsa.service';
 import { ShutdownService } from './shutdown.service';
+import { SmsQueueConsumer } from './sms-queue-consumer';
 import { SmtpService } from './smtp.service';
 import { SwaggerService } from './swagger.service';
 import { WebAdminConsoleService } from './web-admin-console.service';
@@ -43,6 +44,7 @@ import { WebAdminConsoleService } from './web-admin-console.service';
     SwaggerService,
     MiddlewareAllService,
     EmailQueueConsumer,
+    SmsQueueConsumer,
   ],
   imports: [
     ConfigurationsModule,
