@@ -56,11 +56,13 @@ export class BaseController {
         const queueEvents = new QueueEvents(queue.name, {
           connection: queue.opts.connection,
           prefix: queue.opts.prefix,
-          autorun: true,
         });
         const queuedID = [];
         // IMPORTANT: place queueEvents.on before myQueue.add
         queueEvents.on('completed', async ({ jobId }) => {
+          console.log(
+            `job ${jobId} completed on queueEventsListener for ${j?.id}`,
+          );
           if (!j?.id) {
             queuedID.push(jobId);
             return;
