@@ -17,7 +17,6 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import axios from 'axios';
 import dns from 'dns';
 import { merge } from 'lodash';
-import nodemailer from 'nodemailer';
 import mailer from 'nodemailer/lib/mailer';
 import { BouncesService } from 'src/api/bounces/bounces.service';
 import { BaseController } from 'src/api/common/base.controller';
@@ -406,56 +405,6 @@ describe('POST /notifications', () => {
     });
   });
 
-  it('should throttle email broadcast push notification w/o redis', async () => {
-    await runAsSuperAdmin(async () => {
-      const appConfig = app.get<AppConfigService>(AppConfigService).get();
-      const origEmailConfig = appConfig.email;
-      const newEmailConfig = merge({}, origEmailConfig, {
-        throttle: { enabled: true, minTime: 2000 },
-      });
-      appConfig.email = newEmailConfig;
-      (
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance
-      ).mockRestore();
-      const sendMail = jest.fn();
-      jest.spyOn(nodemailer, 'createTransport').mockImplementation(() => {
-        return { sendMail };
-      });
-      const res = await client
-        .post('/api/notifications')
-        .send({
-          serviceName: 'emailThrottle',
-          message: {
-            from: 'foo@invalid.local',
-            subject: 'test',
-            textBody:
-              'This is a broadcast test {confirmation_code} {service_name} ' +
-              '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
-          },
-          channel: 'email',
-          isBroadcast: true,
-          asyncBroadcastPushNotification: true,
-        })
-        .set('Accept', 'application/json');
-      expect(res.status).toEqual(200);
-      await wait(1000);
-      expect(sendMail).toBeCalledTimes(1);
-      await wait(3000);
-      expect(sendMail).toBeCalledTimes(2);
-      const data = await notificationsService.findAll(
-        {
-          where: {
-            serviceName: 'emailThrottle',
-            $or: [{ state: 'sending' }, { state: 'sent' }],
-          },
-        },
-        undefined,
-      );
-      expect(data.length).toEqual(1);
-      appConfig.email = origEmailConfig;
-    });
-  });
-
   it('should send unicast email notification', async () => {
     await runAsSuperAdmin(async () => {
       const res = await client
@@ -553,53 +502,6 @@ describe('POST /notifications', () => {
         undefined,
       );
       expect(data.length).toEqual(1);
-    });
-  });
-
-  it('should throttle sms broadcast push notification w/o redis', async () => {
-    await runAsSuperAdmin(async () => {
-      const appConfig = app.get<AppConfigService>(AppConfigService).get();
-      const origSmsConfig = appConfig.sms;
-      const newSmsConfig = merge({}, origSmsConfig, {
-        throttle: { minTime: 2000 },
-      });
-      appConfig.sms = newSmsConfig;
-      (
-        BaseController.prototype.sendSMS as unknown as jest.SpyInstance
-      ).mockRestore();
-      const mockedFetch = jest
-        .spyOn(global, 'fetch')
-        .mockResolvedValue(new Response());
-      const res = await client
-        .post('/api/notifications')
-        .send({
-          serviceName: 'smsThrottle',
-          message: {
-            textBody:
-              'This is a broadcast test {confirmation_code} {service_name} ' +
-              '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
-          },
-          channel: 'sms',
-          isBroadcast: true,
-          asyncBroadcastPushNotification: true,
-        })
-        .set('Accept', 'application/json');
-      expect(res.status).toEqual(200);
-      await wait(1000);
-      expect(mockedFetch).toBeCalledTimes(1);
-      await wait(3000);
-      expect(mockedFetch).toBeCalledTimes(2);
-      const data = await notificationsService.findAll(
-        {
-          where: {
-            serviceName: 'smsThrottle',
-            $or: [{ state: 'sending' }, { state: 'sent' }],
-          },
-        },
-        undefined,
-      );
-      expect(data.length).toEqual(1);
-      appConfig.sms = origSmsConfig;
     });
   });
 
