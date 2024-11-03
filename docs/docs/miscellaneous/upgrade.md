@@ -65,6 +65,8 @@ v6 introduced following backward incompatible changes
    };
    ```
 
+2. config `minTime` in `email.throttle` and `sms.Throttle` is replaced with `max` and `duration`. Effectively _minTime=duration/max_. By default `max` is 4 and `duration` is 1000, equivalent to default `minTime` of 250.
+
 ## v4 to v5
 
 v5 introduced following backward incompatible changes
