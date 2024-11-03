@@ -22,6 +22,7 @@ import { ConfigModule } from 'src/config/config.module';
 import { RssModule } from 'src/rss/rss.module';
 import { CronTasksService } from './cron-tasks.service';
 import { CronService } from './cron.service';
+import { EmailQueueConsumer } from './email-queue-consumer';
 import { IndexDBSchemaService } from './index-dbschema.service';
 import { MiddlewareAllService } from './middleware-all.service';
 import { RsaService } from './rsa.service';
@@ -29,7 +30,6 @@ import { ShutdownService } from './shutdown.service';
 import { SmtpService } from './smtp.service';
 import { SwaggerService } from './swagger.service';
 import { WebAdminConsoleService } from './web-admin-console.service';
-import { EmailQueueConsumerService } from './email-queue-consumer.service';
 
 @Module({
   providers: [
@@ -42,7 +42,7 @@ import { EmailQueueConsumerService } from './email-queue-consumer.service';
     WebAdminConsoleService,
     SwaggerService,
     MiddlewareAllService,
-    EmailQueueConsumerService,
+    EmailQueueConsumer,
   ],
   imports: [
     ConfigurationsModule,
