@@ -7,6 +7,10 @@ next: /docs/config-overview/
 
 _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
+## v6
+
+- Added `loggingLevels` config
+
 ## v5
 
 ### v5.1.0

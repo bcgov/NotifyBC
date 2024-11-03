@@ -61,6 +61,8 @@ async function bootstrap() {
   await setupApp(app);
   await app.init();
   const appConfig = app.get(AppConfigService).get();
+  app.useLogger(appConfig.loggingLevels);
+
   const port = appConfig.port ?? 3000;
   const host = appConfig.host ?? '0.0.0.0';
   const proto = appConfig.tls?.enabled ? 'https' : 'http';

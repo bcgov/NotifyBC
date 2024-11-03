@@ -1,5 +1,5 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { promisify } from 'util';
 
@@ -13,8 +13,10 @@ const wait = promisify(setTimeout);
   },
 })
 export class EmailQueueConsumer extends WorkerHost {
+  readonly logger = new Logger(EmailQueueConsumer.name);
+
   async process(job: Job<any, any, string>) {
     await wait(5);
-    console.log(job.id);
+    this.logger.debug(job?.id);
   }
 }

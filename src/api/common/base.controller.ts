@@ -35,7 +35,6 @@ interface SMSBody {
 @Controller()
 export class BaseController {
   readonly appConfig;
-  readonly logger = new Logger(BaseController.name);
 
   @Inject(getQueueToken('s'))
   private readonly smsQueue: Queue;
@@ -50,7 +49,7 @@ export class BaseController {
     this.appConfig = appConfigService.get();
   }
 
-  static rateLimit(queue: Queue, fn: (...args: any[]) => Promise<any>) {
+  rateLimit(queue: Queue, fn: (...args: any[]) => Promise<any>) {
     return function (...args: any[]): Promise<any> {
       return new Promise(async (resolve, reject) => {
         const queueEvents = new QueueEvents(queue.name, {
@@ -60,8 +59,9 @@ export class BaseController {
         const queuedID = [];
         // IMPORTANT: place queueEvents.on before myQueue.add
         queueEvents.on('completed', async ({ jobId }) => {
-          console.log(
+          Logger.debug(
             `job ${jobId} completed on queueEventsListener for ${j?.id}`,
+            BaseController.name,
           );
           if (!j?.id) {
             queuedID.push(jobId);
@@ -77,7 +77,7 @@ export class BaseController {
           }
           queueEvents.close();
         });
-        const j = await queue.add('myJobName', undefined);
+        const j = await queue.add('', undefined);
         // extra guard in case queueEvents.on is called before j is assigned.
         if (queuedID.indexOf(j.id) >= 0) {
           try {
@@ -98,7 +98,6 @@ export class BaseController {
     subscription: Partial<Subscription>,
     priority = 5,
   ) {
-    console.log(this.smsQueue);
     const smsProvider = this.appConfig.sms.provider;
     const smsConfig = this.appConfig.sms.providerSettings[smsProvider];
     switch (smsProvider) {
@@ -114,7 +113,7 @@ export class BaseController {
         }
         let req: any = fetch;
         if (this.appConfig?.sms?.throttle?.enabled) {
-          req = BaseController.rateLimit(this.smsQueue, req);
+          req = this.rateLimit(this.smsQueue, req);
         }
         const res = await req(url, {
           method: 'POST',
@@ -139,7 +138,7 @@ export class BaseController {
           BaseController.smsClient.messages,
         );
         if (this.appConfig?.sms?.throttle?.enabled) {
-          req = BaseController.rateLimit(this.smsQueue, req);
+          req = this.rateLimit(this.smsQueue, req);
         }
         return req({
           to: to,
@@ -169,7 +168,7 @@ export class BaseController {
     try {
       let sendMail = this.transport.sendMail.bind(this.transport);
       if (this.appConfig?.email?.throttle?.enabled) {
-        sendMail = BaseController.rateLimit(this.emailQueue, sendMail);
+        sendMail = this.rateLimit(this.emailQueue, sendMail);
       }
       info = await sendMail(mailOptions);
       if (info?.accepted?.length < 1) {
@@ -195,7 +194,7 @@ export class BaseController {
         const transport = this.nodemailer.createTransport(newSmtpCfg);
         let sendMail = transport.sendMail.bind(transport);
         if (this.appConfig?.email?.throttle?.enabled) {
-          sendMail = BaseController.rateLimit(this.emailQueue, sendMail);
+          sendMail = this.rateLimit(this.emailQueue, sendMail);
         }
         try {
           info = await sendMail(mailOptions);
