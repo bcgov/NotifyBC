@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4.0.3
+      - uses: actions/setup-node@v4.1.0
         with:
           node-version: ${{ vars.NODE_VERSION }}
       - name: Install, build, lint and test:e2e 🔧
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           persist-credentials: false
       - name: Docker meta
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           persist-credentials: false
       - name: Decrypt values.ocp4.dev.yaml.gpg
