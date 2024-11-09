@@ -102,4 +102,7 @@ module.exports = {
       timeSpec: '0 0 31 2 *',
     },
   },
+  queue: {
+    connection: null,
+  },
 };
