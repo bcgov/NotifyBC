@@ -15,11 +15,13 @@
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import http from 'http';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import RedisMemoryServer from 'redis-memory-server';
 
 @Injectable()
 export class ShutdownService implements OnApplicationShutdown {
   private httpServers: http.Server[] = [];
   private mongoDbServers: MongoMemoryServer[] = [];
+  private redisServers: RedisMemoryServer[] = [];
 
   public addHttpServer(server: http.Server): void {
     this.httpServers.push(server);
@@ -27,6 +29,10 @@ export class ShutdownService implements OnApplicationShutdown {
 
   public addMongoDBServer(server): void {
     this.mongoDbServers.push(server);
+  }
+
+  public addRedisServer(server): void {
+    this.redisServers.push(server);
   }
 
   public async onApplicationShutdown(): Promise<void> {
@@ -46,6 +52,9 @@ export class ShutdownService implements OnApplicationShutdown {
     );
     await Promise.all(
       this.mongoDbServers.map(async (server) => await server.stop()),
+    );
+    await Promise.all(
+      this.redisServers.map(async (server) => await server.stop()),
     );
   }
 }

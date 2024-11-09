@@ -16,6 +16,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
+import RedisMemoryServer from 'redis-memory-server';
 import { AdministratorsModule } from './api/administrators/administrators.module';
 import { BouncesModule } from './api/bounces/bounces.module';
 import { ConfigurationsModule } from './api/configurations/configurations.module';
@@ -70,16 +71,34 @@ import { RssModule } from './rss/rss.module';
     HealthModule,
     MemoryModule,
     BullModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [AppConfigService],
-
-      useFactory: (appConfigService: AppConfigService) => {
-        const connection = appConfigService.get('queue.connection');
-        return {
-          connection,
+      imports: [ConfigModule, ObserversModule],
+      inject: [AppConfigService, ShutdownService],
+      useFactory: async (
+        appConfigService: AppConfigService,
+        shutdownService: ShutdownService,
+      ) => {
+        const bullOpts = {
           prefix: 'nb',
           defaultJobOptions: {
             removeOnComplete: true,
+          },
+        };
+        const connection = appConfigService.get('queue.connection');
+        if (connection) {
+          return {
+            ...bullOpts,
+            connection,
+          };
+        }
+        const redisServer = new RedisMemoryServer();
+        const host = await redisServer.getHost();
+        const port = await redisServer.getPort();
+        shutdownService.addRedisServer(redisServer);
+        return {
+          ...bullOpts,
+          connection: {
+            host,
+            port,
           },
         };
       },
