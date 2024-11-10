@@ -1,15 +1,10 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
-import Bottleneck from 'bottleneck';
+import { Queue } from 'bullmq';
 import dns from 'dns';
-import Redis from 'ioredis';
-import { merge } from 'lodash';
 import mailer from 'nodemailer/lib/mailer';
-import { RedisMemoryServer } from 'redis-memory-server';
 import { BaseController } from 'src/api/common/base.controller';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
-import { AppConfigService } from 'src/config/app-config.service';
-import { CronTasksService } from 'src/observers/cron-tasks.service';
 import supertest from 'supertest';
 import { runAsSuperAdmin, setupApplication, wait } from './test-helper';
 
@@ -17,7 +12,7 @@ let app: NestExpressApplication;
 let client: supertest.SuperTest<supertest.Test>;
 let notificationsService: NotificationsService;
 let subscriptionsService: SubscriptionsService;
-let con, redisServer, mockedFetch;
+let mockedFetch;
 
 // skipping running this test suite on Windows because
 // redis doesn't officially support Windows and
@@ -26,35 +21,18 @@ const skipIfWindows = process.platform === 'win32' ? describe.skip : describe;
 
 skipIfWindows('', () => {
   beforeEach(async () => {
-    redisServer = new RedisMemoryServer();
-    const host = await redisServer.getHost();
-    const port = await redisServer.getPort();
-    con = new Redis({
-      host,
-      port,
-    });
-
     ({ app, client } = await setupApplication({
       adminIps: ['127.0.0.1'],
       email: {
         throttle: {
           enabled: true,
-          datastore: 'ioredis',
-          clientOptions: {
-            host,
-            port,
-          },
         },
       },
       sms: {
         throttle: {
           enabled: true,
-          minTime: 2000,
-          datastore: 'ioredis',
-          clientOptions: {
-            host,
-            port,
-          },
+          max: 1,
+          duration: 2000,
         },
       },
     }));
@@ -63,13 +41,7 @@ skipIfWindows('', () => {
   }, Number(process.env.notifyBcJestTestTimeout) || 99999);
 
   afterEach(async () => {
-    await con.quit();
-    await BaseController.smsLimiter?.disconnect();
-    delete BaseController.smsLimiter;
-    await BaseController.emailLimiter?.disconnect();
-    delete BaseController.emailLimiter;
     await app.close();
-    await redisServer.stop();
   });
 
   let promiseAllRes;
@@ -125,15 +97,9 @@ skipIfWindows('', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       await wait(1000);
-      expect(mockedFetch).toBeCalledTimes(1);
-      let redisRes = await con.hgetall('b_notifyBCSms_job_clients');
-      expect(Object.keys(redisRes)).toHaveLength(1);
-
+      expect(mockedFetch).toHaveBeenCalledTimes(1);
       await wait(3000);
-      redisRes = await con.hgetall('b_notifyBCSms_job_clients');
-      expect(Object.keys(redisRes)).toHaveLength(0);
-
-      expect(mockedFetch).toBeCalledTimes(2);
+      expect(mockedFetch).toHaveBeenCalledTimes(2);
       const data = await notificationsService.findAll(
         {
           where: {
@@ -164,10 +130,7 @@ skipIfWindows('', () => {
           const cb: any = args[args.length - 1];
           cb(null, [{ address: '127.0.0.2' }, { address: '127.0.0.1' }]);
         });
-        const spiedBottleneckSchedule = jest.spyOn(
-          Bottleneck.prototype,
-          'schedule',
-        );
+        const spiedQueueAdd = jest.spyOn(Queue.prototype, 'add');
         const res = await client
           .post('/api/notifications')
           .send({
@@ -192,46 +155,11 @@ skipIfWindows('', () => {
         );
         expect(data[0].dispatch?.failed).toBeUndefined();
         expect(data[0].dispatch?.successful).toContain(promiseAllRes[3].id);
-        expect(spiedBottleneckSchedule).toBeCalledTimes(3);
-        expect(spiedBottleneckSchedule.mock.calls[2][0]).toMatchObject({
+        expect(spiedQueueAdd).toHaveBeenCalledTimes(3);
+        expect(spiedQueueAdd.mock.calls[2][2]).toMatchObject({
           priority: 5,
-          expiration: 120000,
         });
       });
-    });
-  });
-
-  describe('CRON clearRedisDatastore', () => {
-    it('should update config', async () => {
-      const res = await client
-        .post('/api/notifications')
-        .send({
-          serviceName: 'smsNoThrottle',
-          message: {
-            textBody:
-              'This is a broadcast test {confirmation_code} {service_name} ' +
-              '{http_host} {rest_api_root} {subscription_id} {unsubscription_code}',
-          },
-          channel: 'sms',
-          isBroadcast: true,
-        })
-        .set('Accept', 'application/json');
-      expect(res.status).toEqual(200);
-      let redisRes = await con.hgetall('b_notifyBCSms_settings');
-      expect(redisRes.minTime).toEqual('2000');
-
-      const appConfig = app.get<AppConfigService>(AppConfigService).get();
-      const origSmsConfig = appConfig.sms;
-      const newSmsConfig = merge({}, origSmsConfig, {
-        throttle: { minTime: 1000 },
-      });
-      appConfig.sms = newSmsConfig;
-
-      const cronTasksService = app.get<CronTasksService>(CronTasksService);
-      await cronTasksService.clearRedisDatastore()();
-      redisRes = await con.hgetall('b_notifyBCSms_settings');
-      expect(redisRes.minTime).toEqual('1000');
-      appConfig.sms = origSmsConfig;
     });
   });
 
@@ -239,18 +167,6 @@ skipIfWindows('', () => {
     it(
       'should take higher priority than notification',
       async () => {
-        const subs = [];
-        for (let i = 0; i < 2; i++) {
-          subs.push(
-            subscriptionsService.create({
-              serviceName: 'smsThrottle',
-              channel: 'sms',
-              userChannelId: '12345',
-              state: 'confirmed',
-            }),
-          );
-        }
-        await Promise.all(subs);
         let res = await client
           .post('/api/notifications')
           .send({
@@ -276,9 +192,7 @@ skipIfWindows('', () => {
           })
           .set('Accept', 'application/json');
         expect(res.status).toEqual(200);
-        const redisRes = await con.hgetall('b_notifyBCSms_client_num_queued');
-        expect(Object.values(redisRes)[0]).toEqual('1');
-        expect(mockedFetch).toBeCalledTimes(3);
+        expect(mockedFetch).toHaveBeenCalledTimes(2);
         const data = await subscriptionsService.findAll(
           {
             where: {
@@ -289,8 +203,8 @@ skipIfWindows('', () => {
           undefined,
         );
         expect(data[0].unsubscriptionCode).toMatch(/\d{5}/);
-        await wait(4000);
-        expect(mockedFetch).toBeCalledTimes(5);
+        await wait(2100);
+        expect(mockedFetch).toHaveBeenCalledTimes(3);
       },
       Number(process.env.notifyBcJestTestTimeout) || 10000,
     );
