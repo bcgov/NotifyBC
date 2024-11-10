@@ -14,7 +14,7 @@
 
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { Job, RateLimiterOptions } from 'bullmq';
+import { Job } from 'bullmq';
 import { AppConfigService } from 'src/config/app-config.service';
 import { promisify } from 'util';
 
@@ -27,16 +27,15 @@ export class EmailQueueConsumer
   implements OnApplicationBootstrap
 {
   readonly logger = new Logger(EmailQueueConsumer.name);
-  readonly limiterConfig: RateLimiterOptions;
-  constructor(appConfigService: AppConfigService) {
+
+  constructor(readonly appConfigService: AppConfigService) {
     super();
-    this.limiterConfig = (({ duration, max }) => ({ duration, max }))(
-      appConfigService.get('email.throttle'),
-    );
   }
 
   onApplicationBootstrap() {
-    this.worker.opts.limiter = this.limiterConfig;
+    this.worker.opts.limiter = (({ duration, max }) => ({ duration, max }))(
+      this.appConfigService.get('email.throttle'),
+    );
   }
 
   async process(job: Job<any, any, string>) {
