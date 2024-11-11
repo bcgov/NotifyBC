@@ -29,13 +29,8 @@ export class HealthController {
     const checks = [
       () => this.mongoose.pingCheck('MongoDB'),
       () => this.configHealthService.isHealthy('config'),
+      () => this.redisHealthService.isHealthy('redis'),
     ];
-    if (
-      this.appConfigService.get('email.throttle.datastore') == 'ioredis' ||
-      this.appConfigService.get('sms.throttle.datastore') == 'ioredis'
-    ) {
-      checks.push(() => this.redisHealthService.isHealthy('redis'));
-    }
     return this.health.check(checks);
   }
 }

@@ -15,27 +15,12 @@ export class RedisHealthService extends HealthIndicator {
 
   async isHealthy(key: string): Promise<HealthIndicatorResult> {
     try {
-      await Promise.all(
-        ['sms', 'email'].map(async (channel) => {
-          {
-            if (
-              this.appConfigService.get(channel + '.throttle.datastore') !==
-              'ioredis'
-            ) {
-              return;
-            }
-            const redis = new Redis(
-              this.appConfigService.get(channel + '.throttle.clientOptions'),
-            );
-            const msg = 'hello';
-            if ((await redis.ping(msg)) === msg) {
-              return;
-            }
-            throw new Error();
-          }
-        }),
-      );
-      return this.getStatus(key, true);
+      const redis = new Redis(this.appConfigService.get('queue.connection'));
+      const msg = 'hello';
+      if ((await redis.ping(msg)) === msg) {
+        return this.getStatus(key, true);
+      }
+      throw new Error();
     } catch (ex) {
       throw new HealthCheckError('redis error', this.getStatus(key, false));
     }

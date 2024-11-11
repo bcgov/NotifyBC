@@ -103,48 +103,17 @@ All supported SMS service providers impose request rate limit. _NotifyBC_ by def
 module.exports = {
   sms: {
     throttle: {
-      // minimum request interval in ms
-      minTime: 250,
+      max: 4,
+      duration: 1000,
     },
   },
 };
 ```
 
-When _NotifyBC_ is deployed from source code, by default the rate limit applies to one Node.js process only. If there are multiple processes, i.e. a cluster, the aggregated rate limit is multiplied by the number of processes. To enforce the rate limit across entire cluster, install Redis and add Redis config to _sms.throttle_
+where
 
-```js
-module.exports = {
-  sms: {
-    throttle: {
-      /* Redis clustering options */
-      datastore: 'ioredis',
-      clientOptions: {
-        host: '127.0.0.1',
-        port: 6379,
-      },
-    },
-  },
-};
-```
-
-If you installed Redis Sentinel,
-
-```js
-module.exports = {
-  sms: {
-    throttle: {
-      /* Redis clustering options */
-      datastore: 'ioredis',
-      clientOptions: {
-        name: 'mymaster',
-        sentinels: [{ host: '127.0.0.1', port: 26379 }],
-      },
-    },
-  },
-};
-```
-
-!!!include(./docs/shared/throttle.md)!!!
+- _max_ - max numbers of requests per duration. Default to 4.
+- _duration_ - time span in ms. Default to 1000.
 
 To disable throttle, set _sms.throttle.enabled_ to _false_ in file /src/config.local.js
 
