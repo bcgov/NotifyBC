@@ -34,8 +34,8 @@ module.exports = {
   email: {
     throttle: {
       enabled: true,
-      // minimum request interval in ms
-      minTime: 250,
+      max: 4,
+      duration: 1000,
     },
   },
 };
@@ -44,49 +44,10 @@ module.exports = {
 where
 
 - _enabled_ - whether to enable throttle or not. Default to _false_.
-- _minTime_ - minimum request interval in ms. Example value 250 throttles request rate to 4/sec.
+- _max_ - max numbers of requests per duration. Default to 4.
+- _duration_ - time span in ms. Default to 1000.
 
-When _NotifyBC_ is deployed from source code, by default the rate limit applies to one Node.js process only. If there are multiple processes, i.e. a cluster, the aggregated rate limit is multiplied by the number of processes. To enforce the rate limit across entire cluster, install Redis and add Redis config to _email.throttle_
-
-```js
-module.exports = {
-  email: {
-    throttle: {
-      enabled: true,
-      // minimum request interval in ms
-      minTime: 250,
-      /* Redis clustering options */
-      datastore: 'ioredis',
-      clientOptions: {
-        host: '127.0.0.1',
-        port: 6379,
-      },
-    },
-  },
-};
-```
-
-If you installed Redis Sentinel,
-
-```js
-module.exports = {
-  email: {
-    throttle: {
-      enabled: true,
-      // minimum request interval in ms
-      minTime: 250,
-      /* Redis clustering options */
-      datastore: 'ioredis',
-      clientOptions: {
-        name: 'mymaster',
-        sentinels: [{ host: '127.0.0.1', port: 26379 }],
-      },
-    },
-  },
-};
-```
-
-!!!include(./docs/shared/throttle.md)!!!
+Above config throttles email to 4/sec.
 
 ## Inbound SMTP Server
 

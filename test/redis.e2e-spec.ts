@@ -182,7 +182,7 @@ skipIfWindows('', () => {
           })
           .set('Accept', 'application/json');
         expect(res.status).toEqual(200);
-        await wait(1);
+        await wait(10);
         res = await client
           .post('/api/subscriptions')
           .send({
