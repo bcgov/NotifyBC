@@ -81,6 +81,7 @@ export class BaseController {
           }
           queueEvents.close();
         });
+        await queueEvents.waitUntilReady();
         const j = await queue.add('', undefined, { priority: opts.priority });
         // extra guard in case queueEvents.on is called before j is assigned.
         if (queuedID.indexOf(j.id) >= 0) {

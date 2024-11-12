@@ -16,9 +16,6 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { AppConfigService } from 'src/config/app-config.service';
-import { promisify } from 'util';
-
-const wait = promisify(setTimeout);
 
 @Injectable()
 @Processor('s')
@@ -38,7 +35,6 @@ export class SmsQueueConsumer
   }
 
   async process(job: Job<any, any, string>) {
-    await wait(5);
     this.logger.debug(job?.id);
   }
 }
