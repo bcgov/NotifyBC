@@ -1,4 +1,4 @@
-import { FlowProducer, Queue, QueueEvents, Worker } from 'bullmq';
+import { Queue, QueueEvents, Worker } from 'bullmq';
 import { promisify } from 'util';
 export const wait = promisify(setTimeout);
 
@@ -65,36 +65,7 @@ async function addJobs() {
   }
 }
 
-// addJobs();
-
-// A FlowProducer constructor takes an optional "connection"
-// object otherwise it connects to a local redis instance.
-const flowProducer = new FlowProducer();
-
-async function addFlowJobs() {
-  await flowProducer.add(
-    {
-      name: 'renovate-interior',
-      queueName: queueName,
-      children: [
-        { name: 'paint', data: { place: 'ceiling' }, queueName: queueName },
-        { name: 'paint', data: { place: 'walls' }, queueName: queueName },
-        { name: 'fix', data: { place: 'floor' }, queueName: queueName },
-      ],
-    },
-    {
-      queuesOptions: {
-        [queueName]: {
-          defaultJobOptions: {
-            removeOnComplete: true,
-          },
-        },
-      },
-    },
-  );
-}
-
-addFlowJobs();
+addJobs();
 
 new Worker(
   queueName,
@@ -107,10 +78,9 @@ new Worker(
       host: '127.0.0.1',
       port: 6379,
     },
-    // limiter: {
-    //   max: 1,
-    //   duration: 10000,
-    // },
-    lockDuration: 1000,
+    limiter: {
+      max: 1,
+      duration: 10000,
+    },
   },
 );
