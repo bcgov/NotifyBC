@@ -38,6 +38,7 @@ import { NotificationsService } from './notifications.service';
       { name: 'e' /* email */ },
       { name: 'n' /* notification */ },
     ),
+    BullModule.registerFlowProducer({}),
   ],
   controllers: [NotificationsController],
   providers: [NotificationsService],

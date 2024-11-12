@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { getFlowProducerToken } from '@nestjs/bullmq';
 import {
   Body,
   Controller,
@@ -42,6 +43,7 @@ import {
 } from '@nestjs/swagger';
 import { queue } from 'async';
 import axios from 'axios';
+import { FlowProducer } from 'bullmq';
 import { Request } from 'express';
 import jmespath from 'jmespath';
 import { pullAll } from 'lodash';
@@ -88,6 +90,7 @@ export class NotificationsController extends BaseController {
     readonly configurationsService: ConfigurationsService,
     private readonly bouncesService: BouncesService,
     @Inject(REQUEST) private readonly req: Request & { user: UserProfile },
+    @Inject(getFlowProducerToken()) private readonly flowProducer: FlowProducer,
   ) {
     super(appConfigService, configurationsService);
     const ft = this.appConfig.notification?.broadcastCustomFilterFunctions;
