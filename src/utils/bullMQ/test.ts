@@ -99,7 +99,7 @@ addFlowJobs();
 new Worker(
   queueName,
   async (job) => {
-    await wait(10);
+    await wait(5000);
     console.log(job.name);
   },
   {
@@ -107,9 +107,10 @@ new Worker(
       host: '127.0.0.1',
       port: 6379,
     },
-    limiter: {
-      max: 1,
-      duration: 10000,
-    },
+    // limiter: {
+    //   max: 1,
+    //   duration: 10000,
+    // },
+    lockDuration: 1000,
   },
 );
