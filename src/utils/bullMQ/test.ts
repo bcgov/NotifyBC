@@ -1,8 +1,9 @@
-import { Queue, QueueEvents, Worker } from 'bullmq';
+import { FlowProducer, Queue, QueueEvents, Worker } from 'bullmq';
 import { promisify } from 'util';
 export const wait = promisify(setTimeout);
 
-const myQueue = new Queue('foo', {
+const queueName = 'foo';
+const myQueue = new Queue(queueName, {
   connection: {
     host: '127.0.0.1',
     port: 6379,
@@ -58,19 +59,48 @@ async function theWork(count) {
 
 async function addJobs() {
   for (let i = 0; i < 10; i++) {
-    rateLimit('foo', theWork)(i);
+    rateLimit(queueName, theWork)(i);
     // non-rateLimited counterpart
     // theWork(i);
   }
 }
 
-addJobs();
+// addJobs();
+
+// A FlowProducer constructor takes an optional "connection"
+// object otherwise it connects to a local redis instance.
+const flowProducer = new FlowProducer();
+
+async function addFlowJobs() {
+  await flowProducer.add(
+    {
+      name: 'renovate-interior',
+      queueName: queueName,
+      children: [
+        { name: 'paint', data: { place: 'ceiling' }, queueName: queueName },
+        { name: 'paint', data: { place: 'walls' }, queueName: queueName },
+        { name: 'fix', data: { place: 'floor' }, queueName: queueName },
+      ],
+    },
+    {
+      queuesOptions: {
+        [queueName]: {
+          defaultJobOptions: {
+            removeOnComplete: true,
+          },
+        },
+      },
+    },
+  );
+}
+
+addFlowJobs();
+
 new Worker(
-  'foo',
-  async () => {
-    // Will print { foo: 'bar'} for the first job
-    // and { qux: 'baz' } for the second.
-    // console.log({ ...job.data, time: new Date() });
+  queueName,
+  async (job) => {
+    await wait(10);
+    console.log(job.name);
   },
   {
     connection: {
