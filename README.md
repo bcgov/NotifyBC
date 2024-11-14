@@ -4,6 +4,14 @@
 
 A versatile notification API server. See **[full documentation](https://bcgov.github.io/NotifyBC/)**.
 
+## Docker Desktop Kubernetes deployment
+To build and run in Kubernetes via Docker Desktop:
+Note: Kubernetes must be enabled in Docker Desktop.
+```sh
+kubectl config use-context docker-desktop
+helm install dev helm -f helm/values.yaml -f helm/values.local.yaml
+```
+
 ## License
 
     Copyright 2016-present Province of British Columbia
@@ -19,3 +27,4 @@ A versatile notification API server. See **[full documentation](https://bcgov.gi
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+

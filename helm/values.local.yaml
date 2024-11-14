@@ -1,3 +1,5 @@
+environment: prod
+
 image:
   repository: ghcr.io/bcgov/des-notify-bc
   pullPolicy: Always
@@ -10,3 +12,15 @@ fluentbit:
 cronJob:
   # Overrides netapp-file-backup which is only valid in OpenShift.
   storageClassName: hostpath
+
+ingress:
+  enabled: false
+
+mongodb:
+  auth:
+    rootPassword: 'rootpassword'
+    replicaSetKey: 'replicasetpassword'
+    password: 'password'
+  extraEnvVars:
+    - name: EXPERIMENTAL_DOCKER_DESKTOP_FORCE_QEMU
+      value: '1'
