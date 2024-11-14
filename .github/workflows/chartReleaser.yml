@@ -23,7 +23,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Get helm chart version
         id: chart
         run: "echo \"version=$(helm show chart helm | grep 'version:' | tail -1 | cut -f2 -d' ')\" >> $GITHUB_OUTPUT"

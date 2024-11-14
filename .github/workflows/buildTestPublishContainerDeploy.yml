@@ -56,7 +56,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Container 🚀
-        uses: docker/build-push-action@v5.4.0
+        uses: docker/build-push-action@v6.9.0
         with:
           context: .
           push: true
@@ -85,7 +85,7 @@ jobs:
           openshift_token: ${{ secrets.OPENSHIFT_API_TOKEN }}
           namespace: ${{ secrets.OPENSHIFT_PROJECT }}-dev
       - name: Download notifyBCContainerTag
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: notifyBCContainerTag
       - name: helm upgrade 🚀
