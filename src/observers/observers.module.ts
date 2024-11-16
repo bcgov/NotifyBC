@@ -31,6 +31,7 @@ import { SmsQueueConsumer } from './sms-queue-consumer';
 import { SmtpService } from './smtp.service';
 import { SwaggerService } from './swagger.service';
 import { WebAdminConsoleService } from './web-admin-console.service';
+import { NotificationQueueConsumer } from './notification-queue-consumer';
 
 @Module({
   providers: [
@@ -45,6 +46,7 @@ import { WebAdminConsoleService } from './web-admin-console.service';
     MiddlewareAllService,
     EmailQueueConsumer,
     SmsQueueConsumer,
+    NotificationQueueConsumer,
   ],
   imports: [
     ConfigurationsModule,
