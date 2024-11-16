@@ -49,8 +49,8 @@ import RandExp from 'randexp';
 import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
+import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
-import { BaseController } from '../common/base.controller';
 import { FilterDto } from '../common/dto/filter.dto';
 import {
   ApiFilterJsonQuery,
@@ -68,13 +68,16 @@ import { SubscriptionsService } from './subscriptions.service';
 @Controller('subscriptions')
 @ApiTags('subscription')
 @UseInterceptors(SubscriptionAfterRemoteInterceptor)
-export class SubscriptionsController extends BaseController {
+export class SubscriptionsController {
+  readonly appConfig;
+
   constructor(
     private readonly subscriptionsService: SubscriptionsService,
     readonly appConfigService: AppConfigService,
     readonly configurationsService: ConfigurationsService,
+    private readonly commonService: CommonService,
   ) {
-    super(appConfigService, configurationsService);
+    this.appConfig = appConfigService.get();
   }
 
   @Get('count')
@@ -205,7 +208,7 @@ export class SubscriptionsController extends BaseController {
       req,
     );
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
-    const mergedSubscriptionConfig = await this.getMergedConfig(
+    const mergedSubscriptionConfig = await this.commonService.getMergedConfig(
       'subscription',
       instance.serviceName,
     );
@@ -349,7 +352,7 @@ export class SubscriptionsController extends BaseController {
       req,
     )) as Subscription;
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
-    const mergedSubscriptionConfig = await this.getMergedConfig(
+    const mergedSubscriptionConfig = await this.commonService.getMergedConfig(
       'subscription',
       instance.serviceName,
     );
@@ -557,7 +560,7 @@ export class SubscriptionsController extends BaseController {
       req,
     );
     if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
-    const mergedSubscriptionConfig = await this.getMergedConfig(
+    const mergedSubscriptionConfig = await this.commonService.getMergedConfig(
       'subscription',
       instance.serviceName,
     );
@@ -615,8 +618,13 @@ export class SubscriptionsController extends BaseController {
             let textBody;
             switch (instance.channel) {
               case 'sms':
-                textBody = this.mailMerge(msg.textBody, instance, {}, req);
-                await this.sendSMS(
+                textBody = this.commonService.mailMerge(
+                  msg.textBody,
+                  instance,
+                  {},
+                  req,
+                );
+                await this.commonService.sendSMS(
                   instance.userChannelId,
                   textBody,
                   instance,
@@ -624,9 +632,19 @@ export class SubscriptionsController extends BaseController {
                 );
                 break;
               case 'email': {
-                const subject = this.mailMerge(msg.subject, instance, {}, req);
-                textBody = this.mailMerge(msg.textBody, instance, {}, req);
-                const htmlBody = this.mailMerge(
+                const subject = this.commonService.mailMerge(
+                  msg.subject,
+                  instance,
+                  {},
+                  req,
+                );
+                textBody = this.commonService.mailMerge(
+                  msg.textBody,
+                  instance,
+                  {},
+                  req,
+                );
+                const htmlBody = this.commonService.mailMerge(
                   msg.htmlBody,
                   instance,
                   {},
@@ -639,7 +657,7 @@ export class SubscriptionsController extends BaseController {
                   text: textBody,
                   html: htmlBody,
                 };
-                await this.sendEmail(mailOptions, 3);
+                await this.commonService.sendEmail(mailOptions, 3);
                 break;
               }
             }
@@ -826,17 +844,35 @@ export class SubscriptionsController extends BaseController {
     }
     let textBody =
       data.confirmationRequest.textBody &&
-      this.mailMerge(data.confirmationRequest.textBody, data, {}, req, true);
+      this.commonService.mailMerge(
+        data.confirmationRequest.textBody,
+        data,
+        {},
+        req,
+        true,
+      );
     let mailSubject =
       data.confirmationRequest.subject &&
-      this.mailMerge(data.confirmationRequest.subject, data, {}, req, true);
+      this.commonService.mailMerge(
+        data.confirmationRequest.subject,
+        data,
+        {},
+        req,
+        true,
+      );
     let mailHtmlBody =
       data.confirmationRequest.htmlBody &&
-      this.mailMerge(data.confirmationRequest.htmlBody, data, {}, req, true);
+      this.commonService.mailMerge(
+        data.confirmationRequest.htmlBody,
+        data,
+        {},
+        req,
+        true,
+      );
     let mailFrom = data.confirmationRequest.from;
 
     // handle duplicated request
-    const mergedSubscriptionConfig = await this.getMergedConfig(
+    const mergedSubscriptionConfig = await this.commonService.getMergedConfig(
       'subscription',
       data.serviceName,
     );
@@ -870,7 +906,7 @@ export class SubscriptionsController extends BaseController {
           mergedSubscriptionConfig.duplicatedSubscriptionNotification[
             data.channel
           ].textBody &&
-          this.mailMerge(
+          this.commonService.mailMerge(
             mergedSubscriptionConfig.duplicatedSubscriptionNotification[
               data.channel
             ].textBody,
@@ -882,7 +918,7 @@ export class SubscriptionsController extends BaseController {
         mailSubject =
           mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
             .subject &&
-          this.mailMerge(
+          this.commonService.mailMerge(
             mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
               .subject,
             data,
@@ -893,7 +929,7 @@ export class SubscriptionsController extends BaseController {
         mailHtmlBody =
           mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
             .htmlBody &&
-          this.mailMerge(
+          this.commonService.mailMerge(
             mergedSubscriptionConfig.duplicatedSubscriptionNotification.email
               .htmlBody,
             data,
@@ -905,7 +941,7 @@ export class SubscriptionsController extends BaseController {
     }
     switch (data.channel) {
       case 'sms':
-        await this.sendSMS(data.userChannelId, textBody, data, 1);
+        await this.commonService.sendSMS(data.userChannelId, textBody, data, 1);
         break;
       default: {
         const mailOptions = {
@@ -915,7 +951,7 @@ export class SubscriptionsController extends BaseController {
           text: textBody,
           html: mailHtmlBody,
         };
-        await this.sendEmail(mailOptions, 1);
+        await this.commonService.sendEmail(mailOptions, 1);
       }
     }
   }
@@ -924,7 +960,7 @@ export class SubscriptionsController extends BaseController {
     req: Request & { user: UserProfile },
     data: CreateSubscriptionDto,
   ) {
-    const mergedSubscriptionConfig = await this.getMergedConfig(
+    const mergedSubscriptionConfig = await this.commonService.getMergedConfig(
       'subscription',
       data.serviceName,
     );

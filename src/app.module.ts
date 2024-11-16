@@ -26,6 +26,7 @@ import { NotificationsModule } from './api/notifications/notifications.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CommonModule } from './common/common.module';
 import { AppConfigService } from './config/app-config.service';
 import { ConfigModule } from './config/config.module';
 import { DbConfigService } from './config/db-config.service';
@@ -103,6 +104,7 @@ import { RssModule } from './rss/rss.module';
         };
       },
     }),
+    CommonModule,
   ],
   providers: [SwaggerService, AppService],
 })

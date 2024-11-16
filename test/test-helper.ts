@@ -17,8 +17,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { merge } from 'lodash';
 import { Connection } from 'mongoose';
-import { BaseController } from 'src/api/common/base.controller';
 import { AppModule } from 'src/app.module';
+import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import { setupApp } from 'src/main';
 import supertest from 'supertest';
@@ -62,8 +62,8 @@ afterAll(async () => {
 });
 
 beforeEach(function () {
-  jest.spyOn(BaseController.prototype, 'sendEmail').mockResolvedValue({});
-  jest.spyOn(BaseController.prototype, 'sendSMS').mockResolvedValue({});
+  jest.spyOn(CommonService.prototype, 'sendEmail').mockResolvedValue({});
+  jest.spyOn(CommonService.prototype, 'sendSMS').mockResolvedValue({});
 });
 
 afterEach(async () => {
