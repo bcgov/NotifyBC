@@ -14,10 +14,10 @@
 
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { merge } from 'lodash';
-import { BaseController } from 'src/api/common/base.controller';
 import { ConfigurationsService } from 'src/api/configurations/configurations.service';
 import { Subscription } from 'src/api/subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
+import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import supertest from 'supertest';
 import { getAppAndClient, runAsSuperAdmin } from './test-helper';
@@ -104,7 +104,7 @@ describe('POST /subscriptions', function () {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).not.toBeCalled();
       const data = await subscriptionsService.findAll(
         {
@@ -139,7 +139,7 @@ describe('POST /subscriptions', function () {
         })
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
-      const spiedSendEmail = BaseController.prototype
+      const spiedSendEmail = CommonService.prototype
         .sendEmail as unknown as jest.SpyInstance;
       expect(spiedSendEmail).toBeCalled();
       expect(spiedSendEmail).not.toBeCalledWith(
@@ -286,7 +286,7 @@ describe('POST /subscriptions', function () {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendSMS as unknown as jest.SpyInstance,
+        CommonService.prototype.sendSMS as unknown as jest.SpyInstance,
       ).toBeCalledTimes(1);
       const data = await subscriptionsService.findAll(
         {
@@ -321,7 +321,7 @@ describe('POST /subscriptions', function () {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).toBeCalledTimes(1);
       const data = await subscriptionsService.findAll(
         {
@@ -338,9 +338,9 @@ describe('POST /subscriptions', function () {
 
   it('should allow non-admin user create sms subscription using swift provider', async () => {
     (
-      BaseController.prototype.sendSMS as unknown as jest.SpyInstance
+      CommonService.prototype.sendSMS as unknown as jest.SpyInstance
     ).mockRestore();
-    const spiedSendSms = jest.spyOn(BaseController.prototype, 'sendSMS');
+    const spiedSendSms = jest.spyOn(CommonService.prototype, 'sendSMS');
     const fetchStub = jest
       .spyOn(global, 'fetch')
       .mockResolvedValue(new Response());
@@ -391,7 +391,7 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).toEqual(200);
-    const spiedSendEmail = BaseController.prototype
+    const spiedSendEmail = CommonService.prototype
       .sendEmail as unknown as jest.SpyInstance;
     expect(spiedSendEmail).toBeCalledTimes(1);
     const data = await subscriptionsService.findAll(
@@ -442,7 +442,7 @@ describe('POST /subscriptions', function () {
       .set('Accept', 'application/json');
     expect(res.status).toEqual(200);
     expect(
-      BaseController.prototype.sendSMS as unknown as jest.SpyInstance,
+      CommonService.prototype.sendSMS as unknown as jest.SpyInstance,
     ).toBeCalledTimes(1);
     const data = await subscriptionsService.findAll(
       {
@@ -458,7 +458,7 @@ describe('POST /subscriptions', function () {
 
   it('should detect duplicated subscription', async () => {
     jest
-      .spyOn(BaseController.prototype, 'getMergedConfig')
+      .spyOn(CommonService.prototype, 'getMergedConfig')
       .mockImplementation(async () => {
         const res = {
           detectDuplicatedSubscription: true,
@@ -505,7 +505,7 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).toEqual(200);
-    const spiedSendEmail = BaseController.prototype
+    const spiedSendEmail = CommonService.prototype
       .sendEmail as unknown as jest.SpyInstance;
     expect(spiedSendEmail).toBeCalled();
     expect(spiedSendEmail).toBeCalledWith(
@@ -810,7 +810,7 @@ describe('DELETE /subscriptions/{id}', () => {
 
   it('should redirect onscreen acknowledgements with error', async () => {
     jest
-      .spyOn(BaseController.prototype, 'getMergedConfig')
+      .spyOn(CommonService.prototype, 'getMergedConfig')
       .mockImplementation(async function () {
         return {
           anonymousUnsubscription: {
@@ -838,7 +838,7 @@ describe('DELETE /subscriptions/{id}', () => {
 
   it('should display onScreen acknowledgements failureMessage', async () => {
     jest
-      .spyOn(BaseController.prototype, 'getMergedConfig')
+      .spyOn(CommonService.prototype, 'getMergedConfig')
       .mockImplementation(async function () {
         return {
           anonymousUnsubscription: {
@@ -894,7 +894,7 @@ describe('GET /subscriptions/{id}/unsubscribe', () => {
 
   it('should allow bulk unsubscribing all services', async () => {
     jest
-      .spyOn(BaseController.prototype, 'getMergedConfig')
+      .spyOn(CommonService.prototype, 'getMergedConfig')
       .mockImplementation(async function () {
         return {
           anonymousUnsubscription: {
@@ -929,7 +929,7 @@ describe('GET /subscriptions/{id}/unsubscribe', () => {
     );
     expect(res.length).toEqual(3);
     expect(
-      BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+      CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
     ).toBeCalledWith(
       expect.objectContaining({
         text: expect.stringMatching(

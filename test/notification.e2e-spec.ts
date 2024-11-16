@@ -19,10 +19,10 @@ import dns from 'dns';
 import { merge } from 'lodash';
 import mailer from 'nodemailer/lib/mailer';
 import { BouncesService } from 'src/api/bounces/bounces.service';
-import { BaseController } from 'src/api/common/base.controller';
 import { NotificationsController } from 'src/api/notifications/notifications.controller';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
+import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import supertest from 'supertest';
 import { getAppAndClient, runAsSuperAdmin, wait } from './test-helper';
@@ -228,7 +228,7 @@ describe('POST /notifications', () => {
         })
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
-      const spiedSendEmail = BaseController.prototype
+      const spiedSendEmail = CommonService.prototype
         .sendEmail as unknown as jest.SpyInstance;
       expect(spiedSendEmail).toBeCalled();
       expect(spiedSendEmail).nthCalledWith(
@@ -428,7 +428,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).toBeCalled();
       const data = await notificationsService.findAll(
         {
@@ -460,7 +460,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendSMS as unknown as jest.SpyInstance,
+        CommonService.prototype.sendSMS as unknown as jest.SpyInstance,
       ).toBeCalled();
       const data = await notificationsService.findAll(
         {
@@ -491,7 +491,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendSMS as unknown as jest.SpyInstance,
+        CommonService.prototype.sendSMS as unknown as jest.SpyInstance,
       ).toBeCalled();
       const data = await notificationsService.findAll(
         {
@@ -508,7 +508,7 @@ describe('POST /notifications', () => {
   it('should handle sms broadcast push notification failures', async () => {
     await runAsSuperAdmin(async () => {
       (
-        BaseController.prototype.sendSMS as unknown as jest.SpyInstance
+        CommonService.prototype.sendSMS as unknown as jest.SpyInstance
       ).mockRestore();
       const mockedFetch = jest
         .spyOn(global, 'fetch')
@@ -563,7 +563,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).not.toBeCalled();
       const data = await notificationsService.findAll(
         {
@@ -682,7 +682,7 @@ describe('POST /notifications', () => {
     async () => {
       await runAsSuperAdmin(async () => {
         (
-          BaseController.prototype.sendEmail as unknown as jest.SpyInstance
+          CommonService.prototype.sendEmail as unknown as jest.SpyInstance
         ).mockImplementation(async () => {
           await wait(1000);
         });
@@ -757,7 +757,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).toBeCalledTimes(2);
       expect(spiedAxios).toBeCalledTimes(2);
       const data = await notificationsService.findAll(
@@ -794,7 +794,7 @@ describe('POST /notifications', () => {
       });
 
       (
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance
       ).mockImplementation(async (...args) => {
         const to = args[0].to;
         let error: any = null;
@@ -845,7 +845,7 @@ describe('POST /notifications', () => {
       expect(spiedFetch).toBeCalledWith('http://foo.com', expect.any(Object));
 
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).toBeCalledTimes(2);
       expect(
         data[0].dispatch.candidates.indexOf(promiseAllRes[3].id),
@@ -888,7 +888,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).not.toBeCalled();
       const data = await notificationsService.findAll(
         {
@@ -937,7 +937,7 @@ describe('POST /notifications', () => {
           .set('Accept', 'application/json');
         expect(res.status).toEqual(200);
         expect(
-          BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+          CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
         ).toBeCalledTimes(2);
         expect(reqStub).toBeCalledTimes(3);
         const data = await notificationsService.findAll(
@@ -1002,7 +1002,7 @@ describe('POST /notifications', () => {
       res.abort();
       await wait(4000);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).not.toBeCalled();
       appConfig.notification = newNotificationConfig;
     });
@@ -1011,7 +1011,7 @@ describe('POST /notifications', () => {
   it('should perform client-retry', async () => {
     await runAsSuperAdmin(async () => {
       (
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance
       ).mockRestore();
       jest
         .spyOn(mailer.prototype, 'sendMail')
@@ -1073,7 +1073,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).toBeCalledTimes(1);
       const data = await notificationsService.findAll(
         {
@@ -1116,7 +1116,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).not.toBeCalled();
       const data = await notificationsService.findAll(
         {
@@ -1278,7 +1278,7 @@ describe('POST /notifications', () => {
           .set('Accept', 'application/json');
         expect(res.status).toEqual(200);
         expect(
-          (BaseController.prototype.sendEmail as unknown as jest.SpyInstance)
+          (CommonService.prototype.sendEmail as unknown as jest.SpyInstance)
             .mock.calls[0][0].envelope.from,
         ).toEqual(`bn-${promiseAllRes[0].id}-54321@invalid.local`);
       });
@@ -1309,7 +1309,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        (BaseController.prototype.sendEmail as unknown as jest.SpyInstance).mock
+        (CommonService.prototype.sendEmail as unknown as jest.SpyInstance).mock
           .calls[0][0].envelope,
       ).toBeUndefined();
       appConfig.email = origEmailConfig;
@@ -1341,7 +1341,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        (BaseController.prototype.sendEmail as unknown as jest.SpyInstance).mock
+        (CommonService.prototype.sendEmail as unknown as jest.SpyInstance).mock
           .calls[0][0].envelope,
       ).toBeUndefined();
       appConfig.email = origEmailConfig;
@@ -1425,7 +1425,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).toBeCalledTimes(1);
       const data = await notificationsService.findAll(
         {
@@ -1492,7 +1492,7 @@ describe('POST /notifications', () => {
         .set('Accept', 'application/json');
       expect(res.status).toEqual(200);
       expect(
-        BaseController.prototype.sendEmail as unknown as jest.SpyInstance,
+        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
       ).toBeCalledTimes(1);
       const data = await notificationsService.findAll(
         {

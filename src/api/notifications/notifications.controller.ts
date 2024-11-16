@@ -51,10 +51,10 @@ import { AnyObject, FilterQuery } from 'mongoose';
 import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
+import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import { promisify } from 'util';
 import { BouncesService } from '../bounces/bounces.service';
-import { BaseController } from '../common/base.controller';
 import { CountDto } from '../common/dto/count.dto';
 import { FilterDto } from '../common/dto/filter.dto';
 import {
@@ -62,7 +62,6 @@ import {
   ApiWhereJsonQuery,
   JsonQuery,
 } from '../common/json-query.decorator';
-import { ConfigurationsService } from '../configurations/configurations.service';
 import { Subscription } from '../subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -82,17 +81,37 @@ enum NotificationDispatchStatusField {
 })
 @ApiTags('notification')
 @Roles(Role.Admin, Role.SuperAdmin, Role.AuthenticatedUser)
-export class NotificationsController extends BaseController {
+export class NotificationsController {
+  private readonly appConfig;
+  private readonly handleBounce;
+  private readonly guaranteedBroadcastPushDispatchProcessing;
+  private readonly broadcastSubscriberChunkSize;
+  private readonly logSkippedBroadcastPushDispatches;
+  private readonly inboundSmtpServerDomain;
+  private readonly handleListUnsubscribeByEmail;
+
   constructor(
     private readonly notificationsService: NotificationsService,
     private readonly subscriptionsService: SubscriptionsService,
-    readonly appConfigService: AppConfigService,
-    readonly configurationsService: ConfigurationsService,
+    appConfigService: AppConfigService,
     private readonly bouncesService: BouncesService,
+    private readonly commonService: CommonService,
     @Inject(REQUEST) private readonly req: Request & { user: UserProfile },
     @Inject(getFlowProducerToken()) private readonly flowProducer: FlowProducer,
   ) {
-    super(appConfigService, configurationsService);
+    this.appConfig = appConfigService.get();
+    this.handleBounce = this.appConfig.email?.bounce?.enabled;
+    this.guaranteedBroadcastPushDispatchProcessing =
+      this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing;
+    this.broadcastSubscriberChunkSize =
+      this.appConfig.notification?.broadcastSubscriberChunkSize;
+    this.logSkippedBroadcastPushDispatches =
+      this.appConfig.notification?.logSkippedBroadcastPushDispatches;
+    this.inboundSmtpServerDomain =
+      this.appConfig.email.inboundSmtpServer?.domain;
+    this.handleListUnsubscribeByEmail =
+      this.appConfig.email?.listUnsubscribeByEmail?.enabled;
+
     const ft = this.appConfig.notification?.broadcastCustomFilterFunctions;
     if (ft) {
       this.jmespathSearchOpts.functionTable = ft;
@@ -320,7 +339,6 @@ export class NotificationsController extends BaseController {
     return this.sendPushNotification(notification);
   }
 
-  handleBounce = this.appConfig.email?.bounce?.enabled;
   async updateBounces(
     userChannelIds: string[] | string,
     dataNotification: Notification,
@@ -383,8 +401,6 @@ export class NotificationsController extends BaseController {
     }
   }
 
-  guaranteedBroadcastPushDispatchProcessing =
-    this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing;
   async notificationMsgCB(data, err: any, e: Subscription) {
     if (err) {
       return this.updateBroadcastPushNotificationStatus(
@@ -455,14 +471,6 @@ export class NotificationsController extends BaseController {
       }
     }
   }
-
-  broadcastSubscriberChunkSize =
-    this.appConfig.notification?.broadcastSubscriberChunkSize;
-  logSkippedBroadcastPushDispatches =
-    this.appConfig.notification?.logSkippedBroadcastPushDispatches;
-  inboundSmtpServerDomain = this.appConfig.email.inboundSmtpServer?.domain;
-  handleListUnsubscribeByEmail =
-    this.appConfig.email?.listUnsubscribeByEmail?.enabled;
 
   async broadcastToSubscriberChunk(data, startIdx) {
     const subChunk = (data.dispatch.candidates as string[]).slice(
@@ -535,7 +543,12 @@ export class NotificationsController extends BaseController {
         }
         const textBody =
           data.message.textBody &&
-          this.mailMerge(data.message.textBody, e, data, this.req);
+          this.commonService.mailMerge(
+            data.message.textBody,
+            e,
+            data,
+            this.req,
+          );
         switch (e.channel) {
           case 'sms':
             try {
@@ -544,7 +557,7 @@ export class NotificationsController extends BaseController {
                   undefined,
                   HttpStatus.INTERNAL_SERVER_ERROR,
                 );
-              await this.sendSMS(e.userChannelId, textBody, e);
+              await this.commonService.sendSMS(e.userChannelId, textBody, e);
               return await this.notificationMsgCB(data, null, e);
             } catch (ex) {
               return await this.notificationMsgCB(data, ex, e);
@@ -553,11 +566,21 @@ export class NotificationsController extends BaseController {
           default: {
             const subject =
               data.message.subject &&
-              this.mailMerge(data.message.subject, e, data, this.req);
+              this.commonService.mailMerge(
+                data.message.subject,
+                e,
+                data,
+                this.req,
+              );
             const htmlBody =
               data.message.htmlBody &&
-              this.mailMerge(data.message.htmlBody, e, data, this.req);
-            const unsubscriptUrl = this.mailMerge(
+              this.commonService.mailMerge(
+                data.message.htmlBody,
+                e,
+                data,
+                this.req,
+              );
+            const unsubscriptUrl = this.commonService.mailMerge(
               '{unsubscription_url}',
               e,
               data,
@@ -569,7 +592,7 @@ export class NotificationsController extends BaseController {
               this.inboundSmtpServerDomain
             ) {
               const unsubEmail =
-                this.mailMerge(
+                this.commonService.mailMerge(
                   'un-{subscription_id}-{unsubscription_code}@',
                   e,
                   data,
@@ -589,7 +612,7 @@ export class NotificationsController extends BaseController {
               },
             };
             if (this.handleBounce && this.inboundSmtpServerDomain) {
-              const bounceEmail = this.mailMerge(
+              const bounceEmail = this.commonService.mailMerge(
                 `bn-{subscription_id}-{unsubscription_code}@${this.inboundSmtpServerDomain}`,
                 e,
                 data,
@@ -606,7 +629,7 @@ export class NotificationsController extends BaseController {
                   undefined,
                   HttpStatus.INTERNAL_SERVER_ERROR,
                 );
-              await this.sendEmail(mailOptions);
+              await this.commonService.sendEmail(mailOptions);
               return await this.notificationMsgCB(data, null, e);
             } catch (ex) {
               return await this.notificationMsgCB(data, ex, e);
@@ -624,19 +647,38 @@ export class NotificationsController extends BaseController {
           this.req['NotifyBC.subscription'] ?? {};
         const textBody =
           data.message.textBody &&
-          this.mailMerge(data.message.textBody, sub, data, this.req);
+          this.commonService.mailMerge(
+            data.message.textBody,
+            sub,
+            data,
+            this.req,
+          );
         switch (data.channel) {
           case 'sms':
-            await this.sendSMS(data.userChannelId as string, textBody, sub);
+            await this.commonService.sendSMS(
+              data.userChannelId as string,
+              textBody,
+              sub,
+            );
             return;
           default: {
             const htmlBody =
               data.message.htmlBody &&
-              this.mailMerge(data.message.htmlBody, sub, data, this.req);
+              this.commonService.mailMerge(
+                data.message.htmlBody,
+                sub,
+                data,
+                this.req,
+              );
             const subject =
               data.message.subject &&
-              this.mailMerge(data.message.subject, sub, data, this.req);
-            const unsubscriptUrl = this.mailMerge(
+              this.commonService.mailMerge(
+                data.message.subject,
+                sub,
+                data,
+                this.req,
+              );
+            const unsubscriptUrl = this.commonService.mailMerge(
               '{unsubscription_url}',
               sub,
               data,
@@ -648,7 +690,7 @@ export class NotificationsController extends BaseController {
               this.inboundSmtpServerDomain
             ) {
               const unsubEmail =
-                this.mailMerge(
+                this.commonService.mailMerge(
                   'un-{subscription_id}-{unsubscription_code}@',
                   sub,
                   data,
@@ -668,7 +710,7 @@ export class NotificationsController extends BaseController {
               },
             };
             if (this.handleBounce && this.inboundSmtpServerDomain) {
-              const bounceEmail = this.mailMerge(
+              const bounceEmail = this.commonService.mailMerge(
                 `bn-{subscription_id}-{unsubscription_code}@${this.inboundSmtpServerDomain}`,
                 sub,
                 data,
@@ -679,7 +721,7 @@ export class NotificationsController extends BaseController {
                 to: data.userChannelId,
               };
             }
-            await this.sendEmail(mailOptions);
+            await this.commonService.sendEmail(mailOptions);
             await this.updateBounces(data.userChannelId as string, data);
             return;
           }

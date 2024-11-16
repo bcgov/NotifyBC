@@ -2,9 +2,9 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { Queue } from 'bullmq';
 import dns from 'dns';
 import mailer from 'nodemailer/lib/mailer';
-import { BaseController } from 'src/api/common/base.controller';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
+import { CommonService } from 'src/common/common.service';
 import supertest from 'supertest';
 import { runAsSuperAdmin, setupApplication, wait } from './test-helper';
 
@@ -47,7 +47,7 @@ skipIfWindows('', () => {
   let promiseAllRes;
   beforeEach(async () => {
     (
-      BaseController.prototype.sendSMS as unknown as jest.SpyInstance
+      CommonService.prototype.sendSMS as unknown as jest.SpyInstance
     ).mockRestore();
     mockedFetch = jest.spyOn(global, 'fetch').mockResolvedValue(new Response());
 
@@ -115,7 +115,7 @@ skipIfWindows('', () => {
     it('should perform throttled client-retry', async () => {
       await runAsSuperAdmin(async () => {
         (
-          BaseController.prototype.sendEmail as unknown as jest.SpyInstance
+          CommonService.prototype.sendEmail as unknown as jest.SpyInstance
         ).mockRestore();
         jest
           .spyOn(mailer.prototype, 'sendMail')

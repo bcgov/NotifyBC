@@ -33,11 +33,6 @@ import { NotificationsService } from './notifications.service';
     MongooseModule.forFeature([
       { name: Notification.name, schema: NotificationSchema },
     ]),
-    BullModule.registerQueue(
-      { name: 's' /* sms */ },
-      { name: 'e' /* email */ },
-      { name: 'n' /* notification */ },
-    ),
     BullModule.registerFlowProducer({}),
   ],
   controllers: [NotificationsController],

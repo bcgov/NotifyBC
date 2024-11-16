@@ -19,10 +19,10 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { AccessTokenService } from 'src/api/administrators/access-token.service';
 import { BouncesService } from 'src/api/bounces/bounces.service';
-import { BaseController } from 'src/api/common/base.controller';
 import { ConfigurationsService } from 'src/api/configurations/configurations.service';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
+import { CommonService } from 'src/common/common.service';
 import { CronTasksService } from 'src/observers/cron-tasks.service';
 import { RssService } from 'src/rss/rss.service';
 import supertest from 'supertest';
@@ -352,7 +352,7 @@ describe('CRON dispatchLiveNotifications', function () {
         fail(err);
       }
       await wait(3000);
-      const mockedSendEmail = BaseController.prototype
+      const mockedSendEmail = CommonService.prototype
         .sendEmail as unknown as jest.SpyInstance;
       expect(mockedSendEmail).toHaveBeenCalledTimes(1);
       const subId = beforeEachRes[2].id;
@@ -656,7 +656,7 @@ describe('CRON reDispatchBroadcastPushNotifications', () => {
         fail(err);
       }
       await wait(3000);
-      const mockedSendEmail = BaseController.prototype
+      const mockedSendEmail = CommonService.prototype
         .sendEmail as unknown as jest.SpyInstance;
       expect(mockedSendEmail).toBeCalledWith(
         expect.objectContaining({

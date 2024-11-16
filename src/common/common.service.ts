@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { getQueueToken } from '@nestjs/bullmq';
-import { Controller, Inject, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Queue, QueueEvents } from 'bullmq';
 import dns from 'dns';
 import { get, merge, union } from 'lodash';
@@ -23,17 +23,17 @@ import { AppConfigService } from 'src/config/app-config.service';
 import twilio from 'twilio';
 import toSentence from 'underscore.string/toSentence';
 import util from 'util';
-import { ConfigurationsService } from '../configurations/configurations.service';
-import { Configuration } from '../configurations/entities/configuration.entity';
-import { Subscription } from '../subscriptions/entities/subscription.entity';
+import { ConfigurationsService } from '../api/configurations/configurations.service';
+import { Configuration } from '../api/configurations/entities/configuration.entity';
+import { Subscription } from '../api/subscriptions/entities/subscription.entity';
 
 interface SMSBody {
   MessageBody: string;
   [key: string]: string;
 }
 
-@Controller()
-export class BaseController {
+@Injectable()
+export class CommonService {
   readonly appConfig;
 
   @Inject(getQueueToken('s'))
@@ -63,10 +63,6 @@ export class BaseController {
         const queuedID = [];
         // IMPORTANT: place queueEvents.on before myQueue.add
         queueEvents.on('completed', async ({ jobId }) => {
-          Logger.debug(
-            `job ${jobId} completed on queueEventsListener for ${j?.id}`,
-            BaseController.name,
-          );
           if (!j?.id) {
             queuedID.push(jobId);
             return;
@@ -74,6 +70,10 @@ export class BaseController {
           if (jobId !== j?.id) {
             return;
           }
+          Logger.debug(
+            `job ${jobId} completed on queueEventsListener for ${j?.id}`,
+            CommonService.name,
+          );
           try {
             resolve(await fn.apply(this, args));
           } catch (ex) {
@@ -137,10 +137,10 @@ export class BaseController {
         const accountSid = smsConfig.accountSid;
         const authToken = smsConfig.authToken;
         //require the Twilio module and create a REST client
-        BaseController.smsClient =
-          BaseController.smsClient || twilio(accountSid, authToken);
-        let req = BaseController.smsClient.messages.create.bind(
-          BaseController.smsClient.messages,
+        CommonService.smsClient =
+          CommonService.smsClient || twilio(accountSid, authToken);
+        let req = CommonService.smsClient.messages.create.bind(
+          CommonService.smsClient.messages,
         );
         if (this.appConfig?.sms?.throttle?.enabled) {
           req = this.rateLimit(this.smsQueue, req, { priority });
