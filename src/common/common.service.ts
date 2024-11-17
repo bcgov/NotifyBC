@@ -25,6 +25,7 @@ import toSentence from 'underscore.string/toSentence';
 import util from 'util';
 import { ConfigurationsService } from '../api/configurations/configurations.service';
 import { Configuration } from '../api/configurations/entities/configuration.entity';
+import { Notification } from '../api/notifications/entities/notification.entity';
 import { Subscription } from '../api/subscriptions/entities/subscription.entity';
 
 interface SMSBody {
@@ -260,19 +261,21 @@ export class CommonService {
     } catch (ex) {}
     let httpHost;
     try {
-      if (req) {
+      // todo: re-evaluate order of httpHost
+      if (subscription?.httpHost) {
+        httpHost = subscription.httpHost;
+      }
+      if (req && req.protocol && typeof req.get == 'function') {
         httpHost = req.protocol + '://' + req.get('host');
+      }
+      if (req.instance?.httpHost) {
+        httpHost = req.instance.httpHost;
       }
       if (this.appConfig.httpHost) {
         httpHost = this.appConfig.httpHost;
       }
-      const args: any = req.args;
-      if (args?.data?.httpHost) {
-        httpHost = args.data.httpHost;
-      } else if (req.instance?.httpHost) {
-        httpHost = req.instance.httpHost;
-      } else if (subscription?.httpHost) {
-        httpHost = subscription.httpHost;
+      if (notification.httpHost) {
+        httpHost = notification.httpHost;
       }
       output = output.replace(/(?<!\\){http_host(?<!\\)}/gi, httpHost);
     } catch (ex) {}

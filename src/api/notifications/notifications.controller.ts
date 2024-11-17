@@ -24,36 +24,30 @@ import {
   Inject,
   Logger,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Put,
-  Query,
   Scope,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import {
   ApiBadRequestResponse,
-  ApiExcludeEndpoint,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { queue } from 'async';
-import axios from 'axios';
-import { FlowProducer } from 'bullmq';
+import { FlowJob, FlowProducer, QueueEvents } from 'bullmq';
 import { Request } from 'express';
 import jmespath from 'jmespath';
-import { pullAll } from 'lodash';
+import { pick, pullAll } from 'lodash';
 import { AnyObject, FilterQuery } from 'mongoose';
 import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
-import { promisify } from 'util';
 import { BouncesService } from '../bounces/bounces.service';
 import { CountDto } from '../common/dto/count.dto';
 import { FilterDto } from '../common/dto/filter.dto';
@@ -68,12 +62,6 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { NotificationsService } from './notifications.service';
-const wait = promisify(setTimeout);
-enum NotificationDispatchStatusField {
-  failed,
-  successful,
-  skipped,
-}
 
 @Controller({
   path: 'notifications',
@@ -86,7 +74,6 @@ export class NotificationsController {
   private readonly handleBounce;
   private readonly guaranteedBroadcastPushDispatchProcessing;
   private readonly broadcastSubscriberChunkSize;
-  private readonly logSkippedBroadcastPushDispatches;
   private readonly inboundSmtpServerDomain;
   private readonly handleListUnsubscribeByEmail;
 
@@ -105,20 +92,11 @@ export class NotificationsController {
       this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing;
     this.broadcastSubscriberChunkSize =
       this.appConfig.notification?.broadcastSubscriberChunkSize;
-    this.logSkippedBroadcastPushDispatches =
-      this.appConfig.notification?.logSkippedBroadcastPushDispatches;
     this.inboundSmtpServerDomain =
       this.appConfig.email.inboundSmtpServer?.domain;
     this.handleListUnsubscribeByEmail =
       this.appConfig.email?.listUnsubscribeByEmail?.enabled;
-
-    const ft = this.appConfig.notification?.broadcastCustomFilterFunctions;
-    if (ft) {
-      this.jmespathSearchOpts.functionTable = ft;
-    }
   }
-  chunkRequestAborted = false;
-  readonly jmespathSearchOpts: AnyObject = {};
 
   @Get('count')
   @ApiOkResponse({
@@ -314,31 +292,6 @@ export class NotificationsController {
     }, []);
   }
 
-  @Get(':id/broadcastToChunkSubscribers')
-  @ApiExcludeEndpoint()
-  async broadcastToChunkSubscribers(
-    @Param('id') id: string,
-    @Query('start', ParseIntPipe) startIdx: number,
-  ) {
-    if (
-      this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing
-    ) {
-      this.req.on('close', () => {
-        this.chunkRequestAborted = true;
-      });
-    }
-    const notification = await this.notificationsService.findOne(
-      {
-        where: { id },
-      },
-      this.req,
-    );
-    if (!notification) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
-    this.req['args'] = { data: notification };
-    this.req['NotifyBC.startIdx'] = startIdx;
-    return this.sendPushNotification(notification);
-  }
-
   async updateBounces(
     userChannelIds: string[] | string,
     dataNotification: Notification,
@@ -374,54 +327,6 @@ export class NotificationsController {
       },
       this.req,
     );
-  }
-
-  async updateBroadcastPushNotificationStatus(
-    data,
-    field: NotificationDispatchStatusField,
-    payload: any,
-  ) {
-    let success = false;
-    while (!success) {
-      try {
-        const val = payload instanceof Array ? { $each: payload } : payload;
-        await this.notificationsService.updateById(
-          data.id,
-          {
-            $push: {
-              ['dispatch.' + NotificationDispatchStatusField[field]]: val,
-            },
-          },
-          this.req,
-        );
-        success = true;
-        return;
-      } catch (ex) {}
-      await wait(1000);
-    }
-  }
-
-  async notificationMsgCB(data, err: any, e: Subscription) {
-    if (err) {
-      return this.updateBroadcastPushNotificationStatus(
-        data,
-        NotificationDispatchStatusField.failed,
-        {
-          subscriptionId: e.id.toString(),
-          userChannelId: e.userChannelId,
-          error: err,
-        },
-      );
-    } else if (
-      this.guaranteedBroadcastPushDispatchProcessing ||
-      this.handleBounce
-    ) {
-      return this.updateBroadcastPushNotificationStatus(
-        data,
-        NotificationDispatchStatusField.successful,
-        e.id.toString(),
-      );
-    }
   }
 
   async postBroadcastProcessing(data) {
@@ -472,172 +377,46 @@ export class NotificationsController {
     }
   }
 
-  async broadcastToSubscriberChunk(data, startIdx) {
-    const subChunk = (data.dispatch.candidates as string[]).slice(
-      startIdx,
-      startIdx + this.broadcastSubscriberChunkSize,
-    );
-    pullAll(
-      pullAll(
-        pullAll(
-          subChunk,
-          (data.dispatch?.failed ?? []).map((e: any) => e.subscriptionId),
-        ),
-        data.dispatch?.successful ?? [],
-      ),
-      data.dispatch?.skipped ?? [],
-    );
-    const subscribers = await this.subscriptionsService.findAll(
-      {
-        where: {
-          id: { $in: subChunk },
-        },
-      },
-      this.req,
-    );
-    await Promise.all(
-      subscribers.map(async (e) => {
-        if (e.broadcastPushNotificationFilter && data.data) {
-          let match: [];
-          try {
-            match = await jmespath.search(
-              [data.data],
-              '[?' + e.broadcastPushNotificationFilter + ']',
-              this.jmespathSearchOpts,
-            );
-          } catch (ex) {}
-          if (!match || match.length === 0) {
-            if (
-              this.guaranteedBroadcastPushDispatchProcessing &&
-              this.logSkippedBroadcastPushDispatches
-            )
-              await this.updateBroadcastPushNotificationStatus(
-                data,
-                NotificationDispatchStatusField.skipped,
-                e.id.toString(),
-              );
-            return;
-          }
+  async waitForFlowJobCompletion(flowJob: FlowJob) {
+    return new Promise(async (resolve, reject) => {
+      const queueEvents = new QueueEvents(flowJob.queueName, {
+        connection: this.flowProducer.opts.connection,
+        prefix: this.flowProducer.opts.prefix,
+      });
+      const queuedID = [];
+      // IMPORTANT: place queueEvents.on before queue add
+      queueEvents.on('completed', async ({ jobId }) => {
+        if (!j?.job?.id) {
+          queuedID.push(jobId);
+          return;
         }
-        if (e.data && data.broadcastPushNotificationSubscriptionFilter) {
-          let match: [];
-          try {
-            match = await jmespath.search(
-              [e.data],
-              '[?' + data.broadcastPushNotificationSubscriptionFilter + ']',
-              this.jmespathSearchOpts,
-            );
-          } catch (ex) {}
-          if (!match || match.length === 0) {
-            if (
-              this.guaranteedBroadcastPushDispatchProcessing &&
-              this.logSkippedBroadcastPushDispatches
-            )
-              await this.updateBroadcastPushNotificationStatus(
-                data,
-                NotificationDispatchStatusField.skipped,
-                e.id.toString(),
-              );
-            return;
-          }
+        if (jobId !== j?.job.id) {
+          return;
         }
-        const textBody =
-          data.message.textBody &&
-          this.commonService.mailMerge(
-            data.message.textBody,
-            e,
-            data,
-            this.req,
-          );
-        switch (e.channel) {
-          case 'sms':
-            try {
-              if (this.chunkRequestAborted)
-                throw new HttpException(
-                  undefined,
-                  HttpStatus.INTERNAL_SERVER_ERROR,
-                );
-              await this.commonService.sendSMS(e.userChannelId, textBody, e);
-              return await this.notificationMsgCB(data, null, e);
-            } catch (ex) {
-              return await this.notificationMsgCB(data, ex, e);
-            }
-            break;
-          default: {
-            const subject =
-              data.message.subject &&
-              this.commonService.mailMerge(
-                data.message.subject,
-                e,
-                data,
-                this.req,
-              );
-            const htmlBody =
-              data.message.htmlBody &&
-              this.commonService.mailMerge(
-                data.message.htmlBody,
-                e,
-                data,
-                this.req,
-              );
-            const unsubscriptUrl = this.commonService.mailMerge(
-              '{unsubscription_url}',
-              e,
-              data,
-              this.req,
-            );
-            let listUnsub = unsubscriptUrl;
-            if (
-              this.handleListUnsubscribeByEmail &&
-              this.inboundSmtpServerDomain
-            ) {
-              const unsubEmail =
-                this.commonService.mailMerge(
-                  'un-{subscription_id}-{unsubscription_code}@',
-                  e,
-                  data,
-                  this.req,
-                ) + this.inboundSmtpServerDomain;
-              listUnsub = [[unsubEmail, unsubscriptUrl]];
-            }
-            const mailOptions: AnyObject = {
-              from: data.message.from,
-              to: e.userChannelId,
-              subject: subject,
-              text: textBody,
-              html: htmlBody,
-              list: {
-                id: data.httpHost + '/' + encodeURIComponent(data.serviceName),
-                unsubscribe: listUnsub,
-              },
-            };
-            if (this.handleBounce && this.inboundSmtpServerDomain) {
-              const bounceEmail = this.commonService.mailMerge(
-                `bn-{subscription_id}-{unsubscription_code}@${this.inboundSmtpServerDomain}`,
-                e,
-                data,
-                this.req,
-              );
-              mailOptions.envelope = {
-                from: bounceEmail,
-                to: e.userChannelId,
-              };
-            }
-            try {
-              if (this.chunkRequestAborted)
-                throw new HttpException(
-                  undefined,
-                  HttpStatus.INTERNAL_SERVER_ERROR,
-                );
-              await this.commonService.sendEmail(mailOptions);
-              return await this.notificationMsgCB(data, null, e);
-            } catch (ex) {
-              return await this.notificationMsgCB(data, ex, e);
-            }
-          }
+        Logger.debug(
+          `job ${jobId} completed on queueEventsListener for ${j?.job.id}`,
+          NotificationsController.name,
+        );
+        try {
+          resolve(null);
+        } catch (ex) {
+          reject(ex);
         }
-      }),
-    );
+        queueEvents.close();
+      });
+      await queueEvents.waitUntilReady();
+
+      const j = await this.flowProducer.add(flowJob);
+
+      // extra guard in case queueEvents.on is called before j is assigned.
+      if (queuedID.indexOf(j.job.id) >= 0) {
+        try {
+          resolve(null);
+        } catch (ex) {
+          reject(ex);
+        }
+      }
+    });
   }
 
   async sendPushNotification(data: Notification) {
@@ -728,118 +507,64 @@ export class NotificationsController {
         }
       }
       case true: {
-        const broadcastSubRequestBatchSize =
-          this.appConfig.notification?.broadcastSubRequestBatchSize;
-        let startIdx: undefined | number = this.req['NotifyBC.startIdx'];
-        if (typeof startIdx !== 'number') {
-          // main request
-          const subCandidates = await this.subscriptionsService.findAll(
-            {
-              where: {
-                serviceName: data.serviceName,
-                state: 'confirmed',
-                channel: data.channel,
-              },
-              fields: ['id'],
+        // main request
+        const subCandidates = await this.subscriptionsService.findAll(
+          {
+            where: {
+              serviceName: data.serviceName,
+              state: 'confirmed',
+              channel: data.channel,
             },
-            this.req,
-          );
-          data.dispatch = data.dispatch ?? {};
-          data.dispatch.candidates =
-            data.dispatch.candidates ??
-            subCandidates.map((e) => e.id.toString());
-          await this.notificationsService.updateById(
+            fields: ['id'],
+          },
+          this.req,
+        );
+        data.dispatch = data.dispatch ?? {};
+        data.dispatch.candidates =
+          data.dispatch.candidates ?? subCandidates.map((e) => e.id.toString());
+        // todo: pick more props is needed
+        // todo: remove data.dispatch.req after processing
+        data.dispatch.req = pick(this.req, ['user']);
+        await this.notificationsService.updateById(
+          data.id,
+          {
+            state: 'sending',
+            dispatch: data.dispatch,
+          },
+          this.req,
+        );
+        const hbTimeout = setInterval(() => {
+          this.notificationsService.updateById(
             data.id,
             {
-              state: 'sending',
-              dispatch: data.dispatch,
+              updated: new Date(),
             },
             this.req,
           );
-          const hbTimeout = setInterval(() => {
-            this.notificationsService.updateById(
-              data.id,
-              {
-                updated: new Date(),
-              },
-              this.req,
-            );
-          }, 60000);
+        }, 60000);
 
-          const count = subCandidates.length;
-
-          if (count <= this.broadcastSubscriberChunkSize) {
-            startIdx = 0;
-            await this.broadcastToSubscriberChunk(data, startIdx);
-            await this.postBroadcastProcessing(data);
-          } else {
-            // call broadcastToSubscriberChunk, coordinate output
-            const chunks = Math.ceil(count / this.broadcastSubscriberChunkSize);
-            let httpHost = this.appConfig.internalHttpHost;
-            const restApiRoot = this.appConfig.restApiRoot ?? '';
-            if (!httpHost) {
-              httpHost =
-                data.httpHost ||
-                this.req.protocol + '://' + this.req.get('host');
-            }
-
-            const q = queue(async (task: { startIdx: string }) => {
-              const uri =
-                httpHost +
-                restApiRoot +
-                '/notifications/' +
-                data.id +
-                '/broadcastToChunkSubscribers?start=' +
-                task.startIdx;
-              const response = await axios.get(uri);
-              return response.data;
-            }, broadcastSubRequestBatchSize);
-            // re-submit task on error if
-            // guaranteedBroadcastPushDispatchProcessing.
-            // See issue #39
-            let failedChunks: any[] = [];
-            q.error((_err: any, task: any) => {
-              if (this.guaranteedBroadcastPushDispatchProcessing) {
-                Logger.debug(_err, NotificationsController.name);
-                Logger.debug(
-                  `re-push task startIdx=${task.startIdx}`,
-                  NotificationsController.name,
-                );
-                q.push(task);
-              } else {
-                data.state = 'error';
-                // mark all chunk subs as failed
-                const subChunk = (data.dispatch.candidates as string[]).slice(
-                  task.startIdx,
-                  task.startIdx + this.broadcastSubscriberChunkSize,
-                );
-                failedChunks = failedChunks.concat(
-                  subChunk.map((e) => {
-                    return { subscriptionId: e };
-                  }),
-                );
-              }
-            });
-            let i = 0;
-            while (i < chunks) {
-              q.push({
-                startIdx: i++ * this.broadcastSubscriberChunkSize,
-              });
-            }
-            await q.drain();
-            if (failedChunks.length > 0) {
-              await this.updateBroadcastPushNotificationStatus(
-                data,
-                NotificationDispatchStatusField.failed,
-                failedChunks,
-              );
-            }
-            await this.postBroadcastProcessing(data);
-          }
-          clearTimeout(hbTimeout);
-        } else {
-          return this.broadcastToSubscriberChunk(data, startIdx);
+        const count = subCandidates.length;
+        const chunks = Math.ceil(count / this.broadcastSubscriberChunkSize);
+        let i = 0;
+        const children = [];
+        while (i < chunks) {
+          children.push({
+            name: 'c',
+            queueName: 'n',
+            data: {
+              id: data.id,
+              s: i++ * this.broadcastSubscriberChunkSize,
+            },
+          });
         }
+        await this.waitForFlowJobCompletion({
+          name: 'p',
+          queueName: 'n',
+          data: { id: data.id },
+          children,
+        });
+        await this.postBroadcastProcessing(data);
+        clearTimeout(hbTimeout);
         break;
       }
     }
