@@ -319,7 +319,15 @@ export class NotificationsController {
       });
       await queueEvents.waitUntilReady();
 
-      const j = await this.flowProducer.add(flowJob);
+      const j = await this.flowProducer.add(flowJob, {
+        queuesOptions: {
+          [flowJob.queueName]: {
+            defaultJobOptions: {
+              removeOnComplete: true,
+            },
+          },
+        },
+      });
 
       // extra guard in case queueEvents.on is called before j is assigned.
       if (queuedID.indexOf(j.job.id) >= 0) {
