@@ -35,6 +35,7 @@ import { ObserversModule } from './observers/observers.module';
 import { ShutdownService } from './observers/shutdown.service';
 import { SwaggerService } from './observers/swagger.service';
 import { RssModule } from './rss/rss.module';
+import { QueueConsumersModule } from './queue-consumers/queue-consumers.module';
 
 @Module({
   imports: [
@@ -105,6 +106,7 @@ import { RssModule } from './rss/rss.module';
       },
     }),
     CommonModule,
+    QueueConsumersModule,
   ],
   providers: [SwaggerService, AppService],
 })
