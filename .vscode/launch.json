@@ -16,7 +16,8 @@
         "NEST_DEBUG": "true",
         "NODE_ENV": "dev",
         "NOTIFYBC_WORKER_PROCESS_COUNT": "1"
-        // "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+        // "NOTIFYBC_NODE_ROLE": "primary",
+        // "NODE_TLS_REJECT_UNAUTHORIZED": "0",
       }
     },
     {
