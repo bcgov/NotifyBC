@@ -108,7 +108,8 @@ export class NotificationQueueConsumer extends WorkerHost {
     }
   }
 
-  async broadcastToSubscriberChunk(data, startIdx) {
+  async broadcastToSubscriberChunk(data, job: Job) {
+    const startIdx = job.data.s;
     const subChunk = (data.dispatch.candidates as string[]).slice(
       startIdx,
       startIdx + this.broadcastSubscriberChunkSize,
@@ -131,6 +132,7 @@ export class NotificationQueueConsumer extends WorkerHost {
       },
       null,
     );
+    let completed = 0;
     await Promise.all(
       subscribers.map(async (e) => {
         if (e.broadcastPushNotificationFilter && data.data) {
@@ -152,6 +154,7 @@ export class NotificationQueueConsumer extends WorkerHost {
                 NotificationDispatchStatusField.skipped,
                 e.id.toString(),
               );
+            job.updateProgress(++completed / subscribers.length);
             return;
           }
         }
@@ -174,6 +177,7 @@ export class NotificationQueueConsumer extends WorkerHost {
                 NotificationDispatchStatusField.skipped,
                 e.id.toString(),
               );
+            job.updateProgress(++completed / subscribers.length);
             return;
           }
         }
@@ -189,11 +193,13 @@ export class NotificationQueueConsumer extends WorkerHost {
           case 'sms':
             try {
               await this.commonService.sendSMS(e.userChannelId, textBody, e);
-              return await this.notificationMsgCB(data, null, e);
+              await this.notificationMsgCB(data, null, e);
             } catch (ex) {
-              return await this.notificationMsgCB(data, ex, e);
+              await this.notificationMsgCB(data, ex, e);
+            } finally {
+              job.updateProgress(++completed / subscribers.length);
+              return;
             }
-            break;
           default: {
             const subject =
               data.message.subject &&
@@ -256,9 +262,12 @@ export class NotificationQueueConsumer extends WorkerHost {
             }
             try {
               await this.commonService.sendEmail(mailOptions);
-              return await this.notificationMsgCB(data, null, e);
+              await this.notificationMsgCB(data, null, e);
             } catch (ex) {
-              return await this.notificationMsgCB(data, ex, e);
+              await this.notificationMsgCB(data, ex, e);
+            } finally {
+              job.updateProgress(++completed / subscribers.length);
+              return;
             }
           }
         }
@@ -328,7 +337,7 @@ export class NotificationQueueConsumer extends WorkerHost {
       case 'p':
         return this.postBroadcastProcessing(notification);
       case 'c':
-        return this.broadcastToSubscriberChunk(notification, job.data.s);
+        return this.broadcastToSubscriberChunk(notification, job);
     }
   }
 }

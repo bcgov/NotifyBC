@@ -317,6 +317,8 @@ export class NotificationsController {
         }
         queueEvents.close();
       });
+
+      // todo: add failed listener
       await queueEvents.waitUntilReady();
 
       const j = await this.flowProducer.add(flowJob, {
@@ -448,7 +450,6 @@ export class NotificationsController {
         data.dispatch.candidates =
           data.dispatch.candidates ?? subCandidates.map((e) => e.id.toString());
         // todo: pick more props is needed
-        // todo: remove data.dispatch.req after processing
         data.dispatch.req = pick(this.req, ['user']);
         await this.notificationsService.updateById(
           data.id,
