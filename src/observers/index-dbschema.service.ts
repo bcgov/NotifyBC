@@ -29,7 +29,7 @@ export class IndexDBSchemaService implements OnApplicationBootstrap {
    * This method will be invoked when the application starts
    */
   async onApplicationBootstrap(): Promise<void> {
-    if (process.env.NOTIFYBC_NODE_ROLE === 'slave') {
+    if (process.env.NOTIFYBC_NODE_ROLE === 'secondary') {
       return;
     }
     if (process.env.NODE_ENV === 'test') {

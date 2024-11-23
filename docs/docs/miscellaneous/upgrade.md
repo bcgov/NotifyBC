@@ -65,7 +65,11 @@ v6 introduced following backward incompatible changes
    };
    ```
 
+   If you deployed NotifyBC using Helm and haven't customized Redis connection in file _src/config.local.[json|js|ts]_, this change is taken care of.
+
 2. config `minTime` in `email.throttle` and `sms.Throttle` is replaced with `max` and `duration`. Effectively _minTime=duration/max_. By default `max` is 4 and `duration` is 1000, equivalent to default `minTime` of 250.
+
+3. Terms for [node roles](../config/nodeRoles.md) have changed. If you defined environment variable _NOTIFYBC_NODE_ROLE_ with value _master_, remove the environment variable. If _NOTIFYBC_NODE_ROLE_ has value _slave_, change it to _secondary_. If you deployed NotifyBC using Helm, this change is taken care of.
 
 ## v4 to v5
 

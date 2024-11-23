@@ -35,7 +35,7 @@ export class RsaService implements OnApplicationBootstrap {
     });
     if (data) return;
 
-    if (process.env.NOTIFYBC_NODE_ROLE === 'slave') {
+    if (process.env.NOTIFYBC_NODE_ROLE === 'secondary') {
       await promisify(setTimeout)(5000);
       await this.onApplicationBootstrap();
       return;

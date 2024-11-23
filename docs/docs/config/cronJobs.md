@@ -6,7 +6,7 @@ permalink: /docs/config-cronJobs/
 
 _NotifyBC_ runs several cron jobs described below. These jobs are controlled by sub-properties defined in config object _cron_. To change config, create the object and properties in file _/src/config.local.js_.
 
-By default cron jobs are enabled. In a multi-node deployment, cron jobs should only run on the [master node](../config-nodeRoles/) to ensure single execution.
+By default cron jobs are enabled. In a multi-node deployment, cron jobs should only run on the [primary node](../config-nodeRoles/) to ensure single execution.
 
 All cron jobs have a property named <a name="timeSpec"></a>_timeSpec_ with the value of a space separated fields conforming to [unix crontab format](<https://www.freebsd.org/cgi/man.cgi?crontab(5)>) with an optional left-most seconds field. See [allowed ranges](https://github.com/kelektiv/node-cron#cron-ranges) of each field.
 

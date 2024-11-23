@@ -21,4 +21,4 @@ $ curl -s http://localhost:3000/api/memory?fileName=/tmp/my.heapsnapshot
 ```
 
 ::: tip How to get memory dump of a particular node?
-If you call `/memory` from a client-facing URL end point, which is usually load balanced, the memory dump occurs only on node handling your request. To perform it on the node you want to troubleshoot, in particular the _master_ node, run the command from the node. Make sure 127.0.0.1 is in _adminIps_.
+If you call `/memory` from a client-facing URL end point, which is usually load balanced, the memory dump occurs only on node handling your request. To perform it on the node you want to troubleshoot, in particular the _primary_ node, run the command from the node. Make sure 127.0.0.1 is in _adminIps_.

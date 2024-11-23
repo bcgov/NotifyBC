@@ -29,7 +29,7 @@ export class CronService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    if (process.env.NOTIFYBC_NODE_ROLE === 'slave') {
+    if (process.env.NOTIFYBC_NODE_ROLE === 'secondary') {
       return;
     }
     if (process.env.NODE_ENV === 'test') {
