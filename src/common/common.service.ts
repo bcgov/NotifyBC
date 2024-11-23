@@ -16,9 +16,11 @@ import { getQueueToken } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Queue, QueueEvents } from 'bullmq';
 import dns from 'dns';
+import { Request } from 'express';
 import { get, merge, union } from 'lodash';
 import net from 'net';
 import pluralize from 'pluralize';
+import { BouncesService } from 'src/api/bounces/bounces.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import twilio from 'twilio';
 import toSentence from 'underscore.string/toSentence';
@@ -36,6 +38,7 @@ interface SMSBody {
 @Injectable()
 export class CommonService {
   readonly appConfig;
+  private readonly handleBounce;
 
   @Inject(getQueueToken('s'))
   private readonly smsQueue: Queue;
@@ -46,8 +49,10 @@ export class CommonService {
   constructor(
     readonly appConfigService: AppConfigService,
     readonly configurationsService: ConfigurationsService,
+    private readonly bouncesService: BouncesService,
   ) {
     this.appConfig = appConfigService.get();
+    this.handleBounce = this.appConfig.email?.bounce?.enabled;
   }
 
   rateLimit(
@@ -420,5 +425,43 @@ export class CommonService {
       res = merge({}, res, (data as Configuration).value);
     } catch (ex) {}
     return res;
+  }
+
+  async updateBounces(
+    userChannelIds: string[] | string,
+    dataNotification: Notification,
+    req: Request,
+  ) {
+    if (!this.handleBounce) {
+      return;
+    }
+    let userChannelIdQry: any = userChannelIds;
+    if (userChannelIds instanceof Array) {
+      userChannelIdQry = {
+        $in: userChannelIds,
+      };
+    }
+    await this.bouncesService.updateAll(
+      {
+        latestNotificationStarted: dataNotification.updated,
+        latestNotificationEnded: new Date(),
+      },
+      {
+        state: 'active',
+        channel: dataNotification.channel,
+        userChannelId: userChannelIdQry,
+        $or: [
+          {
+            latestNotificationStarted: null,
+          },
+          {
+            latestNotificationStarted: {
+              $lt: dataNotification.updated,
+            },
+          },
+        ],
+      },
+      req,
+    );
   }
 }
