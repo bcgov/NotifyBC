@@ -506,16 +506,14 @@ export class NotificationsController {
             return res;
           } else {
             await this.sendPushNotification(res);
-            res.state = 'sent';
           }
         } catch (errSend: any) {
-          res.state = 'error';
+          await this.notificationsService.updateById(
+            res.id,
+            { state: 'error' },
+            this.req,
+          );
         }
-        await this.notificationsService.updateById(
-          res.id,
-          { state: res.state },
-          this.req,
-        );
         break;
       default:
         break;
