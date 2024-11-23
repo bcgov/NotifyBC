@@ -48,7 +48,6 @@ import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
-import { BouncesService } from '../bounces/bounces.service';
 import { CountDto } from '../common/dto/count.dto';
 import { FilterDto } from '../common/dto/filter.dto';
 import {
@@ -81,7 +80,6 @@ export class NotificationsController {
     private readonly notificationsService: NotificationsService,
     private readonly subscriptionsService: SubscriptionsService,
     appConfigService: AppConfigService,
-    private readonly bouncesService: BouncesService,
     private readonly commonService: CommonService,
     @Inject(REQUEST) private readonly req: Request & { user: UserProfile },
     @Inject(getFlowProducerToken()) private readonly flowProducer: FlowProducer,
@@ -292,43 +290,6 @@ export class NotificationsController {
     }, []);
   }
 
-  async updateBounces(
-    userChannelIds: string[] | string,
-    dataNotification: Notification,
-  ) {
-    if (!this.handleBounce) {
-      return;
-    }
-    let userChannelIdQry: any = userChannelIds;
-    if (userChannelIds instanceof Array) {
-      userChannelIdQry = {
-        $in: userChannelIds,
-      };
-    }
-    await this.bouncesService.updateAll(
-      {
-        latestNotificationStarted: dataNotification.updated,
-        latestNotificationEnded: new Date(),
-      },
-      {
-        state: 'active',
-        channel: dataNotification.channel,
-        userChannelId: userChannelIdQry,
-        $or: [
-          {
-            latestNotificationStarted: null,
-          },
-          {
-            latestNotificationStarted: {
-              $lt: dataNotification.updated,
-            },
-          },
-        ],
-      },
-      this.req,
-    );
-  }
-
   async postBroadcastProcessing(data) {
     data = await this.notificationsService.findById(data.id);
     const res = await this.subscriptionsService.findAll(
@@ -349,7 +310,7 @@ export class NotificationsController {
       (e: { userChannelId: any }) => e.userChannelId,
     );
     pullAll(userChannelIds, errUserChannelIds);
-    await this.updateBounces(userChannelIds, data);
+    await this.commonService.updateBounces(userChannelIds, data, this.req);
 
     if (!data.asyncBroadcastPushNotification) {
       return;
@@ -501,7 +462,11 @@ export class NotificationsController {
               };
             }
             await this.commonService.sendEmail(mailOptions);
-            await this.updateBounces(data.userChannelId as string, data);
+            await this.commonService.updateBounces(
+              data.userChannelId as string,
+              data,
+              this.req,
+            );
             return;
           }
         }
