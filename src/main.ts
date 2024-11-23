@@ -101,27 +101,31 @@ if (require.main === module) {
   } else {
     if (cluster.isPrimary) {
       logger.log(`# of worker processes = ${numWorkers}`);
-      logger.log(`Master ${process.pid} is running`);
-      let masterWorker: any;
+      logger.log(`Primary ${process.pid} is running`);
+      let primaryWorker: any;
       // Fork workers.
       for (let i = 0; i < numWorkers; i++) {
         if (i > 0) {
           cluster.fork({
-            NOTIFYBC_NODE_ROLE: 'slave',
+            NOTIFYBC_NODE_ROLE: 'secondary',
           });
         } else {
-          masterWorker = cluster.fork();
+          primaryWorker = cluster.fork({
+            NOTIFYBC_NODE_ROLE: process.env.NOTIFYBC_NODE_ROLE ?? 'primary',
+          });
         }
       }
 
       cluster.on('exit', (worker: { process: { pid: any } }) => {
         logger.log(`worker ${worker.process.pid} died`);
-        if (worker === masterWorker) {
-          logger.log(`worker ${worker.process.pid} is the master worker`);
-          masterWorker = cluster.fork();
+        if (worker === primaryWorker) {
+          logger.log(`worker ${worker.process.pid} is the primary worker`);
+          primaryWorker = cluster.fork({
+            NOTIFYBC_NODE_ROLE: process.env.NOTIFYBC_NODE_ROLE ?? 'primary',
+          });
         } else {
           cluster.fork({
-            NOTIFYBC_NODE_ROLE: 'slave',
+            NOTIFYBC_NODE_ROLE: 'secondary',
           });
         }
       });

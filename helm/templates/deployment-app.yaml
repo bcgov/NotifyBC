@@ -57,7 +57,7 @@ spec:
             - name: MONGODB_REPLICA_SET_NAME
               value: {{ .Values.mongodb.replicaSetName | default "rs0" | squote }}
             - name: NOTIFYBC_NODE_ROLE
-              value: slave
+              value: secondary
             - name: NOTIFYBC_WORKER_PROCESS_COUNT
               value: '1'
             - name: REDIS_SERVICE_NAME

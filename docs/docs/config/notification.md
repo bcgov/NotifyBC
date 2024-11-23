@@ -81,7 +81,7 @@ To customize, create the config with updated value in file _/src/config.local.js
 If total number of subscribers is less than _broadcastSubscriberChunkSize_, then no sub-requests are spawned. Instead, the main request dispatches all notifications.
 
 ::: tip How to determine the optimal value for <i>broadcastSubscriberChunkSize</i> and <i>broadcastSubRequestBatchSize</i>?
-<i>broadcastSubscriberChunkSize</i> is determined by the concurrency capability of the downstream message handlers such as SMTP server or SMS service provider. <i>broadcastSubRequestBatchSize</i> is determined by the size of <i>NotifyBC</i> cluster. As a rule of thumb, set <i>broadcastSubRequestBatchSize</i> equal to the number of non-master nodes in <i>NotifyBC</i> cluster.
+<i>broadcastSubscriberChunkSize</i> is determined by the concurrency capability of the downstream message handlers such as SMTP server or SMS service provider. <i>broadcastSubRequestBatchSize</i> is determined by the size of <i>NotifyBC</i> cluster. As a rule of thumb, set <i>broadcastSubRequestBatchSize</i> equal to the number of non-primary nodes in <i>NotifyBC</i> cluster.
 :::
 
 ## Broadcast Push Notification Custom Filter Functions
@@ -170,7 +170,7 @@ module.exports = {
     guaranteedBroadcastPushDispatchProcessing: false,
   },
   email: {
-    bounce: {enabled: false},
+    bounce: { enabled: false },
   },
 };
 ```

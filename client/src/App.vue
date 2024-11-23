@@ -69,9 +69,7 @@
     <v-footer color="indigo" app v-if="this.$route.name !== 'oidcCallback'">
       <span class="white--text">
         &copy; 2016-present under the terms of
-        <a
-          href="https://github.com/bcgov/NotifyBC/blob/master/LICENSE"
-          target="_"
+        <a href="https://github.com/bcgov/NotifyBC/blob/main/LICENSE" target="_"
           >Apache License, Version 2.0</a
         >
       </span>
