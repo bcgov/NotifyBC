@@ -266,21 +266,68 @@ export class NotificationQueueConsumer extends WorkerHost {
     );
   }
 
+  async postBroadcastProcessing(data) {
+    data = await this.notificationsService.findById(data.id);
+    const res = await this.subscriptionsService.findAll(
+      {
+        fields: {
+          userChannelId: true,
+        },
+        where: {
+          id: {
+            $in: data.dispatch?.successful ?? [],
+          },
+        },
+      },
+      data.dispatch.req,
+    );
+    const userChannelIds = res.map((e) => e.userChannelId);
+    const errUserChannelIds = (data.dispatch?.failed || []).map(
+      (e: { userChannelId: any }) => e.userChannelId,
+    );
+    pullAll(userChannelIds, errUserChannelIds);
+    await this.commonService.updateBounces(
+      userChannelIds,
+      data,
+      data.dispatch.req,
+    );
+    if (data.state !== 'error') {
+      data.state = 'sent';
+    }
+    await this.notificationsService.updateById(
+      data.id,
+      { state: data.state, $unset: { 'dispatch.req': 1 } },
+      data.dispatch.req,
+    );
+    if (typeof data.asyncBroadcastPushNotification === 'string') {
+      const options = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      try {
+        await fetch(data.asyncBroadcastPushNotification, options);
+      } catch (ex) {}
+    }
+  }
+
   async process(job: Job) {
     this.logger.debug(job?.id);
+    const notification = await this.notificationsService.findOne(
+      {
+        where: { id: job.data.id },
+      },
+      null,
+    );
+    if (!notification) {
+      throw new Error('notification not found');
+    }
     switch (job.name) {
       case 'p':
-        break;
+        return this.postBroadcastProcessing(notification);
       case 'c':
-        const notification = await this.notificationsService.findOne(
-          {
-            where: { id: job.data.id },
-          },
-          null,
-        );
-        if (!notification) {
-          throw new Error('notification not found');
-        }
         return this.broadcastToSubscriberChunk(notification, job.data.s);
     }
   }
