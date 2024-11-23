@@ -112,8 +112,8 @@ export class AppModule {
   readonly middlewareConfigs;
   readonly appConfig;
   constructor(
-    private readonly middlewareConfigService: MiddlewareConfigService,
-    private readonly appConfigService: AppConfigService,
+    middlewareConfigService: MiddlewareConfigService,
+    appConfigService: AppConfigService,
   ) {
     this.middlewareConfigs = middlewareConfigService.get();
     this.appConfig = appConfigService.get();

@@ -18,7 +18,7 @@ import { smtpServer } from './smtp-server';
 @Injectable()
 export class SmtpService implements OnApplicationBootstrap {
   readonly appConfig;
-  constructor(private readonly appConfigService: AppConfigService) {
+  constructor(appConfigService: AppConfigService) {
     this.appConfig = appConfigService.get();
   }
 
