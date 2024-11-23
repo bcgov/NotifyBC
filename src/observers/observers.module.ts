@@ -18,20 +18,16 @@ import { BouncesModule } from 'src/api/bounces/bounces.module';
 import { ConfigurationsModule } from 'src/api/configurations/configurations.module';
 import { NotificationsModule } from 'src/api/notifications/notifications.module';
 import { SubscriptionsModule } from 'src/api/subscriptions/subscriptions.module';
-import { ConfigModule } from 'src/config/config.module';
 import { RssModule } from 'src/rss/rss.module';
 import { CronTasksService } from './cron-tasks.service';
 import { CronService } from './cron.service';
-import { EmailQueueConsumer } from './email-queue-consumer';
 import { IndexDBSchemaService } from './index-dbschema.service';
 import { MiddlewareAllService } from './middleware-all.service';
 import { RsaService } from './rsa.service';
 import { ShutdownService } from './shutdown.service';
-import { SmsQueueConsumer } from './sms-queue-consumer';
 import { SmtpService } from './smtp.service';
 import { SwaggerService } from './swagger.service';
 import { WebAdminConsoleService } from './web-admin-console.service';
-import { NotificationQueueConsumer } from './notification-queue-consumer';
 
 @Module({
   providers: [
@@ -44,9 +40,6 @@ import { NotificationQueueConsumer } from './notification-queue-consumer';
     WebAdminConsoleService,
     SwaggerService,
     MiddlewareAllService,
-    EmailQueueConsumer,
-    SmsQueueConsumer,
-    NotificationQueueConsumer,
   ],
   imports: [
     ConfigurationsModule,
@@ -55,7 +48,6 @@ import { NotificationQueueConsumer } from './notification-queue-consumer';
     BouncesModule,
     AdministratorsModule,
     RssModule,
-    ConfigModule,
   ],
   exports: [ShutdownService],
 })
