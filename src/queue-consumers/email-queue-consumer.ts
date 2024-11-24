@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  BeforeApplicationShutdown,
+  Injectable,
+  Logger,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import { Job } from 'bullmq';
 import { AppConfigService } from 'src/config/app-config.service';
 
@@ -21,7 +26,7 @@ import { AppConfigService } from 'src/config/app-config.service';
 @Processor('e')
 export class EmailQueueConsumer
   extends WorkerHost
-  implements OnApplicationBootstrap
+  implements OnApplicationBootstrap, BeforeApplicationShutdown
 {
   readonly logger = new Logger(EmailQueueConsumer.name);
 
@@ -37,5 +42,9 @@ export class EmailQueueConsumer
 
   async process(job: Job<any, any, string>) {
     this.logger.debug(job?.id);
+  }
+
+  async beforeApplicationShutdown() {
+    await this.worker.close();
   }
 }
