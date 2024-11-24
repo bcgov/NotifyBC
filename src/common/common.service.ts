@@ -270,8 +270,13 @@ export class CommonService {
       if (subscription?.httpHost) {
         httpHost = subscription.httpHost;
       }
-      if (req && req.protocol && typeof req.get == 'function') {
-        httpHost = req.protocol + '://' + req.get('host');
+      if (req?.protocol) {
+        if (typeof req.get == 'function') {
+          httpHost = req.protocol + '://' + req.get('hostname');
+        }
+        if (req.hostname) {
+          httpHost = `${req.protocol}://${req.hostname}`;
+        }
       }
       if (req.instance?.httpHost) {
         httpHost = req.instance.httpHost;

@@ -450,7 +450,7 @@ export class NotificationsController {
         data.dispatch.candidates =
           data.dispatch.candidates ?? subCandidates.map((e) => e.id.toString());
         // todo: pick more props is needed
-        data.dispatch.req = pick(this.req, ['user']);
+        data.dispatch.req = pick(this.req, ['user', 'protocol', 'hostname']);
         await this.notificationsService.updateById(
           data.id,
           {
