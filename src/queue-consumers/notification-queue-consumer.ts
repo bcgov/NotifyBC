@@ -1,5 +1,5 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { BeforeApplicationShutdown, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { Request } from 'express';
 import jmespath from 'jmespath';
@@ -22,7 +22,10 @@ const wait = promisify(setTimeout);
 
 @Injectable()
 @Processor('n')
-export class NotificationQueueConsumer extends WorkerHost {
+export class NotificationQueueConsumer
+  extends WorkerHost
+  implements BeforeApplicationShutdown
+{
   readonly logger = new Logger(NotificationQueueConsumer.name);
   private readonly appConfig;
   private readonly broadcastSubscriberChunkSize;
@@ -339,5 +342,9 @@ export class NotificationQueueConsumer extends WorkerHost {
       case 'c':
         return this.broadcastToSubscriberChunk(notification, job);
     }
+  }
+
+  async beforeApplicationShutdown() {
+    await this.worker.close();
   }
 }

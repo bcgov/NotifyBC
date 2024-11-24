@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  BeforeApplicationShutdown,
+  Injectable,
+  Logger,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import { Job } from 'bullmq';
 import { AppConfigService } from 'src/config/app-config.service';
 
@@ -21,7 +26,7 @@ import { AppConfigService } from 'src/config/app-config.service';
 @Processor('s')
 export class SmsQueueConsumer
   extends WorkerHost
-  implements OnApplicationBootstrap
+  implements OnApplicationBootstrap, BeforeApplicationShutdown
 {
   readonly logger = new Logger(SmsQueueConsumer.name);
   constructor(readonly appConfigService: AppConfigService) {
@@ -32,6 +37,10 @@ export class SmsQueueConsumer
     this.worker.opts.limiter = (({ duration, max }) => ({ duration, max }))(
       this.appConfigService.get('sms.throttle'),
     );
+  }
+
+  async beforeApplicationShutdown() {
+    await this.worker.close();
   }
 
   async process(job: Job<any, any, string>) {
