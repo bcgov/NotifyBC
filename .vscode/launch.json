@@ -34,10 +34,11 @@
       "name": "Test",
       "runtimeExecutable": "npm",
       "autoAttachChildProcesses": true,
-      "runtimeArgs": ["run", "test:e2e", "--detectOpenHandles", "redis"],
+      "runtimeArgs": ["run", "test:e2e", "--detectOpenHandles", "notification"],
       "outputCapture": "std",
       // "console": "internalConsole",
       "env": {
+        "NOTIFYBC_WORKER_PROCESS_COUNT": "1",
         "notifyBcJestTestTimeout": "99999999"
       }
     },
