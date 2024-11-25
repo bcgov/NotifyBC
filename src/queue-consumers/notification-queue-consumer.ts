@@ -1,5 +1,10 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { BeforeApplicationShutdown, Injectable, Logger } from '@nestjs/common';
+import {
+  BeforeApplicationShutdown,
+  Injectable,
+  Logger,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import { Job } from 'bullmq';
 import jmespath from 'jmespath';
 import { pullAll } from 'lodash';
@@ -17,7 +22,7 @@ import { AppConfigService } from 'src/config/app-config.service';
 @Processor('n')
 export class NotificationQueueConsumer
   extends WorkerHost
-  implements BeforeApplicationShutdown
+  implements OnApplicationBootstrap, BeforeApplicationShutdown
 {
   readonly logger = new Logger(NotificationQueueConsumer.name);
   private readonly appConfig;
@@ -315,5 +320,12 @@ export class NotificationQueueConsumer
 
   async beforeApplicationShutdown() {
     await this.worker.close();
+  }
+
+  onApplicationBootstrap() {
+    this.worker.opts.maxStalledCount = this
+      .guaranteedBroadcastPushDispatchProcessing
+      ? 2
+      : 0;
   }
 }

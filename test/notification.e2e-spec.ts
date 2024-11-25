@@ -24,6 +24,7 @@ import { NotificationsService } from 'src/api/notifications/notifications.servic
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
 import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
+import { NotificationQueueConsumer } from 'src/queue-consumers/notification-queue-consumer';
 import supertest from 'supertest';
 import { getAppAndClient, runAsSuperAdmin, wait } from './test-helper';
 
@@ -1348,8 +1349,7 @@ describe('POST /notifications', () => {
     });
   });
 
-  // skip b/c bullMQ
-  it.skip(
+  it(
     'should handle batch broadcast request error ' +
       'when guaranteedBroadcastPushDispatchProcessing is false',
     async () => {
@@ -1362,7 +1362,12 @@ describe('POST /notifications', () => {
           guaranteedBroadcastPushDispatchProcessing: false,
         });
         appConfig.notification = newNotificationConfig;
-        jest.spyOn(axios, 'get').mockRejectedValue({});
+        jest
+          .spyOn(
+            NotificationQueueConsumer.prototype,
+            'broadcastToSubscriberChunk',
+          )
+          .mockRejectedValue({});
         const res = await client
           .post('/api/notifications')
           .send({
