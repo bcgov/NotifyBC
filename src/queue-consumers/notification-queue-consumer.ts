@@ -28,13 +28,26 @@ export class NotificationQueueConsumer
 {
   readonly logger = new Logger(NotificationQueueConsumer.name);
   private readonly appConfig;
-  private readonly broadcastSubscriberChunkSize;
-  private readonly guaranteedBroadcastPushDispatchProcessing;
-  private readonly logSkippedBroadcastPushDispatches;
+  private get broadcastSubscriberChunkSize() {
+    return this.appConfig.notification?.broadcastSubscriberChunkSize;
+  }
+  private get guaranteedBroadcastPushDispatchProcessing() {
+    return this.appConfig.notification
+      ?.guaranteedBroadcastPushDispatchProcessing;
+  }
+  private get logSkippedBroadcastPushDispatches() {
+    return this.appConfig.notification?.logSkippedBroadcastPushDispatches;
+  }
   private readonly jmespathSearchOpts: AnyObject = {};
-  private readonly handleBounce;
-  private readonly handleListUnsubscribeByEmail;
-  private readonly inboundSmtpServerDomain;
+  private get handleBounce() {
+    return this.appConfig.email?.bounce?.enabled;
+  }
+  private get handleListUnsubscribeByEmail() {
+    return this.appConfig.email?.listUnsubscribeByEmail?.enabled;
+  }
+  private get inboundSmtpServerDomain() {
+    return this.appConfig.email.inboundSmtpServer?.domain;
+  }
 
   constructor(
     appConfigService: AppConfigService,
@@ -44,17 +57,6 @@ export class NotificationQueueConsumer
   ) {
     super();
     this.appConfig = appConfigService.get();
-    this.broadcastSubscriberChunkSize =
-      this.appConfig.notification?.broadcastSubscriberChunkSize;
-    this.guaranteedBroadcastPushDispatchProcessing =
-      this.appConfig.notification?.guaranteedBroadcastPushDispatchProcessing;
-    this.logSkippedBroadcastPushDispatches =
-      this.appConfig.notification?.logSkippedBroadcastPushDispatches;
-    this.handleBounce = this.appConfig.email?.bounce?.enabled;
-    this.handleListUnsubscribeByEmail =
-      this.appConfig.email?.listUnsubscribeByEmail?.enabled;
-    this.inboundSmtpServerDomain =
-      this.appConfig.email.inboundSmtpServer?.domain;
 
     const ft = this.appConfig.notification?.broadcastCustomFilterFunctions;
     if (ft) {
