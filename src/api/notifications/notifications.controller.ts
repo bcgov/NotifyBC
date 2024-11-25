@@ -41,12 +41,15 @@ import {
 import { FlowJob, FlowProducer, QueueEvents } from 'bullmq';
 import { Request } from 'express';
 import jmespath from 'jmespath';
-import { pick } from 'lodash';
+import { pick, pullAll } from 'lodash';
 import { AnyObject, FilterQuery } from 'mongoose';
 import { Role } from 'src/auth/constants';
 import { UserProfile } from 'src/auth/dto/user-profile.dto';
 import { Roles } from 'src/auth/roles.decorator';
-import { CommonService } from 'src/common/common.service';
+import {
+  CommonService,
+  NotificationDispatchStatusField,
+} from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import { CountDto } from '../common/dto/count.dto';
 import { FilterDto } from '../common/dto/filter.dto';
@@ -318,7 +321,41 @@ export class NotificationsController {
         queueEvents.close();
       });
 
-      // todo: add failed listener
+      // todo: moved failed listener to parent job processor
+      // failed listener marks all candidates in the chunk failed if
+      // guaranteedBroadcastPushDispatchProcessing is false
+      queueEvents.on('failed', async ({ jobId }) => {
+        const failedJob = j.children.find((e) => e.job.id === jobId);
+        if (this.guaranteedBroadcastPushDispatchProcessing || !failedJob) {
+          return;
+        }
+        const notification = await this.notificationsService.findOne(
+          {
+            where: { id: failedJob.job.data.id },
+          },
+          this.req,
+        );
+        const startIdx = failedJob.job.data.s;
+        const subChunk = (notification.dispatch.candidates as string[]).slice(
+          startIdx,
+          startIdx + this.broadcastSubscriberChunkSize,
+        );
+        pullAll(
+          subChunk,
+          (notification.dispatch?.failed ?? []).map(
+            (e: any) => e.subscriptionId,
+          ),
+        );
+        await this.commonService.updateBroadcastPushNotificationStatus(
+          notification,
+          NotificationDispatchStatusField.failed,
+          subChunk.map((e) => ({
+            subscriptionId: e,
+          })),
+          this.req,
+        );
+      });
+
       await queueEvents.waitUntilReady();
 
       const j = await this.flowProducer.add(flowJob, {
@@ -326,6 +363,7 @@ export class NotificationsController {
           [flowJob.queueName]: {
             defaultJobOptions: {
               removeOnComplete: true,
+              removeOnFail: true,
             },
           },
         },
@@ -481,6 +519,7 @@ export class NotificationsController {
               id: data.id,
               s: i++ * this.broadcastSubscriberChunkSize,
             },
+            opts: { ignoreDependencyOnFailure: true },
           });
         }
         await this.waitForFlowJobCompletion({
