@@ -21,18 +21,26 @@ import { get, merge, union } from 'lodash';
 import net from 'net';
 import pluralize from 'pluralize';
 import { BouncesService } from 'src/api/bounces/bounces.service';
+import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import twilio from 'twilio';
 import toSentence from 'underscore.string/toSentence';
-import util from 'util';
+import util, { promisify } from 'util';
 import { ConfigurationsService } from '../api/configurations/configurations.service';
 import { Configuration } from '../api/configurations/entities/configuration.entity';
 import { Notification } from '../api/notifications/entities/notification.entity';
 import { Subscription } from '../api/subscriptions/entities/subscription.entity';
+const wait = promisify(setTimeout);
 
 interface SMSBody {
   MessageBody: string;
   [key: string]: string;
+}
+
+export enum NotificationDispatchStatusField {
+  failed,
+  successful,
+  skipped,
 }
 
 @Injectable()
@@ -50,6 +58,7 @@ export class CommonService {
     readonly appConfigService: AppConfigService,
     readonly configurationsService: ConfigurationsService,
     private readonly bouncesService: BouncesService,
+    private readonly notificationsService: NotificationsService,
   ) {
     this.appConfig = appConfigService.get();
     this.handleBounce = this.appConfig.email?.bounce?.enabled;
@@ -468,5 +477,31 @@ export class CommonService {
       },
       req,
     );
+  }
+
+  async updateBroadcastPushNotificationStatus(
+    data,
+    field: NotificationDispatchStatusField,
+    payload: any,
+    req?: (Request & { user?: any }) | null,
+  ) {
+    let success = false;
+    while (!success) {
+      try {
+        const val = payload instanceof Array ? { $each: payload } : payload;
+        await this.notificationsService.updateById(
+          data.id,
+          {
+            $push: {
+              ['dispatch.' + NotificationDispatchStatusField[field]]: val,
+            },
+          },
+          req,
+        );
+        success = true;
+        return;
+      } catch (ex) {}
+      await wait(1000);
+    }
   }
 }

@@ -1,24 +1,17 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { BeforeApplicationShutdown, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { Request } from 'express';
 import jmespath from 'jmespath';
 import { pullAll } from 'lodash';
 import { AnyObject } from 'mongoose';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { Subscription } from 'src/api/subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
-import { CommonService } from 'src/common/common.service';
+import {
+  CommonService,
+  NotificationDispatchStatusField,
+} from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
-import { promisify } from 'util';
-
-enum NotificationDispatchStatusField {
-  failed,
-  successful,
-  skipped,
-}
-
-const wait = promisify(setTimeout);
 
 @Injectable()
 @Processor('n')
@@ -64,35 +57,9 @@ export class NotificationQueueConsumer
     }
   }
 
-  async updateBroadcastPushNotificationStatus(
-    data,
-    field: NotificationDispatchStatusField,
-    payload: any,
-    req?: (Request & { user?: any }) | null,
-  ) {
-    let success = false;
-    while (!success) {
-      try {
-        const val = payload instanceof Array ? { $each: payload } : payload;
-        await this.notificationsService.updateById(
-          data.id,
-          {
-            $push: {
-              ['dispatch.' + NotificationDispatchStatusField[field]]: val,
-            },
-          },
-          req,
-        );
-        success = true;
-        return;
-      } catch (ex) {}
-      await wait(1000);
-    }
-  }
-
   async notificationMsgCB(data, err: any, e: Subscription) {
     if (err) {
-      return this.updateBroadcastPushNotificationStatus(
+      return this.commonService.updateBroadcastPushNotificationStatus(
         data,
         NotificationDispatchStatusField.failed,
         {
@@ -105,7 +72,7 @@ export class NotificationQueueConsumer
       this.guaranteedBroadcastPushDispatchProcessing ||
       this.handleBounce
     ) {
-      return this.updateBroadcastPushNotificationStatus(
+      return this.commonService.updateBroadcastPushNotificationStatus(
         data,
         NotificationDispatchStatusField.successful,
         e.id.toString(),
@@ -154,7 +121,7 @@ export class NotificationQueueConsumer
               this.guaranteedBroadcastPushDispatchProcessing &&
               this.logSkippedBroadcastPushDispatches
             )
-              await this.updateBroadcastPushNotificationStatus(
+              await this.commonService.updateBroadcastPushNotificationStatus(
                 data,
                 NotificationDispatchStatusField.skipped,
                 e.id.toString(),
@@ -177,7 +144,7 @@ export class NotificationQueueConsumer
               this.guaranteedBroadcastPushDispatchProcessing &&
               this.logSkippedBroadcastPushDispatches
             )
-              await this.updateBroadcastPushNotificationStatus(
+              await this.commonService.updateBroadcastPushNotificationStatus(
                 data,
                 NotificationDispatchStatusField.skipped,
                 e.id.toString(),
