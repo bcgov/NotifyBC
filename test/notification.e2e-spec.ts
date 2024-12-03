@@ -24,7 +24,7 @@ import { NotificationsService } from 'src/api/notifications/notifications.servic
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
 import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
-import { NotificationQueueConsumer } from 'src/queue-consumers/notification-queue-consumer';
+import { NotificationQueueConsumer } from 'src/queue/notification-queue-consumer';
 import supertest from 'supertest';
 import { getAppAndClient, runAsSuperAdmin, wait } from './test-helper';
 

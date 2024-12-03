@@ -34,7 +34,7 @@ import { MiddlewareConfigService } from './config/middleware-config.service';
 import { ObserversModule } from './observers/observers.module';
 import { ShutdownService } from './observers/shutdown.service';
 import { SwaggerService } from './observers/swagger.service';
-import { QueueConsumersModule } from './queue-consumers/queue-consumers.module';
+import { QueueConsumersModule } from './queue/queue-consumers.module';
 import { RssModule } from './rss/rss.module';
 
 @Module({
