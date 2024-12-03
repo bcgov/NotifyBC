@@ -492,7 +492,7 @@ export class CommonService {
         await this.notificationsService.updateById(
           data.id,
           {
-            $push: {
+            $addToSet: {
               ['dispatch.' + NotificationDispatchStatusField[field]]: val,
             },
           },
