@@ -129,6 +129,7 @@ export default defineUserConfig({
           '/docs/config-middleware/',
           '/docs/config-oidc/',
           '/docs/config-certificates/',
+          '/docs/config-queue/',
         ],
       },
       {
@@ -147,6 +148,7 @@ export default defineUserConfig({
         text: 'Miscellaneous',
         children: [
           '/docs/health-check/',
+          '/docs/disaster-recovery/',
           '/docs/memory-dump/',
           '/docs/benchmarks/',
           '/docs/bulk-import/',

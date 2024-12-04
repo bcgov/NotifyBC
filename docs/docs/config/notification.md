@@ -59,7 +59,7 @@ The config items in the _value_ field are
 
 ## Broadcast Push Notification Task Concurrency
 
-To achieve horizontal scaling, when a broadcast push notification request is received, _NotifyBC_ divides subscribers into chunks and submits a BullMQ job for each chunk. The chunk size is defined by config _broadcastSubscriberChunkSize_. All subscribers in a sub-request chunk are processed concurrently when the sub-requests are submitted.
+To achieve horizontal scaling, when a broadcast push notification request is received, _NotifyBC_ divides subscribers into chunks and submits a BullMQ job for each chunk. The chunk size is defined by config _broadcastSubscriberChunkSize_. All subscribers in a chunk are processed concurrently.
 
 The default value for _broadcastSubscriberChunkSize_ is defined in _/src/config.ts_
 
@@ -72,6 +72,12 @@ module.exports = {
 ```
 
 To customize, create the config with updated value in file _/src/config.local.js_.
+
+::: tip When to adjust chunk size?
+
+Redis memory footprint is inversely proportional to chunk size. Increase chunk size if Redis memory usage is approaching physical limit.
+
+:::
 
 ## Broadcast Push Notification Custom Filter Functions
 
@@ -122,18 +128,19 @@ The recommended way to install additional Node.js modules is by running command 
 
 As a major enhancement in v3, by default _NotifyBC_ guarantees all subscribers
 of a broadcast push notification will be processed in spite of
-_NotifyBC_ node failures during dispatching. Node failure is a concern because
+node failures during dispatching. Node failure is a concern because
 the time takes to dispatch broadcast push notification is proportional
 to number of subscribers, which is potentially large.
+
+_NotifyBC_ is not only resilient to failures of _NotifyBC_ application nodes, but also
+entire _Redis_ cluster.
 
 The guarantee is achieved by
 
 1. logging the dispatch result to database individually right after each dispatch
-2. when subscribers are divided into chunks and a chunk sub-request fails, the original request re-submits the sub-request
-3. the original request periodically updates the notification _updated_ timestamp field as heartbeat during dispatching
-4. if original request fails,
-   1. a cron job detects the failure from the stale timestamp, and re-submits the original request
-   2. all chunk sub-requests detects the the failure from the socket error, and stop processing
+2. when subscribers are divided into chunks and a chunk job fails, the job is re-processed by BullMQ
+3. a chunk job periodically updates the notification _updated_ timestamp field as heartbeat
+4. if redis cluster fails, a cron job detects the failure from the stale timestamp, and re-submits the notification request
 
 Guaranteed processing doesn't mean notification will be dispatched to every
 intended subscriber, however. Dispatch can still be rejected by smtp/sms
