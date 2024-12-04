@@ -458,16 +458,6 @@ export class NotificationsController {
           },
           this.req,
         );
-        const hbTimeout = setInterval(() => {
-          this.notificationsService.updateById(
-            data.id,
-            {
-              updated: new Date(),
-            },
-            this.req,
-          );
-        }, 60000);
-
         const count = subCandidates.length;
         const chunks = Math.ceil(count / this.broadcastSubscriberChunkSize);
         let i = 0;
@@ -489,7 +479,6 @@ export class NotificationsController {
           data: { id: data.id },
           children,
         });
-        clearTimeout(hbTimeout);
         break;
       }
     }
