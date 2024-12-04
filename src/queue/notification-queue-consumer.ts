@@ -314,7 +314,16 @@ export class NotificationQueueConsumer
       case 'p':
         return this.postBroadcastProcessing(notification);
       case 'c':
-        return this.broadcastToSubscriberChunk(notification, job);
+        const hbTimeout = setInterval(() => {
+          this.notificationsService.updateById(notification.id, {
+            updated: new Date(),
+          });
+        }, 300000);
+        try {
+          await this.broadcastToSubscriberChunk(notification, job);
+        } finally {
+          clearInterval(hbTimeout);
+        }
     }
   }
 
