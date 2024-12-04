@@ -59,30 +59,19 @@ The config items in the _value_ field are
 
 ## Broadcast Push Notification Task Concurrency
 
-To achieve horizontal scaling, when a broadcast push notification request, hereby known as original request, is received, _NotifyBC_ divides subscribers into chunks and generates a HTTP sub-request for each chunk. The original request supervises the execution of sub-requests. The chunk size is defined by config _broadcastSubscriberChunkSize_. All subscribers in a sub-request chunk are processed concurrently when the sub-requests are submitted.
+To achieve horizontal scaling, when a broadcast push notification request is received, _NotifyBC_ divides subscribers into chunks and submits a BullMQ job for each chunk. The chunk size is defined by config _broadcastSubscriberChunkSize_. All subscribers in a sub-request chunk are processed concurrently when the sub-requests are submitted.
 
-The original request submits sub-requests back to (preferably load-balanced) _NotifyBC_ server cluster for processing. Sub-request submission is throttled by config _broadcastSubRequestBatchSize_. _broadcastSubRequestBatchSize_ defines the upper limit of the number of Sub-requests that can be processed at any given time.
-
-As an example, assuming the total number of subscribers for a notification is 1,000,000, _broadcastSubscriberChunkSize_ is 1,000 and _broadcastSubRequestBatchSize_ is 10, _NotifyBC_ will divide the 1M subscribers into 1,000 chunks and generates 1,000 sub-requests, one for each chunk. The 1,000 sub-requests will be submitted back to _NotifyBC_ cluster to be processed. The original request will ensure at most 10 sub-requests are submitted and being processed at any given time. In fact, the only time concurrency is less than 10 is near the end of the task when remaining sub-requests is less than 10. When a sub-request is received by _NotifyBC_ cluster, all 1,000 subscribers are processed concurrently. Suppose each sub-request (i.e. 1,000 subscribers) takes 1 minute to process on average, then the total time to dispatch notifications to 1M subscribers takes 1,000/10 = 100min, or 1hr40min.
-
-The default value for _broadcastSubscriberChunkSize_ and _broadcastSubRequestBatchSize_ are defined in _/src/config.ts_
+The default value for _broadcastSubscriberChunkSize_ is defined in _/src/config.ts_
 
 ```ts
 module.exports = {
   notification: {
     broadcastSubscriberChunkSize: 1000,
-    broadcastSubRequestBatchSize: 10,
   },
 };
 ```
 
 To customize, create the config with updated value in file _/src/config.local.js_.
-
-If total number of subscribers is less than _broadcastSubscriberChunkSize_, then no sub-requests are spawned. Instead, the main request dispatches all notifications.
-
-::: tip How to determine the optimal value for <i>broadcastSubscriberChunkSize</i> and <i>broadcastSubRequestBatchSize</i>?
-<i>broadcastSubscriberChunkSize</i> is determined by the concurrency capability of the downstream message handlers such as SMTP server or SMS service provider. <i>broadcastSubRequestBatchSize</i> is determined by the size of <i>NotifyBC</i> cluster. As a rule of thumb, set <i>broadcastSubRequestBatchSize</i> equal to the number of non-primary nodes in <i>NotifyBC</i> cluster.
-:::
 
 ## Broadcast Push Notification Custom Filter Functions
 

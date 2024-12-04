@@ -136,7 +136,6 @@ const config: Record<string, any> = {
   },
   notification: {
     broadcastSubscriberChunkSize: 1000,
-    broadcastSubRequestBatchSize: 10,
     guaranteedBroadcastPushDispatchProcessing: true,
     logSkippedBroadcastPushDispatches: false,
   },

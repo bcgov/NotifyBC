@@ -739,7 +739,6 @@ describe('POST /notifications', () => {
       const origNotificationConfig = appConfig.notification;
       const newNotificationConfig = merge({}, origNotificationConfig, {
         broadcastSubscriberChunkSize: 1,
-        broadcastSubRequestBatchSize: 10,
       });
       appConfig.notification = newNotificationConfig;
       const res = await client
@@ -779,7 +778,6 @@ describe('POST /notifications', () => {
       const origNotificationConfig = appConfig.notification;
       const newNotificationConfig = merge({}, origNotificationConfig, {
         broadcastSubscriberChunkSize: 1,
-        broadcastSubRequestBatchSize: 10,
       });
       appConfig.notification = newNotificationConfig;
 
@@ -864,7 +862,6 @@ describe('POST /notifications', () => {
       const origNotificationConfig = appConfig.notification;
       const newNotificationConfig = merge({}, origNotificationConfig, {
         broadcastSubscriberChunkSize: 1,
-        broadcastSubRequestBatchSize: 10,
       });
       appConfig.notification = newNotificationConfig;
 
@@ -915,7 +912,6 @@ describe('POST /notifications', () => {
         const origNotificationConfig = appConfig.notification;
         const newNotificationConfig = merge({}, origNotificationConfig, {
           broadcastSubscriberChunkSize: 1,
-          broadcastSubRequestBatchSize: 10,
         });
         appConfig.notification = newNotificationConfig;
 
@@ -961,7 +957,6 @@ describe('POST /notifications', () => {
       const origNotificationConfig = appConfig.notification;
       const newNotificationConfig = merge({}, origNotificationConfig, {
         broadcastSubscriberChunkSize: 1,
-        broadcastSubRequestBatchSize: 10,
       });
       appConfig.notification = newNotificationConfig;
 
@@ -1094,7 +1089,6 @@ describe('POST /notifications', () => {
       const origNotificationConfig = appConfig.notification;
       const newNotificationConfig = merge({}, origNotificationConfig, {
         broadcastSubscriberChunkSize: 1,
-        broadcastSubRequestBatchSize: 10,
         logSkippedBroadcastPushDispatches: true,
       });
       appConfig.notification = newNotificationConfig;
@@ -1358,7 +1352,6 @@ describe('POST /notifications', () => {
         const origNotificationConfig = appConfig.notification;
         const newNotificationConfig = merge({}, origNotificationConfig, {
           broadcastSubscriberChunkSize: 1,
-          broadcastSubRequestBatchSize: 2,
           guaranteedBroadcastPushDispatchProcessing: false,
         });
         appConfig.notification = newNotificationConfig;
