@@ -105,7 +105,7 @@ describe('POST /subscriptions', function () {
       expect(res.status).toEqual(200);
       expect(
         CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
-      ).not.toBeCalled();
+      ).not.toHaveBeenCalled();
       const data = await subscriptionsService.findAll(
         {
           where: {
@@ -141,100 +141,100 @@ describe('POST /subscriptions', function () {
       expect(res.status).toEqual(200);
       const spiedSendEmail = CommonService.prototype
         .sendEmail as unknown as jest.SpyInstance;
-      expect(spiedSendEmail).toBeCalled();
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalled();
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{subscription_confirmation_code}'),
         }),
         expect.anything(),
       );
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{service_name}'),
         }),
         expect.anything(),
       );
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{http_host}'),
         }),
         expect.anything(),
       );
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{rest_api_root}'),
         }),
         expect.anything(),
       );
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{subscription_id}'),
         }),
         expect.anything(),
       );
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{unsubscription_code}'),
         }),
         expect.anything(),
       );
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{unsubscription_url}'),
         }),
         expect.anything(),
       );
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{subscription_confirmation_url}'),
         }),
         expect.anything(),
       );
-      expect(spiedSendEmail).not.toBeCalledWith(
+      expect(spiedSendEmail).not.toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('{unsubscription_reversion_url}'),
         }),
         expect.anything(),
       );
 
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('12345'),
         }),
         1,
       );
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('myService'),
         }),
         1,
       );
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('http://127.0.0.1'),
         }),
         1,
       );
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('/api'),
         }),
         1,
       );
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('1 '),
         }),
         1,
       );
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining('54321'),
         }),
         1,
       );
       //unsubscription_url
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining(
             `/api/subscriptions/${res.body.id}/unsubscribe?unsubscriptionCode=54321`,
@@ -243,7 +243,7 @@ describe('POST /subscriptions', function () {
         1,
       );
       //subscription_confirmation_url
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining(
             `/api/subscriptions/${res.body.id}/verify?confirmationCode=12345`,
@@ -252,7 +252,7 @@ describe('POST /subscriptions', function () {
         1,
       );
       //unsubscription_reversion_url
-      expect(spiedSendEmail).toBeCalledWith(
+      expect(spiedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           text: expect.stringContaining(
             `/api/subscriptions/${res.body.id}/unsubscribe/undo?unsubscriptionCode=54321`,
@@ -287,7 +287,7 @@ describe('POST /subscriptions', function () {
       expect(res.status).toEqual(200);
       expect(
         CommonService.prototype.sendSMS as unknown as jest.SpyInstance,
-      ).toBeCalledTimes(1);
+      ).toHaveBeenCalledTimes(1);
       const data = await subscriptionsService.findAll(
         {
           where: {
@@ -322,7 +322,7 @@ describe('POST /subscriptions', function () {
       expect(res.status).toEqual(200);
       expect(
         CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
-      ).toBeCalledTimes(1);
+      ).toHaveBeenCalledTimes(1);
       const data = await subscriptionsService.findAll(
         {
           where: {
@@ -353,8 +353,8 @@ describe('POST /subscriptions', function () {
       })
       .set('Accept', 'application/json');
     expect(res.status).toEqual(200);
-    expect(spiedSendSms).toBeCalledTimes(1);
-    expect(fetchStub).toBeCalledWith(
+    expect(spiedSendSms).toHaveBeenCalledTimes(1);
+    expect(fetchStub).toHaveBeenCalledWith(
       'https://secure.smsgateway.ca/services/message.svc/123/12345',
       expect.anything(),
     );
@@ -393,7 +393,7 @@ describe('POST /subscriptions', function () {
     expect(res.status).toEqual(200);
     const spiedSendEmail = CommonService.prototype
       .sendEmail as unknown as jest.SpyInstance;
-    expect(spiedSendEmail).toBeCalledTimes(1);
+    expect(spiedSendEmail).toHaveBeenCalledTimes(1);
     const data = await subscriptionsService.findAll(
       {
         where: {
@@ -443,7 +443,7 @@ describe('POST /subscriptions', function () {
     expect(res.status).toEqual(200);
     expect(
       CommonService.prototype.sendSMS as unknown as jest.SpyInstance,
-    ).toBeCalledTimes(1);
+    ).toHaveBeenCalledTimes(1);
     const data = await subscriptionsService.findAll(
       {
         where: {
@@ -507,8 +507,8 @@ describe('POST /subscriptions', function () {
     expect(res.status).toEqual(200);
     const spiedSendEmail = CommonService.prototype
       .sendEmail as unknown as jest.SpyInstance;
-    expect(spiedSendEmail).toBeCalled();
-    expect(spiedSendEmail).toBeCalledWith(
+    expect(spiedSendEmail).toHaveBeenCalled();
+    expect(spiedSendEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         text: expect.stringContaining('A duplicated subscription'),
       }),
@@ -930,7 +930,7 @@ describe('GET /subscriptions/{id}/unsubscribe', () => {
     expect(res.length).toEqual(3);
     expect(
       CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
-    ).toBeCalledWith(
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         text: expect.stringMatching(
           /services myService\d, myService\d and myService\d/,
