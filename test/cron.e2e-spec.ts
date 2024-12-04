@@ -455,7 +455,7 @@ describe('CRON checkRssConfigUpdates', function () {
       fail(err);
     }
     await wait(1000);
-    expect(fetch as unknown as jest.SpyInstance).toBeCalledWith(
+    expect(fetch as unknown as jest.SpyInstance).toHaveBeenCalledWith(
       'http://foo/api/notifications',
       expect.objectContaining({
         method: 'POST',
@@ -495,7 +495,7 @@ describe('CRON checkRssConfigUpdates', function () {
     await rssService.create(data);
     await cronTasksService.checkRssConfigUpdates(true);
     await wait(2000);
-    expect(fetch as unknown as jest.SpyInstance).not.toBeCalledWith(
+    expect(fetch as unknown as jest.SpyInstance).not.toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({ method: 'POST' }),
     );
@@ -546,7 +546,7 @@ describe('CRON checkRssConfigUpdates', function () {
       .mockReturnValueOnce(null);
     await cronTasksService.checkRssConfigUpdates(true);
     await wait(1000);
-    expect(loggerErrorSpy).toBeCalledWith(
+    expect(loggerErrorSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'Bad status code',
       }),
@@ -658,7 +658,7 @@ describe('CRON reDispatchBroadcastPushNotifications', () => {
       await wait(3000);
       const mockedSendEmail = CommonService.prototype
         .sendEmail as unknown as jest.SpyInstance;
-      expect(mockedSendEmail).toBeCalledWith(
+      expect(mockedSendEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           from: 'admin@foo.com',
           to: 'bar@foo.com',
