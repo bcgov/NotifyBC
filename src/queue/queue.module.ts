@@ -9,7 +9,7 @@ import { NotificationQueueConsumer } from './notification-queue-consumer';
 import { SmsQueueConsumer } from './sms-queue-consumer';
 
 @Module({})
-export class QueueConsumersModule {
+export class QueueModule {
   static register(): DynamicModule {
     const providers = [];
     const imports = [];
@@ -28,7 +28,7 @@ export class QueueConsumersModule {
       providers.push(NotificationEventsListener);
     }
     return {
-      module: QueueConsumersModule,
+      module: QueueModule,
       imports,
       providers,
     };
