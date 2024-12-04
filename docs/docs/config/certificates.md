@@ -1,6 +1,5 @@
 ---
 permalink: /docs/config-certificates/
-next: /docs/api-overview/
 ---
 
 # TLS Certificates

@@ -275,7 +275,6 @@ export class CommonService {
     } catch (ex) {}
     let httpHost;
     try {
-      // todo: re-evaluate order of httpHost
       if (subscription?.httpHost) {
         httpHost = subscription.httpHost;
       }

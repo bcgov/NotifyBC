@@ -12,10 +12,10 @@ module.exports = {
 };
 ```
 
-then the HTTP request will be sent to the configured host. An internal request can be generated, for example, as a [sub-request of broadcast push notification](../config-notification/#broadcast-push-notification-task-concurrency). _internalHttpHost_ shouldn't be accessible from internet.
+then the HTTP request will be sent to the configured host. An internal request can be generated, for example, by [cron jobs](../config-cronJobs/). _internalHttpHost_ shouldn't be accessible from internet.
 
 All internal requests are supposed to be admin requests. The purpose of _internalHttpHost_ is to facilitate identifying the internal server ip as admin ip.
 
 ::: tip Kubernetes Use Case
-The Kubernetes deployment script sets <i>internalHttpHost</i> to _notify-bc-app_ service url in config map. The source ip in such case would be in a private Kubernetes ip range. You should add this private ip range to <a href="#admin-ip-list">admin ip list</a>. The private ip range varies from Kubernetes installation. In BCGov's OCP4 cluster, it starts with octet 10.
+The Kubernetes deployment script sets <i>internalHttpHost</i> to _notify-bc-app_ service url in config map. The source ip in such case would be in a private Kubernetes ip range. You should add this private ip range to <a href="../config-adminIpList/">admin ip list</a>. The private ip range varies from Kubernetes installation. In BCGov's OCP4 cluster, it starts with octet 10.
 :::

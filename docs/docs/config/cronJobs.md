@@ -111,7 +111,7 @@ where
 
 ## Re-dispatch Broadcast Push Notifications
 
-This cron job re-dispatches a broadcast push notifications when original request failed. It is part of [guaranteed broadcast push dispatch processing](../config/notification.md#guaranteed-broadcast-push-dispatch-processing)
+This cron job re-dispatches a broadcast push notifications when redis cluster fails. It is part of [guaranteed broadcast push dispatch processing](../config/notification.md#guaranteed-broadcast-push-dispatch-processing)
 
 The default config is defined by _cron.reDispatchBroadcastPushNotifications_ config object in file _/src/config.ts_
 
