@@ -19,7 +19,6 @@ import dns from 'dns';
 import { merge } from 'lodash';
 import mailer from 'nodemailer/lib/mailer';
 import { BouncesService } from 'src/api/bounces/bounces.service';
-import { NotificationsController } from 'src/api/notifications/notifications.controller';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
 import { CommonService } from 'src/common/common.service';
@@ -899,108 +898,6 @@ describe('POST /notifications', () => {
         expect.arrayContaining([promiseAllRes[2].id, promiseAllRes[3].id]),
       );
       appConfig.notification = origNotificationConfig;
-    });
-  });
-
-  // skip b/c bullMQ
-  it.skip(
-    'should retry sub-request when sending chunked broadcast ' +
-      'notifications',
-    async () => {
-      await runAsSuperAdmin(async () => {
-        const appConfig = app.get<AppConfigService>(AppConfigService).get();
-        const origNotificationConfig = appConfig.notification;
-        const newNotificationConfig = merge({}, origNotificationConfig, {
-          broadcastSubscriberChunkSize: 1,
-        });
-        appConfig.notification = newNotificationConfig;
-
-        const reqStub = jest
-          .spyOn(axios, 'get')
-          .mockRejectedValueOnce({ error: 'connection error' });
-        const res = await client
-          .post('/api/notifications')
-          .send({
-            serviceName: 'myChunkedBroadcastService',
-            message: {
-              from: 'no_reply@bar.com',
-              subject: 'test',
-              textBody: 'test',
-            },
-            channel: 'email',
-            isBroadcast: true,
-          })
-          .set('Accept', 'application/json');
-        expect(res.status).toEqual(200);
-        expect(
-          CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
-        ).toBeCalledTimes(2);
-        expect(reqStub).toBeCalledTimes(3);
-        const data = await notificationsService.findAll(
-          {
-            where: {
-              serviceName: 'myChunkedBroadcastService',
-            },
-          },
-          undefined,
-        );
-        expect(data.length).toEqual(1);
-        appConfig.notification = origNotificationConfig;
-      });
-    },
-  );
-
-  // skip b/c bullMQ
-  it.skip('should handle chunk request abortion', async () => {
-    await runAsSuperAdmin(async () => {
-      const appConfig = app.get<AppConfigService>(AppConfigService).get();
-      const origNotificationConfig = appConfig.notification;
-      const newNotificationConfig = merge({}, origNotificationConfig, {
-        broadcastSubscriberChunkSize: 1,
-      });
-      appConfig.notification = newNotificationConfig;
-
-      const sendPushNotificationStub = jest
-        .spyOn(NotificationsController.prototype, 'sendPushNotification')
-        .mockImplementation(async function (this: any, ...args) {
-          await wait(3000);
-          sendPushNotificationStub.mockRestore();
-          await NotificationsController.prototype.sendPushNotification.apply(
-            this,
-            args,
-          );
-        });
-
-      const notification = await notificationsService.create(
-        {
-          serviceName: 'myChunkedBroadcastService',
-          state: 'sending',
-          message: {
-            from: 'no_reply@invalid.local',
-            subject: 'test',
-            textBody: 'test',
-          },
-          channel: 'email',
-          isBroadcast: true,
-          dispatch: {
-            candidates: [promiseAllRes[2].id, promiseAllRes[3].id],
-          },
-        },
-        undefined,
-      );
-      const res = client
-        .get(
-          `/api/notifications/${notification.id}/broadcastToChunkSubscribers?start=0`,
-        )
-        .end();
-      await wait(10);
-      ((res as any).req as any).socket.destroy();
-      res.abort();
-      await wait(4000);
-      expect(
-        CommonService.prototype.sendEmail as unknown as jest.SpyInstance,
-      ).not.toBeCalled();
-      appConfig.notification = newNotificationConfig;
     });
   });
 
