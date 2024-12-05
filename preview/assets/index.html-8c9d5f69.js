@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-7941c089","path":"/docs/disaster-recovery/","title":"Disaster Recovery","lang":"en-US","frontmatter":{"permalink":"/docs/disaster-recovery/"},"headers":[],"git":{},"filePathRelative":"docs/miscellaneous/disaster-recovery.md"}');export{e as data};
