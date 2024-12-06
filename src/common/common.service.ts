@@ -76,8 +76,7 @@ export class CommonService {
           prefix: queue.opts.prefix,
         });
         const queuedID = [];
-        // IMPORTANT: place queueEvents.on before myQueue.add
-        queueEvents.on('completed', async ({ jobId }) => {
+        const queueEventHandler = async ({ jobId }) => {
           if (!j?.id) {
             queuedID.push(jobId);
             return;
@@ -95,7 +94,11 @@ export class CommonService {
             reject(ex);
           }
           queueEvents.close();
-        });
+        };
+        // IMPORTANT: place queueEvents.on before myQueue.add
+        queueEvents.on('completed', queueEventHandler);
+        queueEvents.on('failed', queueEventHandler);
+
         await queueEvents.waitUntilReady();
         const j = await queue.add('', undefined, { priority: opts.priority });
         // extra guard in case queueEvents.on is called before j is assigned.
