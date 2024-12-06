@@ -83,6 +83,7 @@ import { RssModule } from './rss/rss.module';
           prefix: 'nb',
           defaultJobOptions: {
             removeOnComplete: true,
+            removeOnFail: true,
           },
         };
         const connection = appConfigService.get('queue.connection');
