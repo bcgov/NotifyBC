@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import { useDarkMode } from '@theme/useDarkMode';
+import { useThemeLocaleData } from '@theme/useThemeData';
+import type { FunctionalComponent } from 'vue';
+import { computed, h } from 'vue';
 import {
   ClientOnly,
+  RouteLink,
   useRouteLocale,
   useSiteLocaleData,
   withBase,
-} from '@vuepress/client';
-import {computed, h} from 'vue';
-import type {FunctionalComponent} from 'vue';
-import {
-  useDarkMode,
-  useThemeLocaleData,
-} from '@vuepress/theme-default/lib/client/composables/index.js';
+} from 'vuepress/client';
 import Versions from './versions.vue';
+
 const routeLocale = useRouteLocale();
 const siteLocale = useSiteLocaleData();
 const themeLocale = useThemeLocaleData();
@@ -27,12 +27,20 @@ const navbarBrandLogo = computed(() => {
   }
   return themeLocale.value.logo;
 });
+const navbarBrandLogoAlt = computed(
+  () => themeLocale.value.logoAlt ?? navbarBrandTitle.value,
+);
+const navBarLogoAltMatchesTitle = computed(
+  () =>
+    navbarBrandTitle.value.toLocaleUpperCase().trim() ===
+    navbarBrandLogoAlt.value.toLocaleUpperCase().trim(),
+);
 const NavbarBrandLogo: FunctionalComponent = () => {
   if (!navbarBrandLogo.value) return null;
   const img = h('img', {
-    class: 'logo',
+    class: 'vp-site-logo',
     src: withBase(navbarBrandLogo.value),
-    alt: navbarBrandTitle.value,
+    alt: navbarBrandLogoAlt.value,
   });
   if (themeLocale.value.logoDark === undefined) {
     return img;
@@ -44,24 +52,39 @@ const NavbarBrandLogo: FunctionalComponent = () => {
 </script>
 
 <template>
-  <div class="nb-navbar-brand">
-    <RouterLink :to="navbarBrandLink">
-      <NavbarBrandLogo />
-    </RouterLink>
-    <Versions />
-  </div>
+  <RouteLink :to="navbarBrandLink">
+    <NavbarBrandLogo />
+  </RouteLink>
+  <Versions />
 </template>
 
-<style>
-@media only screen and (max-width: 400px) {
-  .nb-navbar-brand .logo {
-    width: 70px;
-  }
-  .nb-navbar-brand span {
-    font-size: 0.8em;
-  }
-  .navbar .navbar-items-wrapper {
-    padding-left: 0 !important;
+<style lang="scss">
+@use '@vuepress/theme-default/lib/client/styles/variables' as *;
+
+.vp-site-logo {
+  vertical-align: top;
+  height: var(--navbar-line-height);
+  margin-right: var(--navbar-padding-v);
+}
+
+.vp-site-name {
+  position: relative;
+  color: var(--vp-c-text);
+  font-weight: 600;
+  font-size: 1.3rem;
+
+  @media screen and (max-width: $MQMobile) {
+    display: block;
+
+    overflow: hidden;
+
+    // 5.5rem for navbar padding-inline
+    // 4.5rem for ColorModeSwitch and SearchBox
+    // 1rem for gap
+    width: calc(100vw - 11rem);
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

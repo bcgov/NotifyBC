@@ -1,14 +1,17 @@
-import codeCopyPlugin from '@snippetors/vuepress-plugin-code-copy';
+import { viteBundler } from '@vuepress/bundler-vite';
 import { docsearchPlugin } from '@vuepress/plugin-docsearch';
+import { defaultTheme } from '@vuepress/theme-default';
 import { getDirname, path } from '@vuepress/utils';
 import markdownItInclude from 'markdown-it-include';
-import { defaultTheme, defineUserConfig } from 'vuepress';
+import { defineUserConfig } from 'vuepress';
+import { mdEnhancePlugin } from 'vuepress-plugin-md-enhance';
 import packageJson, { description } from '../../package';
-
 const __dirname = getDirname(import.meta.url);
 
 const base = `/NotifyBC${process.env.notifyBCDocVersion_PATH || '/'}`;
 export default defineUserConfig({
+  bundler: viteBundler(),
+
   base,
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
@@ -42,11 +45,11 @@ export default defineUserConfig({
   ],
 
   alias: {
-    '@theme/NavbarBrand.vue': path.resolve(
+    '@theme/VPNavbarBrand.vue': path.resolve(
       __dirname,
       './components/myNavbarBrand.vue',
     ),
-    '@theme/HomeFeatures.vue': path.resolve(
+    '@theme/VPHomeFeatures.vue': path.resolve(
       __dirname,
       './components/myHomeFeatures.vue',
     ),
@@ -61,7 +64,10 @@ export default defineUserConfig({
       indexName: 'notifybc',
       indexBase: '/NotifyBC/',
     }),
-    codeCopyPlugin(),
+    mdEnhancePlugin({
+      // Enable mermaid
+      mermaid: true,
+    }),
   ],
 
   extendsMarkdown: (md) => {

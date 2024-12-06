@@ -43,7 +43,7 @@ head:
 ---
 
 <style>
-.home .hero img {
+.vp-home .vp-hero img {
   margin-top: 0;
   height: 100%;
 }
