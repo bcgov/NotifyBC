@@ -1,1 +1,0 @@
-const e=JSON.parse('{"key":"v-02f1cc0e","path":"/docs/config-queue/","title":"Queue","lang":"en-US","frontmatter":{"permalink":"/docs/config-queue/","next":"/docs/api-overview/"},"headers":[],"git":{},"filePathRelative":"docs/config/queue.md"}');export{e as data};
