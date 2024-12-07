@@ -74,7 +74,7 @@ export class SubscriptionsService extends BaseService<Subscription> {
   async findOne(
     filter: FilterDto<Subscription> = {},
     req: Request & { user: UserProfile },
-  ): Promise<Subscription> {
+  ) {
     filter.where = this.accessInterceptor(req, filter.where);
     return super.findOne(filter);
   }

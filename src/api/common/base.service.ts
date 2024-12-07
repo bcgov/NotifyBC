@@ -19,11 +19,7 @@ import { CountDto } from './dto/count.dto';
 export class BaseService<T> {
   constructor(protected model: Model<T>) {}
 
-  async create(
-    createDto,
-    req?: (Request & { user?: any }) | null,
-    options?,
-  ): Promise<T> {
+  async create(createDto, req?: (Request & { user?: any }) | null, options?) {
     if (req?.user) {
       createDto.createdBy = req.user;
     }
@@ -56,7 +52,7 @@ export class BaseService<T> {
     filter: any = {},
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _req?: Request & { user: UserProfile },
-  ): Promise<T> {
+  ) {
     const res = await this.findAll({ ...filter, limit: 1 });
     return res && res?.[0]?.toJSON();
   }
@@ -76,7 +72,7 @@ export class BaseService<T> {
     return { count: res.modifiedCount };
   }
 
-  async findById(id: string, options?): Promise<T> {
+  async findById(id: string, options?) {
     const q = this.model.findById(id);
     if (options?.include) {
       q.populate(options.include);
@@ -145,13 +141,13 @@ export class BaseService<T> {
   }
 
   async remove(id: string, options?: QueryOptions) {
-    return this.model.findByIdAndRemove(id, options).exec();
+    return this.model.findByIdAndDelete(id, options).exec();
   }
 
   async removeAll(
     filter?: FilterQuery<T>,
     req?: Request & { user: UserProfile },
-    options?: QueryOptions,
+    options?,
   ) {
     const res = await this.model
       .deleteMany(this.model.translateAliases(filter), options)

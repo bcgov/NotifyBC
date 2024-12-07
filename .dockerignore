@@ -12,3 +12,5 @@ npm-debug.log
 notifyBC.code-workspace
 /coverage/
 windows-service.js
+/server/database/
+!/server/database/.keep
