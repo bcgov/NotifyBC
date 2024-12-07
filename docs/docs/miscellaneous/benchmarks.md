@@ -5,6 +5,10 @@ prev: /docs/api-bounce/
 
 # Benchmarks
 
+::: warning out of date
+Benchmark results no longer apply to this _NotifyBC_ version. Only the _Advices_ section is applicable.
+:::
+
 ::: tip tl;dr
 A <i>NotifyBC</i> server node can deliver 1 million emails in as little as 1 hour to a SMTP server node. SMTP server node's disk I/O is the bottleneck in such case. Throughput can be improved through horizontal scaling.
 :::

@@ -1,6 +1,6 @@
 ---
 permalink: /docs/api-bounce/
-next: /docs/benchmarks/
+next: /docs/health-check/
 ---
 
 # Bounce
