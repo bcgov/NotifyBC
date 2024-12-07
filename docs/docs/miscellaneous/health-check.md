@@ -1,5 +1,6 @@
 ---
 permalink: /docs/health-check/
+prev: /docs/api-bounce/
 ---
 
 # Health Check
@@ -43,6 +44,6 @@ The response payload shows status of following indicators and health criteria
 
 1. MongoDB - MongoDB must be reachable
 2. config - There must be at least 2 items in MongoDB configuration collection
-3. Redis - Redis must be reachable if configured
+3. Redis - Redis must be reachable
 
 `/health` API end point is also reachable in _API Explorer_ of _NotifyBC_ web console.

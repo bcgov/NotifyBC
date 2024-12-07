@@ -4,7 +4,7 @@ permalink: /docs/disaster-recovery/
 
 # Disaster Recovery
 
-_NotifyBC_ consists of three runtime components
+_NotifyBC_ consists of three runtime components with dependencies
 
 ```mermaid
 flowchart TD
