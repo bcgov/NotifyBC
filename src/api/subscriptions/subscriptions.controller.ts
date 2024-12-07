@@ -684,12 +684,12 @@ export class SubscriptionsController {
           },
           undefined,
         );
-        instance = (await this.subscriptionsService.findOne(
+        instance = await this.subscriptionsService.findOne(
           {
             where: { id },
           },
           req,
-        )) as Subscription;
+        );
         if (!instance) throw new HttpException(undefined, HttpStatus.NOT_FOUND);
         await handleUnsubscriptionResponse();
       };

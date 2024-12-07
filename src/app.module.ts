@@ -62,7 +62,6 @@ import { RssModule } from './rss/rss.module';
         shutdownService.addMongoDBServer(mongod);
         Logger.log(`mongodb-memory-server started at ${uri}`, AppModule.name);
         return {
-          ...dbConfig,
           autoIndex: false,
           uri,
         };

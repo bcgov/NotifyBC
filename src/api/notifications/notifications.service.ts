@@ -69,7 +69,7 @@ export class NotificationsService extends BaseService<Notification> {
   async findOne(
     filter: FilterDto<Notification> = {},
     req: Request & { user: UserProfile },
-  ): Promise<Notification> {
+  ) {
     filter.where = this.accessInterceptor(req, filter.where);
     return super.findOne(filter);
   }
