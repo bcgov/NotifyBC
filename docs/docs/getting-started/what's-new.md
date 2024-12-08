@@ -12,6 +12,7 @@ _NotifyBC_ uses [semantic versioning](https://semver.org/).
 - Replaced Bottleneck with BullMQ
 - Redis is required
 - Bitnami Redis Helm chart is updated from version 16.13.2 to 20.1.0, with corresponding Redis from 6.2.7 to 7.4.0
+- Bitnami MongoDB Helm chart is updated from version 14.3.2 to 16.3.3, with corresponding MongoDB from 7.0.4 to 8.0.4
 - Added `loggingLevels` config
 
 ## v5
