@@ -72,6 +72,38 @@ v6 introduced following backward incompatible changes
 3. Terms for [node roles](../config/nodeRoles.md) have changed. If you defined environment variable _NOTIFYBC_NODE_ROLE_ with value other than _slave_, remove the environment variable; otherwise change it to _secondary_. If you deployed NotifyBC using Helm, this change is taken care of.
 
 4. config `notification.broadcastSubRequestBatchSize` is deprecated. If you defined it in _/src/config.local.js_, remove it.
+5. Bitnami MongoDB Helm chart is updated from version 14.3.2 to 16.3.3, with corresponding MongoDB from 7.0.4 to 8.0.4. If you deployed _NotifyBC_ using Helm, or if you are running MongoDB 7 and planning to upgrade to MongoDB 8, follow [Upgrade 7.0 to 8.0](https://www.mongodb.com/docs/manual/release-notes/8.0-upgrade/). In particular, ensure `setFeatureCompatibilityVersion` is set to `7.0`
+   ```
+   db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } )
+   db.adminCommand( { setFeatureCompatibilityVersion: "7.0" } )
+   ```
+
+After above changes are addressed, to upgrade _NotifyBC_ to v6,
+
+- if _NotifyBC_ is deployed from source code, run
+
+  ```sh
+  git pull
+  git checkout tags/v6.x.x
+  npm i && npm run build
+  ```
+
+  Replace
+
+  - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.0.0_.
+
+- if _NotifyBC_ is deployed to Kubernetes using Helm,
+  1. backup MongoDB database
+  2. run
+     ```sh
+     git pull
+     git checkout tags/v6.x.x
+     helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
+     ```
+     Replace
+     - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.0.0_.
+     - \<release-name\> with installed helm release name
+     - \<platform\> with _openshift_ or _aks_ depending on your platform
 
 ## v4 to v5
 
@@ -167,6 +199,10 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
   npm i && npm run build
   ```
 
+  Replace
+
+  - _v5.x.x_ with a v6 release, preferably latest, found in GitHub such as _v5.0.0_.
+
 - if _NotifyBC_ is deployed to Kubernetes using Helm,
   1. backup MongoDB database
   2. run
@@ -184,7 +220,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
      Replace
      - _v5.x.x_ with a v5 release, preferably latest, found in GitHub such as _v5.0.0_.
      - \<release-name\> with installed helm release name
-     - \<platform\> with openshift or aks depending on your platform
+     - \<platform\> with _openshift_ or _aks_ depending on your platform
   5. restore MongoDB database
 
 ## v3 to v4
