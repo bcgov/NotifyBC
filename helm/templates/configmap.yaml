@@ -18,8 +18,12 @@ data:
       },
       queue: {
         connection: {
-          host: process.env.REDIS_SERVICE_NAME,
+          sentinels: [
+            { host: process.env.REDIS_SERVICE_NAME },
+          ],
+          name: 'mymaster',
           password: process.env.REDIS_PASSWORD,
+          sentinelPassword: process.env.REDIS_PASSWORD,
         },
       },
     }
