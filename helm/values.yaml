@@ -84,6 +84,11 @@ tolerations: []
 
 affinity: {}
 
+# extra environment variables. For example
+# - name: TZ
+#   value: America/Vancouver
+extraEnvs: []
+
 mongodb:
   architecture: replicaset
   replicaCount: 3
