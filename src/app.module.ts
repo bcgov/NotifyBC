@@ -92,10 +92,25 @@ import { RssModule } from './rss/rss.module';
             connection,
           };
         }
-        const redisServer = new RedisMemoryServer();
-        const host = await redisServer.getHost();
-        const port = await redisServer.getPort();
-        shutdownService.addRedisServer(redisServer);
+
+        let host, port;
+        switch (process.platform) {
+          case 'win32':
+            const { GenericContainer } = await import('testcontainers');
+            const redisContainer = await new GenericContainer('redis')
+              .withExposedPorts(6379)
+              .start();
+            host = redisContainer.getHost();
+            port = redisContainer.getMappedPort(6379);
+            shutdownService.addRedisServer(redisContainer);
+            break;
+          default:
+            const redisServer = new RedisMemoryServer();
+            host = await redisServer.getHost();
+            port = await redisServer.getPort();
+            shutdownService.addRedisServer(redisServer);
+        }
+
         return {
           ...bullOpts,
           connection: {

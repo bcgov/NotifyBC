@@ -14,12 +14,7 @@ let notificationsService: NotificationsService;
 let subscriptionsService: SubscriptionsService;
 let mockedFetch;
 
-// skipping running this test suite on Windows because
-// redis doesn't officially support Windows and
-// redis-memory-server depends on an EOL redis binary
-const skipIfWindows = process.platform === 'win32' ? describe.skip : describe;
-
-skipIfWindows('', () => {
+describe('', () => {
   beforeEach(async () => {
     ({ app, client } = await setupApplication({
       adminIps: ['127.0.0.1'],
@@ -126,7 +121,12 @@ skipIfWindows('', () => {
             }
             return 'ok';
           });
+        const originalDnsLookup = dns.lookup;
         jest.spyOn(dns, 'lookup').mockImplementation((...args) => {
+          // bypass testcontainers calling dns.lookup
+          if ((args as any[])[1]?.all !== true) {
+            return originalDnsLookup(...args);
+          }
           const cb: any = args[args.length - 1];
           cb(null, [{ address: '127.0.0.2' }, { address: '127.0.0.1' }]);
         });
@@ -182,7 +182,7 @@ skipIfWindows('', () => {
           })
           .set('Accept', 'application/json');
         expect(res.status).toEqual(200);
-        await wait(10);
+        await wait(200);
         res = await client
           .post('/api/subscriptions')
           .send({
@@ -203,7 +203,7 @@ skipIfWindows('', () => {
           undefined,
         );
         expect(data[0].unsubscriptionCode).toMatch(/\d{5}/);
-        await wait(2100);
+        await wait(2500);
         expect(mockedFetch).toHaveBeenCalledTimes(3);
       },
       Number(process.env.notifyBcJestTestTimeout) || 10000,
