@@ -6,13 +6,7 @@ permalink: /docs/developer-notes/
 
 ## Setup development environment
 
-Install Visual Studio Code and following extensions:
-
-- Prettier
-- ESLint
-- Vetur
-- Code Spell Checker
-- Debugger for Chrome
+Install Visual Studio Code and [recommended extensions](https://github.com/bcgov/NotifyBC/blob/main/.vscode/extensions.json).
 
 Multiple run configs have been created to facilitate debugging server, client, test and docs.
 
