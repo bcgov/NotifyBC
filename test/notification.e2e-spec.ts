@@ -921,10 +921,16 @@ describe('POST /notifications', () => {
           }
           return 'ok';
         });
+      const originalDnsLookup = dns.lookup;
       jest.spyOn(dns, 'lookup').mockImplementation((...args) => {
+        // bypass testcontainers calling dns.lookup
+        if ((args as any[])[1]?.all !== true) {
+          return originalDnsLookup(...args);
+        }
         const cb: any = args[args.length - 1];
         cb(null, [{ address: '127.0.0.2' }, { address: '127.0.0.1' }]);
       });
+
       const res = await client
         .post('/api/notifications')
         .send({

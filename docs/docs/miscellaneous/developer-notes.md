@@ -26,6 +26,8 @@ _NotifyBC_ uses [Jest](https://jestjs.io/) test framework bundled in NestJS. To 
 
 Github Actions runs tests as part of the build. All test scripts should be able to run unattended, headless, quickly and depend only on local resources.
 
+To run automated testing on Windows, Docker Desktop needs to be running.
+
 ### Writing Test Specs
 
 Thanks to [supertest](https://github.com/visionmedia/supertest) and [MongoDB In-Memory Server](https://github.com/nodkz/mongodb-memory-server), test specs can be written to cover nearly end-to-end request processing workflow (only _sendMail_ and _sendSMS_ need to be mocked). This allows test specs to anchor onto business requirements rather than program units such as functions or files, resulting in regression tests that are more resilient to code refactoring.
