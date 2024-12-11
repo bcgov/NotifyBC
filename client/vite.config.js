@@ -6,6 +6,7 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 
 // Utilities
 import { NestFactory } from '@nestjs/core';
+import inject from '@rollup/plugin-inject';
 import ejs from 'ejs';
 import { globSync } from 'fast-glob';
 import fs from 'fs';
@@ -60,6 +61,11 @@ export default async ({ mode }) => {
         },
       }),
       DynamicPublicDirectory(['node_modules/iframe-resizer/js']),
+      inject({
+        jQuery: 'jquery',
+        $: 'jquery',
+        include: [],
+      }),
     ],
     define: {
       'process.env': {},

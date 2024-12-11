@@ -78,8 +78,6 @@
 </template>
 <script>
 import Login from './components/login';
-import jquery from 'jquery';
-window.$ = window.jQuery = jquery;
 
 export default {
   name: 'app',
