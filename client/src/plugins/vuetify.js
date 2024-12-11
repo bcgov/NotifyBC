@@ -8,7 +8,6 @@
 import '@fortawesome/fontawesome-free/css/all.css';
 import { fa } from 'vuetify/iconsets/fa';
 import { aliases, md } from 'vuetify/iconsets/md';
-import { VDataTableServer } from 'vuetify/labs/VDataTable';
 import 'vuetify/styles';
 
 // Composables
@@ -33,8 +32,5 @@ export default createVuetify({
       md,
       fa,
     },
-  },
-  components: {
-    VDataTableServer,
   },
 });
