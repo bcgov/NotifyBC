@@ -6,12 +6,12 @@ import Home from '@/components/home';
 import Notifications from '@/components/notifications';
 import OidcCallback from '@/components/oidc-callback';
 import Subscriptions from '@/components/subscriptions';
-import {createRouter, createWebHistory} from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
     path: '/',
-    redirect: {name: 'Home'},
+    redirect: { name: 'Home' },
   },
   {
     path: '/home',

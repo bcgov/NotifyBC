@@ -1,14 +1,18 @@
 // Plugins
 import vue from '@vitejs/plugin-vue';
+import ViteFonts from 'unplugin-fonts/vite';
+import Components from 'unplugin-vue-components/vite';
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
+
 // Utilities
 import { NestFactory } from '@nestjs/core';
 import ejs from 'ejs';
 import { globSync } from 'fast-glob';
 import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
+import VueRouter from 'unplugin-vue-router/vite';
 import { defineConfig } from 'vite';
-import DynamicPublicDirectory from 'vite-multiple-assets';
+import { DynamicPublicDirectory } from 'vite-multiple-assets';
 import { AppConfigService } from '../dist/config/app-config.service';
 import { ConfigModule } from '../dist/config/config.module';
 
@@ -19,6 +23,7 @@ export default async ({ mode }) => {
 
   let config = {
     plugins: [
+      VueRouter(),
       vue({
         template: { transformAssetUrls },
       }),
@@ -42,6 +47,17 @@ export default async ({ mode }) => {
       // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
       vuetify({
         autoImport: true,
+      }),
+      Components(),
+      ViteFonts({
+        google: {
+          families: [
+            {
+              name: 'Roboto',
+              styles: 'wght@100;300;400;500;700;900',
+            },
+          ],
+        },
       }),
       DynamicPublicDirectory(['node_modules/iframe-resizer/js']),
     ],
