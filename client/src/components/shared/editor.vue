@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import {JSONEditor} from '@json-editor/json-editor';
-import {Jodit} from 'jodit/es2015/jodit.min.js';
+import { JSONEditor } from '@json-editor/json-editor';
+import { Jodit } from 'jodit/es2015/jodit.min.js';
 window.Jodit = Jodit;
 export default {
   data: function () {
@@ -36,6 +36,7 @@ export default {
       errorMessage: undefined,
     };
   },
+  emits: ['submit', 'cancel'],
   props: ['item', 'schema', 'model'],
   methods: {
     setCurrentlyEditedItem: async function () {
@@ -72,7 +73,7 @@ export default {
         remove_empty_properties: true,
         disable_collapse: true,
         schema: this.schema,
-        ...(this.item && {startval: this.item.raw}),
+        ...(this.item && { startval: this.item.raw }),
       });
     },
   },

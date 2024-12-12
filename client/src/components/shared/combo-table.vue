@@ -318,6 +318,7 @@ export default {
       deletingItem: undefined,
     };
   },
+  emits: ['inputFormExpanded'],
 };
 </script>
 <style lang="less" scoped>
