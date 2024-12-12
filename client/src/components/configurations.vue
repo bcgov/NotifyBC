@@ -17,9 +17,9 @@
   <combo-table :headers="headers" :schema="schema" model="configurations">
     <template #default="props">
       <tr>
-        <td>{{ props.props.item.columns.name }}</td>
-        <td>{{ props.props.item.columns.serviceName }}</td>
-        <td class="text-right">{{ props.props.item.columns.updated }}</td>
+        <td>{{ props.props.item.name }}</td>
+        <td>{{ props.props.item.serviceName }}</td>
+        <td class="text-right">{{ props.props.item.updated }}</td>
         <td>
           <v-btn
             @click="props.viewItem(props.props)"
@@ -32,11 +32,7 @@
           </v-btn>
 
           <template
-            v-if="
-              ['dbSchemaVersion', 'rsa'].indexOf(
-                props.props.item.columns.name,
-              ) < 0
-            "
+            v-if="['dbSchemaVersion', 'rsa'].indexOf(props.props.item.name) < 0"
           >
             <v-btn
               @click="props.editItem(props.props)"
@@ -49,11 +45,7 @@
             </v-btn>
           </template>
           <template
-            v-if="
-              ['dbSchemaVersion', 'rsa'].indexOf(
-                props.props.item.columns.name,
-              ) < 0
-            "
+            v-if="['dbSchemaVersion', 'rsa'].indexOf(props.props.item.name) < 0"
           >
             <v-btn
               @click="props.deleteItem(props.props)"
