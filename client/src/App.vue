@@ -16,10 +16,8 @@
 <template>
   <v-app id="inspire">
     <v-navigation-drawer
-      persistent
       v-model="drawer"
-      enable-resize-watcher
-      app
+      mobile-breakpoint="md"
       v-if="this.$route.name !== 'oidcCallback'"
     >
       <v-list dense>
@@ -46,12 +44,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar
-      color="indigo"
-      dark
-      app
-      v-if="this.$route.name !== 'oidcCallback'"
-    >
+    <v-app-bar color="indigo" dark v-if="this.$route.name !== 'oidcCallback'">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title
         >NotifyBC Web Console - {{ this.$route.name }}</v-toolbar-title
@@ -80,16 +73,12 @@
 import Login from './components/login';
 
 export default {
-  name: 'app',
   components: {
     Login,
   },
   data: () => ({
     drawer: true,
   }),
-  props: {
-    source: String,
-  },
 };
 </script>
 
