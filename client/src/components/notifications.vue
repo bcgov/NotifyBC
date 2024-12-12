@@ -19,7 +19,7 @@
     :headers="headers"
     :schema="schema"
     model="notifications"
-    @inputFormExpanded="createAutoCompleteServiceNameWidget"
+    @input-form-expanded="createAutoCompleteServiceNameWidget"
   >
     <template #default="props">
       <tr>
