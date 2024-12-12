@@ -17,11 +17,11 @@
   <combo-table :headers="headers" :schema="schema" model="subscriptions">
     <template #default="props">
       <tr>
-        <td>{{ props.props.item.columns.serviceName }}</td>
-        <td>{{ props.props.item.columns.channel }}</td>
-        <td>{{ props.props.item.columns.state }}</td>
+        <td>{{ props.props.item.serviceName }}</td>
+        <td>{{ props.props.item.channel }}</td>
+        <td>{{ props.props.item.state }}</td>
         <td class="text-right">
-          {{ props.props.item.columns.updated }}
+          {{ props.props.item.updated }}
         </td>
         <td>
           <v-btn

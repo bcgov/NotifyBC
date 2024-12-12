@@ -17,12 +17,12 @@
   <combo-table :headers="headers" :schema="schema" model="bounces">
     <template #default="props">
       <tr>
-        <td>{{ props.props.item.columns.userChannelId }}</td>
+        <td>{{ props.props.item.userChannelId }}</td>
         <td class="text-right">
-          {{ props.props.item.columns.hardBounceCount }}
+          {{ props.props.item.hardBounceCount }}
         </td>
-        <td>{{ props.props.item.columns.state }}</td>
-        <td class="text-right">{{ props.props.item.columns.updated }}</td>
+        <td>{{ props.props.item.state }}</td>
+        <td class="text-right">{{ props.props.item.updated }}</td>
         <td>
           <v-btn
             @click="props.viewItem(props.props)"

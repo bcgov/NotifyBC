@@ -23,11 +23,11 @@
   >
     <template #default="props">
       <tr>
-        <td>{{ props.props.item.columns.serviceName }}</td>
-        <td>{{ props.props.item.columns.channel }}</td>
-        <td>{{ props.props.item.columns.state }}</td>
-        <td>{{ props.props.item.columns.isBroadcast }}</td>
-        <td class="text-right">{{ props.props.item.columns.updated }}</td>
+        <td>{{ props.props.item.serviceName }}</td>
+        <td>{{ props.props.item.channel }}</td>
+        <td>{{ props.props.item.state }}</td>
+        <td>{{ props.props.item.isBroadcast }}</td>
+        <td class="text-right">{{ props.props.item.updated }}</td>
         <td>
           <v-btn
             @click="props.viewItem(props.props)"
@@ -38,7 +38,7 @@
             <v-icon>info</v-icon>
             <v-tooltip activator="parent" location="bottom">details</v-tooltip>
           </v-btn>
-          <template v-if="props.props.item.columns.state === 'new'">
+          <template v-if="props.props.item.state === 'new'">
             <v-btn
               @click="props.editItem(props.props)"
               density="compact"

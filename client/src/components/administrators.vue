@@ -17,8 +17,8 @@
   <combo-table :headers="headers" :schema="schema" model="administrators">
     <template #default="props">
       <tr>
-        <td>{{ props.props.item.columns.email }}</td>
-        <td class="text-right">{{ props.props.item.columns.updated }}</td>
+        <td>{{ props.props.item.email }}</td>
+        <td class="text-right">{{ props.props.item.updated }}</td>
         <td>
           <v-btn
             @click="props.viewItem(props.props)"
