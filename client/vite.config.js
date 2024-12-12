@@ -64,7 +64,7 @@ export default async ({ mode }) => {
       inject({
         jQuery: 'jquery',
         $: 'jquery',
-        include: [],
+        exclude: ['**/*.css', '**/*&lang.less'],
       }),
     ],
     define: {
