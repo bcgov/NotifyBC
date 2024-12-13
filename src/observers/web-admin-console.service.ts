@@ -44,7 +44,7 @@ export class WebAdminConsoleService implements OnModuleInit {
     AppService.app.use(express.static(join(__dirname, viewRelDir)));
     AppService.app.use(
       express.static(
-        join(__dirname, viewRelDir, '../node_modules/iframe-resizer/js'),
+        join(__dirname, viewRelDir, '../node_modules/@iframe-resizer/child'),
       ),
     );
 

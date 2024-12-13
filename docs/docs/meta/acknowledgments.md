@@ -14,6 +14,7 @@ few services. Credit goes to their contributors. Notably
 - [JMESPath](https://jmespath.org/)
 - [Vue](https://vuejs.org/)
 - [Vuetify](https://vuetifyjs.com/)
+- [iframe-resizer](https://iframe-resizer.com/)
 - [JSON Editor](https://github.com/json-editor/json-editor)
 - [VuePress](https://vuepress.vuejs.org/)
 - [Twilio](https://www.twilio.com/)
