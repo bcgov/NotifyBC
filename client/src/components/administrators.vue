@@ -157,7 +157,7 @@ export default {
   methods: {
     editAdmin: function (props) {
       try {
-        props.props.item.raw.password = '';
+        props.props.item.password = '';
       } catch (ex) {}
       props.editItem(props.props);
     },
