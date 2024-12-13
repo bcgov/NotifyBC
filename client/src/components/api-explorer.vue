@@ -19,7 +19,7 @@
   </div>
 </template>
 <script>
-import {iframeResize} from 'iframe-resizer';
+import iframeResize from '@iframe-resizer/parent';
 export default {
   data: function () {
     return {
@@ -30,9 +30,10 @@ export default {
   directives: {
     // enables v-resize in template
     resized: {
-      mounted: (el, {value}) => {
-        el.addEventListener('load', ev => {
-          iframeResize(value, el);
+      mounted: (el) => {
+        el.addEventListener('load', (ev) => {
+          // credit: - [iframe-resizer](https://iframe-resizer.com/)
+          iframeResize({ license: 'GPLv3' }, el);
           const new_style_element = document.createElement('style');
           new_style_element.textContent =
             '.swagger-ui .dialog-ux .modal-ux {top: 10px; transform: translate(-50%);}';
@@ -40,7 +41,7 @@ export default {
         });
       },
       unmounted: function (el) {
-        el.iFrameResizer.removeListeners();
+        el.iFrameResizer.disconnect();
       },
     },
   },

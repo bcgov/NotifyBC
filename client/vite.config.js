@@ -60,7 +60,7 @@ export default async ({ mode }) => {
           ],
         },
       }),
-      DynamicPublicDirectory(['node_modules/iframe-resizer/js']),
+      DynamicPublicDirectory(['node_modules/@iframe-resizer/child']),
       inject({
         jQuery: 'jquery',
         $: 'jquery',

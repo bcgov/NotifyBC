@@ -70,7 +70,7 @@ export class SwaggerService implements OnModuleInit {
     );
     SwaggerModule.setup('explorer', AppService.app, document, {
       useGlobalPrefix: true,
-      customJs: '/iframeResizer.contentWindow.min.js',
+      customJs: '/index.umd.js',
       /*
       patchDocumentOnRequest(req: any, _res: unknown, document: OpenAPIObject) {
         let colonPort = ':' + req.connection.localPort;
