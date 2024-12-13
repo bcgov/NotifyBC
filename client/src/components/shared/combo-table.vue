@@ -262,7 +262,7 @@ export default {
     deleteItemConfirm: async function () {
       await this.$store.deleteItem({
         model: this.model,
-        item: this.deletingItem.raw,
+        item: this.deletingItem,
       });
       await this.$store.fetchItems({
         model: this.model,

@@ -73,7 +73,7 @@ export default {
         remove_empty_properties: true,
         disable_collapse: true,
         schema: this.schema,
-        ...(this.item && { startval: this.item.raw }),
+        ...(this.item && { startval: this.item }),
       });
     },
   },
