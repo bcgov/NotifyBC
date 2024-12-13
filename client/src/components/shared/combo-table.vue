@@ -36,6 +36,7 @@
       :no-data-text="noDataText"
       :options="options"
       @update:options="updateOptions"
+      :expanded
     >
       <template #item="props">
         <slot
@@ -200,13 +201,10 @@ export default {
       this.loading = false;
     },
     handleToggle: function (expanderView, props) {
-      const isExpanded = props.isExpanded(props.item);
+      const isExpanded = this.expanded.indexOf(props.item.id) >= 0;
       let toggleExpand = false;
       let collapseOthers = false;
-      if (
-        this.expanded.length > 0 &&
-        this.expanded[0].index !== props.item.index
-      ) {
+      if (this.expanded.length > 0 && this.expanded[0] !== props.item.id) {
         collapseOthers = true;
         toggleExpand = true;
       } else if (this.currentExpanderView === expanderView) {
@@ -215,15 +213,14 @@ export default {
         toggleExpand = true;
       }
       if (collapseOthers) {
-        props.toggleExpand(this.expanded.pop());
+        this.expanded.pop();
       }
       this.currentExpanderView = expanderView;
       if (toggleExpand) {
-        props.toggleExpand(props.item);
         if (!isExpanded) {
-          this.expanded.push(props.item);
+          this.expanded.push(props.item.id);
         } else {
-          this.expanded.pop(props.item);
+          this.expanded.pop();
         }
       }
     },
@@ -234,15 +231,15 @@ export default {
     viewItem: function (props) {
       this.handleToggle('modelViewer', props);
     },
-    submitEditPanel: function ({ toggleExpand, item }) {
-      toggleExpand(this.expanded.pop());
+    submitEditPanel: function () {
+      this.expanded.pop();
       this.$store.fetchItems({
         model: this.model,
         filter: {},
       });
     },
-    cancelEditPanel: function ({ toggleExpand, item }) {
-      toggleExpand(this.expanded.pop());
+    cancelEditPanel: function () {
+      this.expanded.pop();
     },
     submitNewPanel: function () {
       this.newPanelExpanded = undefined;
