@@ -77,6 +77,7 @@ v6 introduced following backward incompatible changes
    db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } )
    db.adminCommand( { setFeatureCompatibilityVersion: "7.0" } )
    ```
+6. Default SMTP service is changed from localhost to Ethereal. Make sure to setup [SMTP](../config/email.md#smtp) in production if haven't done so.
 
 After above changes are addressed, to upgrade _NotifyBC_ to v6,
 

@@ -6,13 +6,16 @@ permalink: /docs/config-email/
 
 ## SMTP
 
-By default _NotifyBC_ acts as the SMTP server itself and connects directly to recipient's SMTP server. To setup SMTP relay to a host, say _smtp.foo.com_, add following _smtp_ config object to _/src/config.local.js_
+By default when no SMTP is specified, _NotifyBC_ uses fake SMTP service [Ethereal](https://ethereal.email/). Ethereal is only good for evaluation purpose as emails sent from _NotifyBC_ are delivered to Ethereal rather than actual recipients. You can access the emails from Ethereal. _NotifyBC_ automatically generates the Ethereal account first time and stores the account information in [configuration](../api/config.md) under name _etherealAccount_ accessible from _NotifyBC_ web console.
+
+For production however, setting up SMTP is **mandatory**. To do so, add following _smtp_ config to _/src/config.local.js_
 
 ```js
 module.exports = {
+  //...
   email: {
     smtp: {
-      host: 'smtp.foo.com',
+      host: '<your smtp host FQDN>',
       port: 25,
       pool: true,
       tls: {
@@ -23,7 +26,7 @@ module.exports = {
 };
 ```
 
-Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options that you can define in _smtp_ object. Using SMTP relay and fine-tuning some options are critical for performance. See [benchmark advices](../benchmarks/#advices).
+Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options that you can define. Fine-tuning some options are critical for performance. See [benchmark advices](../benchmarks/#advices).
 
 ## Throttle
 

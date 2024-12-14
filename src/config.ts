@@ -38,10 +38,6 @@ const config: Record<string, any> = {
   adminIps: ['127.0.0.1'],
   siteMinderReverseProxyIps: ['127.0.0.1'],
   email: {
-    defaultSmtp: {
-      direct: true,
-      name: 'localhost',
-    },
     inboundSmtpServer: {
       enabled: true,
     },
