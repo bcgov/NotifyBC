@@ -24,11 +24,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-ignore
 import { JSONEditor } from '@json-editor/json-editor';
+// @ts-ignore
 import { Jodit } from 'jodit/es2015/jodit.min.js';
-window.Jodit = Jodit;
-export default {
+import { defineComponent } from 'vue';
+
+(window as any).Jodit = Jodit;
+export default defineComponent({
   data: function () {
     return {
       jsonEditor: null,
@@ -42,7 +46,9 @@ export default {
     setCurrentlyEditedItem: async function () {
       try {
         this.errorMessage = undefined;
+        // @ts-ignore
         let item = this.jsonEditor.getValue();
+        // @ts-ignore
         await this.$store.setItem({
           model: this.model,
           item: item,
@@ -50,6 +56,7 @@ export default {
         this.currentlyEditedItem = item;
         this.$emit('submit');
       } catch (ex) {
+        // @ts-ignore
         this.errorMessage = ex;
         this.createJsonEditor();
       }
@@ -60,8 +67,10 @@ export default {
       this.$emit('cancel');
     },
     createJsonEditor: function () {
+      // @ts-ignore
       let element = $('#nb-item-editor', this.$el).get(0);
       if (this.jsonEditor) {
+        // @ts-ignore
         this.jsonEditor.destroy();
       }
       this.jsonEditor = new JSONEditor(element, {
@@ -81,9 +90,10 @@ export default {
     this.createJsonEditor();
   },
   beforeDestroy: function () {
+    // @ts-ignore
     this.jsonEditor && this.jsonEditor.destroy();
   },
-};
+});
 </script>
 
 <style src="jodit/es2015/jodit.min.css"></style>
