@@ -29,8 +29,7 @@ _NotifyBC_ ensures the state of an in-app broadcast message is isolated by user,
 
 The API operates on following notification data model fields:
 
-<table>
-  <tr>
+<table><tbody><tr>
     <th>Name</th>
     <th>Attributes</th>
   </tr>
@@ -40,10 +39,8 @@ The API operates on following notification data model fields:
       <p class="description">notification id</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string, format depends on db</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string, format depends on db</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -52,10 +49,8 @@ The API operates on following notification data model fields:
       <p class="description">name of the service</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -64,11 +59,9 @@ The API operates on following notification data model fields:
       <p class="description">name of the delivery channel. Valid values: inApp, email, sms.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
         <tr><td>required</td><td>true</td></tr>
-        <tr><td>default</td><td>inApp</td></tr>
-      </table>
+        <tr><td>default</td><td>inApp</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -77,10 +70,8 @@ The API operates on following notification data model fields:
       <p class="description">user's delivery channel id, for example, email address. For unicast inApp notification, this is authenticated user id. When sending unicast push notification, either <i>userChannelId</i> or <i>userId</i> is required.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -89,10 +80,8 @@ The API operates on following notification data model fields:
       <p class="description">authenticated user id. When sending unicast push notification, either <i>userChannelId</i> or <i>userId</i> is required.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -101,11 +90,9 @@ The API operates on following notification data model fields:
       <p class="description">state of notification. Valid values: <i>new</i>, <i>read</i> (inApp only), <i>deleted</i> (inApp only), <i>sent</i> (push only) or <i>error</i>. For inApp broadcast notification, if the user has read or deleted the message, the value of this field retrieved by admin request will still be new. The state for the user is tracked in fields <i>readBy</i> and <i>deletedBy</i> in such case. For user request, the value contains correct state.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
         <tr><td>required</td><td>true</td></tr>
-        <tr><td>default</td><td>new</td></tr>
-      </table>
+        <tr><td>default</td><td>new</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -114,10 +101,8 @@ The API operates on following notification data model fields:
       <p class="description">date and time of creation</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>date</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>date</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -126,10 +111,8 @@ The API operates on following notification data model fields:
       <p class="description">date and time of last update</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>date</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>date</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -138,11 +121,9 @@ The API operates on following notification data model fields:
       <p class="description">whether it's a broadcast message. A broadcast message should omit <i>userChannelId</i> and <i>userId</i>, in addition to setting <i>isBroadcast</i> to true</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>boolean</td></tr>
+      <table><tbody><tr><td>type</td><td>boolean</td></tr>
         <tr><td>required</td><td>false</td></tr>
-        <tr><td>default</td><td>false</td></tr>
-      </table>
+        <tr><td>default</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -151,11 +132,9 @@ The API operates on following notification data model fields:
       <p class="description">When sending unicast push notification, whether or not to verify if the recipient has a confirmed subscription. This field allows subscription information be kept elsewhere and <i>NotifyBC</i> be used as a unicast push notification gateway only.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>boolean</td></tr>
+      <table><tbody><tr><td>type</td><td>boolean</td></tr>
         <tr><td>required</td><td>false</td></tr>
-        <tr><td>default</td><td>false</td></tr>
-      </table>
+        <tr><td>default</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -164,10 +143,8 @@ The API operates on following notification data model fields:
       <p class="description">expiration date-time of the message. Applicable to inApp notification only.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>date</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>date</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -176,10 +153,8 @@ The API operates on following notification data model fields:
       <p class="description">date-time in the future after which the notification can be dispatched.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>date</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>date</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -219,10 +194,8 @@ The API operates on following notification data model fields:
       </div>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>object</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>object</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -231,11 +204,9 @@ The API operates on following notification data model fields:
       <p class="description">This field is used to replace token <i>{http_host}</i> in push notification message template during <a href="../overview/#mail-merge">mail merge</a> and overrides config <i>httpHost</i>.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
         <tr><td>required</td><td>false</td></tr>
-        <tr><td>default</td><td>&lt;http protocol, host and port of current request&gt; for push notification</td></tr>
-      </table>
+        <tr><td>default</td><td>&lt;http protocol, host and port of current request&gt; for push notification</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -251,11 +222,9 @@ The API operates on following notification data model fields:
       </div>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string or boolean</td></tr>
+      <table><tbody><tr><td>type</td><td>string or boolean</td></tr>
         <tr><td>required</td><td>false</td></tr>
-        <tr><td>default</td><td>false</td></tr>
-      </table>
+        <tr><td>default</td><td>false</td></tr></tbody></table>
     </td>
 
   </tr>
@@ -270,10 +239,8 @@ The API operates on following notification data model fields:
       </div>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>object</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>object</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -282,10 +249,8 @@ The API operates on following notification data model fields:
       !!!include(./docs/shared/jmespathFilter.md)!!!
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -294,11 +259,9 @@ The API operates on following notification data model fields:
       <p class="description">this is an internal field to track the list of users who have read an inApp broadcast message. It's not visible to a user request.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>array</td></tr>
+      <table><tbody><tr><td>type</td><td>array</td></tr>
         <tr><td>required</td><td>false</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -307,11 +270,9 @@ The API operates on following notification data model fields:
       <p class="description">this is an internal field to track the list of users who have marked an inApp broadcast message as deleted. It's not visible to a user request.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>array</td></tr>
+      <table><tbody><tr><td>type</td><td>array</td></tr>
         <tr><td>required</td><td>false</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -326,14 +287,11 @@ The API operates on following notification data model fields:
         </ul>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>object</td></tr>
+      <table><tbody><tr><td>type</td><td>object</td></tr>
         <tr><td>required</td><td>false</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
-  </tr>
-</table>
+  </tr></tbody></table>
 
 ## Get Notifications
 

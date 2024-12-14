@@ -57,8 +57,7 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
 
 ### Administrator
 
-<table>
-  <tr>
+<table><tbody><tr>
     <th>Name</th>
     <th>Attributes</th>
   </tr>
@@ -67,10 +66,8 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="name">id</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string, format depends on db</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string, format depends on db</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -78,11 +75,9 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="name">email</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
         <tr><td>required</td><td>true</td></tr>
-        <tr><td>unique</td><td>true</td></tr>
-      </table>
+        <tr><td>unique</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -91,18 +86,14 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="description">user name</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
-  </tr>
-</table>
+  </tr></tbody></table>
 
 ### UserCredential
 
-<table>
-  <tr>
+<table><tbody><tr>
     <th>Name</th>
     <th>Attributes</th>
   </tr>
@@ -111,10 +102,8 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="name">id</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string, format depends on db</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string, format depends on db</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -123,10 +112,8 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="description">hashed password</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -135,18 +122,14 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="description">foreign key to Administrator model</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
-  </tr>
-</table>
+  </tr></tbody></table>
 
 ### AccessToken
 
-<table>
-  <tr>
+<table><tbody><tr>
     <th>Name</th>
     <th>Attributes</th>
   </tr>
@@ -156,10 +139,8 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="description">64-byte random alphanumeric characters</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -168,10 +149,8 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="description">foreign key to Administrator model</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -180,10 +159,8 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="description">Time-to-live in seconds. If absent, access token never expires.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>number</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>number</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -192,13 +169,10 @@ The _Administrator_ API operates on three related sub-models - _Administrator_, 
       <p class="description">Name of the access token. Can be used to identify applications that use the token.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
-  </tr>
-</table>
+  </tr></tbody></table>
 
 ## Sign Up
 

@@ -13,8 +13,7 @@ The configuration API, accessible by only super-admin requests, is used to defin
 
 The API operates on following configuration data model fields:
 
-<table>
-  <tr>
+<table><tbody><tr>
     <th>Name</th>
     <th>Attributes</th>
   </tr>
@@ -24,10 +23,8 @@ The API operates on following configuration data model fields:
       <p class="description">config id</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string, format depends on db</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string, format depends on db</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -36,10 +33,8 @@ The API operates on following configuration data model fields:
       <p class="description">config name</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -49,10 +44,8 @@ The API operates on following configuration data model fields:
       </div>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>object</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>object</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -61,13 +54,10 @@ The API operates on following configuration data model fields:
       <p class="description">name of the service the config applicable to</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
-  </tr>
-</table>
+  </tr></tbody></table>
 
 ## Get Configurations
 

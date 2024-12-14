@@ -11,8 +11,7 @@ next: /docs/health-check/
 
 The API operates on following data model fields:
 
-<table>
-  <tr>
+<table><tbody><tr>
     <th>Name</th>
     <th>Attributes</th>
   </tr>
@@ -22,10 +21,8 @@ The API operates on following data model fields:
       <p class="description">name of the delivery channel. Valid values: email, sms.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -35,10 +32,8 @@ The API operates on following data model fields:
       </div>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -47,10 +42,8 @@ The API operates on following data model fields:
       <p class="description">number of hard bounces recorded so far</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>integer</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>integer</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -59,10 +52,8 @@ The API operates on following data model fields:
       <p class="description">bounce record state. Valid values: <i>active, deleted</i>.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string</td></tr>
-        <tr><td>required</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string</td></tr>
+        <tr><td>required</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -71,10 +62,8 @@ The API operates on following data model fields:
       <p class="description">array of recorded bounce messages. Each element is an object containing the date bounce message was received and the message itself.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>array</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>array</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -83,10 +72,8 @@ The API operates on following data model fields:
       <p class="description">latest notification started date.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>date</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>date</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -95,10 +82,8 @@ The API operates on following data model fields:
       <p class="description">latest notification ended date.</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>date</td></tr>
-        <tr><td>required</td><td>false</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>date</td></tr>
+        <tr><td>required</td><td>false</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -107,10 +92,8 @@ The API operates on following data model fields:
       <p class="description">date and time bounce record was created</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>date</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>date</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -119,10 +102,8 @@ The API operates on following data model fields:
       <p class="description">date and time of bounce record was last updated</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>date</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>date</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
   </tr>
   <tr>
@@ -131,10 +112,7 @@ The API operates on following data model fields:
       <p class="description">config id</p>
     </td>
     <td>
-      <table>
-        <tr><td>type</td><td>string, format depends on db</td></tr>
-        <tr><td>auto-generated</td><td>true</td></tr>
-      </table>
+      <table><tbody><tr><td>type</td><td>string, format depends on db</td></tr>
+        <tr><td>auto-generated</td><td>true</td></tr></tbody></table>
     </td>
-  </tr>
-</table>
+  </tr></tbody></table>
