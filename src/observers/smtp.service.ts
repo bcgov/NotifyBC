@@ -12,13 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { createTestAccount } from 'nodemailer';
+import { ConfigurationsService } from 'src/api/configurations/configurations.service';
 import { AppConfigService } from 'src/config/app-config.service';
+import { promisify } from 'util';
 import { smtpServer } from './smtp-server';
+
 @Injectable()
 export class SmtpService implements OnApplicationBootstrap {
   readonly appConfig;
-  constructor(appConfigService: AppConfigService) {
+  private readonly logger = new Logger(SmtpService.name);
+
+  constructor(
+    appConfigService: AppConfigService,
+    private readonly configurationsService: ConfigurationsService,
+  ) {
     this.appConfig = appConfigService.get();
   }
 
@@ -27,9 +36,33 @@ export class SmtpService implements OnApplicationBootstrap {
       return;
     }
     const smtpSvr = this.appConfig.email.inboundSmtpServer;
-    if (!smtpSvr.enabled) {
+    if (smtpSvr.enabled) {
+      await smtpServer(this.appConfig);
+    }
+    if (this.appConfig?.email?.smtp?.host) {
       return;
     }
-    await smtpServer(this.appConfig);
+    const name = 'etherealAccount';
+    const data = await this.configurationsService.findOne({
+      where: {
+        name,
+      },
+    });
+    if (data) return;
+
+    if (process.env.NOTIFYBC_NODE_ROLE === 'secondary') {
+      await promisify(setTimeout)(5000);
+      await this.onApplicationBootstrap();
+      return;
+    }
+
+    // create ethereal.email account
+    const etherealAccount = await promisify(createTestAccount)();
+    this.logger.log('ethereal email account created:');
+    this.logger.log(etherealAccount);
+    await this.configurationsService.create({
+      name,
+      value: etherealAccount,
+    });
   }
 }

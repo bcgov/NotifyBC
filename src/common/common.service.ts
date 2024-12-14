@@ -19,6 +19,7 @@ import dns from 'dns';
 import { Request } from 'express';
 import { get, merge, union } from 'lodash';
 import net from 'net';
+import { createTransport } from 'nodemailer';
 import pluralize from 'pluralize';
 import { BouncesService } from 'src/api/bounces/bounces.service';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
@@ -172,19 +173,28 @@ export class CommonService {
     }
   }
 
-  nodemailer = require('nodemailer');
-  directTransport = require('nodemailer-direct-transport');
   transport: any;
   async sendEmail(mailOptions: any, priority = 5) {
-    const smtpCfg =
-      this.appConfig.email.smtp || this.appConfig.email.defaultSmtp;
+    const smtpCfg = this.appConfig.email.smtp;
     if (!this.transport) {
-      if (smtpCfg.direct) {
-        this.transport = this.nodemailer.createTransport(
-          this.directTransport(smtpCfg),
-        );
+      if (!smtpCfg?.host) {
+        // create ethereal.email and transport
+        const data = await this.configurationsService.findOne({
+          where: {
+            name: 'etherealAccount',
+          },
+        });
+        this.transport = createTransport({
+          host: data.value.smtp.host,
+          port: data.value.smtp.port,
+          secure: data.value.smtp.secure,
+          auth: {
+            user: data.value.user, // generated ethereal user
+            pass: data.value.pass, // generated ethereal password
+          },
+        });
       } else {
-        this.transport = this.nodemailer.createTransport(smtpCfg);
+        this.transport = createTransport(smtpCfg);
       }
     }
     let info;
@@ -214,7 +224,7 @@ export class CommonService {
       // do client retry if there are multiple addresses
       for (const [index, address] of addresses.entries()) {
         const newSmtpCfg = { ...smtpCfg, host: address.address };
-        const transport = this.nodemailer.createTransport(newSmtpCfg);
+        const transport = createTransport(newSmtpCfg);
         let sendMail = transport.sendMail.bind(transport);
         if (this.appConfig?.email?.throttle?.enabled) {
           sendMail = this.rateLimit(this.emailQueue, sendMail, { priority });
