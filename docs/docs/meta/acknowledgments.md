@@ -12,6 +12,8 @@ few services. Credit goes to their contributors. Notably
 - [MongoDB](https://www.mongodb.com/)
 - [NodeMailer](https://nodemailer.com/)
 - [JMESPath](https://jmespath.org/)
+- [BullMQ](https://docs.bullmq.io/)
+- [Redis](https://redis.io/)
 - [Vue](https://vuejs.org/)
 - [Vuetify](https://vuetifyjs.com/)
 - [iframe-resizer](https://iframe-resizer.com/)

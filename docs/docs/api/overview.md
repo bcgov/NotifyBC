@@ -1,6 +1,6 @@
 ---
 permalink: /docs/api-overview/
-prev: /docs/config-queue/
+prev: /docs/config-logging/
 ---
 
 # API Overview
