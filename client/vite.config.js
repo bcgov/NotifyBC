@@ -8,8 +8,6 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import { NestFactory } from '@nestjs/core';
 import inject from '@rollup/plugin-inject';
 import ejs from 'ejs';
-import { globSync } from 'fast-glob';
-import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
 import VueRouter from 'unplugin-vue-router/vite';
 import { defineConfig } from 'vite';
@@ -28,23 +26,6 @@ export default async ({ mode }) => {
       vue({
         template: { transformAssetUrls },
       }),
-      // glob inject css
-      {
-        load(id) {
-          if (id.endsWith('.vue')) {
-            const source = fs
-              .readFileSync(id)
-              .toString()
-              .replace(/inject-css:\s*'([^']+)';/g, (replace) => {
-                const pattern = replace.match(/'([^']+)/)[1];
-                return globSync(pattern, { absolute: true })
-                  .map((file) => fs.readFileSync(file))
-                  .join('\n');
-              });
-            return source;
-          }
-        },
-      },
       // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
       vuetify({
         autoImport: true,

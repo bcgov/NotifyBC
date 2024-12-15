@@ -74,7 +74,7 @@ export default defineComponent({
         this.jsonEditor.destroy();
       }
       this.jsonEditor = new JSONEditor(element, {
-        theme: 'bootstrap4',
+        theme: 'spectre',
         iconlib: 'fontawesome5',
         keep_oneof_values: false,
         required_by_default: false,
@@ -103,8 +103,7 @@ export default defineComponent({
 }
 
 #nb-item-editor {
-  @import (less) 'bootstrap/dist/css/bootstrap.css';
-  inject-css: 'node_modules/@json-editor/json-editor/src/**/*.css';
+  @import (less) 'spectre.css/dist/spectre.css';
   select {
     -webkit-appearance: menulist-button;
   }
