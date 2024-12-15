@@ -136,6 +136,7 @@ export default defineUserConfig({
           '/docs/config-oidc/',
           '/docs/config-certificates/',
           '/docs/config-queue/',
+          '/docs/config-logging/',
         ],
       },
       {

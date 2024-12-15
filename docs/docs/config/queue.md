@@ -1,6 +1,5 @@
 ---
 permalink: /docs/config-queue/
-next: /docs/api-overview/
 ---
 
 # Queue
