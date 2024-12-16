@@ -5,7 +5,6 @@
  */
 
 // Styles
-import '@fortawesome/fontawesome-free/css/all.css';
 import { fa } from 'vuetify/iconsets/fa';
 import { aliases, md } from 'vuetify/iconsets/md';
 import 'vuetify/styles';

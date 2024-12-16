@@ -11,12 +11,8 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^v5.15.4",
     "@iframe-resizer/child": "^5.3.2",
     "@iframe-resizer/parent": "^5.3.2",
-    "@mdi/font": "7.4.47",
-    "core-js": "^3.37.1",
-    "roboto-fontface": "*",
     "vue": "^3.4.31",
     "vuetify": "^3.6.14",
     "webfontloader": "^1.0.0"
@@ -41,8 +37,6 @@
     "npm-run-all2": "^7.0.1",
     "oidc-client-ts": "^2.2.4",
     "pinia": "^2.1.4",
-    "sass": "1.77.8",
-    "sass-embedded": "^1.77.8",
     "spectre.css": "^0.5.9",
     "typescript": "~5.6.3",
     "unplugin-fonts": "^1.1.1",
