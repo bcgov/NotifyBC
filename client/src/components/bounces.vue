@@ -28,27 +28,27 @@
             @click="props.viewItem(props.props)"
             density="compact"
             variant="plain"
-            icon="info"
+            icon=""
           >
-            <v-icon>info</v-icon>
+            <v-icon>mdi-information</v-icon>
             <v-tooltip activator="parent" location="bottom">details</v-tooltip>
           </v-btn>
           <v-btn
             @click="props.editItem(props.props)"
             density="compact"
             variant="plain"
-            icon="create"
+            icon=""
           >
-            <v-icon>create</v-icon>
+            <v-icon>mdi-pencil</v-icon>
             <v-tooltip activator="parent" location="bottom">edit</v-tooltip>
           </v-btn>
           <v-btn
             @click="props.deleteItem(props.props)"
             density="compact"
             variant="plain"
-            icon="delete"
+            icon=""
           >
-            <v-icon>delete</v-icon>
+            <v-icon>mdi-delete</v-icon>
             <v-tooltip activator="parent" location="bottom">delete</v-tooltip>
           </v-btn>
         </td>

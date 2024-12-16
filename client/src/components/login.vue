@@ -18,7 +18,7 @@
     <div v-if="$store.authnStrategy === 'clientCertificate'">
       <v-tooltip bottom>
         <template v-slot:activator="{ props }">
-          <v-icon v-bind="props">verified</v-icon>
+          <v-icon v-bind="props">mdi-check-decagram</v-icon>
         </template>
         <span>You are super-admin</span>
       </v-tooltip>
@@ -27,7 +27,7 @@
       <div v-if="$store.authnStrategy === 'ip' && $store.role === 'SuperAdmin'">
         <v-tooltip bottom>
           <template v-slot:activator="{ props }">
-            <v-icon v-bind="props" icon="verified_user"></v-icon>
+            <v-icon v-bind="props" icon="mdi-shield-check"></v-icon>
           </template>
           <span>You are super-admin</span>
         </v-tooltip>
@@ -51,7 +51,9 @@
             v-if="$store.role === 'Anonymous'"
           >
             <template v-slot:activator="{ props }">
-              <v-btn plain v-bind="props"> Login<v-icon>login</v-icon> </v-btn>
+              <v-btn plain v-bind="props">
+                Login<v-icon>mdi-login</v-icon>
+              </v-btn>
             </template>
             <v-card>
               <v-card-title>
@@ -70,9 +72,7 @@
                     <v-col cols="12">
                       <v-text-field
                         v-model="password"
-                        :append-icon="
-                          showPassword ? 'visibility_off' : 'visibility'
-                        "
+                        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                         @click:append="showPassword = !showPassword"
                         :type="showPassword ? 'text' : 'password'"
                         label="password"
@@ -100,12 +100,12 @@
         </template>
         <template v-else>
           <v-btn plain @click="oidcLogin" v-if="!oidcUser">
-            Login<v-icon>login</v-icon>
+            Login<v-icon>mdi-login</v-icon>
           </v-btn>
           <template v-else>
             <div>{{ oidcUser.profile.name }}</div>
             <v-btn plain @click="oidcLogout">
-              Logout<v-icon>logout</v-icon>
+              Logout<v-icon>mdi-logout</v-icon>
             </v-btn>
           </template>
         </template>

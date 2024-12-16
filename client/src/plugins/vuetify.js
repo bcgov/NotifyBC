@@ -5,8 +5,7 @@
  */
 
 // Styles
-import { fa } from 'vuetify/iconsets/fa';
-import { aliases, md } from 'vuetify/iconsets/md';
+import '@mdi/font/css/materialdesignicons.css';
 import 'vuetify/styles';
 
 // Composables
@@ -22,14 +21,6 @@ export default createVuetify({
           secondary: '#5CBBF6',
         },
       },
-    },
-  },
-  icons: {
-    defaultSet: 'md',
-    aliases,
-    sets: {
-      md,
-      fa,
     },
   },
 });

@@ -16,7 +16,7 @@
 <template>
   <div>
     <v-text-field
-      append-icon="search"
+      append-icon="mdi-magnify"
       hint='Enter free style text for full text search or MongoDB <a href="https://www.mongodb.com/docs/manual/tutorial/query-documents/" target="_blank">query</a> compatible JSON string for parametrized search. For example, to search for items updated in year 2023, enter <i>{"updated": {"$gte": "2023-01-01","$lt": "2024-01-01"}}</i>'
       label="Search"
       single-line
@@ -76,7 +76,9 @@
                         <v-btn
                           v-bind="props"
                           :icon="
-                            newPanelExpanded === 0 ? 'keyboard_arrow_up' : 'add'
+                            newPanelExpanded === 0
+                              ? 'mdi-chevron-up'
+                              : 'mdi-plus'
                           "
                           color="indigo"
                         >
