@@ -123,7 +123,7 @@ describe('list-unsubscribe by email', function () {
     } catch (err) {
       expect(err.rejected.length).toEqual(1);
     }
-    expect(smtpSvr.onRcptTo).toHaveBeenCalled;
+    expect(smtpSvr.onRcptTo).toHaveBeenCalled();
     expect(smtpSvr.onData).not.toHaveBeenCalled();
     connection.quit();
   });

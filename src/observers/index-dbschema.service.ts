@@ -35,7 +35,7 @@ export class IndexDBSchemaService implements OnApplicationBootstrap {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pJson = require('../../package.json');
     const targetVersion = pJson.dbSchemaVersion;
     let data = await this.configurationsService.findOne({

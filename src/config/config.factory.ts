@@ -58,7 +58,7 @@ function init() {
     for (const configFile of e.files) {
       const f = path.join(__dirname, '..', configFile);
       if (fs.existsSync(f)) {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         mergeWith(e.configs, require(f), (t, s) => {
           if (isArray(t)) {
             return s;
@@ -100,6 +100,7 @@ function init() {
       dbFileSelected = f;
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   config[ConfigType.DbConfig] = require(dbFileSelected);
 }
 
