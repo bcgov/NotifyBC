@@ -75,7 +75,6 @@ export default defineComponent({
       }
       this.jsonEditor = new JSONEditor(element, {
         theme: 'spectre',
-        iconlib: 'fontawesome5',
         keep_oneof_values: false,
         required_by_default: false,
         // required: ['serviceName', 'channel', 'message'],

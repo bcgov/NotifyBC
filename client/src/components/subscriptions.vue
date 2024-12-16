@@ -26,19 +26,20 @@
         <td>
           <v-btn
             @click="props.viewItem(props.props)"
-            icon="info"
             density="compact"
             variant="plain"
+            icon=""
           >
-            <v-icon>info</v-icon>
+            <v-icon>mdi-information</v-icon>
             <v-tooltip activator="parent" location="bottom">details</v-tooltip>
           </v-btn>
           <v-btn
             @click="props.editItem(props.props)"
             density="compact"
             variant="plain"
+            icon=""
           >
-            <v-icon>create</v-icon>
+            <v-icon>mdi-pencil</v-icon>
             <v-tooltip activator="parent" location="bottom">edit</v-tooltip>
           </v-btn>
         </td>

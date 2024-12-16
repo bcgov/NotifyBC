@@ -33,9 +33,9 @@
             @click="props.viewItem(props.props)"
             density="compact"
             variant="plain"
-            icon="info"
+            icon=""
           >
-            <v-icon>info</v-icon>
+            <v-icon>mdi-information</v-icon>
             <v-tooltip activator="parent" location="bottom">details</v-tooltip>
           </v-btn>
           <template v-if="props.props.item.state === 'new'">
@@ -43,9 +43,9 @@
               @click="props.editItem(props.props)"
               density="compact"
               variant="plain"
-              icon="create"
+              icon=""
             >
-              <v-icon>create</v-icon>
+              <v-icon>mdi-pencil</v-icon>
               <v-tooltip activator="parent" location="bottom">edit</v-tooltip>
             </v-btn>
           </template>
@@ -56,10 +56,10 @@
 </template>
 
 <script>
-import ComboTable from './shared/combo-table';
 import 'jquery-ui-bundle';
 import { mapActions } from 'pinia';
 import { useDefaultStore } from '../store';
+import ComboTable from './shared/combo-table';
 // one-time definition of custom jquery-ui widget
 $.widget('custom.annotatedAutoComplete', $.ui.autocomplete, {
   _create: function () {

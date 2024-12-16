@@ -21,25 +21,28 @@
       v-if="this.$route.name !== 'oidcCallback'"
     >
       <v-list dense>
-        <v-list-item to="/home" prepend-icon="home">
+        <v-list-item to="/home" prepend-icon="mdi-home">
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/subscriptions/" prepend-icon="list">
+        <v-list-item
+          to="/subscriptions/"
+          prepend-icon="mdi-format-list-bulleted"
+        >
           <v-list-item-title>Subscriptions</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/notifications/" prepend-icon="email">
+        <v-list-item to="/notifications/" prepend-icon="mdi-email">
           <v-list-item-title>Notifications</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/configurations/" prepend-icon="settings_applications">
+        <v-list-item to="/configurations/" prepend-icon="mdi-cog-box">
           <v-list-item-title>Configurations</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/administrators/" prepend-icon="security">
+        <v-list-item to="/administrators/" prepend-icon="mdi-security">
           <v-list-item-title>Administrators</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/bounces/" prepend-icon="report">
+        <v-list-item to="/bounces/" prepend-icon="mdi-alert-octagon">
           <v-list-item-title>Bounces</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/api-explorer/" prepend-icon="code">
+        <v-list-item to="/api-explorer/" prepend-icon="mdi-code-tags">
           <v-list-item-title>API Explorer</v-list-item-title>
         </v-list-item>
       </v-list>
