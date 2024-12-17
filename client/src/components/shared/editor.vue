@@ -19,7 +19,13 @@
     <v-alert closable color="red" dense type="error" v-if="errorMessage">
       {{ errorMessage }}
     </v-alert>
-    <v-btn color="primary" @click="setCurrentlyEditedItem">save</v-btn>
+    <v-btn color="primary" @click="setCurrentlyEditedItem">
+      <span v-if="!submitting">Save</span>
+      <v-progress-circular
+        indeterminate
+        v-if="submitting"
+      ></v-progress-circular>
+    </v-btn>
     <v-btn color="error" @click="resetEditor">cancel</v-btn>
   </div>
 </template>
@@ -38,6 +44,7 @@ export default defineComponent({
       jsonEditor: null,
       currentlyEditedItem: undefined,
       errorMessage: undefined,
+      submitting: false,
     };
   },
   emits: ['submit', 'cancel'],
@@ -45,6 +52,7 @@ export default defineComponent({
   methods: {
     setCurrentlyEditedItem: async function () {
       try {
+        this.submitting = true;
         this.errorMessage = undefined;
         // @ts-ignore
         let item = this.jsonEditor.getValue();
@@ -59,6 +67,8 @@ export default defineComponent({
         // @ts-ignore
         this.errorMessage = ex;
         this.createJsonEditor();
+      } finally {
+        this.submitting = false;
       }
     },
     resetEditor: function () {
