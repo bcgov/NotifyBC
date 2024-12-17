@@ -42,7 +42,7 @@
     "@nestjs/core": "^10.4.5",
     "@nestjs/mongoose": "^10.1.0",
     "@nestjs/platform-express": "^10.4.5",
-    "@nestjs/swagger": "^7.4.2",
+    "@nestjs/swagger": "^8.1.0",
     "@nestjs/terminus": "^10.2.3",
     "async": "^3.2.4",
     "axios": "^1.6.8",
