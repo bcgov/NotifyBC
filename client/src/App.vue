@@ -53,6 +53,15 @@
         >NotifyBC Web Console - {{ this.$route.name }}</v-toolbar-title
       >
       <v-spacer></v-spacer>
+      <v-switch
+        false-icon="mdi-weather-night"
+        true-icon="mdi-weather-sunny"
+        v-tooltip="'toggle dark/light'"
+        :model-value="this.$vuetify.theme.global.name"
+        value="light"
+        @click="toggleTheme"
+        hide-details
+      />
       <login />
     </v-app-bar>
     <main>
@@ -82,6 +91,17 @@ export default {
   data: () => ({
     drawer: true,
   }),
+  methods: {
+    toggleTheme: function () {
+      this.$vuetify.theme.global.name = this.$vuetify.theme.global.current.dark
+        ? 'light'
+        : 'dark';
+      localStorage.setItem(
+        'notifyBcWebConsoleTheme',
+        this.$vuetify.theme.global.name,
+      );
+    },
+  },
 };
 </script>
 
@@ -96,7 +116,9 @@ export default {
 
 <style lang="less">
 a[target='_blank']:after {
-  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+  font: 1em 'Material Design Icons';
+  display: inline-block;
+  content: '\F03CC';
 }
 .v-application ol,
 .v-application ul {
