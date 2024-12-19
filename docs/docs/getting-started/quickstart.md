@@ -4,13 +4,22 @@ permalink: /docs/quickstart/
 
 # Quick Start
 
-For the impatient, here's how to get a boilerplate _NotifyBC_ instance up and running if you have git and node.js installed:
+For the impatient, to get _NotifyBC_ instance up and running on localhost, you need
+
+- internet connection
+- Node.js
+- git
+- (Windows only) Docker Desktop running
+
+then run
 
 ```sh
+docker run --rm -dp 6379:6379 redis # only on Windows
 git clone https://github.com/bcgov/NotifyBC.git
 cd NotifyBC
 npm i && npm run build
-npm run start
+npx cross-env NOTIFYBC_WORKER_PROCESS_COUNT=1 npm run start
+# wait till console displays "ethereal email account created:"
 # => Now browse to http://localhost:3000
 ```
 
