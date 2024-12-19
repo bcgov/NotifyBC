@@ -117,8 +117,9 @@ export default {
 <style lang="less">
 a[target='_blank']:after {
   font: 1em 'Material Design Icons';
-  display: inline-block;
   content: '\F03CC';
+  display: inline-block;
+  text-decoration: none;
 }
 .v-application ol,
 .v-application ul {
