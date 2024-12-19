@@ -150,8 +150,8 @@ cronJob:
 redis:
   sentinel:
     enabled: true
-    # downAfterMilliseconds: 4000
-    # failoverTimeout: 2000
+    downAfterMilliseconds: 4000
+    failoverTimeout: 2000
   master:
     persistence:
       enabled: false
