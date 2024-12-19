@@ -365,11 +365,12 @@ The above settings assume you have setup secret \<docker-pull-secret\> to access
 
 ## Deploy Docker Container
 
-If you have git and Docker installed, you can run following command to deploy _NotifyBC_ Docker container:
+If you have Docker installed, you can run following command to deploy _NotifyBC_ Docker container:
 
 ```sh
-docker run --platform linux/amd64 --rm -dp 3000:3000 ghcr.io/bcgov/notify-bc
-# open http://localhost:3000
+docker run --platform linux/amd64 --rm --pull always -dp 3000:3000 ghcr.io/bcgov/notify-bc
+# wait till console displays "ethereal email account created:"
+# => Now browse to http://localhost:3000
 ```
 
 If successful, similar output is displayed as in source code installation.

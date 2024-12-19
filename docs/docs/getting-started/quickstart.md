@@ -14,7 +14,7 @@ For the impatient, to get _NotifyBC_ instance up and running on localhost, you n
 then run
 
 ```sh
-docker run --rm -dp 6379:6379 redis # only on Windows
+docker run --rm --pull always -dp 6379:6379 redis # only on Windows
 git clone https://github.com/bcgov/NotifyBC.git
 cd NotifyBC
 npm i && npm run build
