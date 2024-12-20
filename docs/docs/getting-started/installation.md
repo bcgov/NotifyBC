@@ -73,13 +73,16 @@ Installation approach differs by your purpose
 
   - install MongoDB with replica set or obtain a hosted service
   - install Redis, preferably with Sentinel or obtain a hosted service
+  - run
+    ```sh
+    git clone https://github.com/bcgov/NotifyBC.git
+    cd NotifyBC
+    ```
   - follow [Database](../config/database.md) to setup connection to MongoDB
   - follow [Queue](../config/queue.md) to setup connection to Redis
   - follow [Configuration Overview](../config/overview.md) to customize other required configs
   - run
     ```sh
-    git clone https://github.com/bcgov/NotifyBC.git
-    cd NotifyBC
     npm i && npm run build
     npm run start
     ```
