@@ -6,7 +6,7 @@ permalink: /docs/config-oidc/
 
 _NotifyBC_ currently can only authenticate RSA signed OIDC access token if the token is a JWT. OIDC providers such as Keycloak meet the requirement.
 
-To enable OIDC authentication strategy, add _oidc_ configuration object to _/src/config.local.js_. The object supports following properties
+To enable OIDC authentication strategy, add _oidc_ configuration object to _src/config.local.js_. The object supports following properties
 
 1. _discoveryUrl_ - [OIDC discovery](https://openid.net/specs/openid-connect-discovery-1_0.html) url
 2. _clientId_ - OIDC client id
@@ -36,4 +36,4 @@ module.exports = {
 
 In _NotifyBC_ web console and only in the web console, OIDC authentication takes precedence over built-in admin user, meaning if OIDC is configured, the login button goes to OIDC provider rather than the login form.
 
-There is no default OIDC configuration in _/src/config.ts_.
+There is no default OIDC configuration in _src/config.ts_.

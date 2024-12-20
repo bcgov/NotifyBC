@@ -4,7 +4,7 @@ permalink: /docs/config-adminIpList/
 
 # Admin IP List
 
-By [design](../overview/#architecture), _NotifyBC_ classifies incoming requests into four types. For a request to be classified as super-admin, the request's source ip must be in admin ip list. By default, the list contains _localhost_ only as defined by _adminIps_ in _/src/config.ts_
+By [design](../overview/#architecture), _NotifyBC_ classifies incoming requests into four types. For a request to be classified as super-admin, the request's source ip must be in admin ip list. By default, the list contains _localhost_ only as defined by _adminIps_ in _src/config.ts_
 
 ```ts
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
 };
 ```
 
-to modify, create config object _adminIps_ with updated list in file _/src/config.local.js_ instead. For example, to add ip range _192.168.0.0/24_ to the list
+to modify, create config object _adminIps_ with updated list in file _src/config.local.js_ instead. For example, to add ip range _192.168.0.0/24_ to the list
 
 ```js
 module.exports = {

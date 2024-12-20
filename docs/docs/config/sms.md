@@ -11,7 +11,7 @@ _NotifyBC_ depends on underlying SMS service providers to deliver SMS messages. 
 - [Twilio](https://twilio.com/) (default)
 - [Swift](https://www.swiftsmsgateway.com)
 
-Only one service provider can be chosen per installation. To change service provider, add following config to file _/src/config.local.js_
+Only one service provider can be chosen per installation. To change service provider, add following config to file _src/config.local.js_
 
 ```ts
 module.exports = {
@@ -27,7 +27,7 @@ Provider specific settings are defined in config _sms.providerSettings_. You sho
 
 ### Twilio
 
-Add _sms.providerSettings.twilio_ config object to file _/src/config.local.js_
+Add _sms.providerSettings.twilio_ config object to file _src/config.local.js_
 
 ```js
 module.exports = {
@@ -47,7 +47,7 @@ Obtain _\<AccountSid\>_, _\<AuthToken\>_ and _\<FromNumber\>_ from your Twilio a
 
 ### Swift
 
-Add _sms.providerSettings.swift_ config object to file _/src/config.local.js_
+Add _sms.providerSettings.swift_ config object to file _src/config.local.js_
 
 ```js
 module.exports = {
@@ -70,7 +70,7 @@ With Swift short code, sms user can unsubscribe by replying to a sms message wit
 To enable this feature,
 
 1. Generate a random string, hereafter referred to as _\<randomly-generated-string\>_
-2. Add it to _sms.providerSettings.swift.notifyBCSwiftKey_ in file _/src/config.local.js_
+2. Add it to _sms.providerSettings.swift.notifyBCSwiftKey_ in file _src/config.local.js_
 
    ```js
    module.exports = {
@@ -97,7 +97,7 @@ To enable this feature,
 
 ## Throttle
 
-All supported SMS service providers impose request rate limit. _NotifyBC_ by default throttles request rate to 4/sec. To adjust the rate, create following config in file _/src/config.local.js_
+All supported SMS service providers impose request rate limit. _NotifyBC_ by default throttles request rate to 4/sec. To adjust the rate, create following config in file _src/config.local.js_
 
 ```js
 module.exports = {

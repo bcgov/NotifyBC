@@ -8,7 +8,7 @@ permalink: /docs/config-email/
 
 By default when no SMTP is specified, _NotifyBC_ uses fake SMTP service [Ethereal](https://ethereal.email/). Ethereal is only good for evaluation purpose as emails sent from _NotifyBC_ are delivered to Ethereal rather than actual recipients. You can access the emails from Ethereal. _NotifyBC_ automatically generates the Ethereal account first time and stores the account information in [configuration](../api/config.md) under name _etherealAccount_ accessible from _NotifyBC_ web console.
 
-For production however, setting up SMTP is **mandatory**. To do so, add following _smtp_ config to _/src/config.local.js_
+For production however, setting up SMTP is **mandatory**. To do so, add following _smtp_ config to _src/config.local.js_
 
 ```js
 module.exports = {
@@ -30,7 +30,7 @@ Check out [Nodemailer](https://nodemailer.com/smtp/) for other config options th
 
 ## Throttle
 
-_NotifyBC_ can throttle email requests if SMTP server imposes rate limit. To enable throttle and set rate limit, create following config in file _/src/config.local.js_
+_NotifyBC_ can throttle email requests if SMTP server imposes rate limit. To enable throttle and set rate limit, create following config in file _src/config.local.js_
 
 ```js
 module.exports = {
@@ -66,7 +66,7 @@ open to internet
 1. _NotifyBC_, if it can be installed on such internet-facing host directly; otherwise,
 2. a tcp proxy server, such as nginx with stream proxy module that can proxy tcp port 25 traffic to backend _NotifyBC_ instances.
 
-Regardless which above option is chosen, you need to config _NotifyBC_ inbound SMTP server by adding following static config _email.inboundSmtpServer_ to file _/src/config.local.js_
+Regardless which above option is chosen, you need to config _NotifyBC_ inbound SMTP server by adding following static config _email.inboundSmtpServer_ to file _src/config.local.js_
 
 ```js
 module.exports = {
@@ -140,9 +140,9 @@ Bounce handling involves four actions
 To setup bounce handling
 
 - set up [inbound smtp server](#inbound-smtp-server)
-- verify config _email.bounce.enabled_ is set to true or absent in _/src/config.local.js_
+- verify config _email.bounce.enabled_ is set to true or absent in _src/config.local.js_
 - verify and adjust unsubscription threshold and bounce filter criteria if needed.
-  Following is the default config in file _/src/config.ts_ compatible with [rfc 3464](https://tools.ietf.org/html/rfc3464)
+  Following is the default config in file _src/config.ts_ compatible with [rfc 3464](https://tools.ietf.org/html/rfc3464)
 
   ```ts
   module.exports = {
@@ -188,9 +188,9 @@ To support this unsubscription method, _NotifyBC_ implements a custom inbound SM
 To enable list-unsubscribe by email
 
 - set up [inbound smtp server](#inbound-smtp-server)
-- verify config _email.listUnsubscribeByEmail.enabled_ is set to true or absent in _/src/config.local.js_
+- verify config _email.listUnsubscribeByEmail.enabled_ is set to true or absent in _src/config.local.js_
 
-To disable list-unsubscribe by email, set _email.listUnsubscribeByEmail.enabled_ to _false_ in _/src/config.local.js_
+To disable list-unsubscribe by email, set _email.listUnsubscribeByEmail.enabled_ to _false_ in _src/config.local.js_
 
 ```js
 module.exports = {

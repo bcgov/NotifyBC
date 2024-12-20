@@ -16,7 +16,7 @@ _httpHost_ can be overridden by other configs or data. For example
 
 There are contexts where there is no alternatives to _httpHost_. Therefore this config should be defined.
 
-Define the config, which has no default value, in _/src/config.local.js_
+Define the config, which has no default value, in _src/config.local.js_
 
 ```js
 module.exports = {

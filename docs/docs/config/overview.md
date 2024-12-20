@@ -14,14 +14,14 @@ There are two types of configurations - static and dynamic. Static configuration
 
 ## Static Configurations
 
-Most static configurations are specified in file _/src/config.ts_. If you need to change, instead of updating _/src/config.ts_ file, create local file _/src/config.local.js_ or environment specific file _/src/config.\<env\>.js_, which is only included when environment variable _NODE_ENV_ equals _\<env\>_. Besides _js_, _ts_ and _json_ file extensions are also supported. The rest of the documentation assumes the file extension is _js_. Content in these files are deeply merged in following ascending precedence
+Most static configurations are specified in file _src/config.ts_. If you need to change, instead of updating _src/config.ts_ file, create local file _src/config.local.js_ or environment specific file _src/config.\<env\>.js_, which is only included when environment variable _NODE_ENV_ equals _\<env\>_. Besides _js_, _ts_ and _json_ file extensions are also supported. The rest of the documentation assumes the file extension is _js_. Content in these files are deeply merged in following ascending precedence
 
 - default file /src/config.ts
-- environment specific file _/src/config.\<env\>.js_
-- local file _/src/config.local.js_
+- environment specific file _src/config.\<env\>.js_
+- local file _src/config.local.js_
 
 ::: warning Run build script whenever changing file in /src
-Every time a file under _/src_, including config files, is updated, run `npm run build` before restarting _NotifyBC_ to take effect.
+Every time a file under _src_, including config files, is updated, run `npm run build` before restarting _NotifyBC_ to take effect.
 :::
 
 Following configs should be customized per installation
