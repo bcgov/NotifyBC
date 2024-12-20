@@ -57,6 +57,7 @@ export class SmtpService implements OnApplicationBootstrap {
     }
 
     // create ethereal.email account
+    this.logger.log('obtaining ethereal email account...');
     const etherealAccount = await promisify(createTestAccount)();
     this.logger.log('ethereal email account created:');
     this.logger.log(etherealAccount);
