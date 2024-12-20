@@ -18,6 +18,7 @@ COPY --chown=node . .
 
 COPY <<EOF src/config.local.ts
 module.exports = {
+  adminIps: ['0.0.0.0/0'],
   queue: {
     connection: null,
   },
