@@ -18,6 +18,20 @@ module.exports = {
 };
 ```
 
-To override the defaults, set the config in _src/config.local.js_.
+To override the defaults, set the config in _src/config.local.js_. More connection parameters are documented in [ioredis](https://github.com/redis/ioredis). For example, to use Sentinel,
+
+```js
+module.exports = {
+  // ...
+  queue: {
+    connection: {
+      sentinels: [{ host: process.env.REDIS_SERVICE_NAME }],
+      name: 'mymaster',
+      password: process.env.REDIS_PASSWORD,
+      sentinelPassword: process.env.REDIS_PASSWORD,
+    },
+  },
+};
+```
 
 If you deployed _NotifyBC_ using Helm chart, this config is taken care of.
