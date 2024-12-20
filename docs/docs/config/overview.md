@@ -6,7 +6,7 @@ prev: /docs/what's-new/
 # Configuration Overview
 
 ::: tip Helm Chart Configurations
-The document pages in this section cover _NoitfyBC_ app level configurations only.
+The document pages in this section cover _NotifyBC_ app level configurations only.
 If your _NotifyBC_ is deployed to Kubernetes using Helm, you can also [customize](../getting-started/installation.md#customizations) infrastructure level configurations.
 :::
 
@@ -34,6 +34,7 @@ Following configs should be customized per installation
 In addition, if installing from source code
 
 - [Database](../config/database.md)
+- [Queue](./queue.md)
 - [Internal HTTP Host](../config/internalHttpHost.md)
 
 Customizing other configs only if needed.

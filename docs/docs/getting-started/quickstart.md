@@ -19,7 +19,7 @@ git clone https://github.com/bcgov/NotifyBC.git
 cd NotifyBC
 npm i && npm run build
 npx cross-env NOTIFYBC_WORKER_PROCESS_COUNT=1 npm run start
-# wait till console displays "ethereal email account created:"
+# wait till console displays "Server is running at http://0.0.0.0:3000/api"
 # => Now browse to http://localhost:3000
 ```
 

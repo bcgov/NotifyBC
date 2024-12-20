@@ -51,6 +51,8 @@ You can now browse to the local docs site [http://localhost:8080/NotifyBC](http:
 ## Publish Version Checklist
 
 1. update _version_ in _package.json_
-2. update _version_ _appVersion_ in _helm/Chart.yaml_ (major/minor only)
-3. update [What's new](../getting-started/what's-new.md) (major/minor only)
-4. create a new Github release
+2. run `npm i`
+3. globally find and replace older version number referenced in _docs_ folder
+4. update _version_ _appVersion_ in _helm/Chart.yaml_ (major/minor only)
+5. update [What's new](../getting-started/what's-new.md) (major/minor only)
+6. create a new Github release

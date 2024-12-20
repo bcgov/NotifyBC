@@ -13,7 +13,7 @@ _NotifyBC_ can be installed in 3 ways:
 For the purpose of evaluation, both source code and docker container will do. For production, the recommendation is one of
 
 - deploying to Kubernetes
-- setting up a load balanced app cluster from source code build, backed by MongoDB.
+- setting up a load balanced app cluster from source code build; install MongoDB replica set and Redis with Sentinel separately
 
 To setup a development environment in order to contribute to _NotifyBC_,
 installing from source code is preferred.
@@ -26,18 +26,21 @@ installing from source code is preferred.
   - Git
   - [Node.js](https://nodejs.org)@{{themeData.packageJson.engines.node}}
   - openssl (if enable HTTPS)
+  - Docker Desktop on Windows only and for evaluation only
 - Services
   - MongoDB with replica set, required for production
+  - Redis, required for production
   - A standard SMTP server to deliver outgoing email, required for production if email is enabled.
   - A tcp proxy server such as [nginx stream proxy](http://nginx.org/en/docs/stream/ngx_stream_proxy_module.html) if list-unsubscribe by email is needed and _NotifyBC_ server cannot expose port 25 to internet
   - A SMS service provider if needs to enable SMS channel. The supported service providers are
     - Twilio (default)
     - Swift
-  - Redis
   - SiteMinder, if needs SiteMinder authentication
   - An OIDC provider, if needs OIDC authentication
 - Network and Permissions
   - Minimum runtime firewall requirements:
+    - outbound to MongoDB if you use a hosted service
+    - outbound to Redis if you use a hosted service
     - outbound to your ISP DNS server
     - outbound to any on port 80 and 443 in order to run build scripts and send SMS messages
     - outbound to any on SMTP port 25 if using direct mail; for SMTP relay, outbound to your configured SMTP server and port only
@@ -49,28 +52,44 @@ installing from source code is preferred.
 
 ### Installation
 
-Run following commands
+Installation approach differs by your purpose
+
+- for evaluation,
+
+  - internet connection is required
+  - Docker Desktop must be running if you localhost is Windows
+  - run following commands
+    ```sh
+    docker run --rm --pull always -dp 6379:6379 redis # only on Windows
+    git clone https://github.com/bcgov/NotifyBC.git
+    cd NotifyBC
+    npm i && npm run build
+    npx cross-env NOTIFYBC_WORKER_PROCESS_COUNT=1 npm run start
+    ```
+  - wait till console displays `Server is running at http://0.0.0.0:3000/api`
+  - browse to http://localhost:3000
+
+- for production,
+
+  - install MongoDB with replica set or obtain a hosted service
+  - install Redis, preferably with Sentinel or obtain a hosted service
+  - follow [Database](../config/database.md) to setup connection to MongoDB
+  - follow [Queue](../config/queue.md) to setup connection to Redis
+  - follow [Configuration Overview](../config/overview.md) to customize other required configs
+  - run
+    ```sh
+    git clone https://github.com/bcgov/NotifyBC.git
+    cd NotifyBC
+    npm i && npm run build
+    npm run start
+    ```
+  - wait till console displays `Server is running at http://0.0.0.0:3000/api`
+  - browse to http://localhost:3000
+
+The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.0.2_, run
 
 ```sh
-git clone https://github.com/bcgov/NotifyBC.git
-cd NotifyBC
-npm i && npm run build
-npm run start
-```
-
-If successful, you will see following output
-
-```
-...
-Server is running at http://0.0.0.0:3000
-```
-
-Now open [http://localhost:3000](http://localhost:3000). The page displays NotifyBC Web Console.
-
-The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v2.1.0_, run
-
-```sh
- git checkout tags/v2.1.0 -b v2.1.0
+ git checkout tags/v6.0.2 -b v6.0.2
 ```
 
 after `cd NotifyBC`. A list of versions can be found [here](https://github.com/bcgov/NotifyBC/tags).
