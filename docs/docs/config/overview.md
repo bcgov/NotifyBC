@@ -41,7 +41,7 @@ Customizing other configs only if needed.
 
 ## Dynamic Configurations
 
-Dynamic configs are managed using REST [configuration api](../api-config/).
+Dynamic configs are managed using REST [configuration api](../api-config/). At the time of installing _NotifyBC_, no dynamic configs need to be setup.
 
 ::: tip Why Dynamic Configs?
 Dynamic configs are needed in cases such as
