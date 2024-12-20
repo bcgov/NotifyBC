@@ -34,4 +34,5 @@ module.exports = {
 };
 ```
 
-If you deployed _NotifyBC_ using Helm chart, this config is taken care of.
+If you deployed _NotifyBC_ using Helm chart, this config is taken care of. If you deployed _NotifyBC_ using docker, Redis is created inside docker using [Redis In-Memory Server
+](https://github.com/mhassan1/redis-memory-server) by default.
