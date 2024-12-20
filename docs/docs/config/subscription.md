@@ -4,9 +4,9 @@ permalink: /docs/config-subscription/
 
 # Subscription
 
-Configs in this section customize behavior of subscription and unsubscription workflow. They are all sub-properties of config object _subscription_. This object can be defined as service-agnostic static config as well as service-specific dynamic config, which overrides the static one on a service-by-service basis. Default static config is defined in file _/src/config.ts_. There is no default dynamic config.
+Configs in this section customize behavior of subscription and unsubscription workflow. They are all sub-properties of config object _subscription_. This object can be defined as service-agnostic static config as well as service-specific dynamic config, which overrides the static one on a service-by-service basis. Default static config is defined in file _src/config.ts_. There is no default dynamic config.
 
-To customize static config, create the config object _subscription_ in file _/src/config.local.js_
+To customize static config, create the config object _subscription_ in file _src/config.local.js_
 
 ```js
 module.exports = {
@@ -182,7 +182,7 @@ module.exports = {
 };
 ```
 
-The settings control whether or not unsubscription code is required, its RegEx pattern, and acknowledgement message templates for both on-screen and push notifications. Customization should be made to file _/src/config.local.js_ for static config or using configuration api for service-specific dynamic config.
+The settings control whether or not unsubscription code is required, its RegEx pattern, and acknowledgement message templates for both on-screen and push notifications. Customization should be made to file _src/config.local.js_ for static config or using configuration api for service-specific dynamic config.
 
 To disable acknowledgement notification, set _subscription.anonymousUnsubscription.acknowledgements.notification_ or a specific channel underneath to _null_
 
@@ -198,7 +198,7 @@ module.exports = {
 };
 ```
 
-For on-screen acknowledgement, you can define a redirect URL instead of displaying _successMessage_ or _failureMessage_. For example, to redirect on-screen acknowledgement to a page in your app for all services, create following config in file _/src/config.local.js_
+For on-screen acknowledgement, you can define a redirect URL instead of displaying _successMessage_ or _failureMessage_. For example, to redirect on-screen acknowledgement to a page in your app for all services, create following config in file _src/config.local.js_
 
 ```js
 module.exports = {

@@ -57,7 +57,7 @@ The test was performed in August 2017. Unless otherwise specified, the versions 
 
 ## Procedure
 
-1. update or create file _/src/config.local.js_ through [configMap](../installation/#update-configuration-files). Add sections for SMTP server and a custom filter function
+1. update or create file _src/config.local.js_ through [configMap](../installation/#update-configuration-files). Add sections for SMTP server and a custom filter function
 
    ```js
    var _ = require('lodash');

@@ -61,7 +61,7 @@ The config items in the _value_ field are
 
 To achieve horizontal scaling, when a broadcast push notification request is received, _NotifyBC_ divides subscribers into chunks and submits a BullMQ job for each chunk. The chunk size is defined by config _broadcastSubscriberChunkSize_. All subscribers in a chunk are processed concurrently.
 
-The default value for _broadcastSubscriberChunkSize_ is defined in _/src/config.ts_
+The default value for _broadcastSubscriberChunkSize_ is defined in _src/config.ts_
 
 ```ts
 module.exports = {
@@ -71,7 +71,7 @@ module.exports = {
 };
 ```
 
-To customize, create the config with updated value in file _/src/config.local.js_.
+To customize, create the config with updated value in file _src/config.local.js_.
 
 ::: tip When to adjust chunk size?
 
@@ -87,7 +87,7 @@ Defining custom function requires knowledge of JavaScript and understanding how 
 
 :::
 
-To support rule-based notification event filtering, _NotifyBC_ uses a [modified version](https://github.com/f-w/jmespath.js) of [jmespath](http://jmespath.org/) to implement json query. The modified version allows defining custom functions that can be used in [broadcastPushNotificationFilter](../api-subscription#broadcastPushNotificationFilter) field of subscription API and [broadcastPushNotificationSubscriptionFilter](../api-notification#broadcastPushNotificationSubscriptionFilter) field of subscription API. The functions must be implemented using JavaScript in config _notification.broadcastCustomFilterFunctions_. The functions can even be _async_. For example, the case-insensitive string matching function _contains_ci_ shown in the example of that field can be created in file _/src/config.local.js_
+To support rule-based notification event filtering, _NotifyBC_ uses a [modified version](https://github.com/f-w/jmespath.js) of [jmespath](http://jmespath.org/) to implement json query. The modified version allows defining custom functions that can be used in [broadcastPushNotificationFilter](../api-subscription#broadcastPushNotificationFilter) field of subscription API and [broadcastPushNotificationSubscriptionFilter](../api-notification#broadcastPushNotificationSubscriptionFilter) field of subscription API. The functions must be implemented using JavaScript in config _notification.broadcastCustomFilterFunctions_. The functions can even be _async_. For example, the case-insensitive string matching function _contains_ci_ shown in the example of that field can be created in file _src/config.local.js_
 
 ```js
 const _ = require('lodash')
@@ -158,7 +158,7 @@ without the guarantee.
 If performance is a higher priority to you, disable both the guarantee and
 bounce handling by setting config
 _notification.guaranteedBroadcastPushDispatchProcessing_ and _email.bounce.enabled_ to
-_false_ in file _/src/config.local.js_
+_false_ in file _src/config.local.js_
 
 ```js
 module.exports = {
@@ -175,7 +175,7 @@ In such case only failed dispatches are written to _dispatch.failed_ field of th
 
 ### Also log skipped dispatches for broadcast push notifications
 
-When _guaranteedBroadcastPushDispatchProcessing_ is _true_, by default only successful and failed dispatches are logged, along with dispatch candidates. Dispatches that are skipped by filters defined at subscription (_broadcastPushNotificationFilter_) or notification (_broadcastPushNotificationSubscriptionFilter_) are not logged for performance reason. If you also want skipped dispatches to be logged to _dispatch.skipped_ field of the notification, set _logSkippedBroadcastPushDispatches_ to _true_ in file _/src/config.local.js_
+When _guaranteedBroadcastPushDispatchProcessing_ is _true_, by default only successful and failed dispatches are logged, along with dispatch candidates. Dispatches that are skipped by filters defined at subscription (_broadcastPushNotificationFilter_) or notification (_broadcastPushNotificationSubscriptionFilter_) are not logged for performance reason. If you also want skipped dispatches to be logged to _dispatch.skipped_ field of the notification, set _logSkippedBroadcastPushDispatches_ to _true_ in file _src/config.local.js_
 
 ```js
 module.exports = {

@@ -4,7 +4,7 @@ permalink: /docs/config-cronJobs/
 
 # Cron Jobs
 
-_NotifyBC_ runs several cron jobs described below. These jobs are controlled by sub-properties defined in config object _cron_. To change config, create the object and properties in file _/src/config.local.js_.
+_NotifyBC_ runs several cron jobs described below. These jobs are controlled by sub-properties defined in config object _cron_. To change config, create the object and properties in file _src/config.local.js_.
 
 By default cron jobs are enabled. In a multi-node deployment, cron jobs should only run on the [primary node](../config-nodeRoles/) to ensure single execution.
 
@@ -12,7 +12,7 @@ All cron jobs have a property named <a name="timeSpec"></a>_timeSpec_ with the v
 
 ## Purge Data
 
-This cron job purges old notifications, subscriptions and notification bounces. The default frequency of cron job and retention policy are defined by _cron.purgeData_ config object in file _/src/config.ts_
+This cron job purges old notifications, subscriptions and notification bounces. The default frequency of cron job and retention policy are defined by _cron.purgeData_ config object in file _src/config.ts_
 
 ```ts
 module.exports = {
@@ -40,7 +40,7 @@ where
 - expiredAccessTokenRetentionDays: the retention days of expired access tokens
 - _defaultRetentionDays_: if any of the above retention day config item is omitted, default retention days is used as fall back.
 
-To change a config item, set the config item in file _/src/config.local.js_. For example, to run cron jobs at 2am daily, add following object to _/src/config.local.js_
+To change a config item, set the config item in file _src/config.local.js_. For example, to run cron jobs at 2am daily, add following object to _src/config.local.js_
 
 ```js
 module.exports = {
@@ -54,7 +54,7 @@ module.exports = {
 
 ## Dispatch Live Notifications
 
-This cron job sends out future-dated notifications when the notification becomes current. The default config is defined by _cron.dispatchLiveNotifications_ config object in file _/src/config.ts_
+This cron job sends out future-dated notifications when the notification becomes current. The default config is defined by _cron.dispatchLiveNotifications_ config object in file _src/config.ts_
 
 ```ts
 module.exports = {
@@ -69,7 +69,7 @@ module.exports = {
 
 ## Check Rss Config Updates
 
-This cron job monitors RSS feed notification dynamic config items. If a config item is created, updated or deleted, the cron job starts, restarts, or stops the RSS-specific cron job. The default config is defined by _cron.checkRssConfigUpdates_ config object in file _/src/config.ts_
+This cron job monitors RSS feed notification dynamic config items. If a config item is created, updated or deleted, the cron job starts, restarts, or stops the RSS-specific cron job. The default config is defined by _cron.checkRssConfigUpdates_ config object in file _src/config.ts_
 
 ```ts
 module.exports = {
@@ -91,7 +91,7 @@ This cron job deletes notification bounces if the latest notification is deemed 
 1. No bounce received since the latest notification started dispatching, and
 2. a configured time span has lapsed since the latest notification finished dispatching
 
-The default config is defined by _cron.deleteBounces_ config object in file _/src/config.ts_
+The default config is defined by _cron.deleteBounces_ config object in file _src/config.ts_
 
 ```ts
 module.exports = {
@@ -113,7 +113,7 @@ where
 
 This cron job re-dispatches a broadcast push notifications when redis cluster fails. It is part of [guaranteed broadcast push dispatch processing](../config/notification.md#guaranteed-broadcast-push-dispatch-processing)
 
-The default config is defined by _cron.reDispatchBroadcastPushNotifications_ config object in file _/src/config.ts_
+The default config is defined by _cron.reDispatchBroadcastPushNotifications_ config object in file _src/config.ts_
 
 ```ts
 module.exports = {

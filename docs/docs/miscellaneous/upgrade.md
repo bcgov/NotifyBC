@@ -71,7 +71,7 @@ v6 introduced following backward incompatible changes
 
 3. Terms for [node roles](../config/nodeRoles.md) have changed. If you defined environment variable _NOTIFYBC_NODE_ROLE_ with value other than _slave_, remove the environment variable; otherwise change it to _secondary_. If you deployed NotifyBC using Helm, this change is taken care of.
 
-4. config `notification.broadcastSubRequestBatchSize` is deprecated. If you defined it in _/src/config.local.js_, remove it.
+4. config `notification.broadcastSubRequestBatchSize` is deprecated. If you defined it in _src/config.local.js_, remove it.
 5. Bitnami MongoDB Helm chart is updated from version 14.3.2 to 16.3.3, with corresponding MongoDB from 7.0.4 to 8.0.4. If you deployed _NotifyBC_ using Helm, or if you are running MongoDB 7 and planning to upgrade to MongoDB 8, follow [Upgrade 7.0 to 8.0](https://www.mongodb.com/docs/manual/release-notes/8.0-upgrade/). In particular, ensure `setFeatureCompatibilityVersion` is set to `7.0`
    ```
    db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } )
@@ -230,9 +230,9 @@ v4 introduced following backward incompatible changes that need to be addressed 
 
 1. The precedence of config, middleware and datasource files has been changed. Local file takes higher precedence than environment specific file. For example, for config file, the new precedence in ascending order is
 
-   1. default file _/src/config.ts_
-   2. environment specific file _/src/config.\<env\>.js_, where \<env\> is determined by environment variable _NODE_ENV_
-   3. local file _/src/config.local.js_
+   1. default file _src/config.ts_
+   2. environment specific file _src/config.\<env\>.js_, where \<env\> is determined by environment variable _NODE_ENV_
+   3. local file _src/config.local.js_
 
    To upgrade, if you have environment specific file, merge its content into the local file, then delete it.
 
@@ -243,7 +243,7 @@ v4 introduced following backward incompatible changes that need to be addressed 
 6. Config _notification.handleListUnsubscribeByEmail_ is changed to _email.listUnsubscribeByEmail.enabled_. See [List-unsubscribe by Email](../config/email.md#list-unsubscribe-by-email) for example.
 7. Config _smsServiceProvider_ is changed to _sms.provider_. See [Provider](../config/sms.md#provider) for example.
 8. SMS service provider specific settings defined in config _sms_ are changed to _sms.providerSettings_. See [Provider Settings](../config/sms.md#provider-settings) for example. The config object _sms_ now encapsulates all SMS configs - _provider_, _providerSettings_ and _throttle_.
-9. Legacy config _subscription.unsubscriptionEmailDomain_ is removed. If you have it defined in your file _/src/config.local.js_, replace with _email.inboundSmtpServer.domain_.
+9. Legacy config _subscription.unsubscriptionEmailDomain_ is removed. If you have it defined in your file _src/config.local.js_, replace with _email.inboundSmtpServer.domain_.
 10. Helm chart added Redis that requires authentication by default. Create a new password in _helm/values.local.yaml_ to facilitate upgrading
 
 ```yaml
@@ -276,7 +276,7 @@ Replace _v4.x.x_ with a v4 release, preferably latest, found in GitHub such as _
 v3 introduced following backward incompatible changes
 
 1. Changed output-only fields _failedDispatches_ and _successDispatches_ to _dispatch.failed_ and _dispatch.successful_ respectively in _Notification_ api. If your client app depends on the fields, change accordingly.
-2. Changed config _notification.logSuccessfulBroadcastDispatches_ to _notification.guaranteedBroadcastPushDispatchProcessing_ and reversed default value from _false_ to _true_. If you don't want _NotifyBC_ guarantees processing all subscriptions to a broadcast push notification in a node failure resilient way, perhaps for performance reason, set the value to _false_ in file _/src/config.local.js_.
+2. Changed config _notification.logSuccessfulBroadcastDispatches_ to _notification.guaranteedBroadcastPushDispatchProcessing_ and reversed default value from _false_ to _true_. If you don't want _NotifyBC_ guarantees processing all subscriptions to a broadcast push notification in a node failure resilient way, perhaps for performance reason, set the value to _false_ in file _src/config.local.js_.
 
 After above changes are addressed, upgrading to v3 is as simple as
 
