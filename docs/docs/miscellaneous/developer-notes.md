@@ -52,7 +52,7 @@ You can now browse to the local docs site [http://localhost:8080/NotifyBC](http:
 
 1. update _version_ in _package.json_
 2. run `npm i`
-3. globally find and replace older version number referenced in _docs_ folder
+3. globally find and replace older version number referenced in _docs_ folder wherever appropriate
 4. update _version_ _appVersion_ in _helm/Chart.yaml_ (major/minor only)
 5. update [What's new](../getting-started/what's-new.md) (major/minor only)
 6. create a new Github release

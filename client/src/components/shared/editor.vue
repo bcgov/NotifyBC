@@ -111,6 +111,11 @@ export default defineComponent({
   height: auto !important;
 }
 
+:root {
+  --jd-color-background-default: rgb(var(--v-theme-background));
+  --jd-color-text-icons: rgb(var(--v-theme-text));
+}
+
 #nb-item-editor {
   @import (less) 'spectre.css/dist/spectre.css';
   select {
@@ -119,5 +124,18 @@ export default defineComponent({
   .btn {
     min-width: unset;
   }
+  div[data-schematype]:not([data-schematype='object']):hover {
+    background-color: unset;
+  }
+  .form-select,
+  .form-input,
+  .ace-tm,
+  .je-modal {
+    background-color: rgb(var(--v-theme-background)) !important;
+    color: initial !important;
+  }
+}
+.jodit-dialog__panel {
+  background-color: rgb(var(--v-theme-background)) !important;
 }
 </style>
