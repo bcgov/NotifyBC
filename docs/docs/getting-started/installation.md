@@ -89,10 +89,10 @@ Installation approach differs by your purpose
   - wait till console displays `Server is running at http://0.0.0.0:3000/api`
   - browse to http://localhost:3000
 
-The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.0.2_, run
+The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.0.3_, run
 
 ```sh
- git checkout tags/v6.0.2 -b v6.0.2
+ git checkout tags/v6.0.3 -b v6.0.3
 ```
 
 after `cd NotifyBC`. A list of versions can be found [here](https://github.com/bcgov/NotifyBC/tags).

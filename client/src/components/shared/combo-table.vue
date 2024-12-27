@@ -89,7 +89,7 @@
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
                     <v-card>
-                      <v-card-text class="bg-grey-lighten-3">
+                      <v-card-text>
                         <slot
                           name="newItem"
                           :submitNewPanel="submitNewPanel"
