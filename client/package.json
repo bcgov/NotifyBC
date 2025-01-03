@@ -17,7 +17,7 @@
   "devDependencies": {
     "@json-editor/json-editor": "^2.10.1",
     "@vitejs/plugin-vue": "^4.6.2",
-    "bootstrap": "~5.0.0",
+    "bootstrap": "~5.3.0",
     "ejs": "^3.1.9",
     "eslint": "^8.37.0",
     "eslint-plugin-vue": "^9.3.0",
@@ -34,7 +34,7 @@
     "vite-plugin-vuetify": "^1.0.0",
     "vue": "^3.2.0",
     "vue-router": "^4.0.0",
-    "vuetify": "~3.3.0"
+    "vuetify": "~3.7.0"
   },
   "eslintConfig": {
     "root": true,
