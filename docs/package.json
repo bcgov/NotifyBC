@@ -18,5 +18,8 @@
     "@vuepress/plugin-docsearch": "2.0.0-rc.0",
     "markdown-it-include": "^2.0.0",
     "vuepress": "2.0.0-rc.19"
+  },
+  "dependencies": {
+    "micromatch": "^4.0.8"
   }
 }
