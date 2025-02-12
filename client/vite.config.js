@@ -9,8 +9,8 @@ import fs from 'fs';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import DynamicPublicDirectory from 'vite-multiple-assets';
-import { AppConfigService } from '../dist/config/app-config.service';
-import { ConfigModule } from '../dist/config/config.module';
+import { AppConfigService } from '../src/config/app-config.service';
+import { ConfigModule } from '../src/config/config.module';
 
 export default async ({ mode }) => {
   const app = await NestFactory.create(ConfigModule);
