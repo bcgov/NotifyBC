@@ -68,7 +68,7 @@
     "nodemailer": "^6.9.5",
     "pluralize": "^8.0.0",
     "randexp": "^0.5.3",
-    "reflect-metadata": "^0.1.13",
+    "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "semver": "^7.5.4",
     "smtp-server": "^3.13.0",
