@@ -11,7 +11,10 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^v5.15.4",
     "core-js": "^3.29.0",
+    "cross-spawn": "^7.0.6",
     "iframe-resizer": "^4.3.1",
+    "micromatch": "^4.0.8",
+    "nanoid": "^5.0.9",
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {

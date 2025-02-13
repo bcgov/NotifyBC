@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Logger, MiddlewareConsumer, Module} from '@nestjs/common';
-import {MongooseModule} from '@nestjs/mongoose';
-import {MongoMemoryReplSet} from 'mongodb-memory-server';
-import {AdministratorsModule} from './api/administrators/administrators.module';
-import {BouncesModule} from './api/bounces/bounces.module';
-import {BaseController} from './api/common/base.controller';
-import {ConfigurationsModule} from './api/configurations/configurations.module';
-import {HealthModule} from './api/health/health.module';
-import {MemoryModule} from './api/memory/memory.module';
-import {NotificationsModule} from './api/notifications/notifications.module';
-import {SubscriptionsModule} from './api/subscriptions/subscriptions.module';
-import {AppService} from './app.service';
-import {AuthModule} from './auth/auth.module';
-import {AppConfigService} from './config/app-config.service';
-import {ConfigModule} from './config/config.module';
-import {DbConfigService} from './config/db-config.service';
-import {MiddlewareConfigService} from './config/middleware-config.service';
-import {ObserversModule} from './observers/observers.module';
-import {ShutdownService} from './observers/shutdown.service';
-import {SwaggerService} from './observers/swagger.service';
-import {RssModule} from './rss/rss.module';
+import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { MongoMemoryReplSet } from 'mongodb-memory-server';
+import { AdministratorsModule } from './api/administrators/administrators.module';
+import { BouncesModule } from './api/bounces/bounces.module';
+import { BaseController } from './api/common/base.controller';
+import { ConfigurationsModule } from './api/configurations/configurations.module';
+import { HealthModule } from './api/health/health.module';
+import { MemoryModule } from './api/memory/memory.module';
+import { NotificationsModule } from './api/notifications/notifications.module';
+import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
+import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { AppConfigService } from './config/app-config.service';
+import { ConfigModule } from './config/config.module';
+import { DbConfigService } from './config/db-config.service';
+import { MiddlewareConfigService } from './config/middleware-config.service';
+import { ObserversModule } from './observers/observers.module';
+import { ShutdownService } from './observers/shutdown.service';
+import { SwaggerService } from './observers/swagger.service';
+import { RssModule } from './rss/rss.module';
 
 @Module({
   imports: [
@@ -51,7 +51,7 @@ import {RssModule} from './rss/rss.module';
         shutdownService: ShutdownService,
       ) => {
         const dbConfig = dbConfigService.get();
-        if (dbConfig.uri) return {...dbConfig, autoIndex: false};
+        if (dbConfig.uri) return { ...dbConfig, autoIndex: false };
         const mongod = await MongoMemoryReplSet.create({
           instanceOpts: [dbConfig],
         });
@@ -89,7 +89,7 @@ export class AppModule {
     for (const middlewareFactoryNm in apiOnlyMiddlewareConfigs) {
       if (apiOnlyMiddlewareConfigs[middlewareFactoryNm].enabled === false)
         continue;
-      const {default: m} = await import(middlewareFactoryNm);
+      const { default: m } = await import(middlewareFactoryNm);
       apiOnlyMiddlewares.push(
         m.apply(this, apiOnlyMiddlewareConfigs[middlewareFactoryNm].params),
       );
