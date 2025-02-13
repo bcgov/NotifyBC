@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import {Logger, ValidationPipe} from '@nestjs/common';
+import {NestFactory} from '@nestjs/core';
 import {
   ExpressAdapter,
   NestExpressApplication,
@@ -23,12 +23,12 @@ import express from 'express';
 import https from 'https';
 import os from 'os';
 import path from 'path';
-import { ErrorsInterceptor } from './api/common/errors.interceptor';
-import { AppModule } from './app.module';
-import { AppService } from './app.service';
-import { AppConfigService } from './config/app-config.service';
-import { MiddlewareAllService } from './observers/middleware-all.service';
-import { ShutdownService } from './observers/shutdown.service';
+import {ErrorsInterceptor} from './api/common/errors.interceptor';
+import {AppModule} from './app.module';
+import {AppService} from './app.service';
+import {AppConfigService} from './config/app-config.service';
+import {MiddlewareAllService} from './observers/middleware-all.service';
+import {ShutdownService} from './observers/shutdown.service';
 const logger = new Logger(path.parse(__filename).name);
 
 // setupApp is shared between bootstrap and e2e setupApplication
@@ -65,9 +65,9 @@ async function bootstrap() {
   const host = appConfig.host ?? '0.0.0.0';
   const proto = appConfig.tls?.enabled ? 'https' : 'http';
   if (appConfig.tls?.enabled) {
-    let opts = { ...appConfig.tls };
+    let opts = {...appConfig.tls};
     if (appConfig.tls?.clientCertificateEnabled) {
-      opts = { ...opts, requestCert: true, rejectUnauthorized: false };
+      opts = {...opts, requestCert: true, rejectUnauthorized: false};
     }
     await new Promise((resolve) => {
       const shutdownService = app.get(ShutdownService);
@@ -112,7 +112,7 @@ if (require.main === module) {
         }
       }
 
-      cluster.on('exit', (worker: { process: { pid: any } }) => {
+      cluster.on('exit', (worker: {process: {pid: any}}) => {
         logger.log(`worker ${worker.process.pid} died`);
         if (worker === masterWorker) {
           logger.log(`worker ${worker.process.pid} is the master worker`);
