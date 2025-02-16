@@ -165,7 +165,11 @@ export default defineUserConfig({
       },
       {
         text: 'Meta',
-        children: ['/docs/conduct/', '/docs/acknowledgments/'],
+        children: [
+          '/docs/conduct/',
+          '/docs/security-reporting/',
+          '/docs/acknowledgments/',
+        ],
       },
     ],
   }),
