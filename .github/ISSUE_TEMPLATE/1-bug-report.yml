@@ -1,0 +1,49 @@
+name: "\U0001F41B Bug Report"
+description: 'Create a report to help us improve'
+title: '[BUG]: '
+labels: ['bug']
+body:
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: a clear and concise description of what the bug is
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: To Reproduce
+      description: steps to reproduce the behavior
+      placeholder: |
+        1. In this environment...
+        2. With this config...
+        3. Run '...'
+        4. See error...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: a clear and concise description of what you expected to happen
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: NotifyBC version
+      description: |
+        version of NotifyBC can be found in `package.json` file
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Installation method
+      description: How do you install NotifyBC?
+      options:
+        - Source code
+        - Kubernetes
+        - Docker
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: add any other context about the problem here
