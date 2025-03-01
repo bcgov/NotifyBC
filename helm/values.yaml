@@ -155,6 +155,10 @@ redis:
   master:
     persistence:
       enabled: false
+    # ref https://github.com/bitnami/charts/issues/2441#issuecomment-1895824839
+    shareProcessNamespace: true
   replica:
     persistence:
       enabled: false
+    # ref https://github.com/bitnami/charts/issues/2441#issuecomment-1895824839
+    shareProcessNamespace: true
