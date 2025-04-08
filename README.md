@@ -1,5 +1,7 @@
 [![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bcgov_des-notifybc&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bcgov_des-notifybc)
+
 # NotifyBC
 
 A versatile notification API server. See **[full documentation](https://bcgov.github.io/NotifyBC/)**.

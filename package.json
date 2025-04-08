@@ -1,6 +1,6 @@
 {
   "name": "notify-bc",
-  "version": "5.1.2",
+  "version": "5.1.3",
   "dbSchemaVersion": "0.9.0",
   "description": "A versatile notification API server",
   "author": "f-w",
