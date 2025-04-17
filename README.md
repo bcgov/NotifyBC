@@ -32,15 +32,18 @@ Select the `notifybc-log-sidecar` pod and open the `terminal` tab.
       cd /var/log/app/notifybc/app/
       ls -la
    ```
+
 #### 4. Search for the timestamps, events, or labels
    ```
    less 20250102.app.access.log
    grep "POST" 20250103.app.access.log
    ```
+
 #### 5. Clean up when done
    ````
    helm uninstall notifybc-sidecar
    ````
+
 ## License
 
     Copyright 2016-present Province of British Columbia
