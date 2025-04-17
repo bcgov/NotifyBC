@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: notifybc-log-sidecar
+  labels:
+    app: notifybc
+    component: log-sidecar
+    environment: '{{ .Values.environment }}'
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  volumes:
+    - name: logs-volume
+      persistentVolumeClaim:
+        claimName: 'des-notifybc-{{ .Values.environment }}-notify-bc-logs'
+  containers:
+    - name: sidecar
+      image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+      imagePullPolicy: '{{ .Values.image.pullPolicy }}'
+      command: ['sleep', 'infinity']
+      volumeMounts:
+        - name: logs-volume
+          mountPath: /var/log/app/notifybc/app/
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+          ephemeral-storage: 64Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+          ephemeral-storage: 256Mi
