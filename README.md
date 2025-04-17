@@ -14,6 +14,32 @@ kubectl config use-context docker-desktop
 helm install dev helm -f helm/values.yaml -f helm/values.local.yaml
 ```
 
+## Accessing Logs with the Sidecar Container
+
+This guide will help you access the log files from the `notifybc` application using a sidecar container. The sidecar is intended to be used only when you need to inspect logs and is not automatically deployed with the application.
+
+1. Deploy the Sidecar:
+   * Replace `environment=test` with the appropriate environment name (e.g., `environment=dev`, `environment=prod`).
+      ```
+      helm upgrade --install notifybc-sidecar ./sidecar \
+      --set environment=test
+      ```
+
+2. Access the sidecar terminal via the OpenShift GUI.
+3. Navigate to the logs directory:
+   ```
+      cd /var/log/app/notifybc/app/
+      ls -la
+   ```
+4. Search logs for the timestamp or event you are interested in:
+   ```
+   less 20250102.app.access.log
+   grep "POST" 20250103.app.access.log
+   ```
+5. Clean up when done:
+   ````
+   helm uninstall notifybc-sidecar
+   ````
 ## License
 
     Copyright 2016-present Province of British Columbia
