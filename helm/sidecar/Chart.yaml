@@ -1,0 +1,6 @@
+apiVersion: v2
+name: notifybc-sidecar
+description: Sidecar pod for log inspection
+type: application
+version: 0.1.0
+appVersion: "1.0"

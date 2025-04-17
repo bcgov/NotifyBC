@@ -1,0 +1,16 @@
+environment: test
+
+image:
+  repository: alpine
+  tag: 3
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+    ephemeral-storage: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+    ephemeral-storage: 256Mi
