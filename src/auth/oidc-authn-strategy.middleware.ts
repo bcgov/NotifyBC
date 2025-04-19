@@ -74,6 +74,23 @@ export class OidcAuthnStrategyMiddleware implements NestMiddleware {
     } catch (ex) {
       throw new HttpException(ex, HttpStatus.BAD_REQUEST);
     }
+
+    const allowedAud = this.appConfig.oidc?.allowedAudiences;
+    if (allowedAud instanceof Array && allowedAud.length > 0) {
+      const aud = decodedPayload.aud;
+      if (!aud) {
+        return next();
+      }
+      if (typeof aud === 'string' && !allowedAud.includes(aud)) {
+        return next();
+      } else if (
+        aud instanceof Array &&
+        allowedAud.filter((value) => aud.includes(value)).length === 0
+      ) {
+        return next();
+      }
+    }
+
     let role;
     if (!this.appConfig.oidc?.isAuthorizedUser) {
       role = Role.AuthenticatedUser;
