@@ -89,10 +89,10 @@ Installation approach differs by your purpose
   - wait till console displays `Server is running at http://0.0.0.0:3000/api`
   - browse to http://localhost:3000
 
-The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.0.4_, run
+The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.1.0_, run
 
 ```sh
- git checkout tags/v6.0.4 -b v6.0.4
+ git checkout tags/v6.1.0 -b v6.1.0
 ```
 
 after `cd NotifyBC`. A list of versions can be found [here](https://github.com/bcgov/NotifyBC/tags).
@@ -361,12 +361,12 @@ The above settings assume you have setup secret \<docker-pull-secret\> to access
         readOnly: true
   ```
 
-  Restoration can then be achieved by running in MongoDB pod
+  Restoration can then be achieved by running in any MongoDB pod
 
   ```bash
-  mongorestore -u "$MONGODB_EXTRA_USERNAMES" -p "$MONGODB_EXTRA_PASSWORDS" \
-  --uri="mongodb://$K8S_SERVICE_NAME" --db $MONGODB_EXTRA_DATABASES --gzip --drop \
-  --archive=/export/<mongodb-backup-YYMMDD-hhmmss.gz>
+  mongorestore -u="$MONGODB_EXTRA_USERNAMES" -p="$MONGODB_EXTRA_PASSWORDS" \
+  -h="$MONGODB_REPLICA_SET_NAME/localhost" -d=$MONGODB_EXTRA_DATABASES \
+  --gzip --drop --archive=/export/mongodb-backup-<YYMMDD-hhmmss>.gz
   ```
 
 - _NotifyBC_ image tag defaults to _appVersion_ in file _helm/Chart.yaml_. To change to _latest_, i.e. tip of the _main_ branch,

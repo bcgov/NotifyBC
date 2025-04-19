@@ -9,6 +9,12 @@ _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
 ## v6
 
+### v6.1.0
+
+- Issue [#106](https://github.com/bcgov/NotifyBC/issues/106) support OAuth2 token audience
+
+### v6.0.0
+
 See [Upgrade Guide](../upgrade/#v5-to-v6) for more information.
 
 - Issue [#89](https://github.com/bcgov/NotifyBC/issues/89) Replaced Bottleneck with BullMQ

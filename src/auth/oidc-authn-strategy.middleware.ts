@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NestMiddleware,
-} from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { decode } from 'js-base64';
 import jwt from 'jsonwebtoken';
@@ -70,10 +65,15 @@ export class OidcAuthnStrategyMiddleware implements NestMiddleware {
 
     let decodedPayload;
     try {
-      decodedPayload = jwt.verify(token, pem);
+      decodedPayload = jwt.verify(
+        token,
+        pem,
+        this.appConfig.oidc?.jwtVerifyOptions,
+      );
     } catch (ex) {
-      throw new HttpException(ex, HttpStatus.BAD_REQUEST);
+      return next();
     }
+
     let role;
     if (!this.appConfig.oidc?.isAuthorizedUser) {
       role = Role.AuthenticatedUser;
