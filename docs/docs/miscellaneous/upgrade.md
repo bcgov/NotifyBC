@@ -91,7 +91,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v6,
 
   Replace
 
-  - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.0.4_.
+  - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.1.0_.
 
 - if _NotifyBC_ is deployed to Kubernetes using Helm,
   1. backup MongoDB database
@@ -102,7 +102,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v6,
      helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
      ```
      Replace
-     - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.0.4_.
+     - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.1.0_.
      - \<release-name\> with installed helm release name
      - \<platform\> with _openshift_ or _aks_ depending on your platform
 
