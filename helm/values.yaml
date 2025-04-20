@@ -100,6 +100,10 @@ mongodb:
     password: ''
   persistence:
     size: 1Gi
+  # ref https://www.mongodb.com/docs/manual/reference/parameters/
+  # default of 500MB too high for default PVC size of 1Gi
+  extraFlags:
+    - '--setParameter indexBuildMinAvailableDiskSpaceMB=0'
   podSecurityContext:
     enabled: false
   containerSecurityContext:
