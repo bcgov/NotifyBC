@@ -72,10 +72,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Decrypt values.ocp4.dev.yaml.gpg
-        run: ./.github/scripts/decrypt_secret.sh
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Create values.ocp4.dev.local.yaml
+        run: echo "${{ secrets.VALUES_OCP4_DEV_LOCAL_YAML }}" > helm/values.ocp4.dev.local.yaml
       - name: Install oc
         uses: redhat-actions/oc-installer@v1
       - name: Authenticate to OCP4 and set context
@@ -92,6 +90,6 @@ jobs:
         run: |
           export notifyBCContainerTag=`cat notifyBCContainerTag.txt`
           helm upgrade -f helm/platform-specific/openshift.yaml \
-          -f .github/values.ocp4.dev.yaml --set \
+          -f helm/values.ocp4.dev.local.yaml --set \
           image.tag="$notifyBCContainerTag" `helm ls -q` helm
           oc get deployment -o name | xargs oc rollout restart
