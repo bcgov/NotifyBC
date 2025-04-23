@@ -1,0 +1,46 @@
+{{- if .Values.cleanup.enabled }}
+{{- $_ := set . "notifyBCInstanceType" "log-cleanup" -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "NotifyBC.fullname" . }}-{{ .notifyBCInstanceType }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "NotifyBC.labels" . | nindent 4 }}
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          labels:
+            {{- include "NotifyBC.selectorLabels" . | nindent 12 }}
+        spec:
+          serviceAccountName: {{ include "NotifyBC.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          containers:
+            - name: {{ .Chart.Name }}-cleanup
+              image: alpine:3.18
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -c
+                - >
+                  echo "Cleaning logs older than {{ .Values.cleanup.retentionDays }} days in {{ .Values.cleanup.logPath }}" &&
+                  find {{ .Values.cleanup.logPath | quote }} -type f -mtime +{{ .Values.cleanup.retentionDays }} -delete
+              resources:
+                {{- toYaml .Values.cleanup.resources | nindent 16 }}
+              volumeMounts:
+                - name: logs-volume
+                  mountPath: {{ .Values.cleanup.logPath | quote }}
+          restartPolicy: OnFailure
+          volumes:
+            - name: log-volume
+              persistentVolumeClaim:
+                claimName: {{ include "NotifyBC.fullname" . }}-logs
+{{- end }}

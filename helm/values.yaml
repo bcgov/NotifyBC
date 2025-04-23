@@ -224,3 +224,15 @@ fluentbit:
           Name  file
           Match *
           Path  /tmp/pvc/
+
+cleanup:
+  enabled: true
+  logPath: /var/log/app/notifybc/app
+  retentionDays: 395
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
