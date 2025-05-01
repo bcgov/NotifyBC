@@ -236,3 +236,7 @@ cleanup:
     limits:
       cpu: 100m
       memory: 128Mi
+  image:
+    repository: alpine
+    tag: "3.18"
+    pullPolicy: IfNotPresent

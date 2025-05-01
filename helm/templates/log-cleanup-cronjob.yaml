@@ -9,8 +9,13 @@ metadata:
     {{- include "NotifyBC.labels" . | nindent 4 }}
 spec:
   schedule: "0 3 * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 600
       template:
         metadata:
           {{- with .Values.podAnnotations }}
@@ -25,14 +30,18 @@ spec:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
           containers:
             - name: {{ .Chart.Name }}-cleanup
-              image: alpine:3.18
-              imagePullPolicy: IfNotPresent
+              image: "{{ .Values.cleanup.image.repository }}:{{ .Values.cleanup.image.tag }}"
+              imagePullPolicy: {{ .Values.cleanup.image.pullPolicy }}
               command:
                 - /bin/sh
                 - -c
                 - >
                   echo "Cleaning logs older than {{ .Values.cleanup.retentionDays }} days in {{ .Values.cleanup.logPath }}" &&
-                  find {{ .Values.cleanup.logPath | quote }} -type f -mtime +{{ .Values.cleanup.retentionDays }} -delete
+                  if [ -d {{ .Values.cleanup.logPath | quote }} ]; then
+                    find {{ .Values.cleanup.logPath | quote }} -type f -mtime +{{ .Values.cleanup.retentionDays }} -delete;
+                  else
+                    echo "Log path {{ .Values.cleanup.logPath }} not found. Skipping cleanup.";
+                  fi
               resources:
                 {{- toYaml .Values.cleanup.resources | nindent 16 }}
               volumeMounts:
@@ -40,7 +49,7 @@ spec:
                   mountPath: {{ .Values.cleanup.logPath | quote }}
           restartPolicy: OnFailure
           volumes:
-            - name: log-volume
+            - name: logs-volume
               persistentVolumeClaim:
                 claimName: {{ include "NotifyBC.fullname" . }}-logs
 {{- end }}
