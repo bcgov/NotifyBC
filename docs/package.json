@@ -17,6 +17,6 @@
     "@snippetors/vuepress-plugin-code-copy": "^1.2.3",
     "@vuepress/plugin-docsearch": "2.0.0-rc.0",
     "markdown-it-include": "^2.0.0",
-    "vuepress": "2.0.0-rc.19"
+    "vuepress": "2.0.0-rc.23"
   }
 }
