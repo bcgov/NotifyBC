@@ -20,6 +20,7 @@ import {
   getAppAndClient,
   runAsSuperAdmin,
   setupApplication,
+  wait,
 } from './test-helper';
 
 describe('Administrator API', () => {
@@ -536,6 +537,7 @@ gFP0pwOGzVZKj8+wUBuBDwNuQnlo+FThxA9kO7v5VnAbLHiOzR02E0TOoggXtQPs
       expect(res.status).toEqual(200);
       expect(res.body.securityId).toEqual('foo@invalid.local');
       expect(res.body.authnStrategy).toEqual('oidc');
+      await wait(1000);
       await thisApp.close();
     });
   });

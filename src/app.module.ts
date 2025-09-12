@@ -15,8 +15,8 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import RedisMemoryServer from 'redis-memory-server';
+import { promisify } from 'util';
 import { AdministratorsModule } from './api/administrators/administrators.module';
 import { BouncesModule } from './api/bounces/bounces.module';
 import { ConfigurationsModule } from './api/configurations/configurations.module';
@@ -55,6 +55,7 @@ import { RssModule } from './rss/rss.module';
       ) => {
         const dbConfig = dbConfigService.get();
         if (dbConfig.uri) return { ...dbConfig, autoIndex: false };
+        const { MongoMemoryReplSet } = await import('mongodb-memory-server');
         const mongod = await MongoMemoryReplSet.create({
           instanceOpts: [dbConfig],
         });
@@ -96,12 +97,23 @@ import { RssModule } from './rss/rss.module';
         let host, port;
         switch (process.platform) {
           case 'win32':
-            const { GenericContainer } = await import('testcontainers');
-            const redisContainer = await new GenericContainer('redis')
-              .withExposedPorts(6379)
-              .start();
+            const { RedisContainer } = await import('@testcontainers/redis');
+            const redisContainer = await new RedisContainer('redis').start();
             host = redisContainer.getHost();
             port = redisContainer.getMappedPort(6379);
+            const { Redis } = await import('ioredis');
+            const client = new Redis({ host, port });
+            let connected = false;
+            while (!connected) {
+              try {
+                await client.set('notifyBCtest', '1');
+                await client.del('notifyBCtest');
+                await client.quit();
+                connected = true;
+              } catch (err) {
+                await promisify(setTimeout)(100);
+              }
+            }
             shutdownService.addRedisServer(redisContainer);
             break;
           default:
