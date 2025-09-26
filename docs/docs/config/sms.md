@@ -10,6 +10,7 @@ _NotifyBC_ depends on underlying SMS service providers to deliver SMS messages. 
 
 - [Twilio](https://twilio.com/) (default)
 - [Swift](https://www.swiftsmsgateway.com)
+- [Vonage (formerly Nexmo)](https://www.vonage.ca/)
 
 Only one service provider can be chosen per installation. To change service provider, add following config to file _src/config.local.js_
 
@@ -94,6 +95,26 @@ To enable this feature,
    - set _Custom Parameter 1 Name_ to _notifyBCSwiftKey_
    - set _Custom Parameter 1 Value_ to _\<randomly-generated-string\>_
 8. Click _Save Changes_ button and then _Done_
+
+### Vonage
+
+Add _sms.providerSettings.vonage_ config object to file _src/config.local.js_
+
+```js
+module.exports = {
+  sms: {
+    providerSettings: {
+      vonage: {
+        from: '<yourVonagePhoneNumber>',
+        apiKey: '<yourVonageApiKey>',
+        apiSecret: '<yourVonageApiSecret>',
+      },
+    },
+  },
+};
+```
+
+Obtain _\<yourVonagePhoneNumber\>_, _\<yourVonageApiKey\>_ and _\<yourVonageApiSecret\>_ from your Vonage account.
 
 ## Throttle
 

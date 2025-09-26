@@ -9,6 +9,10 @@ _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
 ## v6
 
+### v6.2.0
+
+- Issue [#113](https://github.com/bcgov/NotifyBC/issues/113) added Vonage SMS provider
+
 ### v6.1.0
 
 - Issue [#106](https://github.com/bcgov/NotifyBC/issues/106) support OAuth2 token audience
