@@ -64,6 +64,11 @@ const config: Record<string, any> = {
       swift: {
         apiUrlPrefix: 'https://secure.smsgateway.ca/services/message.svc/',
       },
+      vonage: {
+        // from: '<yourVonagePhoneNumber>',
+        // apiKey: '<yourVonageApiKey>',
+        // apiSecret: '<yourVonageApiSecret>',
+      },
     },
     throttle: {
       enabled: true,

@@ -24,7 +24,6 @@ import pluralize from 'pluralize';
 import { BouncesService } from 'src/api/bounces/bounces.service';
 import { NotificationsService } from 'src/api/notifications/notifications.service';
 import { AppConfigService } from 'src/config/app-config.service';
-import twilio from 'twilio';
 import toSentence from 'underscore.string/toSentence';
 import util, { promisify } from 'util';
 import { ConfigurationsService } from '../api/configurations/configurations.service';
@@ -151,13 +150,36 @@ export class CommonService {
         }
         return res;
       }
+      case 'vonage': {
+        if (!CommonService.smsClient) {
+          const { Vonage } = await import('@vonage/server-sdk');
+          CommonService.smsClient = new Vonage({
+            apiKey: smsConfig.apiKey,
+            apiSecret: smsConfig.apiSecret,
+          });
+        }
+
+        let req = CommonService.smsClient.sms.send.bind(
+          CommonService.smsClient.sms,
+        );
+        if (this.appConfig?.sms?.throttle?.enabled) {
+          req = this.rateLimit(this.smsQueue, req, { priority });
+        }
+        return req({
+          to: to,
+          from: smsConfig.from,
+          text: textBody,
+        });
+      }
       default: {
         // Twilio Credentials
         const accountSid = smsConfig.accountSid;
         const authToken = smsConfig.authToken;
         //require the Twilio module and create a REST client
-        CommonService.smsClient =
-          CommonService.smsClient || twilio(accountSid, authToken);
+        if (!CommonService.smsClient) {
+          const { default: twilio } = await import('twilio');
+          CommonService.smsClient = twilio(accountSid, authToken);
+        }
         let req = CommonService.smsClient.messages.create.bind(
           CommonService.smsClient.messages,
         );

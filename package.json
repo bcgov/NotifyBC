@@ -1,6 +1,6 @@
 {
   "name": "notify-bc",
-  "version": "6.1.2",
+  "version": "6.2.0",
   "dbSchemaVersion": "0.9.0",
   "description": "A versatile notification API server",
   "author": "f-w",
@@ -44,6 +44,7 @@
     "@nestjs/platform-express": "^10.4.5",
     "@nestjs/swagger": "^8.1.0",
     "@nestjs/terminus": "^10.2.3",
+    "@vonage/server-sdk": "^3.25.1",
     "async": "^3.2.4",
     "axios": "^1.6.8",
     "bcryptjs": "^2.4.3",
