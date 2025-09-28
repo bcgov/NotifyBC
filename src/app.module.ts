@@ -15,7 +15,6 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Logger, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import RedisMemoryServer from 'redis-memory-server';
 import { promisify } from 'util';
 import { AdministratorsModule } from './api/administrators/administrators.module';
 import { BouncesModule } from './api/bounces/bounces.module';
@@ -117,6 +116,7 @@ import { RssModule } from './rss/rss.module';
             shutdownService.addRedisServer(redisContainer);
             break;
           default:
+            const { RedisMemoryServer } = await import('redis-memory-server');
             const redisServer = new RedisMemoryServer();
             host = await redisServer.getHost();
             port = await redisServer.getPort();
