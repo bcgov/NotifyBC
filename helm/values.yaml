@@ -90,6 +90,8 @@ affinity: {}
 extraEnvs: []
 
 mongodb:
+  image:
+    repository: bitnamilegacy/mongodb
   architecture: replicaset
   replicaCount: 3
   auth:
@@ -152,7 +154,11 @@ cronJob:
     size: 5Gi
 
 redis:
+  image:
+    repository: bitnamilegacy/redis
   sentinel:
+    image:
+      repository: bitnamilegacy/redis-sentinel
     enabled: true
     downAfterMilliseconds: 4000
     failoverTimeout: 2000
