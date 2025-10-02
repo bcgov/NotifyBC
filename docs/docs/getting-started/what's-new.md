@@ -9,6 +9,11 @@ _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
 ## v6
 
+### v6.3.0
+
+- created helm repo under _gh-pages_ branch _helm_ folder and published helm chart
+- renamed docker hub user _bitnami_ to _bitnamilegacy_
+
 ### v6.2.0
 
 - Issue [#113](https://github.com/bcgov/NotifyBC/issues/113) added Vonage SMS provider
