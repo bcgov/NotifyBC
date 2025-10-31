@@ -35,7 +35,7 @@ export class BaseEntity {
 
 export const BaseSchemaOptions = {
   strict: false,
-  versionKey: false,
+  versionKey: false as const,
   toJSON: {
     virtuals: true,
     flattenObjectIds: true,
