@@ -89,10 +89,10 @@ Installation approach differs by your purpose
   - wait till console displays `Server is running at http://0.0.0.0:3000/api`
   - browse to http://localhost:3000
 
-The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.3.0_, run
+The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.3.1_, run
 
 ```sh
- git checkout tags/v6.3.0 -b v6.3.0
+ git checkout tags/v6.3.1 -b v6.3.1
 ```
 
 after `cd NotifyBC`. A list of versions can be found [here](https://github.com/bcgov/NotifyBC/tags).
@@ -393,7 +393,7 @@ If your application has a Helm chart, you can set _NotifyBC_ chart as its depend
 # your app's Chart.yaml
 dependencies:
   - name: notify-bc
-    version: '6.3.0'
+    version: '6.3.1'
     repository: 'https://bcgov.github.io/NotifyBC/helm'
 ```
 
