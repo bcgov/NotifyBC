@@ -34,6 +34,8 @@ const logger = new Logger(path.parse(__filename).name);
 // setupApp is shared between bootstrap and e2e setupApplication
 export async function setupApp(app: NestExpressApplication) {
   AppService.app = app;
+  // per v11 https://docs.nestjs.com/migration-guide#query-parameters-parsing
+  app.set('query parser', 'extended');
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
   const appConfig = app.get(AppConfigService).get();

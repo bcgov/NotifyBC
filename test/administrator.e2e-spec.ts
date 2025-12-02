@@ -161,11 +161,13 @@ describe('Administrator API', () => {
       const res = await client.get('/api/administrators');
       expect(res.status).toEqual(403);
     });
-    it('should allow super-admin user', async function () {
+    it('should allow super-admin user with qs filter', async function () {
       await runAsSuperAdmin(async () => {
-        const res = await client.get('/api/administrators');
+        const res = await client.get(
+          '/api/administrators?filter[where][email][$regex]=^foo',
+        );
         expect(res.status).toEqual(200);
-        expect(res.body.length).toEqual(2);
+        expect(res.body.length).toEqual(1);
       });
     });
     it('should allow own record only for admin user', async function () {
