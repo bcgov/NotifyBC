@@ -20,10 +20,11 @@ import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.servic
 import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import { getAppAndClient, runAsSuperAdmin } from './test-helper';
 
 let app: NestExpressApplication;
-let client: supertest.SuperTest<supertest.Test>;
+let client: TestAgent<supertest.Test>;
 let subscriptionsService: SubscriptionsService;
 let configurationsService: ConfigurationsService;
 

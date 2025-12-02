@@ -25,10 +25,11 @@ import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import { NotificationQueueConsumer } from 'src/queue/notification-queue-consumer';
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import { getAppAndClient, runAsSuperAdmin, wait } from './test-helper';
 
 let app: NestExpressApplication;
-let client: supertest.SuperTest<supertest.Test>;
+let client: TestAgent<supertest.Test>;
 let notificationsService: NotificationsService;
 let subscriptionsService: SubscriptionsService;
 let bouncesService: BouncesService;
@@ -928,7 +929,10 @@ describe('POST /notifications', () => {
           return originalDnsLookup(...args);
         }
         const cb: any = args[args.length - 1];
-        cb(null, [{ address: '127.0.0.2' }, { address: '127.0.0.1' }]);
+        cb(null, [
+          { address: '127.0.0.2', family: 4 },
+          { address: '127.0.0.1', family: 4 },
+        ]);
       });
 
       const res = await client

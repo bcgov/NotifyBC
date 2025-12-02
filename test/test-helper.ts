@@ -22,9 +22,10 @@ import { CommonService } from 'src/common/common.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import { setupApp } from 'src/main';
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import { promisify } from 'util';
 
-let app: NestExpressApplication, client: supertest.SuperTest<supertest.Test>;
+let app: NestExpressApplication, client: TestAgent<supertest.Test>;
 export function getAppAndClient() {
   return { app, client };
 }
@@ -53,9 +54,12 @@ export async function setupApplication(extraConfigs?) {
 
 export const wait = promisify(setTimeout);
 
-beforeAll(async () => {
-  ({ app, client } = await setupApplication());
-}, Number(process.env.notifyBcJestTestTimeout) || 99999);
+beforeAll(
+  async () => {
+    ({ app, client } = await setupApplication());
+  },
+  Number(process.env.notifyBcJestTestTimeout) || 99999,
+);
 
 afterAll(async () => {
   await app.close();

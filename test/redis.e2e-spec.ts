@@ -6,34 +6,40 @@ import { NotificationsService } from 'src/api/notifications/notifications.servic
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
 import { CommonService } from 'src/common/common.service';
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import { runAsSuperAdmin, setupApplication, wait } from './test-helper';
 
 let app: NestExpressApplication;
-let client: supertest.SuperTest<supertest.Test>;
+let client: TestAgent<supertest.Test>;
 let notificationsService: NotificationsService;
 let subscriptionsService: SubscriptionsService;
 let mockedFetch;
 
 describe('', () => {
-  beforeEach(async () => {
-    ({ app, client } = await setupApplication({
-      adminIps: ['127.0.0.1'],
-      email: {
-        throttle: {
-          enabled: true,
+  beforeEach(
+    async () => {
+      ({ app, client } = await setupApplication({
+        adminIps: ['127.0.0.1'],
+        email: {
+          throttle: {
+            enabled: true,
+          },
         },
-      },
-      sms: {
-        throttle: {
-          enabled: true,
-          max: 1,
-          duration: 2000,
+        sms: {
+          throttle: {
+            enabled: true,
+            max: 1,
+            duration: 2000,
+          },
         },
-      },
-    }));
-    subscriptionsService = app.get<SubscriptionsService>(SubscriptionsService);
-    notificationsService = app.get<NotificationsService>(NotificationsService);
-  }, Number(process.env.notifyBcJestTestTimeout) || 99999);
+      }));
+      subscriptionsService =
+        app.get<SubscriptionsService>(SubscriptionsService);
+      notificationsService =
+        app.get<NotificationsService>(NotificationsService);
+    },
+    Number(process.env.notifyBcJestTestTimeout) || 99999,
+  );
 
   afterEach(async () => {
     await app.close();
@@ -128,7 +134,10 @@ describe('', () => {
             return originalDnsLookup(...args);
           }
           const cb: any = args[args.length - 1];
-          cb(null, [{ address: '127.0.0.2' }, { address: '127.0.0.1' }]);
+          cb(null, [
+            { address: '127.0.0.2', family: 4 },
+            { address: '127.0.0.1', family: 4 },
+          ]);
         });
         const spiedQueueAdd = jest.spyOn(Queue.prototype, 'add');
         const res = await client
