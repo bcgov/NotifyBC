@@ -16,6 +16,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { compare } from 'bcryptjs';
 import { AdministratorsService } from 'src/api/administrators/administrators.service';
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import {
   getAppAndClient,
   runAsSuperAdmin,
@@ -24,7 +25,7 @@ import {
 } from './test-helper';
 
 describe('Administrator API', () => {
-  let client: supertest.SuperTest<supertest.Test>;
+  let client: TestAgent<supertest.Test>;
   let app: NestExpressApplication;
   const VALID_PASSWORD = '1aA@aaaaaa';
   let administratorsService: AdministratorsService;

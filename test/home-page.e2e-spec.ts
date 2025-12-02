@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import { getAppAndClient } from './test-helper';
 
-let client: supertest.SuperTest<supertest.Test>;
+let client: TestAgent<supertest.Test>;
 
 beforeEach(() => {
   ({ client } = getAppAndClient());

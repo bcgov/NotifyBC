@@ -19,11 +19,12 @@ import { BouncesService } from 'src/api/bounces/bounces.service';
 import { SubscriptionsService } from 'src/api/subscriptions/subscriptions.service';
 import { AppConfigService } from 'src/config/app-config.service';
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import { promisify } from 'util';
 import * as smtpSvrImport from '../src/observers/smtp-server';
 import { getAppAndClient, runAsSuperAdmin } from './test-helper';
 
-let client: supertest.SuperTest<supertest.Test>;
+let client: TestAgent<supertest.Test>;
 let subscriptionsService: SubscriptionsService;
 let bouncesService: BouncesService;
 let app: NestExpressApplication;
@@ -176,39 +177,37 @@ describe('bounce', function () {
 
   it('should create bounce record', async () => {
     await runAsSuperAdmin(async () => {
-      jest
-        .spyOn(global, 'fetch')
-        .mockImplementation(async function (...args: any[]) {
-          if (
-            args.length === 1 ||
-            (args.length > 1 && args[1].method === undefined)
-          ) {
-            const getReq = client.get(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
-              for (const [p, v] of Object.entries(args[1].headers as object)) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                getReq.set(p, v);
-              }
-            }
-            const data = await getReq;
-            return new Response(JSON.stringify(data));
-          }
-          if (args.length > 1 && args[1].method === 'POST') {
-            const req = client.post(args[0].substring(args[0].indexOf('/api')));
-            if (args[1]) {
+      jest.spyOn(global, 'fetch').mockImplementation(async function (
+        ...args: any[]
+      ) {
+        if (
+          args.length === 1 ||
+          (args.length > 1 && args[1].method === undefined)
+        ) {
+          const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            for (const [p, v] of Object.entries(args[1].headers as object)) {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              req.send(JSON.parse(args[1].body));
+              getReq.set(p, v);
             }
-            const data = await req;
-            if (data) {
-              expect(data.body.hardBounceCount).toEqual(1);
-            }
-            return new Response(JSON.stringify(data.body));
           }
-          throw new Error();
-        });
+          const data = await getReq;
+          return new Response(JSON.stringify(data));
+        }
+        if (args.length > 1 && args[1].method === 'POST') {
+          const req = client.post(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            req.send(JSON.parse(args[1].body));
+          }
+          const data = await req;
+          if (data) {
+            expect(data.body.hardBounceCount).toEqual(1);
+          }
+          return new Response(JSON.stringify(data.body));
+        }
+        throw new Error();
+      });
       expect(port).toBeGreaterThan(0);
       await promisify(connection.connect).bind(connection)();
       const info = await promisify(connection.send).bind(connection)(
@@ -227,39 +226,35 @@ describe('bounce', function () {
 
   it('should increment bounce record', async () => {
     await runAsSuperAdmin(async () => {
-      jest
-        .spyOn(global, 'fetch')
-        .mockImplementation(async function (...args: any[]) {
-          if (
-            args.length === 1 ||
-            (args.length > 1 && args[1].method === undefined)
-          ) {
-            const getReq = client.get(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
-              for (const [p, v] of Object.entries(args[1].headers as object)) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                getReq.set(p, v);
-              }
-            }
-            const data: any = await getReq;
-            return new Response(JSON.stringify(data.body));
-          }
-          if (args.length > 1 && args[1].method === 'PATCH') {
-            const req = client.patch(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]?.body) {
+      jest.spyOn(global, 'fetch').mockImplementation(async function (
+        ...args: any[]
+      ) {
+        if (
+          args.length === 1 ||
+          (args.length > 1 && args[1].method === undefined)
+        ) {
+          const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            for (const [p, v] of Object.entries(args[1].headers as object)) {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              req.send(JSON.parse(args[1].body));
+              getReq.set(p, v);
             }
-            const data: any = await req;
-            expect(data.status).toEqual(204);
-            return new Response(JSON.stringify(data.body));
           }
-          throw new Error();
-        });
+          const data: any = await getReq;
+          return new Response(JSON.stringify(data.body));
+        }
+        if (args.length > 1 && args[1].method === 'PATCH') {
+          const req = client.patch(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]?.body) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            req.send(JSON.parse(args[1].body));
+          }
+          const data: any = await req;
+          expect(data.status).toEqual(204);
+          return new Response(JSON.stringify(data.body));
+        }
+        throw new Error();
+      });
       expect(port).toBeGreaterThan(0);
       const res = await bouncesService.create({
         channel: 'email',
@@ -287,39 +282,35 @@ describe('bounce', function () {
 
   it("should not increment bounce record if subject doesn't match", async () => {
     await runAsSuperAdmin(async () => {
-      jest
-        .spyOn(global, 'fetch')
-        .mockImplementation(async function (...args: any[]) {
-          if (
-            args.length === 1 ||
-            (args.length > 1 && args[1].method === undefined)
-          ) {
-            const getReq = client.get(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
-              for (const [p, v] of Object.entries(args[1].headers as object)) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                getReq.set(p, v);
-              }
-            }
-            const data: any = await getReq;
-            return new Response(JSON.stringify(data.body));
-          }
-          if (args.length > 1 && args[1].method === 'PATCH') {
-            const req = client.patch(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
+      jest.spyOn(global, 'fetch').mockImplementation(async function (
+        ...args: any[]
+      ) {
+        if (
+          args.length === 1 ||
+          (args.length > 1 && args[1].method === undefined)
+        ) {
+          const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            for (const [p, v] of Object.entries(args[1].headers as object)) {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              req.send(JSON.parse(args[1].body));
+              getReq.set(p, v);
             }
-            const data: any = await req;
-            expect(data.status).toEqual(204);
-            return new Response();
           }
-          throw new Error();
-        });
+          const data: any = await getReq;
+          return new Response(JSON.stringify(data.body));
+        }
+        if (args.length > 1 && args[1].method === 'PATCH') {
+          const req = client.patch(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            req.send(JSON.parse(args[1].body));
+          }
+          const data: any = await req;
+          expect(data.status).toEqual(204);
+          return new Response();
+        }
+        throw new Error();
+      });
       expect(port).toBeGreaterThan(0);
       const res = await bouncesService.create({
         channel: 'email',
@@ -347,39 +338,35 @@ describe('bounce', function () {
 
   it("should not increment bounce record if status code doesn't match", async () => {
     await runAsSuperAdmin(async () => {
-      jest
-        .spyOn(global, 'fetch')
-        .mockImplementation(async function (...args: any[]) {
-          if (
-            args.length === 1 ||
-            (args.length > 1 && args[1].method === undefined)
-          ) {
-            const getReq = client.get(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
-              for (const [p, v] of Object.entries(args[1].headers as object)) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                getReq.set(p, v);
-              }
-            }
-            const data: any = await getReq;
-            return new Response(JSON.stringify(data.body));
-          }
-          if (args.length > 1 && args[1].method === 'PATCH') {
-            const req = client.patch(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
+      jest.spyOn(global, 'fetch').mockImplementation(async function (
+        ...args: any[]
+      ) {
+        if (
+          args.length === 1 ||
+          (args.length > 1 && args[1].method === undefined)
+        ) {
+          const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            for (const [p, v] of Object.entries(args[1].headers as object)) {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              req.send(JSON.parse(args[1].body));
+              getReq.set(p, v);
             }
-            const data: any = await req;
-            expect(data.status).toEqual(204);
-            return new Response();
           }
-          throw new Error();
-        });
+          const data: any = await getReq;
+          return new Response(JSON.stringify(data.body));
+        }
+        if (args.length > 1 && args[1].method === 'PATCH') {
+          const req = client.patch(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            req.send(JSON.parse(args[1].body));
+          }
+          const data: any = await req;
+          expect(data.status).toEqual(204);
+          return new Response();
+        }
+        throw new Error();
+      });
       expect(port).toBeGreaterThan(0);
       const res = await bouncesService.create({
         channel: 'email',
@@ -407,39 +394,35 @@ describe('bounce', function () {
 
   it("should not increment bounce record if email doesn't match", async () => {
     await runAsSuperAdmin(async () => {
-      jest
-        .spyOn(global, 'fetch')
-        .mockImplementation(async function (...args: any[]) {
-          if (
-            args.length === 1 ||
-            (args.length > 1 && args[1].method === undefined)
-          ) {
-            const getReq = client.get(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
-              for (const [p, v] of Object.entries(args[1].headers as object)) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                getReq.set(p, v);
-              }
-            }
-            const data: any = await getReq;
-            return new Response(JSON.stringify(data.body));
-          }
-          if (args.length > 1 && args[1].method === 'PATCH') {
-            const req = client.patch(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
+      jest.spyOn(global, 'fetch').mockImplementation(async function (
+        ...args: any[]
+      ) {
+        if (
+          args.length === 1 ||
+          (args.length > 1 && args[1].method === undefined)
+        ) {
+          const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            for (const [p, v] of Object.entries(args[1].headers as object)) {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              req.send(JSON.parse(args[1].body));
+              getReq.set(p, v);
             }
-            const data: any = await req;
-            expect(data.status).toEqual(204);
-            return new Response();
           }
-          throw new Error();
-        });
+          const data: any = await getReq;
+          return new Response(JSON.stringify(data.body));
+        }
+        if (args.length > 1 && args[1].method === 'PATCH') {
+          const req = client.patch(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            req.send(JSON.parse(args[1].body));
+          }
+          const data: any = await req;
+          expect(data.status).toEqual(204);
+          return new Response();
+        }
+        throw new Error();
+      });
       expect(port).toBeGreaterThan(0);
       const res = await bouncesService.create({
         channel: 'email',
@@ -467,39 +450,35 @@ describe('bounce', function () {
 
   it('should check header x-failed-recipients', async () => {
     await runAsSuperAdmin(async () => {
-      jest
-        .spyOn(global, 'fetch')
-        .mockImplementation(async function (...args: any[]) {
-          if (
-            args.length === 1 ||
-            (args.length > 1 && args[1].method === undefined)
-          ) {
-            const getReq = client.get(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
-              for (const [p, v] of Object.entries(args[1].headers as object)) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                getReq.set(p, v);
-              }
-            }
-            const data: any = await getReq;
-            return new Response(JSON.stringify(data.body));
-          }
-          if (args.length > 1 && args[1].method === 'PATCH') {
-            const req = client.patch(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
+      jest.spyOn(global, 'fetch').mockImplementation(async function (
+        ...args: any[]
+      ) {
+        if (
+          args.length === 1 ||
+          (args.length > 1 && args[1].method === undefined)
+        ) {
+          const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            for (const [p, v] of Object.entries(args[1].headers as object)) {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              req.send(JSON.parse(args[1].body));
+              getReq.set(p, v);
             }
-            const data: any = await req;
-            expect(data.status).toEqual(204);
-            return new Response();
           }
-          throw new Error();
-        });
+          const data: any = await getReq;
+          return new Response(JSON.stringify(data.body));
+        }
+        if (args.length > 1 && args[1].method === 'PATCH') {
+          const req = client.patch(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            req.send(JSON.parse(args[1].body));
+          }
+          const data: any = await req;
+          expect(data.status).toEqual(204);
+          return new Response();
+        }
+        throw new Error();
+      });
       expect(port).toBeGreaterThan(0);
       const res = await bouncesService.create({
         channel: 'email',
@@ -527,45 +506,41 @@ describe('bounce', function () {
 
   it('should unsubscribe and delete bounce record when hardBounceCount exceeds threshold', async () => {
     await runAsSuperAdmin(async () => {
-      jest
-        .spyOn(global, 'fetch')
-        .mockImplementation(async function (...args: any[]) {
-          if (
-            args.length === 1 ||
-            (args.length > 1 && args[1].method === undefined)
-          ) {
-            const getReq = client.get(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args?.[1]?.headers) {
-              for (const [p, v] of Object.entries(args[1].headers as object)) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                getReq.set(p, v);
-              }
-            }
-            const data: any = await getReq;
-            if (data) {
-              if (args[0].indexOf('/unsubscribe?unsubscriptionCode') >= 0) {
-                const res = await subscriptionsService.findById(subId);
-                expect(res.state).toEqual('deleted');
-              }
-            }
-            return new Response(JSON.stringify(data.body));
-          }
-          if (args.length > 1 && args[1].method === 'PATCH') {
-            const req = client.patch(
-              args[0].substring(args[0].indexOf('/api')),
-            );
-            if (args[1]) {
+      jest.spyOn(global, 'fetch').mockImplementation(async function (
+        ...args: any[]
+      ) {
+        if (
+          args.length === 1 ||
+          (args.length > 1 && args[1].method === undefined)
+        ) {
+          const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
+          if (args?.[1]?.headers) {
+            for (const [p, v] of Object.entries(args[1].headers as object)) {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              req.send(JSON.parse(args[1].body));
+              getReq.set(p, v);
             }
-            const data: any = await req;
-            expect(data.status).toEqual(204);
-            return new Response();
           }
-          throw new Error();
-        });
+          const data: any = await getReq;
+          if (data) {
+            if (args[0].indexOf('/unsubscribe?unsubscriptionCode') >= 0) {
+              const res = await subscriptionsService.findById(subId);
+              expect(res.state).toEqual('deleted');
+            }
+          }
+          return new Response(JSON.stringify(data.body));
+        }
+        if (args.length > 1 && args[1].method === 'PATCH') {
+          const req = client.patch(args[0].substring(args[0].indexOf('/api')));
+          if (args[1]) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            req.send(JSON.parse(args[1].body));
+          }
+          const data: any = await req;
+          expect(data.status).toEqual(204);
+          return new Response();
+        }
+        throw new Error();
+      });
       expect(port).toBeGreaterThan(0);
       const res = await bouncesService.create({
         channel: 'email',

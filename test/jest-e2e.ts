@@ -24,6 +24,10 @@ const config: Config = {
   testTimeout: Number(process.env.notifyBcJestTestTimeout) || 5000,
   restoreMocks: true,
   // cache: process.platform === 'win32' ? false : true,
+  transform: {
+    '^.+\\.(t|j)s$': 'ts-jest',
+  },
+  transformIgnorePatterns: ['/node_modules/(?!(crypto-random-string))'],
   collectCoverageFrom: [
     'src/**/*.{js,ts}',
     '!src/utils/**',

@@ -26,8 +26,9 @@ import { CommonService } from 'src/common/common.service';
 import { CronTasksService } from 'src/observers/cron-tasks.service';
 import { RssService } from 'src/rss/rss.service';
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import { getAppAndClient, runAsSuperAdmin, wait } from './test-helper';
-let client: supertest.SuperTest<supertest.Test>;
+let client: TestAgent<supertest.Test>;
 let app: NestExpressApplication;
 let rssService: RssService;
 let notificationsService: NotificationsService;
@@ -529,7 +530,7 @@ describe('CRON checkRssConfigUpdates', function () {
     await cronTasksService.checkRssConfigUpdates(true);
     await wait(2000);
 
-    expect(fetch as unknown as jest.SpyInstance).lastCalledWith(
+    expect(fetch as unknown as jest.SpyInstance).toHaveBeenLastCalledWith(
       expect.stringContaining('/api/notifications'),
       expect.objectContaining({ method: 'POST' }),
     );

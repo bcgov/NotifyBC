@@ -15,9 +15,10 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigurationsService } from 'src/api/configurations/configurations.service';
 import supertest from 'supertest';
+import TestAgent from 'supertest/lib/agent';
 import { getAppAndClient, runAsSuperAdmin } from './test-helper';
 describe('GET /configuration', () => {
-  let client: supertest.SuperTest<supertest.Test>;
+  let client: TestAgent<supertest.Test>;
   let app: NestExpressApplication;
   let configurationsService: ConfigurationsService;
 
