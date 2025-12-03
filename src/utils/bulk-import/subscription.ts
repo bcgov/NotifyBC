@@ -69,8 +69,7 @@ import csv from 'csvtojson';
         console.error('error for row #' + task.rowIdx + ': ' + err);
         cb(err);
       });
-  },
-  parseInt(opts.concurrency));
+  }, parseInt(opts.concurrency));
   q.drain(function () {
     if (done) {
       console.log('success row count = ' + successCnt);
@@ -80,7 +79,6 @@ import csv from 'csvtojson';
 
   csv({
     colParser: {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       'confirmationRequest.sendRequest': (item: string) => {
         try {
           return item.toLowerCase() === 'true';

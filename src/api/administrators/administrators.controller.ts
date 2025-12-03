@@ -117,9 +117,8 @@ export class AdministratorsController {
     @Req() req,
   ): Promise<{ token: string }> {
     // ensure the user exists, and the password is correct
-    const user = await this.administratorsService.verifyCredentials(
-      credentials,
-    );
+    const user =
+      await this.administratorsService.verifyCredentials(credentials);
     // convert a User object into a UserProfile object (reduced set of properties)
     const userProfile = this.administratorsService.convertToUserProfile(user);
 

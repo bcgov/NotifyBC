@@ -120,7 +120,6 @@ export function smtpServer(app) {
                     encodeURIComponent(session.envelope.mailFrom.address),
                   {
                     headers: {
-                      // eslint-disable-next-line @typescript-eslint/naming-convention
                       is_anonymous: 'true',
                     },
                   },
@@ -316,7 +315,7 @@ export function smtpServer(app) {
       },
     };
     server = new SMTPServer(smtpOpts);
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     server.on('error', () => {});
     server.listen(port, function (this: any) {
       logger.log(

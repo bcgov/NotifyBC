@@ -79,7 +79,6 @@ describe('list-unsubscribe by email', function () {
       const url = args[0].substring(args[0].indexOf('/api'));
       const getReq = client.get(url);
       for (const [p, v] of Object.entries(args[1].headers as object)) {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         getReq.set(p, v);
       }
       await getReq;
@@ -103,7 +102,6 @@ describe('list-unsubscribe by email', function () {
       `http://localhost:3000/api/subscriptions/${subId}/unsubscribe?unsubscriptionCode=12345&userChannelId=bar%40foo.com`,
       {
         headers: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
           is_anonymous: 'true',
         },
       },
@@ -187,7 +185,6 @@ describe('bounce', function () {
           const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
             for (const [p, v] of Object.entries(args[1].headers as object)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               getReq.set(p, v);
             }
           }
@@ -197,7 +194,6 @@ describe('bounce', function () {
         if (args.length > 1 && args[1].method === 'POST') {
           const req = client.post(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             req.send(JSON.parse(args[1].body));
           }
           const data = await req;
@@ -236,7 +232,6 @@ describe('bounce', function () {
           const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
             for (const [p, v] of Object.entries(args[1].headers as object)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               getReq.set(p, v);
             }
           }
@@ -246,7 +241,6 @@ describe('bounce', function () {
         if (args.length > 1 && args[1].method === 'PATCH') {
           const req = client.patch(args[0].substring(args[0].indexOf('/api')));
           if (args[1]?.body) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             req.send(JSON.parse(args[1].body));
           }
           const data: any = await req;
@@ -292,7 +286,6 @@ describe('bounce', function () {
           const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
             for (const [p, v] of Object.entries(args[1].headers as object)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               getReq.set(p, v);
             }
           }
@@ -302,7 +295,6 @@ describe('bounce', function () {
         if (args.length > 1 && args[1].method === 'PATCH') {
           const req = client.patch(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             req.send(JSON.parse(args[1].body));
           }
           const data: any = await req;
@@ -348,7 +340,6 @@ describe('bounce', function () {
           const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
             for (const [p, v] of Object.entries(args[1].headers as object)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               getReq.set(p, v);
             }
           }
@@ -358,7 +349,6 @@ describe('bounce', function () {
         if (args.length > 1 && args[1].method === 'PATCH') {
           const req = client.patch(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             req.send(JSON.parse(args[1].body));
           }
           const data: any = await req;
@@ -404,7 +394,6 @@ describe('bounce', function () {
           const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
             for (const [p, v] of Object.entries(args[1].headers as object)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               getReq.set(p, v);
             }
           }
@@ -414,7 +403,6 @@ describe('bounce', function () {
         if (args.length > 1 && args[1].method === 'PATCH') {
           const req = client.patch(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             req.send(JSON.parse(args[1].body));
           }
           const data: any = await req;
@@ -460,7 +448,6 @@ describe('bounce', function () {
           const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
             for (const [p, v] of Object.entries(args[1].headers as object)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               getReq.set(p, v);
             }
           }
@@ -470,7 +457,6 @@ describe('bounce', function () {
         if (args.length > 1 && args[1].method === 'PATCH') {
           const req = client.patch(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             req.send(JSON.parse(args[1].body));
           }
           const data: any = await req;
@@ -516,7 +502,6 @@ describe('bounce', function () {
           const getReq = client.get(args[0].substring(args[0].indexOf('/api')));
           if (args?.[1]?.headers) {
             for (const [p, v] of Object.entries(args[1].headers as object)) {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               getReq.set(p, v);
             }
           }
@@ -532,7 +517,6 @@ describe('bounce', function () {
         if (args.length > 1 && args[1].method === 'PATCH') {
           const req = client.patch(args[0].substring(args[0].indexOf('/api')));
           if (args[1]) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             req.send(JSON.parse(args[1].body));
           }
           const data: any = await req;

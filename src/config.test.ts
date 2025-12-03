@@ -71,7 +71,6 @@ module.exports = {
   },
   notification: {
     broadcastCustomFilterFunctions: {
-      // eslint-disable-next-line  @typescript-eslint/naming-convention
       contains_ci: {
         _func: async function (resolvedArgs: (string | undefined)[]) {
           if (!resolvedArgs[0] || !resolvedArgs[1]) {

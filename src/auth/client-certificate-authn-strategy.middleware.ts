@@ -17,9 +17,7 @@ import { TLSSocket } from 'tls';
 import { AuthnStrategy, Role } from './constants';
 
 @Injectable()
-export class ClientCertificateAuthnStrategyMiddleware
-  implements NestMiddleware
-{
+export class ClientCertificateAuthnStrategyMiddleware implements NestMiddleware {
   use(req: any, res: any, next: () => void) {
     if (!(req.connection instanceof TLSSocket)) {
       return next();

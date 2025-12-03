@@ -479,10 +479,8 @@ describe('Administrator API', () => {
           case 'https://invalid.local/discoveryUrl':
             return new Response(
               JSON.stringify({
-                // eslint-disable-next-line @typescript-eslint/naming-convention
                 authorization_endpoint:
                   'https://invalid.local/authorization_endpoint',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
                 jwks_uri: 'https://invalid.local/jwks_uri',
               }),
             );
