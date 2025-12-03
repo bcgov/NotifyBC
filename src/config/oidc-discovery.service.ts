@@ -47,7 +47,6 @@ export class OidcDiscoveryService implements OnModuleInit {
       if (this.retryCount > 10) return;
       this.logger.verbose('retry in one minute');
       setTimeout(() => {
-        // eslint-disable-next-line no-void
         void this.onModuleInit();
       }, 60000);
     }

@@ -917,7 +917,6 @@ describe('POST /notifications', () => {
         .spyOn(mailer.prototype, 'sendMail')
         .mockImplementation(async function (this: any) {
           if (this.options.host !== '127.0.0.1') {
-            // eslint-disable-next-line no-throw-literal
             throw { command: 'CONN', code: 'ETIMEDOUT' };
           }
           return 'ok';

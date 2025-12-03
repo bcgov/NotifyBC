@@ -513,8 +513,7 @@ export class CronTasksService {
       await Promise.all(
         staleBroadcastPushNotifications.map(
           async (staleBroadcastPushNotification) => {
-            staleBroadcastPushNotification.asyncBroadcastPushNotification =
-              true;
+            staleBroadcastPushNotification.asyncBroadcastPushNotification = true;
             const httpHost =
               this.appConfigService.get('internalHttpHost') ??
               staleBroadcastPushNotification.httpHost ??
