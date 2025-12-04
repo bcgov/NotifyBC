@@ -90,8 +90,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v6,
   ```
 
   Replace
-
-  - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.3.1_.
+  - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.3.2_.
 
 - if _NotifyBC_ is deployed to Kubernetes using Helm,
   1. backup MongoDB database
@@ -102,7 +101,7 @@ After above changes are addressed, to upgrade _NotifyBC_ to v6,
      helm upgrade <release-name> -f helm/platform-specific/<platform>.yaml -f helm/values.local.yaml helm
      ```
      Replace
-     - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.3.1_.
+     - _v6.x.x_ with a v6 release, preferably latest, found in GitHub such as _v6.3.2_.
      - \<release-name\> with installed helm release name
      - \<platform\> with _openshift_ or _aks_ depending on your platform
 
@@ -113,7 +112,6 @@ v5 introduced following backward incompatible changes
 1. Replica set is required for MongoDB. If you deployed NotifyBC using Helm, replica set is already enabled by default.
 2. If you use default in-memory database, data in _server/database/data.json_ will not be migrated automatically. Manually migrate if necessary.
 3. Update file _src/datasources/db.datasource.local.[json|js|ts]_
-
    1. rename _url_ property to _uri_
    2. for other properties, instead of following [LoopBack MongoDB data source](https://loopback.io/doc/en/lb4/MongoDB-connector.html#creating-a-mongodb-data-source), follow [Mongoose connection options](https://mongoosejs.com/docs/connections.html#options). In particular, _host_, _port_ and _database_ properties are no longer supported. Use _uri_ instead.
 
@@ -201,7 +199,6 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
   ```
 
   Replace
-
   - _v5.x.x_ with a v6 release, preferably latest, found in GitHub such as _v5.0.0_.
 
 - if _NotifyBC_ is deployed to Kubernetes using Helm,
@@ -229,7 +226,6 @@ After above changes are addressed, to upgrade _NotifyBC_ to v5,
 v4 introduced following backward incompatible changes that need to be addressed in this order
 
 1. The precedence of config, middleware and datasource files has been changed. Local file takes higher precedence than environment specific file. For example, for config file, the new precedence in ascending order is
-
    1. default file _src/config.ts_
    2. environment specific file _src/config.\<env\>.js_, where \<env\> is determined by environment variable _NODE_ENV_
    3. local file _src/config.local.js_
@@ -459,7 +455,6 @@ npm i && npm run build
 
 3. Follow OpenShift [Build](../installation/#build)
 4. For each environment,
-
    1. run
 
       ```sh
