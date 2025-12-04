@@ -1,10 +1,10 @@
 import { viteBundler } from '@vuepress/bundler-vite';
 import { docsearchPlugin } from '@vuepress/plugin-docsearch';
+import { markdownChartPlugin } from '@vuepress/plugin-markdown-chart';
 import { defaultTheme } from '@vuepress/theme-default';
 import { getDirname, path } from '@vuepress/utils';
 import markdownItInclude from 'markdown-it-include';
 import { defineUserConfig } from 'vuepress';
-import { mdEnhancePlugin } from 'vuepress-plugin-md-enhance';
 import packageJson, { description } from '../../package';
 const __dirname = getDirname(import.meta.url);
 
@@ -64,9 +64,19 @@ export default defineUserConfig({
       indexName: 'notifybc',
       indexBase: '/NotifyBC/',
     }),
-    mdEnhancePlugin({
-      // Enable mermaid
+    markdownChartPlugin({
+      // Enable Chart.js
+      // chartjs: true,
+      // Enable ECharts
+      // echarts: true,
+      // Enable Flowchart.js
+      // flowchart: true,
+      // Enable Markmap
+      // markmap: true,
+      // Enable Mermaid
       mermaid: true,
+      // Enable PlantUML
+      // plantuml: true,
     }),
   ],
 
