@@ -55,7 +55,6 @@ installing from source code is preferred.
 Installation approach differs by your purpose
 
 - for evaluation,
-
   - internet connection is required
   - Docker Desktop must be running if you localhost is Windows
   - run following commands
@@ -70,7 +69,6 @@ Installation approach differs by your purpose
   - browse to http://localhost:3000
 
 - for production,
-
   - install MongoDB with replica set or obtain a hosted service
   - install Redis, preferably with Sentinel or obtain a hosted service
   - run
@@ -89,10 +87,10 @@ Installation approach differs by your purpose
   - wait till console displays `Server is running at http://0.0.0.0:3000/api`
   - browse to http://localhost:3000
 
-The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.3.1_, run
+The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.3.2_, run
 
 ```sh
- git checkout tags/v6.3.1 -b v6.3.1
+ git checkout tags/v6.3.2 -b v6.3.2
 ```
 
 after `cd NotifyBC`. A list of versions can be found [here](https://github.com/bcgov/NotifyBC/tags).
@@ -155,7 +153,6 @@ To install,
    replace \<platform\> with _openshift_ or _aks_ depending on your platform.
 
    The above commands create following artifacts:
-
    - 1 stateful set of 3 pods running a MongoDB replicaset
    - 1 stateful set of 3 pods running a Redis sentinel
    - 2 deployments - _notify-bc-app_ and _notify-bc-cron_
@@ -337,7 +334,6 @@ The above settings assume you have setup secret \<docker-pull-secret\> to access
   ```
 
   where
-
   - enabled: whether to enable the MongoDB backup CronJob or not; default to `false`
   - schedule: the Unix crontab schedule; default to `'1 0 * * *'` which runs daily at 12:01AM
   - retentionDays: how many days the backup is retained; default to `7`
@@ -393,7 +389,7 @@ If your application has a Helm chart, you can set _NotifyBC_ chart as its depend
 # your app's Chart.yaml
 dependencies:
   - name: notify-bc
-    version: '6.3.1'
+    version: '6.3.2'
     repository: 'https://bcgov.github.io/NotifyBC/helm'
 ```
 
