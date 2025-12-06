@@ -11,7 +11,7 @@ $ curl -s http://localhost:3000/api/memory
 Heap.20240513.114015.22037.0.001.heapsnapshot
 ```
 
-The output is the file name of the memory dump. The dump file can be loaded by, for example, Chrome DevTools.
+The output is the file name of the memory dump at application root. The dump file can be loaded by, for example, Chrome DevTools.
 
 _fileName_ query parameter can be used to specify the file path and name
 
@@ -19,6 +19,8 @@ _fileName_ query parameter can be used to specify the file path and name
 $ curl -s http://localhost:3000/api/memory?fileName=/tmp/my.heapsnapshot
 /tmp/my.heapsnapshot
 ```
+
+The query parameter is necessary if the application root is read-only.
 
 ::: tip How to get memory dump of a particular node?
 If you call `/memory` from a client-facing URL end point, which is usually load balanced, the memory dump occurs only on node handling your request. To perform it on the node you want to troubleshoot, in particular the _primary_ node, run the command from the node. Make sure 127.0.0.1 is in _adminIps_.
