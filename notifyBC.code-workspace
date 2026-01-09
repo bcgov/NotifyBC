@@ -1,13 +1,10 @@
 {
   "folders": [
     {
-      "path": "."
+      "path": ".",
     },
-    {
-      "path": "../jmespath.js"
-    }
   ],
   "settings": {
-    "liveServer.settings.multiRootWorkspaceName": "notifyBC"
-  }
+    "liveServer.settings.multiRootWorkspaceName": "notifyBC",
+  },
 }
