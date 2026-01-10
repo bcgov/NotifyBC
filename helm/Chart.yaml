@@ -26,7 +26,7 @@ appVersion: '6.3'
 
 dependencies:
   - name: mongodb
-    version: 16.3.3
+    version: 18.1.20
     repository: https://charts.bitnami.com/bitnami
   - name: redis
     version: 20.4.1
