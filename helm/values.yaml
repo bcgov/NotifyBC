@@ -158,10 +158,14 @@ cronJob:
 
 redis:
   image:
-    repository: bitnamilegacy/redis
+    registry: ghcr.io
+    repository: bcgov/notify-bc-redis
+    tag: 8.4.0
   sentinel:
     image:
-      repository: bitnamilegacy/redis-sentinel
+      registry: ghcr.io
+      repository: bcgov/notify-bc-redis-sentinel
+      tag: 8.4.0
     enabled: true
     downAfterMilliseconds: 4000
     failoverTimeout: 2000

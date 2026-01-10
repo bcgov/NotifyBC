@@ -29,5 +29,5 @@ dependencies:
     version: 18.1.20
     repository: https://charts.bitnami.com/bitnami
   - name: redis
-    version: 20.4.1
+    version: 24.1.0
     repository: https://charts.bitnami.com/bitnami
