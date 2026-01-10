@@ -87,10 +87,10 @@ Installation approach differs by your purpose
   - wait till console displays `Server is running at http://0.0.0.0:3000/api`
   - browse to http://localhost:3000
 
-The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.3.2_, run
+The above commands installs the _main_ version, i.e. main branch tip of _NotifyBC_ GitHub repository. To install a specific version, say _v6.4.0_, run
 
 ```sh
- git checkout tags/v6.3.2 -b v6.3.2
+ git checkout tags/v6.4.0 -b v6.4.0
 ```
 
 after `cd NotifyBC`. A list of versions can be found [here](https://github.com/bcgov/NotifyBC/tags).
@@ -308,18 +308,6 @@ Following are some common customizations
 
   To install a Helm chart, the above credential can be randomly defined. To upgrade an existing release, It must match what's defined in secret _\<release-name\>-redis_.
 
-- Both Bitnami MongoDB and Redis use Docker Hub for docker registry. Rate limit imposed by Docker Hub can cause runtime problems. If your organization has JFrog artifactory, you can change the registry
-
-```yaml
-# in file helm/values.local.yaml
-global:
-  imageRegistry: <artifactory.myOrg.com>
-  imagePullSecrets:
-    - <docker-pull-secret>
-```
-
-The above settings assume you have setup secret \<docker-pull-secret\> to access \<artifactory.myOrg.com\>. The secret can be created using [kubectl](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line).
-
 - Enable scheduled MongoDB backup CronJob
 
   ```yaml
@@ -389,7 +377,7 @@ If your application has a Helm chart, you can set _NotifyBC_ chart as its depend
 # your app's Chart.yaml
 dependencies:
   - name: notify-bc
-    version: '6.3.2'
+    version: '6.4.0'
     repository: 'https://bcgov.github.io/NotifyBC/helm'
 ```
 
