@@ -57,3 +57,13 @@ You can now browse to the local docs site [http://localhost:8080/NotifyBC](http:
 5. update _appVersion_ in _helm/Chart.yaml_ (major/minor only)
 6. update [What's new](../getting-started/what's-new.md) (major/minor only)
 7. create a new Github release
+
+## Build Bitnami Container Images
+
+Following images are built from respective subfolder of [source code](https://github.com/bitnami/containers/tree/main/bitnami)
+
+- [notify-bc-mongodb](https://github.com/bcgov/NotifyBC/pkgs/container/notify-bc-mongodb) - mongodb
+- [notify-bc-redis](https://github.com/bcgov/NotifyBC/pkgs/container/notify-bc-redis) - redis
+- [notify-bc-redis-sentinel](https://github.com/bcgov/NotifyBC/pkgs/container/notify-bc-redis-sentinel) - redis-sentinel
+
+Linux with latest version of Docker maybe necessary for successful build.

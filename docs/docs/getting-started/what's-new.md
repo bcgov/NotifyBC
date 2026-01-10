@@ -9,6 +9,12 @@ _NotifyBC_ uses [semantic versioning](https://semver.org/).
 
 ## v6
 
+### v6.4.0
+
+- Issue [#119](https://github.com/bcgov/NotifyBC/issues/119) Future-proof MongoDB and Redis helm charts. Bitnami images are now [built](../developer-notes/#build-bitnami-container-images) and distributed along with _NotifyBC_ image.
+- Bitnami Redis Helm chart is updated from version 20.4.1 to 24.1.0, with corresponding Redis from 7.4.1 to 8.4.0
+- Bitnami MongoDB Helm chart is updated from version 16.3.3 to 18.1.20, with corresponding MongoDB from 8.0.4 to 8.2.3
+
 ### v6.3.0
 
 - created helm repo under _gh-pages_ branch _helm_ folder and published helm chart

@@ -4,7 +4,8 @@
 
 global:
   security:
-    # necessary to use ghcr.io/bcgov/notify-bc-mongodb image
+    # necessary to use custom hosted Bitnami images such as
+    # ghcr.io/bcgov/notify-bc-mongodb
     allowInsecureImages: true
 
 replicaCount: 1
