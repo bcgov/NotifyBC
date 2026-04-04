@@ -343,7 +343,7 @@ export class NotificationsController {
 
   async sendPushNotification(data: Notification) {
     switch (data.isBroadcast) {
-      case false: {
+      case false:
         const sub: Partial<Subscription> =
           this.req['NotifyBC.subscription'] ?? {};
         const textBody =
@@ -361,8 +361,8 @@ export class NotificationsController {
               textBody,
               sub,
             );
-            return;
-          default: {
+            break;
+          default:
             const htmlBody =
               data.message.htmlBody &&
               this.commonService.mailMerge(
@@ -428,11 +428,15 @@ export class NotificationsController {
               data,
               this.req,
             );
-            return;
-          }
+            break;
         }
-      }
-      case true: {
+        await this.notificationsService.updateById(
+          data.id,
+          { state: 'sent' },
+          this.req,
+        );
+        break;
+      case true:
         // main request
         const subCandidates = await this.subscriptionsService.findAll(
           {
@@ -479,7 +483,6 @@ export class NotificationsController {
           children,
         });
         break;
-      }
     }
   }
 
