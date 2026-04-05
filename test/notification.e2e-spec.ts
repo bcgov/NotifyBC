@@ -403,6 +403,7 @@ describe('POST /notifications', () => {
         undefined,
       );
       expect(data.length).toEqual(1);
+      expect(data[0].state).toEqual('sent');
     });
   });
 
@@ -440,6 +441,7 @@ describe('POST /notifications', () => {
         undefined,
       );
       expect(data.length).toEqual(1);
+      expect(data[0].state).toEqual('sent');
     });
   });
 

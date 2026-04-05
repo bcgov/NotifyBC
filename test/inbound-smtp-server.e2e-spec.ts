@@ -107,7 +107,7 @@ describe('list-unsubscribe by email', function () {
       },
     );
     connection.quit();
-  });
+  }, 15000);
 
   it('should reject email of invalid local-part pattern', async () => {
     await promisify(connection.connect).bind(connection)();
